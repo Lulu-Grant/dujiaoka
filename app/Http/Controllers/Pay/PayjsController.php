@@ -3,12 +3,23 @@ namespace App\Http\Controllers\Pay;
 
 use App\Exceptions\RuleValidationException;
 use App\Http\Controllers\PayController;
+use App\Service\PayjsNotificationService;
 use Illuminate\Http\Request;
 use Xhat\Payjs\Facades\Payjs;
 
 
 class PayjsController extends PayController
 {
+    /**
+     * @var \App\Service\PayjsNotificationService
+     */
+    private $payjsNotificationService;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->payjsNotificationService = app(PayjsNotificationService::class);
+    }
 
     public function gateway(string $payway, string $orderSN)
     {
@@ -48,23 +59,9 @@ class PayjsController extends PayController
 
     public function notifyUrl(Request $request)
     {
-        $orderSN = $request->input('out_trade_no');
-        $order = $this->orderService->detailOrderSN($orderSN);
-        if (!$order) {
-            return 'error';
-        }
-        $payGateway = $this->payService->detail($order->pay_id);
-        if (!$payGateway) {
-            return 'error';
-        }
-        if($payGateway->pay_handleroute != '/pay/payjs'){
-            return 'fail';
-        }
-        config(['payjs.mchid' => $payGateway->merchant_id, 'payjs.key' => $payGateway->merchant_pem]);
-        $notify_info = Payjs::notify();
-        $totalFee = bcdiv($notify_info['total_fee'], 100, 2);
-        $this->orderProcessService->completedOrder($notify_info['out_trade_no'], $totalFee, $notify_info['payjs_order_id']);
-        return 'success';
+        return $this->payjsNotificationService->handleNotification(
+            (string) $request->input('out_trade_no')
+        );
     }
 
 }

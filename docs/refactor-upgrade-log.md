@@ -551,3 +551,27 @@
 下一步：
 
 - 继续评估 Payjs / Alipay 这类第三方 SDK 型回调，决定是继续抽 webhook 服务，还是进一步提炼统一网关适配层。
+
+### 22. 完成 Payjs 回调服务化改造
+
+摘要：
+
+- 新增 [PayjsNotificationService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PayjsNotificationService.php)，将 Payjs 回调里的上下文解析、配置注入和完成支付编排从控制器中抽离。
+- [PayjsController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/Pay/PayjsController.php) 现在只保留入口职责，第三方 SDK 回调开始进入“控制器薄壳 + 服务编排”的统一模式。
+- 这一步同时打通了第三方 facade 型支付回调的可测试路径，给后续 `Alipay` 等网关改造提供样板。
+
+影响范围：
+
+- Payjs 回调
+- 第三方 SDK 型支付回调的服务化模式
+- 支付层可测试性
+
+验证：
+
+- 新增 [PayjsNotificationServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/PayjsNotificationServiceTest.php)
+- 新增 [PayjsControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/PayjsControllerTest.php)
+- 当前全量回归结果：`OK (49 tests, 141 assertions)`
+
+下一步：
+
+- 沿用这套模式继续处理 Alipay / Wepay 这类 SDK 型回调，逐步统一支付层编排。
