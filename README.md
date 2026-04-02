@@ -6,7 +6,7 @@
 <a href="https://www.php.net/supported-versions.php"><img src="https://img.shields.io/badge/modernization-in%20progress-orange" alt="modernization in progress"></a>
 </p>
 
-# Dujiaoka🍉西瓜版超级维护版本
+# 🦄Dujiaoka🍉西瓜超级维护版本
 
 `Lulu-Grant/dujiaoka` 是基于原始 `assimon/dujiaoka` 停更项目继续维护的分叉版本。
 
