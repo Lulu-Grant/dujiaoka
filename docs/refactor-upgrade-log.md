@@ -1506,3 +1506,26 @@
 下一步：
 
 - 继续收敛 Stripe 的异常与状态处理边界，为后续 SDK 升级做好准备。
+
+### 62. 将 Stripe 异常与结算币种语义收敛到应用层
+
+摘要：
+
+- [StripePaymentService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripePaymentService.php) 现在会把 SDK 层异常统一包装成应用层 `PaymentGatewayException`，不再把底层错误直接泄漏到更高层。
+- [StripeController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/Pay/StripeController.php) 已改为处理应用层异常，而不是隐式依赖 SDK 行为。
+- `handleCardCharge()` 不再写死 `usd`，而是读取 `stripe_target_currency` 配置，保持与前面配置化边界一致。
+- 扩充 [StripePaymentServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/StripePaymentServiceTest.php)，守住异常边界和结算币种读取行为。
+
+影响范围：
+
+- Stripe 支付状态处理
+- Stripe 控制器异常边界
+- Stripe 结算币种语义
+
+验证：
+
+- 当前全量回归结果：`OK (83 tests, 236 assertions)`
+
+下一步：
+
+- 继续收敛 Stripe 里残留的状态处理假设，为后续独立升级 `stripe/stripe-php` 准备更稳定的边界。

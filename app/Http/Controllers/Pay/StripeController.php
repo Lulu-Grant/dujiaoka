@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pay;
 
+use App\Exceptions\PaymentGatewayException;
 use App\Exceptions\RuleValidationException;
 use App\Http\Controllers\PayController;
 use App\Service\StripeCheckoutService;
@@ -67,7 +68,11 @@ class StripeController extends PayController
     {
 
         $data = $request->all();
-        $this->stripePaymentService->handleReturn($data['orderid'], $data['source']);
+        try {
+            $this->stripePaymentService->handleReturn($data['orderid'], $data['source']);
+        } catch (PaymentGatewayException $exception) {
+            return $this->err($exception->getMessage());
+        }
         return redirect(url('detail-order-sn', ['orderSN' => $data['orderid']]));
     }
 
@@ -75,7 +80,11 @@ class StripeController extends PayController
     {
 
         $data = $request->all();
-        return $this->stripePaymentService->handleSourceCheck($data['orderid'], $data['source']);
+        try {
+            return $this->stripePaymentService->handleSourceCheck($data['orderid'], $data['source']);
+        } catch (PaymentGatewayException $exception) {
+            return $exception->getMessage();
+        }
 
     }
 
@@ -89,7 +98,11 @@ class StripeController extends PayController
 
         $usdAmount = (float) bcmul($this->getUsdCurrency($cacheord->actual_price), 100, 0);
 
-        return $this->stripePaymentService->handleCardCharge($data['orderid'], $data['stripeToken'], $usdAmount);
+        try {
+            return $this->stripePaymentService->handleCardCharge($data['orderid'], $data['stripeToken'], $usdAmount);
+        } catch (PaymentGatewayException $exception) {
+            return $exception->getMessage();
+        }
     }
 
     /**

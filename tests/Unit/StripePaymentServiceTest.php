@@ -93,6 +93,25 @@ class StripePaymentServiceTest extends TestCase
         $this->assertSame('tok_success', $order->trade_no);
     }
 
+    public function test_handle_card_charge_reads_configured_target_currency(): void
+    {
+        config(['dujiaoka.stripe_target_currency' => 'EUR']);
+        $order = $this->createStripeOrder('STRIPE-CHARGE-CURRENCY-001');
+
+        $sdk = \Mockery::mock(StripeGatewayClientInterface::class);
+        $sdk->shouldReceive('setApiKey')->once()->with('stripe-secret-key');
+        $sdk->shouldReceive('createCharge')->once()->with([
+            'amount' => 130,
+            'currency' => 'eur',
+            'source' => 'tok_currency',
+        ])->andReturn((object) ['status' => 'pending']);
+        app()->instance(StripeGatewayClientInterface::class, $sdk);
+
+        $response = app(StripePaymentService::class)->handleCardCharge($order->order_sn, 'tok_currency', 130);
+
+        $this->assertSame('pending', $response);
+    }
+
     private function createStripeOrder(string $orderSn): Order
     {
         $group = GoodsGroup::query()->create([
