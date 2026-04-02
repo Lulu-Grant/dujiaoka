@@ -1134,3 +1134,49 @@
 下一步：
 
 - 继续回到主线整改，推进升级前清障与后台替换评估。
+
+### 46. 启动升级前清障与后台替换评估
+
+摘要：
+
+- 新增了 [upgrade-readiness-checklist.md](/Users/apple/Documents/dujiaoshuka/docs/upgrade-readiness-checklist.md)，把下一阶段的主要阻塞分成运行时依赖、后台框架、支付 SDK 和 Laravel 6 时代写法四类。
+- 新增了 [admin-replacement-assessment.md](/Users/apple/Documents/dujiaoshuka/docs/admin-replacement-assessment.md)，对当前 `app/Admin` 与 Dcat 的耦合程度做了盘点，并给出“先降耦合、后替后台壳”的建议结论。
+- 同步更新了 [modernization-roadmap.md](/Users/apple/Documents/dujiaoshuka/docs/modernization-roadmap.md) 与 [rectification-execution-plan.md](/Users/apple/Documents/dujiaoshuka/docs/rectification-execution-plan.md)，让主线计划进入升级前清障阶段时有明确依据。
+
+影响范围：
+
+- 下一阶段整改优先级
+- 后台替换时机判断
+- Laravel / PHP 升级前的准备路径
+
+验证：
+
+- 阻塞项、后台耦合面与建议执行顺序已形成书面依据。
+- 当前全量回归结果：`OK (70 tests, 198 assertions)`
+
+下一步：
+
+- 开始为阻塞依赖建立“保留 / 替换 / 移除”矩阵，并优先处理 QRCode、Geetest 与测试依赖链。
+
+### 47. 建立阻塞依赖执行矩阵
+
+摘要：
+
+- 新增了 [dependency-blocker-matrix.md](/Users/apple/Documents/dujiaoshuka/docs/dependency-blocker-matrix.md)，将当前关键阻塞依赖按用途、阻塞级别、建议动作和执行顺序整理成矩阵。
+- 这份矩阵明确区分了三类问题：现代 PHP 直接阻塞链、支付 SDK 阻塞链、后台生态阻塞链。
+- 当前建议的默认优先顺序已收敛为：`phpspec/prophecy`、`germey/geetest`、`simple-qrcode` / `bacon`。
+
+影响范围：
+
+- 依赖治理优先级
+- 升级前清障执行顺序
+- 后续包替换决策依据
+
+验证：
+
+- 阻塞包已有明确的“保留 / 替换 / 移除”判断依据。
+- 当前全量回归结果：`OK (70 tests, 198 assertions)`
+
+下一步：
+
+- 开始处理第一条非业务阻塞链，优先确认 `phpspec/prophecy` 的移除路径。

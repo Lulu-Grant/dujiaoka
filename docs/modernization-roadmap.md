@@ -249,6 +249,12 @@ Decision factors:
 - how much custom admin behavior exists
 - whether the storefront needs a redesigned public API
 
+Status update:
+
+- backend replacement evaluation has now started on the maintenance branch
+- current conclusion is to reduce Dcat coupling first, then choose the replacement shell later
+- see [admin-replacement-assessment.md](/Users/apple/Documents/dujiaoshuka/docs/admin-replacement-assessment.md)
+
 ## 5. Priority Backlog
 
 Immediate priority:
