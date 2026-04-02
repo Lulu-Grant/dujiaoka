@@ -6,6 +6,7 @@ use App\Exceptions\RuleValidationException;
 use App\Http\Controllers\PayController;
 use App\Service\PaypalCheckoutService;
 use App\Service\PaypalReturnService;
+use App\Service\PaypalWebhookService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use PayPal\Exception\PayPalConnectionException;
@@ -22,11 +23,17 @@ class PaypalPayController extends PayController
      */
     private $paypalCheckoutService;
 
+    /**
+     * @var \App\Service\PaypalWebhookService
+     */
+    private $paypalWebhookService;
+
     public function __construct()
     {
         parent::__construct();
         $this->paypalReturnService = app(PaypalReturnService::class);
         $this->paypalCheckoutService = app(PaypalCheckoutService::class);
+        $this->paypalWebhookService = app(PaypalWebhookService::class);
     }
 
     public function gateway(string $payway, string $orderSN)
@@ -76,24 +83,9 @@ class PaypalPayController extends PayController
      */
     public function notifyUrl(Request $request)
     {
-        //获取回调结果
-        $json_data = $this->get_JsonData();
-        if(!empty($json_data)){
-            Log::debug("paypal notify info:\r\n" . json_encode($json_data));
-        }else{
-            Log::debug("paypal notify fail:参加为空");
-        }
+        $this->paypalWebhookService->handleWebhook($request);
 
-    }
-
-    private function get_JsonData()
-    {
-        $json = file_get_contents('php://input');
-        if ($json) {
-            $json = str_replace("'", '', $json);
-            $json = json_decode($json,true);
-        }
-        return $json;
+        return response('ignored', 202);
     }
 
 }

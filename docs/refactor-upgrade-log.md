@@ -1391,3 +1391,26 @@
 下一步：
 
 - 继续梳理 `PayPal` 旧 SDK 仍残留的同步返回/异步通知假设，准备进入真正的替换实施阶段。
+
+### 57. 将 PayPal webhook 占位实现服务化，明确同步优先模型
+
+摘要：
+
+- 新增 [PaypalWebhookService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalWebhookService.php)，将原来控制器里直接读取 `php://input` 的临时实现收口为服务。
+- [PaypalPayController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/Pay/PaypalPayController.php) 的 `notifyUrl()` 现在只负责委托服务处理并返回明确的 `202 ignored` 响应。
+- 新增 [PaypalWebhookServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/PaypalWebhookServiceTest.php)，并扩充 [PaypalPayControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/PaypalPayControllerTest.php)，守住 webhook 占位入口的当前行为。
+- 在迁移文档中明确：当前 PayPal 主链依旧以同步 return 完成支付为准，webhook 仍是待决定的替换约束，而不再是隐式实现。
+
+影响范围：
+
+- PayPal 异步通知入口
+- PayPal 替换约束梳理
+- 控制器直接读取原始输入流的旧实现
+
+验证：
+
+- 当前全量回归结果：`OK (70 tests, 211 assertions)`
+
+下一步：
+
+- 继续整理 `PayPal` 替换实施所需的最终约束，准备进入旧 SDK 真正退场前的实现切换阶段。

@@ -11,6 +11,7 @@ use App\Models\Pay;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
 class PaypalPayControllerTest extends TestCase
@@ -61,6 +62,25 @@ class PaypalPayControllerTest extends TestCase
         $response = app(PaypalPayController::class)->returnUrl($request);
 
         $this->assertSame('error', $response);
+    }
+
+    public function test_notify_url_returns_accepted_for_placeholder_webhook(): void
+    {
+        Log::spy();
+        $request = Request::create(
+            '/pay/paypal/notify_url',
+            'POST',
+            [],
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['id' => 'PAYPAL-WEBHOOK-001'])
+        );
+
+        $response = app(PaypalPayController::class)->notifyUrl($request);
+
+        $this->assertSame(202, $response->getStatusCode());
+        $this->assertSame('ignored', $response->getContent());
     }
 
     private function createPaypalOrder(string $orderSn, string $handlerRoute = '/pay/paypal'): Order
