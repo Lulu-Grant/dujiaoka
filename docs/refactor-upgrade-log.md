@@ -1251,3 +1251,29 @@
 下一步：
 
 - 继续进入下一组高优先级阻塞，开始评估 `paypal/rest-api-sdk-php` 与 `stripe/stripe-php` 的替换顺序。
+
+### 51. 退役 Paysapi / Vpay / PayJS，并收紧 PayPal SDK 边界
+
+摘要：
+
+- 将 `Paysapi`、`Vpay`、`PayJS` 三个已落后的支付通道正式定义为新版本不再维护，并从支付路由、控制器、服务与测试基线中移除。
+- 同步从 [composer.json](/Users/apple/Documents/dujiaoshuka/composer.json) 与 [composer.lock](/Users/apple/Documents/dujiaoshuka/composer.lock) 中移除了 `xhat/payjs-laravel`。
+- 在 [Pay.php](/Users/apple/Documents/dujiaoshuka/app/Models/Pay.php)、[PayService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PayService.php) 与 [PayEntryService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PayEntryService.php) 中加入退役通道规则，使数据库中残留的旧网关配置也不会再进入前台主路径。
+- 新增了 [PaypalSdkService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalSdkService.php)，将旧 PayPal REST SDK 访问收敛为单点服务，`PaypalCheckoutService` 与 `PaypalReturnService` 现在只通过它触达旧 SDK。
+- 新增了 [RetiredGatewayTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/RetiredGatewayTest.php)，确保退役通道不会再出现在支付列表里，并会向用户返回明确的“已停止维护”提示。
+
+影响范围：
+
+- 新版本支付通道维护范围
+- PayJS 依赖链
+- 支付入口过滤规则
+- PayPal 历史 SDK 隔离边界
+
+验证：
+
+- `./scripts/composer74 why xhat/payjs-laravel` 已确认当前项目中找不到该包。
+- 当前全量回归结果：`OK (67 tests, 196 assertions)`
+
+下一步：
+
+- 继续聚焦仍保留的新版本支付通道，开始制定 `paypal/rest-api-sdk-php` 与 `stripe/stripe-php` 的替换顺序与单点清障方案。

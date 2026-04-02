@@ -8,6 +8,7 @@ use App\Models\GoodsGroup;
 use App\Models\Order;
 use App\Models\Pay;
 use App\Service\PaypalReturnService;
+use App\Service\PaypalSdkService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Cache;
@@ -47,13 +48,7 @@ class PaypalReturnServiceTest extends TestCase
     public function test_handle_approved_return_returns_error_for_invalid_gateway(): void
     {
         $order = $this->createPaypalOrder('PAYPAL-RETURN-ERROR-001', '/pay/not-paypal');
-
-        $service = new class extends PaypalReturnService {
-            protected function loadPayment(string $paymentId, \PayPal\Rest\ApiContext $paypal): \PayPal\Api\Payment
-            {
-                throw new \RuntimeException('should not be called');
-            }
-        };
+        $service = app(PaypalReturnService::class);
 
         $this->assertSame('error', $service->handleApprovedReturn($order->order_sn, 'PAY-ID', 'PAYER-ID'));
     }
@@ -62,21 +57,20 @@ class PaypalReturnServiceTest extends TestCase
     {
         $order = $this->createPaypalOrder('PAYPAL-RETURN-SUCCESS-001');
 
-        $service = new class extends PaypalReturnService {
-            protected function loadPayment(string $paymentId, \PayPal\Rest\ApiContext $paypal): \PayPal\Api\Payment
-            {
-                return \Mockery::mock(\PayPal\Api\Payment::class);
-            }
+        $sdkService = \Mockery::mock(PaypalSdkService::class);
+        $sdkService->shouldReceive('makeApiContext')
+            ->once()
+            ->andReturn(\Mockery::mock(\PayPal\Rest\ApiContext::class));
+        $sdkService->shouldReceive('loadPayment')
+            ->once()
+            ->with('PAY-ID-SUCCESS', \Mockery::type(\PayPal\Rest\ApiContext::class))
+            ->andReturn(\Mockery::mock(\PayPal\Api\Payment::class));
+        $sdkService->shouldReceive('executeApprovedPayment')
+            ->once()
+            ->with(\Mockery::type(\PayPal\Api\Payment::class), 'PAYER-ID-SUCCESS', \Mockery::type(\PayPal\Rest\ApiContext::class));
+        app()->instance(PaypalSdkService::class, $sdkService);
 
-            protected function makePaymentExecution(string $payerId): \PayPal\Api\PaymentExecution
-            {
-                return \Mockery::mock(\PayPal\Api\PaymentExecution::class);
-            }
-
-            protected function executePayment(\PayPal\Api\Payment $payment, \PayPal\Api\PaymentExecution $execute, \PayPal\Rest\ApiContext $paypal): void
-            {
-            }
-        };
+        $service = app(PaypalReturnService::class);
 
         $response = $service->handleApprovedReturn($order->order_sn, 'PAY-ID-SUCCESS', 'PAYER-ID-SUCCESS');
 

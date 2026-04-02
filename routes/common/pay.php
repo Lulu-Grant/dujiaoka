@@ -21,13 +21,6 @@ Route::group(['prefix' => 'pay', 'namespace' => 'Pay', 'middleware' => ['dujiaok
     // 码支付
     Route::get('mapay/{payway}/{orderSN}', 'MapayController@gateway');
     Route::post('mapay/notify_url', 'MapayController@notifyUrl');
-    // Paysapi
-    Route::get('paysapi/{payway}/{orderSN}', 'PaysapiController@gateway');
-    Route::post('paysapi/notify_url', 'PaysapiController@notifyUrl');
-    Route::get('paysapi/return_url', 'PaysapiController@returnUrl')->name('paysapi-return');
-    // payjs
-    Route::get('payjs/{payway}/{orderSN}', 'PayjsController@gateway');
-    Route::post('payjs/notify_url', 'PayjsController@notifyUrl');
     // 易支付
     Route::get('yipay/{payway}/{orderSN}', 'YipayController@gateway');
     Route::get('yipay/notify_url', 'YipayController@notifyUrl');
@@ -36,10 +29,6 @@ Route::group(['prefix' => 'pay', 'namespace' => 'Pay', 'middleware' => ['dujiaok
     Route::get('paypal/{payway}/{orderSN}', 'PaypalPayController@gateway');
     Route::get('paypal/return_url', 'PaypalPayController@returnUrl')->name('paypal-return');
     Route::any('paypal/notify_url', 'PaypalPayController@notifyUrl');
-    // V免签
-    Route::get('vpay/{payway}/{orderSN}', 'VpayController@gateway');
-    Route::get('vpay/notify_url', 'VpayController@notifyUrl');
-    Route::get('vpay/return_url', 'VpayController@returnUrl')->name('vpay-return');
     // stripe
     Route::get('stripe/{payway}/{oid}','StripeController@gateway');
     Route::get('stripe/return_url','StripeController@returnUrl');

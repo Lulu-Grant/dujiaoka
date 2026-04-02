@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3d0b932d796066feec0d67692c4cc261",
+    "content-hash": "50e054daf042dcf7d1d08a4c72e6b32b",
     "packages": [
         {
             "name": "amrshawky/currency",
@@ -5348,65 +5348,6 @@
                 }
             ],
             "time": "2021-12-12T23:02:06+00:00"
-        },
-        {
-            "name": "xhat/payjs-laravel",
-            "version": "1.6.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/xhat/payjs-laravel.git",
-                "reference": "449e1e3e45e99fb05f9492111c3698e356e34b82"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/xhat/payjs-laravel/zipball/449e1e3e45e99fb05f9492111c3698e356e34b82",
-                "reference": "449e1e3e45e99fb05f9492111c3698e356e34b82",
-                "shasum": "",
-                "mirrors": [
-                    {
-                        "url": "https://mirrors.aliyun.com/composer/dists/%package%/%reference%.%type%",
-                        "preferred": true
-                    }
-                ]
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "Xhat\\Payjs\\PayjsServiceProvider"
-                    ],
-                    "aliases": {
-                        "Payjs": "Xhat\\Payjs\\Facades\\Payjs"
-                    }
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Xhat\\Payjs\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "xhat",
-                    "email": "andy@popfeng.com"
-                }
-            ],
-            "description": "基于 PAYJS 的 API 开发的 Composer Laravel Package，可直接用于生产环境 https://payjs.cn",
-            "support": {
-                "issues": "https://github.com/xhat/payjs-laravel/issues",
-                "source": "https://github.com/xhat/payjs-laravel/tree/1.6.0"
-            },
-            "funding": [
-                {
-                    "url": "https://payjs.cn/sponsor/dajjxz",
-                    "type": "custom"
-                }
-            ],
-            "time": "2020-11-18T02:27:25+00:00"
         },
         {
             "name": "yansongda/pay",

@@ -30,6 +30,7 @@ class PayService
         $payGateway = Pay::query()
             ->whereIn('pay_client', [$payClient, Pay::PAY_CLIENT_ALL])
             ->where('is_open', Pay::STATUS_OPEN)
+            ->whereNotIn('pay_check', Pay::RETIRED_GATEWAYS)
             ->get();
         return $payGateway ? $payGateway->toArray() : null;
     }
@@ -50,6 +51,9 @@ class PayService
             ->where('pay_check', $check)
             ->where('is_open', Pay::STATUS_OPEN)
             ->first();
+        if ($gateway && Pay::isRetiredGateway($gateway->pay_check)) {
+            return null;
+        }
         return $gateway;
     }
 
@@ -69,6 +73,9 @@ class PayService
             ->where('id', $id)
             ->where('is_open', Pay::STATUS_OPEN)
             ->first();
+        if ($gateway && Pay::isRetiredGateway($gateway->pay_check)) {
+            return null;
+        }
         return $gateway;
     }
 

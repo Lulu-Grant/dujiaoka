@@ -8,6 +8,7 @@ use App\Models\GoodsGroup;
 use App\Models\Order;
 use App\Models\Pay;
 use App\Service\PaypalCheckoutService;
+use App\Service\PaypalSdkService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
@@ -34,19 +35,20 @@ class PaypalCheckoutServiceTest extends TestCase
     {
         [$order, $payGateway] = $this->createPaypalContext('PAYPAL-CHECKOUT-001');
 
+        $sdkService = \Mockery::mock(PaypalSdkService::class);
+        $sdkService->shouldReceive('makeApiContext')
+            ->once()
+            ->andReturn(\Mockery::mock(\PayPal\Rest\ApiContext::class));
+        $sdkService->shouldReceive('createApprovalLink')
+            ->once()
+            ->with($order, 1.23, \Mockery::type(\PayPal\Rest\ApiContext::class))
+            ->andReturn('https://paypal.example.com/approval');
+        app()->instance(PaypalSdkService::class, $sdkService);
+
         $service = new class extends PaypalCheckoutService {
             protected function convertAmount(float $amount): float
             {
                 return 1.23;
-            }
-
-            protected function makePayment(\App\Models\Order $order, float $total): \PayPal\Api\Payment
-            {
-                $payment = \Mockery::mock(\PayPal\Api\Payment::class);
-                $payment->shouldReceive('create')->once();
-                $payment->shouldReceive('getApprovalLink')->once()->andReturn('https://paypal.example.com/approval');
-
-                return $payment;
             }
         };
 

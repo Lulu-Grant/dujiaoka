@@ -66,6 +66,9 @@ class PayEntryService
         $order = $this->requirePayableOrder($orderSN);
         $payGateway = $this->payService->detailByCheck($payCheck);
         if (!$payGateway) {
+            if (Pay::isRetiredGateway($payCheck)) {
+                throw new RuleValidationException(__('dujiaoka.prompt.pay_gateway_retired'));
+            }
             throw new RuleValidationException(__('dujiaoka.prompt.pay_gateway_does_not_exist'));
         }
 

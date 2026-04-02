@@ -4,10 +4,6 @@ namespace App\Service;
 
 use App\Models\Order;
 use App\Models\Pay;
-use PayPal\Api\Payment;
-use PayPal\Api\PaymentExecution;
-use PayPal\Auth\OAuthTokenCredential;
-use PayPal\Rest\ApiContext;
 
 class PaypalReturnService
 {
@@ -16,9 +12,15 @@ class PaypalReturnService
      */
     private $paymentCallbackService;
 
+    /**
+     * @var \App\Service\PaypalSdkService
+     */
+    private $paypalSdkService;
+
     public function __construct()
     {
         $this->paymentCallbackService = app(PaymentCallbackService::class);
+        $this->paypalSdkService = app(PaypalSdkService::class);
     }
 
     /**
@@ -36,19 +38,11 @@ class PaypalReturnService
      * 构建 paypal API context
      *
      * @param Pay $payGateway
-     * @return ApiContext
+     * @return \PayPal\Rest\ApiContext
      */
-    public function makeApiContext(Pay $payGateway): ApiContext
+    public function makeApiContext(Pay $payGateway)
     {
-        $paypal = new ApiContext(
-            new OAuthTokenCredential(
-                $payGateway->merchant_key,
-                $payGateway->merchant_pem
-            )
-        );
-        $paypal->setConfig(['mode' => 'live']);
-
-        return $paypal;
+        return $this->paypalSdkService->makeApiContext($payGateway);
     }
 
     /**
@@ -67,34 +61,15 @@ class PaypalReturnService
         }
 
         $paypal = $this->makeApiContext($payGateway);
-        $payment = $this->loadPayment($paymentId, $paypal);
-        $execute = $this->makePaymentExecution($payerId);
 
         try {
-            $this->executePayment($payment, $execute, $paypal);
+            $payment = $this->paypalSdkService->loadPayment($paymentId, $paypal);
+            $this->paypalSdkService->executeApprovedPayment($payment, $payerId, $paypal);
             $this->paymentCallbackService->completeOrder($orderSN, (float) $order->actual_price, $paymentId);
 
             return 'success';
         } catch (\Exception $exception) {
             return 'fail';
         }
-    }
-
-    protected function loadPayment(string $paymentId, ApiContext $paypal): Payment
-    {
-        return Payment::get($paymentId, $paypal);
-    }
-
-    protected function makePaymentExecution(string $payerId): PaymentExecution
-    {
-        $execute = new PaymentExecution();
-        $execute->setPayerId($payerId);
-
-        return $execute;
-    }
-
-    protected function executePayment(Payment $payment, PaymentExecution $execute, ApiContext $paypal): void
-    {
-        $payment->execute($execute, $paypal);
     }
 }

@@ -16,15 +16,22 @@
 | Alipay | `/pay/alipay` | 已服务化 | 已拆出 `AlipayNotificationService` |
 | Wepay | `/pay/wepay` | 已服务化 | 已拆出 `WepayNotificationService` |
 | Mapay | `/pay/mapay` | 已接入统一通知骨架 | 控制器只保留签名规则 |
-| Paysapi | `/pay/paysapi` | 已接入统一通知骨架 | 已复用 `PaymentCallbackService` |
 | Yipay | `/pay/yipay` | 已接入统一通知骨架 | 已复用 `PaymentCallbackService` |
-| Vpay | `/pay/vpay` | 已接入统一通知骨架 | 已修复 `pay_handleroute` 历史问题 |
 | Epusdt | `/pay/epusdt` | 已接入统一通知骨架 | 已修复 `pay_handleroute` 历史问题 |
 | TokenPay | `/pay/tokenpay` | 已接入统一通知骨架 | 已修复 `pay_handleroute` 历史问题 |
-| Payjs | `/pay/payjs` | 已服务化 | 已拆出 `PayjsNotificationService` |
 | Coinbase | `/pay/coinbase` | 已服务化 | 已拆出 `CoinbaseWebhookService` |
-| Paypal | `/pay/paypal` | 部分服务化 | 已拆出 checkout / return 服务，异步通知仍待进一步处理 |
+| Paypal | `/pay/paypal` | 已服务化收口中 | 已将旧 SDK 访问收敛到 `PaypalSdkService` |
 | Stripe | `/pay/stripe` | 部分服务化 | 已拆出 `StripePaymentService`、`StripeCheckoutService`、`StripeCurrencyService`，剩余耦合已明显下降 |
+
+## 已退役通道
+
+以下通道已明确不纳入新版本维护范围，并已退出当前主线路由与支付入口：
+
+| 网关 | 状态 | 说明 |
+| --- | --- | --- |
+| Paysapi | 已退役 | 已从路由、控制器和测试基线移除 |
+| Vpay | 已退役 | 已从路由、控制器和测试基线移除 |
+| Payjs | 已退役 | 已从路由、控制器和依赖锁文件移除 |
 
 ## 整改优先级
 
@@ -39,8 +46,8 @@
 ### P1
 
 - Paypal
-  - 已有第一步服务化基础
-  - 仍需继续拆同步返回、异步通知、SDK 调用和状态流转
+  - 旧 SDK 已收敛到单点服务
+  - 下一步应直接准备替换 SDK 或改造为新接入方式
 
 ### P2
 
@@ -55,10 +62,11 @@
 
 - 通知型支付控制器的大部分重复逻辑已经被收敛
 - SDK 型支付回调已经有可复用服务化样板
-- 支付层剩余最高风险集中在 `StripeController` 和部分 `PaypalPayController`
+- 已明确退役 `Paysapi`、`Vpay`、`Payjs` 三个落后通道
+- 支付层剩余最高风险集中在 `StripeController` 与 PayPal 历史 SDK 本体
 
 ## 下一步默认动作
 
-1. 继续处理 Paypal 主流程
-2. 开始拆 Stripe 的支付创建、回调完成和页面渲染逻辑
+1. 继续推进 PayPal 历史 SDK 替换准备
+2. 开始评估 Stripe SDK 升级路径
 3. 视情况引入更显式的支付网关适配接口

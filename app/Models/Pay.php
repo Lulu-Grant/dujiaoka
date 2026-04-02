@@ -37,6 +37,20 @@ class Pay extends BaseModel
      */
     const PAY_CLIENT_ALL = 3;
 
+    /**
+     * 新版本已退役、不再维护的支付通道
+     */
+    const RETIRED_GATEWAYS = [
+        'paysapi',
+        'vpay',
+        'payjs',
+    ];
+
+    public static function isRetiredGateway(?string $payCheck): bool
+    {
+        return in_array(strtolower((string) $payCheck), self::RETIRED_GATEWAYS, true);
+    }
+
     public static function getMethodMap()
     {
         return [

@@ -116,6 +116,7 @@ return [
         'order_inconsistent_amounts' => '訂單金額不一致',
         'order_carmis_insufficient_quantity_available' => '庫存可使用卡密不足，請聯系管理員核查',
         'pay_gateway_does_not_exist' => '支付網關不存在',
+        'pay_gateway_retired' => '該支付通道已停止維護，請改用新版本支援的支付方式',
         'abnormal_payment_channel' => '支付網關異常！',
         'payment_successful' => '支付成功！',
         'copy_text_success' => '復製成功',
