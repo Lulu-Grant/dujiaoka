@@ -1483,3 +1483,26 @@
 下一步：
 
 - 继续梳理 `PayPal` 最终替换前仍保留的能力边界，准备把重心逐步切向 `Stripe` 升级链。
+
+### 61. 为 Stripe 抽离 URL 与币种边界
+
+摘要：
+
+- 新增 [StripeRouteService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripeRouteService.php)，统一承接 Stripe 结账页使用的 `return / detail / check / charge` URL 生成。
+- [StripeCheckoutService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripeCheckoutService.php) 不再自己拼接这些 URL，同时为后续升级预留了 `stripe_source_currency` 与 `stripe_target_currency` 配置边界。
+- 在 [config/dujiaoka.php](/Users/apple/Documents/dujiaoshuka/config/dujiaoka.php) 中新增 Stripe 币种配置，默认保持 `CNY -> USD`，但不再把这组假设写死在服务内部。
+- 新增 [StripeRouteServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/StripeRouteServiceTest.php)，并扩充 [StripeCheckoutServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/StripeCheckoutServiceTest.php)，守住 Stripe 结账页边界。
+
+影响范围：
+
+- Stripe 结账页 URL 生成
+- Stripe 币种配置边界
+- Stripe SDK 升级前清障
+
+验证：
+
+- 当前全量回归结果：`OK (82 tests, 233 assertions)`
+
+下一步：
+
+- 继续收敛 Stripe 的异常与状态处理边界，为后续 SDK 升级做好准备。

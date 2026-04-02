@@ -13,6 +13,8 @@ return [
     'paypal_mode' => env('DUJIAOKA_PAYPAL_MODE', 'live'),
     'paypal_source_currency' => env('DUJIAOKA_PAYPAL_SOURCE_CURRENCY', 'CNY'),
     'paypal_target_currency' => env('DUJIAOKA_PAYPAL_TARGET_CURRENCY', 'USD'),
+    'stripe_source_currency' => env('DUJIAOKA_STRIPE_SOURCE_CURRENCY', 'CNY'),
+    'stripe_target_currency' => env('DUJIAOKA_STRIPE_TARGET_CURRENCY', 'USD'),
     // 模板集合
     'templates' => [
         'avatar' => 'Avatar[modernized-default]',

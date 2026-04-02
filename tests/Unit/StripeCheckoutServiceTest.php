@@ -8,6 +8,7 @@ use App\Models\GoodsGroup;
 use App\Models\Order;
 use App\Models\Pay;
 use App\Service\StripeCheckoutService;
+use App\Service\StripeRouteService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
@@ -45,6 +46,27 @@ class StripeCheckoutServiceTest extends TestCase
                         return 1.30;
                     }
                 };
+                $this->stripeRouteService = new class extends StripeRouteService {
+                    public function returnUrl(\App\Models\Order $order, \App\Models\Pay $payGateway): string
+                    {
+                        return 'https://example.com/pay/stripe/return_url/?orderid=' . $order->order_sn;
+                    }
+
+                    public function detailUrl(\App\Models\Order $order): string
+                    {
+                        return 'https://example.com/detail-order-sn/' . $order->order_sn;
+                    }
+
+                    public function checkUrl(): string
+                    {
+                        return 'https://example.com/pay/stripe/check';
+                    }
+
+                    public function chargeUrl(): string
+                    {
+                        return 'https://example.com/pay/stripe/charge';
+                    }
+                };
 
                 return parent::buildCheckoutViewData($order, $payGateway);
             }
@@ -56,6 +78,27 @@ class StripeCheckoutServiceTest extends TestCase
         $this->assertSame($payGateway->merchant_id, $data['publishable_key']);
         $this->assertSame(1000.0, $data['amount_cny']);
         $this->assertSame(130.0, $data['amount_usd']);
+    }
+
+    public function test_checkout_service_reads_configured_currencies(): void
+    {
+        config([
+            'dujiaoka.stripe_source_currency' => 'SGD',
+            'dujiaoka.stripe_target_currency' => 'EUR',
+        ]);
+
+        $service = new class extends StripeCheckoutService {
+            public function __construct()
+            {
+            }
+
+            public function currencies(): array
+            {
+                return [$this->getSourceCurrency(), $this->getTargetCurrency()];
+            }
+        };
+
+        $this->assertSame(['SGD', 'EUR'], $service->currencies());
     }
 
     private function createStripeContext(string $orderSn): array
