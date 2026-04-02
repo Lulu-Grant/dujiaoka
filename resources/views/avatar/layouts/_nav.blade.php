@@ -1,13 +1,18 @@
-<div class="header-navbar">
-    <div class="container header-flex">
-        <!-- LOGO -->
-        <a href="/" class="topnav-logo" style="float: none;">
-            <img src="{{ picture_ulr(dujiaoka_config_get('img_logo')) }}" height="36">
-            <div class="logo-title">{{ dujiaoka_config_get('text_logo') }}</div>
+<div class="avatar-nav">
+    <div class="container avatar-nav-inner">
+        <a href="/" class="avatar-brand">
+            @if(dujiaoka_config_get('img_logo'))
+                <img src="{{ picture_ulr(dujiaoka_config_get('img_logo')) }}" alt="{{ dujiaoka_config_get('text_logo') }}">
+            @else
+                <span class="avatar-brand-mark">A</span>
+            @endif
+            <div class="avatar-brand-text">
+                <div class="avatar-brand-name">{{ dujiaoka_config_get('text_logo', 'Avatar Store') }}</div>
+                <div class="avatar-brand-tag">Digital checkout storefront</div>
+            </div>
         </a>
-        <a class="btn btn-outline-primary" href="{{ url('order-search') }}">
-            <i class="noti-icon uil-file-search-alt search-icon"></i>
-            查询订单
-        </a>
+        <div class="avatar-nav-actions">
+            <a class="avatar-nav-link" href="{{ url('order-search') }}">查询订单</a>
+        </div>
     </div>
 </div>

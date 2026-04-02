@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_','-',strtolower(app()->getLocale())) }}">
 @include('avatar.layouts._header')
-<body data-layout="topnav">
-    <div class="wrapper">
+<body class="avatar-theme" data-layout="topnav">
+    <div class="wrapper avatar-wrapper">
         <div class="content-page">
             <div class="content">
                 @include('avatar.layouts._nav')
-                <div class="container">
+                <div class="container avatar-page">
                     @yield('content')
                 </div>
             </div><!-- content -->

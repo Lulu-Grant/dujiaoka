@@ -1,68 +1,61 @@
 @extends('avatar.layouts.default')
 @section('content')
-<div class="row">
-    <div class="col-12">
-        <div class="page-title-box">
-            <div class="page-title-right">
-                <div class="app-search">
-                    <div class="position-relative">
-                        <input type="text" class="form-control" id="search" placeholder="{{ __('hyper.home_search_box') }}">
-                        <span class="uil-search"></span>
-                    </div>
-                </div>
-            </div>
-            <h4 class="page-title">
-                <button type="button" class="btn btn-outline-primary ml-1" id="notice-open">
-                    <i class="uil-comment-alt-notes me-1"></i>
-                    {{-- 公告 --}}
-                    {{ __('hyper.notice_announcement') }}
-                </button>
-            </h4>
+<section class="avatar-hero">
+    <div class="avatar-hero-copy">
+        <span class="avatar-eyebrow">Avatar Default Theme</span>
+        <h1>{{ dujiaoka_config_get('title') }}</h1>
+        <p>{{ dujiaoka_config_get('description') ?: '更清晰的商品浏览，更顺滑的下单入口，以及更现代的前台视觉。' }}</p>
+        <div class="avatar-hero-actions">
+            <button type="button" class="avatar-primary-btn" id="notice-open">{{ __('hyper.notice_announcement') }}</button>
+            <a class="avatar-secondary-btn" href="{{ url('order-search') }}">查询订单</a>
         </div>
     </div>
-</div>
-<div class="nav nav-list">
-    <a href="#group-all" class="tab-link active" data-bs-toggle="tab" aria-expanded="false" role="tab" data-toggle="tab">
+    <div class="avatar-hero-art">
+        <img src="/assets/avatar/images/index-img.webp" alt="Avatar Theme">
+    </div>
+</section>
+<section class="avatar-toolbar">
+    <div class="avatar-search">
+        <input type="text" class="form-control" id="search" placeholder="{{ __('hyper.home_search_box') }}">
+    </div>
+    <div class="avatar-category-tabs nav nav-list">
+        <a href="#group-all" class="tab-link active" data-bs-toggle="tab" aria-expanded="false" role="tab" data-toggle="tab">
         <span class="tab-title">
-        {{-- 全部 --}}
-        {{ __('hyper.home_whole') }}
+            {{ __('hyper.home_whole') }}
         </span>
         <div class="img-checkmark">
             <img src="/assets/avatar/images/check.png">
         </div>
-    </a>
-    @foreach($data as  $index => $group)
-    <a href="#group-{{ $group['id'] }}" class="tab-link" data-bs-toggle="tab" aria-expanded="false" role="tab" data-toggle="tab">
-        <span class="tab-title">
-            {{ $group['gp_name'] }}
-        </span>
-        <div class="img-checkmark">
-            <img src="/assets/avatar/images/check.png">
-        </div>
-    </a>
-    @endforeach
-</div>
+        </a>
+        @foreach($data as  $index => $group)
+            <a href="#group-{{ $group['id'] }}" class="tab-link" data-bs-toggle="tab" aria-expanded="false" role="tab" data-toggle="tab">
+                <span class="tab-title">{{ $group['gp_name'] }}</span>
+                <div class="img-checkmark">
+                    <img src="/assets/avatar/images/check.png">
+                </div>
+            </a>
+        @endforeach
+    </div>
+</section>
 <div class="tab-content">
     <div class="tab-pane active" id="group-all">
-        <div class="hyper-wrapper">
+        <div class="avatar-grid">
             @foreach($data as $group)
                 @foreach($group['goods'] as $goods)
                     @if($goods['in_stock'] > 0)
-                    <a href="{{ url("/buy/{$goods['id']}") }}" class="home-card category">
+                    <a href="{{ url("/buy/{$goods['id']}") }}" class="avatar-card category">
                     @else
-                    <a href="javascript:void(0);" onclick="sell_out_tip()" class="home-card category ribbon-box">
-                        <div class="ribbon-two ribbon-two-danger">
-                            {{-- 缺货 --}}
-                            <span>{{ __('hyper.home_out_of_stock') }}</span>
-                        </div>
+                    <a href="javascript:void(0);" onclick="sell_out_tip()" class="avatar-card category ribbon-box">
+                        <div class="avatar-sold-out">{{ __('hyper.home_out_of_stock') }}</div>
                     @endif
-                        <img class="home-img" src="/assets/avatar/images/loading.gif" data-src="{{ picture_ulr($goods['picture']) }}">
-                        <div class="flex">
-                            <p class="name">
-                                {{ $goods['gd_name'] }}
-                            </p>
-                            <div class="price">
-                                {{ __('hyper.global_currency') }}<b>{{ $goods['actual_price'] }}</b>
+                        <div class="avatar-card-media">
+                            <img class="home-img" src="/assets/avatar/images/loading.gif" data-src="{{ picture_ulr($goods['picture']) }}">
+                        </div>
+                        <div class="avatar-card-body">
+                            <p class="avatar-card-name">{{ $goods['gd_name'] }}</p>
+                            <div class="avatar-card-meta">
+                                <span class="avatar-card-price">{{ __('hyper.global_currency') }}<b>{{ $goods['actual_price'] }}</b></span>
+                                <span class="avatar-card-stock">库存 {{ $goods['in_stock'] }}</span>
                             </div>
                         </div>
                     </a>
@@ -72,24 +65,22 @@
     </div>
     @foreach($data as  $index => $group)
         <div class="tab-pane" id="group-{{ $group['id'] }}">
-            <div class="hyper-wrapper">
+            <div class="avatar-grid">
                 @foreach($group['goods'] as $goods)
                     @if($goods['in_stock'] > 0)
-                    <a href="{{ url("/buy/{$goods['id']}") }}" class="home-card category">
+                    <a href="{{ url("/buy/{$goods['id']}") }}" class="avatar-card category">
                     @else
-                    <a href="javascript:void(0);" onclick="sell_out_tip()" class="home-card category ribbon-box">
-                        <div class="ribbon-two ribbon-two-danger">
-                            {{-- 缺货 --}}
-                            <span>{{ __('hyper.home_out_of_stock') }}</span>
-                        </div>
+                    <a href="javascript:void(0);" onclick="sell_out_tip()" class="avatar-card category ribbon-box">
+                        <div class="avatar-sold-out">{{ __('hyper.home_out_of_stock') }}</div>
                     @endif
-                        <img class="home-img" src="/assets/avatar/images/loading.gif" data-src="{{ picture_ulr($goods['picture']) }}">
-                        <div class="flex">
-                            <p class="name">
-                                {{ $goods['gd_name'] }}
-                            </p>
-                            <div class="price">
-                                {{ __('hyper.global_currency') }}<b>{{ $goods['actual_price'] }}</b>
+                        <div class="avatar-card-media">
+                            <img class="home-img" src="/assets/avatar/images/loading.gif" data-src="{{ picture_ulr($goods['picture']) }}">
+                        </div>
+                        <div class="avatar-card-body">
+                            <p class="avatar-card-name">{{ $goods['gd_name'] }}</p>
+                            <div class="avatar-card-meta">
+                                <span class="avatar-card-price">{{ __('hyper.global_currency') }}<b>{{ $goods['actual_price'] }}</b></span>
+                                <span class="avatar-card-stock">库存 {{ $goods['in_stock'] }}</span>
                             </div>
                         </div>
                     </a>

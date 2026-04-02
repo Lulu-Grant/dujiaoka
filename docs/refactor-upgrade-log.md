@@ -797,3 +797,25 @@
 下一步：
 
 - 验证 avatar 主题页面可正常渲染，并继续微调其兼容层样式与资源引用。
+
+### 32. 完成 Avatar 主题首页与布局第一轮细化
+
+摘要：
+
+- 重新设计了 [avatar/layouts/_nav.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/avatar/layouts/_nav.blade.php)、[avatar/layouts/_footer.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/avatar/layouts/_footer.blade.php) 和 [avatar/static_pages/home.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/avatar/static_pages/home.blade.php) 的主题结构。
+- 扩展了 [public/assets/avatar/css/avatar.css](/Users/apple/Documents/dujiaoshuka/public/assets/avatar/css/avatar.css)，为 avatar 主题补上导航、英雄区、分类标签、商品卡片和页脚的完整视觉层。
+- 这一步让 avatar 从“兼容接入可运行”进一步提升到“具备明确前台默认主题观感”的状态。
+
+影响范围：
+
+- Avatar 首页
+- Avatar 导航与页脚
+- Avatar 主题视觉表达
+
+验证：
+
+- 当前全量回归结果：`OK (65 tests, 172 assertions)`
+
+下一步：
+
+- 继续细化 avatar 的购买页、订单详情页和搜索页，让新主题在主流程页面上形成更一致的视觉语言。
