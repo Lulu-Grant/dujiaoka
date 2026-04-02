@@ -16,5 +16,14 @@ services:
     environment:
       WEB_DOCUMENT_ROOT: "/app/public"
       TZ: Asia/Shanghai
+      QUEUE_CONNECTION: "sync"
+      DUJIAOKA_ASYNC_SIDE_EFFECTS: "false"
     tty: true
     restart: always
+
+# 本项目默认不依赖常驻 queue worker 或 supervisor。
+# 建议使用宿主机 cron 驱动 Laravel scheduler：
+# * * * * * docker compose exec -T web php /app/artisan schedule:run >/dev/null 2>&1
+#
+# 如果你只想单独执行订单过期扫描，也可以改成：
+# * * * * * docker compose exec -T web php /app/artisan orders:expire >/dev/null 2>&1

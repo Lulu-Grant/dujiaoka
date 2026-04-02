@@ -1,0 +1,3 @@
+#!/bin/sh
+
+exec /opt/homebrew/opt/php@7.4/bin/php /opt/homebrew/bin/composer "$@"

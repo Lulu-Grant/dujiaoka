@@ -57,7 +57,7 @@ class OrderExpired implements ShouldQueue
         if ($order && $order->status == Order::STATUS_WAIT_PAY) {
             app('Service\OrderService')->expiredOrderSN($this->orderSN);
             // 回退优惠券
-            CouponBack::dispatch($order);
+            app(\App\Service\SideEffectDispatcherService::class)->dispatch(new CouponBack($order));
         }
     }
 }
