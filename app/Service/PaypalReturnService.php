@@ -4,6 +4,8 @@ namespace App\Service;
 
 use App\Models\Order;
 use App\Models\Pay;
+use PayPal\Api\Payment;
+use PayPal\Api\PaymentExecution;
 use PayPal\Auth\OAuthTokenCredential;
 use PayPal\Rest\ApiContext;
 
@@ -47,5 +49,52 @@ class PaypalReturnService
         $paypal->setConfig(['mode' => 'live']);
 
         return $paypal;
+    }
+
+    /**
+     * 处理 paypal 同步返回并完成订单
+     *
+     * @param string $orderSN
+     * @param string $paymentId
+     * @param string $payerId
+     * @return string
+     */
+    public function handleApprovedReturn(string $orderSN, string $paymentId, string $payerId): string
+    {
+        [$order, $payGateway] = $this->resolveReturnContext($orderSN);
+        if (!$order || !$payGateway) {
+            return 'error';
+        }
+
+        $paypal = $this->makeApiContext($payGateway);
+        $payment = $this->loadPayment($paymentId, $paypal);
+        $execute = $this->makePaymentExecution($payerId);
+
+        try {
+            $this->executePayment($payment, $execute, $paypal);
+            $this->paymentCallbackService->completeOrder($orderSN, (float) $order->actual_price, $paymentId);
+
+            return 'success';
+        } catch (\Exception $exception) {
+            return 'fail';
+        }
+    }
+
+    protected function loadPayment(string $paymentId, ApiContext $paypal): Payment
+    {
+        return Payment::get($paymentId, $paypal);
+    }
+
+    protected function makePaymentExecution(string $payerId): PaymentExecution
+    {
+        $execute = new PaymentExecution();
+        $execute->setPayerId($payerId);
+
+        return $execute;
+    }
+
+    protected function executePayment(Payment $payment, PaymentExecution $execute, ApiContext $paypal): void
+    {
+        $payment->execute($execute, $paypal);
     }
 }

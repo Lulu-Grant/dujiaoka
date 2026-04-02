@@ -2,40 +2,31 @@
 
 namespace App\Http\Controllers\Pay;
 
-
-use AmrShawky\LaravelCurrency\Facade\Currency;
 use App\Exceptions\RuleValidationException;
 use App\Http\Controllers\PayController;
+use App\Service\PaypalCheckoutService;
 use App\Service\PaypalReturnService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use PayPal\Api\Amount;
-use PayPal\Api\Details;
-use PayPal\Api\Item;
-use PayPal\Api\ItemList;
-use PayPal\Api\Payer;
-use PayPal\Api\Payment;
-use PayPal\Api\PaymentExecution;
-use PayPal\Api\RedirectUrls;
-use PayPal\Api\Transaction;
-use PayPal\Auth\OAuthTokenCredential;
 use PayPal\Exception\PayPalConnectionException;
-use PayPal\Rest\ApiContext;
 
 class PaypalPayController extends PayController
 {
-
-    const Currency = 'USD'; //货币单位
-
     /**
      * @var \App\Service\PaypalReturnService
      */
     private $paypalReturnService;
 
+    /**
+     * @var \App\Service\PaypalCheckoutService
+     */
+    private $paypalCheckoutService;
+
     public function __construct()
     {
         parent::__construct();
         $this->paypalReturnService = app(PaypalReturnService::class);
+        $this->paypalCheckoutService = app(PaypalCheckoutService::class);
     }
 
     public function gateway(string $payway, string $orderSN)
@@ -43,41 +34,7 @@ class PaypalPayController extends PayController
         try {
             // 加载网关
             $this->loadGateWay($orderSN, $payway);
-            $paypal = new ApiContext(
-                new OAuthTokenCredential(
-                    $this->payGateway->merchant_key,
-                    $this->payGateway->merchant_pem
-                )
-            );
-            $paypal->setConfig(['mode' => 'live']);
-            $product = $this->order->title;
-            // 得到汇率
-            $total = Currency::convert()
-                ->from('CNY')
-                ->to('USD')
-                ->amount($this->order->actual_price)
-                ->round(2)
-                ->get();
-            $shipping = 0;
-            $description = $this->order->title;
-            $payer = new Payer();
-            $payer->setPaymentMethod('paypal');
-            $item = new Item();
-            $item->setName($product)->setCurrency(self::Currency)->setQuantity(1)->setPrice($total);
-            $itemList = new ItemList();
-            $itemList->setItems([$item]);
-            $details = new Details();
-            $details->setShipping($shipping)->setSubtotal($total);
-            $amount = new Amount();
-            $amount->setCurrency(self::Currency)->setTotal($total)->setDetails($details);
-            $transaction = new Transaction();
-            $transaction->setAmount($amount)->setItemList($itemList)->setDescription($description)->setInvoiceNumber($this->order->order_sn);
-            $redirectUrls = new RedirectUrls();
-            $redirectUrls->setReturnUrl(route('paypal-return', ['success' => 'ok', 'orderSN' => $this->order->order_sn]))->setCancelUrl(route('paypal-return', ['success' => 'no', 'orderSN' => $this->order->order_sn]));
-            $payment = new Payment();
-            $payment->setIntent('sale')->setPayer($payer)->setRedirectUrls($redirectUrls)->setTransactions([$transaction]);
-            $payment->create($paypal);
-            $approvalUrl = $payment->getApprovalLink();
+            $approvalUrl = $this->paypalCheckoutService->createApprovalUrl($this->order, $this->payGateway);
             return redirect($approvalUrl);
         } catch (PayPalConnectionException $payPalConnectionException) {
             return $this->err($payPalConnectionException->getMessage());
@@ -99,21 +56,16 @@ class PaypalPayController extends PayController
             // 取消支付
             return redirect(url('detail-order-sn', ['orderSN' => $orderSN]));
         }
-        [$order, $payGateway] = $this->paypalReturnService->resolveReturnContext($orderSN);
-        if (!$order || !$payGateway) {
+
+        $result = $this->paypalReturnService->handleApprovedReturn($orderSN, $paymentId, $payerID);
+        if ($result === 'success') {
+            Log::info("paypal支付成功",  ['支付成功，支付ID【' . $paymentId . '】,支付人ID【' . $payerID . '】']);
+        } elseif ($result === 'fail') {
+            Log::error("paypal支付失败", ['支付失败，支付ID【' . $paymentId . '】,支付人ID【' . $payerID . '】']);
+        } elseif ($result === 'error') {
             return 'error';
         }
-        $paypal = $this->paypalReturnService->makeApiContext($payGateway);
-        $payment = Payment::get($paymentId, $paypal);
-        $execute = new PaymentExecution();
-        $execute->setPayerId($payerID);
-        try {
-            $payment->execute($execute, $paypal);
-            $this->orderProcessService->completedOrder($orderSN, $order->actual_price, $paymentId);
-            Log::info("paypal支付成功",  ['支付成功，支付ID【' . $paymentId . '】,支付人ID【' . $payerID . '】']);
-        } catch (\Exception $e) {
-            Log::error("paypal支付失败", ['支付失败，支付ID【' . $paymentId . '】,支付人ID【' . $payerID . '】']);
-        }
+
         return redirect(url('detail-order-sn', ['orderSN' => $orderSN]));
     }
 

@@ -646,3 +646,49 @@
 下一步：
 
 - 继续处理 Paypal 主流程，并准备对 Stripe 进行更大颗粒度的拆解。
+
+### 26. 完成 Paypal 同步返回完成支付服务化
+
+摘要：
+
+- [PaypalReturnService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalReturnService.php) 已从“只提供上下文和 ApiContext”升级为真正承接 Paypal 同步返回完成支付的应用服务。
+- [PaypalPayController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/Pay/PaypalPayController.php) 的 `returnUrl()` 不再自己持有支付执行细节，而是只负责取消分支、结果跳转和日志记录。
+- 这样 Paypal 主流程已进一步向“控制器薄壳 + 服务编排”的模式收敛，为后续继续拆支付创建与异步通知打下基础。
+
+影响范围：
+
+- Paypal 同步返回支付完成路径
+- Paypal 控制器职责边界
+- 支付层服务化一致性
+
+验证：
+
+- 新增 [PaypalReturnServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/PaypalReturnServiceTest.php)
+- 当前全量回归结果：`OK (58 tests, 158 assertions)`
+
+下一步：
+
+- 继续评估 Paypal 支付创建路径，并开始着手 Stripe 的分块拆解。
+
+### 27. 完成 Paypal 支付创建服务化
+
+摘要：
+
+- 新增 [PaypalCheckoutService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalCheckoutService.php)，把 Paypal 支付创建中的汇率转换、交易对象构建和 approval link 生成从控制器中抽离。
+- [PaypalPayController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/Pay/PaypalPayController.php) 的 `gateway()` 已进一步瘦身，现在主要只负责入口校验、委托服务和错误响应。
+- 到这一步，Paypal 的“支付创建 + 同步返回完成支付”主流程都已进入服务化轨道。
+
+影响范围：
+
+- Paypal 支付创建路径
+- Paypal 控制器职责边界
+- 支付层服务化一致性
+
+验证：
+
+- 新增 [PaypalCheckoutServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/PaypalCheckoutServiceTest.php)
+- 当前全量回归结果：`OK (58 tests, 158 assertions)`
+
+下一步：
+
+- 开始进入 Stripe 的第一轮拆分，并继续收敛 Paypal 剩余通知路径。
