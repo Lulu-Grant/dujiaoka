@@ -12,12 +12,24 @@ namespace App\Http\Controllers\Pay;
 
 use App\Exceptions\RuleValidationException;
 use App\Http\Controllers\PayController;
+use App\Service\PaymentCallbackService;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\Request;
 
 class TokenPayController extends PayController
 {
+    /**
+     * @var \App\Service\PaymentCallbackService
+     */
+    private $paymentCallbackService;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->paymentCallbackService = app(PaymentCallbackService::class);
+    }
+
     public function gateway(string $payway, string $orderSN)
     {
         try {
@@ -71,27 +83,18 @@ class TokenPayController extends PayController
     public function notifyUrl(Request $request)
     {
         $data = $request->all();
-        $order = $this->orderService->detailOrderSN($data['OutOrderId']);
-        if (!$order) {
-            return 'fail';
-        }
-        $payGateway = $this->payService->detail($order->pay_id);
-        if (!$payGateway) {
-            return 'fail';
-        }
-        if($payGateway->pay_handleroute != 'pay/tokenpay'){
-            return 'fail';
-        }
-        //合法的数据
-		$signature = $this->VerifySign($data, $payGateway->merchant_key);
-        if ($data['Signature'] != $signature) { //不合法的数据
-            return 'fail';  //返回失败 继续补单
-        } else {
-            //合法的数据
-            //业务处理
-            $this->orderProcessService->completedOrder($data['OutOrderId'], $data['ActualAmount'], $data['Id']);
-            return 'ok';
-        }
+        return $this->paymentCallbackService->handleSignedNotification(
+            $data['OutOrderId'],
+            '/pay/tokenpay',
+            function ($order, $payGateway) use ($data) {
+                return $data['Signature'] === $this->VerifySign($data, $payGateway->merchant_key);
+            },
+            (float) $data['ActualAmount'],
+            $data['Id'],
+            'fail',
+            'fail',
+            'ok'
+        );
     }
 
     public function returnUrl(Request $request)

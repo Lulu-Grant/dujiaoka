@@ -458,3 +458,28 @@
 下一步：
 
 - 继续决定是扩更多网关到统一骨架，还是开始抽象更明确的网关适配协议层。
+
+### 19. 完成 TokenPay 与 Epusdt 通知型网关接入统一回调骨架
+
+摘要：
+
+- [TokenPayController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/Pay/TokenPayController.php) 与 [EpusdtController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/Pay/EpusdtController.php) 已改为复用 [PaymentCallbackService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaymentCallbackService.php) 的 `handleSignedNotification()`。
+- 两个控制器现在都只保留各自网关特有的签名算法，回调上下文解析、handleroute 校验与支付完成入口不再重复实现。
+- 顺手修正了两个控制器里缺少前导 `/` 的 `pay_handleroute` 校验历史问题，继续收敛旧支付代码中的路由字符串不一致风险。
+
+影响范围：
+
+- TokenPay 异步通知回调
+- Epusdt 异步通知回调
+- 支付回调统一骨架的覆盖范围
+- handleroute 校验一致性
+
+验证：
+
+- 新增 [TokenPayControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/TokenPayControllerTest.php)
+- 新增 [EpusdtControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/EpusdtControllerTest.php)
+- 当前全量回归结果：`OK (42 tests, 128 assertions)`
+
+下一步：
+
+- 继续评估其余支付控制器，决定是继续扩大统一骨架的覆盖范围，还是开始提取更显式的支付网关适配接口。
