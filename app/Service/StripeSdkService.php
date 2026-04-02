@@ -2,7 +2,9 @@
 
 namespace App\Service;
 
-class StripeSdkService
+use App\Service\Contracts\StripeGatewayClientInterface;
+
+class StripeSdkService implements StripeGatewayClientInterface
 {
     public function setApiKey(string $apiKey): void
     {

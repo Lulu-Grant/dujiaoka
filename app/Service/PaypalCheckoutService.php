@@ -5,6 +5,7 @@ namespace App\Service;
 use AmrShawky\LaravelCurrency\Facade\Currency;
 use App\Models\Order;
 use App\Models\Pay;
+use App\Service\Contracts\PaypalGatewayClientInterface;
 use PayPal\Exception\PayPalConnectionException;
 
 class PaypalCheckoutService
@@ -12,13 +13,13 @@ class PaypalCheckoutService
     const CURRENCY = 'USD';
 
     /**
-     * @var \App\Service\PaypalSdkService
+     * @var \App\Service\Contracts\PaypalGatewayClientInterface
      */
-    private $paypalSdkService;
+    private $paypalGatewayClient;
 
     public function __construct()
     {
-        $this->paypalSdkService = app(PaypalSdkService::class);
+        $this->paypalGatewayClient = app(PaypalGatewayClientInterface::class);
     }
 
     /**
@@ -31,9 +32,9 @@ class PaypalCheckoutService
      */
     public function createApprovalUrl(Order $order, Pay $payGateway): string
     {
-        $paypal = $this->paypalSdkService->makeApiContext($payGateway);
+        $paypal = $this->paypalGatewayClient->makeApiContext($payGateway);
         $total = $this->convertAmount((float) $order->actual_price);
-        return $this->paypalSdkService->createApprovalLink($order, $total, $paypal);
+        return $this->paypalGatewayClient->createApprovalLink($order, $total, $paypal);
     }
 
     protected function convertAmount(float $amount): float

@@ -9,6 +9,10 @@ use App\Service\GoodsService;
 use App\Service\OrderProcessService;
 use App\Service\OrderService;
 use App\Service\PayService;
+use App\Service\Contracts\PaypalGatewayClientInterface;
+use App\Service\Contracts\StripeGatewayClientInterface;
+use App\Service\PaypalSdkService;
+use App\Service\StripeSdkService;
 use Illuminate\Support\ServiceProvider;
 use Jenssegers\Agent\Agent;
 
@@ -41,6 +45,12 @@ class AppServiceProvider extends ServiceProvider
         });
         $this->app->singleton('Service\EmailtplService', function () {
             return $this->app->make(EmailtplService::class);
+        });
+        $this->app->singleton(PaypalGatewayClientInterface::class, function () {
+            return $this->app->make(PaypalSdkService::class);
+        });
+        $this->app->singleton(StripeGatewayClientInterface::class, function () {
+            return $this->app->make(StripeSdkService::class);
         });
         $this->app->singleton('Jenssegers\Agent', function () {
             return $this->app->make(Agent::class);

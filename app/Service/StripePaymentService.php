@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Models\Order;
 use App\Models\Pay;
+use App\Service\Contracts\StripeGatewayClientInterface;
 
 class StripePaymentService
 {
@@ -13,14 +14,14 @@ class StripePaymentService
     private $paymentCallbackService;
 
     /**
-     * @var \App\Service\StripeSdkService
+     * @var \App\Service\Contracts\StripeGatewayClientInterface
      */
-    private $stripeSdkService;
+    private $stripeGatewayClient;
 
     public function __construct()
     {
         $this->paymentCallbackService = app(PaymentCallbackService::class);
-        $this->stripeSdkService = app(StripeSdkService::class);
+        $this->stripeGatewayClient = app(StripeGatewayClientInterface::class);
     }
 
     public function handleReturn(string $orderSN, string $sourceId): string
@@ -30,10 +31,10 @@ class StripePaymentService
             return 'redirect';
         }
 
-        $this->stripeSdkService->setApiKey($payGateway->merchant_pem);
-        $source = $this->stripeSdkService->retrieveSource($sourceId);
+        $this->stripeGatewayClient->setApiKey($payGateway->merchant_pem);
+        $source = $this->stripeGatewayClient->retrieveSource($sourceId);
         if ($source->status == 'chargeable') {
-            $this->stripeSdkService->createCharge([
+            $this->stripeGatewayClient->createCharge([
                 'amount' => $source->amount,
                 'currency' => $source->currency,
                 'source' => $sourceId,
@@ -54,10 +55,10 @@ class StripePaymentService
             return 'fail';
         }
 
-        $this->stripeSdkService->setApiKey($payGateway->merchant_pem);
-        $source = $this->stripeSdkService->retrieveSource($sourceId);
+        $this->stripeGatewayClient->setApiKey($payGateway->merchant_pem);
+        $source = $this->stripeGatewayClient->retrieveSource($sourceId);
         if ($source->status == 'chargeable') {
-            $this->stripeSdkService->createCharge([
+            $this->stripeGatewayClient->createCharge([
                 'amount' => $source->amount,
                 'currency' => $source->currency,
                 'source' => $sourceId,
@@ -81,8 +82,8 @@ class StripePaymentService
         }
 
         try {
-            $this->stripeSdkService->setApiKey($payGateway->merchant_pem);
-            $result = $this->stripeSdkService->createCharge([
+            $this->stripeGatewayClient->setApiKey($payGateway->merchant_pem);
+            $result = $this->stripeGatewayClient->createCharge([
                 'amount' => $usdAmount,
                 'currency' => 'usd',
                 'source' => $stripeToken,

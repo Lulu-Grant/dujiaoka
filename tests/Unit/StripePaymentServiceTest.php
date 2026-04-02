@@ -7,7 +7,7 @@ use App\Models\Goods;
 use App\Models\GoodsGroup;
 use App\Models\Order;
 use App\Models\Pay;
-use App\Service\StripeSdkService;
+use App\Service\Contracts\StripeGatewayClientInterface;
 use App\Service\StripePaymentService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -49,14 +49,14 @@ class StripePaymentServiceTest extends TestCase
     {
         $order = $this->createStripeOrder('STRIPE-CHECK-001');
 
-        $sdk = \Mockery::mock(StripeSdkService::class);
+        $sdk = \Mockery::mock(StripeGatewayClientInterface::class);
         $sdk->shouldReceive('setApiKey')->once()->with('stripe-secret-key');
         $sdk->shouldReceive('retrieveSource')->once()->with('SRC-CONSUMED-001')->andReturn((object) [
             'status' => 'consumed',
             'id' => 'SRC-CONSUMED-001',
             'owner' => (object) ['name' => 'STRIPE-CHECK-001'],
         ]);
-        app()->instance(StripeSdkService::class, $sdk);
+        app()->instance(StripeGatewayClientInterface::class, $sdk);
 
         $service = app(StripePaymentService::class);
 
@@ -73,14 +73,14 @@ class StripePaymentServiceTest extends TestCase
     {
         $order = $this->createStripeOrder('STRIPE-CHARGE-001');
 
-        $sdk = \Mockery::mock(StripeSdkService::class);
+        $sdk = \Mockery::mock(StripeGatewayClientInterface::class);
         $sdk->shouldReceive('setApiKey')->once()->with('stripe-secret-key');
         $sdk->shouldReceive('createCharge')->once()->with([
             'amount' => 130,
             'currency' => 'usd',
             'source' => 'tok_success',
         ])->andReturn((object) ['status' => 'succeeded']);
-        app()->instance(StripeSdkService::class, $sdk);
+        app()->instance(StripeGatewayClientInterface::class, $sdk);
 
         $service = app(StripePaymentService::class);
 

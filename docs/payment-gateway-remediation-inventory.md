@@ -20,8 +20,8 @@
 | Epusdt | `/pay/epusdt` | 已接入统一通知骨架 | 已修复 `pay_handleroute` 历史问题 |
 | TokenPay | `/pay/tokenpay` | 已接入统一通知骨架 | 已修复 `pay_handleroute` 历史问题 |
 | Coinbase | `/pay/coinbase` | 已服务化 | 已拆出 `CoinbaseWebhookService` |
-| Paypal | `/pay/paypal` | 已服务化收口中 | 已将旧 SDK 访问收敛到 `PaypalSdkService` |
-| Stripe | `/pay/stripe` | 已服务化收口中 | 已将 SDK 访问收敛到 `StripeSdkService` |
+| Paypal | `/pay/paypal` | 已服务化收口中 | 已通过接口绑定将旧 SDK 访问收敛到 `PaypalSdkService` |
+| Stripe | `/pay/stripe` | 已服务化收口中 | 已通过接口绑定将 SDK 访问收敛到 `StripeSdkService` |
 
 ## 已退役通道
 

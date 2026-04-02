@@ -1300,3 +1300,26 @@
 下一步：
 
 - 开始形成 `PayPal` 与 `Stripe` 两条保留支付通道的替换顺序与实施方案，优先处理更老的 `paypal/rest-api-sdk-php`。
+
+### 53. 为 PayPal 与 Stripe 建立可替换的接口绑定边界
+
+摘要：
+
+- 新增了 [PaypalGatewayClientInterface.php](/Users/apple/Documents/dujiaoshuka/app/Service/Contracts/PaypalGatewayClientInterface.php) 与 [StripeGatewayClientInterface.php](/Users/apple/Documents/dujiaoshuka/app/Service/Contracts/StripeGatewayClientInterface.php)。
+- 现有 [PaypalSdkService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalSdkService.php) 与 [StripeSdkService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripeSdkService.php) 已分别实现这些接口。
+- [PaypalCheckoutService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalCheckoutService.php)、[PaypalReturnService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalReturnService.php)、[StripePaymentService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripePaymentService.php) 现在都通过接口从容器取网关客户端，不再直接依赖具体 SDK 服务类。
+- [AppServiceProvider.php](/Users/apple/Documents/dujiaoshuka/app/Providers/AppServiceProvider.php) 已加入接口到实现类的绑定，测试也同步切到基于接口的 mock。
+
+影响范围：
+
+- PayPal 与 Stripe 的 SDK 调用边界
+- 后续 SDK 替换切口
+- 支付服务的容器依赖关系
+
+验证：
+
+- 当前全量回归结果：`OK (67 tests, 200 assertions)`
+
+下一步：
+
+- 开始形成 `paypal/rest-api-sdk-php` 与 `stripe/stripe-php` 的替换顺序文档，并优先设计 PayPal 的退场方案。

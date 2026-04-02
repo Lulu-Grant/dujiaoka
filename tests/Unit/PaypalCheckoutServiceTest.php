@@ -7,8 +7,8 @@ use App\Models\Goods;
 use App\Models\GoodsGroup;
 use App\Models\Order;
 use App\Models\Pay;
+use App\Service\Contracts\PaypalGatewayClientInterface;
 use App\Service\PaypalCheckoutService;
-use App\Service\PaypalSdkService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
@@ -35,7 +35,7 @@ class PaypalCheckoutServiceTest extends TestCase
     {
         [$order, $payGateway] = $this->createPaypalContext('PAYPAL-CHECKOUT-001');
 
-        $sdkService = \Mockery::mock(PaypalSdkService::class);
+        $sdkService = \Mockery::mock(PaypalGatewayClientInterface::class);
         $sdkService->shouldReceive('makeApiContext')
             ->once()
             ->andReturn(\Mockery::mock(\PayPal\Rest\ApiContext::class));
@@ -43,7 +43,7 @@ class PaypalCheckoutServiceTest extends TestCase
             ->once()
             ->with($order, 1.23, \Mockery::type(\PayPal\Rest\ApiContext::class))
             ->andReturn('https://paypal.example.com/approval');
-        app()->instance(PaypalSdkService::class, $sdkService);
+        app()->instance(PaypalGatewayClientInterface::class, $sdkService);
 
         $service = new class extends PaypalCheckoutService {
             protected function convertAmount(float $amount): float

@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Models\Order;
 use App\Models\Pay;
+use App\Service\Contracts\PaypalGatewayClientInterface;
 
 class PaypalReturnService
 {
@@ -13,14 +14,14 @@ class PaypalReturnService
     private $paymentCallbackService;
 
     /**
-     * @var \App\Service\PaypalSdkService
+     * @var \App\Service\Contracts\PaypalGatewayClientInterface
      */
-    private $paypalSdkService;
+    private $paypalGatewayClient;
 
     public function __construct()
     {
         $this->paymentCallbackService = app(PaymentCallbackService::class);
-        $this->paypalSdkService = app(PaypalSdkService::class);
+        $this->paypalGatewayClient = app(PaypalGatewayClientInterface::class);
     }
 
     /**
@@ -42,7 +43,7 @@ class PaypalReturnService
      */
     public function makeApiContext(Pay $payGateway)
     {
-        return $this->paypalSdkService->makeApiContext($payGateway);
+        return $this->paypalGatewayClient->makeApiContext($payGateway);
     }
 
     /**
@@ -63,8 +64,8 @@ class PaypalReturnService
         $paypal = $this->makeApiContext($payGateway);
 
         try {
-            $payment = $this->paypalSdkService->loadPayment($paymentId, $paypal);
-            $this->paypalSdkService->executeApprovedPayment($payment, $payerId, $paypal);
+            $payment = $this->paypalGatewayClient->loadPayment($paymentId, $paypal);
+            $this->paypalGatewayClient->executeApprovedPayment($payment, $payerId, $paypal);
             $this->paymentCallbackService->completeOrder($orderSN, (float) $order->actual_price, $paymentId);
 
             return 'success';

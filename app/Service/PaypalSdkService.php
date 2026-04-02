@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Models\Order;
 use App\Models\Pay;
+use App\Service\Contracts\PaypalGatewayClientInterface;
 use PayPal\Api\Amount;
 use PayPal\Api\Details;
 use PayPal\Api\Item;
@@ -16,7 +17,7 @@ use PayPal\Api\Transaction;
 use PayPal\Auth\OAuthTokenCredential;
 use PayPal\Rest\ApiContext;
 
-class PaypalSdkService
+class PaypalSdkService implements PaypalGatewayClientInterface
 {
     public function makeApiContext(Pay $payGateway): ApiContext
     {

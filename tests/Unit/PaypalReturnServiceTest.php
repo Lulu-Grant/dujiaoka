@@ -7,8 +7,8 @@ use App\Models\Goods;
 use App\Models\GoodsGroup;
 use App\Models\Order;
 use App\Models\Pay;
+use App\Service\Contracts\PaypalGatewayClientInterface;
 use App\Service\PaypalReturnService;
-use App\Service\PaypalSdkService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Cache;
@@ -57,7 +57,7 @@ class PaypalReturnServiceTest extends TestCase
     {
         $order = $this->createPaypalOrder('PAYPAL-RETURN-SUCCESS-001');
 
-        $sdkService = \Mockery::mock(PaypalSdkService::class);
+        $sdkService = \Mockery::mock(PaypalGatewayClientInterface::class);
         $sdkService->shouldReceive('makeApiContext')
             ->once()
             ->andReturn(\Mockery::mock(\PayPal\Rest\ApiContext::class));
@@ -68,7 +68,7 @@ class PaypalReturnServiceTest extends TestCase
         $sdkService->shouldReceive('executeApprovedPayment')
             ->once()
             ->with(\Mockery::type(\PayPal\Api\Payment::class), 'PAYER-ID-SUCCESS', \Mockery::type(\PayPal\Rest\ApiContext::class));
-        app()->instance(PaypalSdkService::class, $sdkService);
+        app()->instance(PaypalGatewayClientInterface::class, $sdkService);
 
         $service = app(PaypalReturnService::class);
 
