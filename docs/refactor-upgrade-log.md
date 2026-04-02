@@ -1573,3 +1573,25 @@
 下一步：
 
 - 继续清理 Stripe 里残留的旧式页面与前端耦合点，为后续 SDK 独立升级与前台重做做准备。
+
+### 65. 将 Stripe 入口参数收成专用输入对象
+
+摘要：
+
+- 新增 [StripeRequestData.php](/Users/apple/Documents/dujiaoshuka/app/Service/DataTransferObjects/StripeRequestData.php)，统一承接 `orderid`、`source`、`stripeToken` 三类 Stripe 入口参数。
+- [StripeController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/Pay/StripeController.php) 不再直接依赖 `$request->all()` 的原始数组键名，而是改为通过 DTO 读取。
+- 新增 [StripeRequestDataTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/StripeRequestDataTest.php)，给 Stripe 入口协议增加一层轻量护栏。
+
+影响范围：
+
+- Stripe 控制器入口参数解析
+- Stripe 页面协议边界
+- 后续前端整治与 SDK 升级准备度
+
+验证：
+
+- 当前全量回归结果：`OK (86 tests, 246 assertions)`
+
+下一步：
+
+- 继续清理 Stripe 里剩余的旧式页面和前端 CDN 耦合点，为更现代的支付页与 SDK 升级做准备。

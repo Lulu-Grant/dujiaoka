@@ -6,6 +6,7 @@ use App\Exceptions\PaymentGatewayException;
 use App\Exceptions\RuleValidationException;
 use App\Http\Controllers\PayController;
 use App\Service\StripeAmountService;
+use App\Service\DataTransferObjects\StripeRequestData;
 use App\Service\StripeCheckoutService;
 use App\Service\OrderService;
 use App\Service\StripePaymentService;
@@ -66,22 +67,20 @@ class StripeController extends PayController
 
     public function returnUrl(Request $request)
     {
-
-        $data = $request->all();
+        $data = StripeRequestData::fromRequest($request);
         try {
-            $this->stripePaymentService->handleReturn($data['orderid'], $data['source']);
+            $this->stripePaymentService->handleReturn($data->orderSN, (string) $data->sourceId);
         } catch (PaymentGatewayException $exception) {
             return $this->err($exception->getMessage());
         }
-        return redirect(url('detail-order-sn', ['orderSN' => $data['orderid']]));
+        return redirect(url('detail-order-sn', ['orderSN' => $data->orderSN]));
     }
 
     public function check(Request $request)
     {
-
-        $data = $request->all();
+        $data = StripeRequestData::fromRequest($request);
         try {
-            return $this->stripePaymentService->handleSourceCheck($data['orderid'], $data['source']);
+            return $this->stripePaymentService->handleSourceCheck($data->orderSN, (string) $data->sourceId);
         } catch (PaymentGatewayException $exception) {
             return $exception->getMessage();
         }
@@ -90,8 +89,8 @@ class StripeController extends PayController
 
     public function charge(Request $request)
     {
-        $data = $request->all();
-        $cacheord = $this->orderService->detailOrderSN($data['orderid']);
+        $data = StripeRequestData::fromRequest($request);
+        $cacheord = $this->orderService->detailOrderSN($data->orderSN);
         if (!$cacheord) {
             return 'fail';
         }
@@ -99,7 +98,7 @@ class StripeController extends PayController
         $usdAmount = $this->stripeAmountService->targetMinorUnits((float) $cacheord->actual_price);
 
         try {
-            return $this->stripePaymentService->handleCardCharge($data['orderid'], $data['stripeToken'], $usdAmount);
+            return $this->stripePaymentService->handleCardCharge($data->orderSN, (string) $data->stripeToken, $usdAmount);
         } catch (PaymentGatewayException $exception) {
             return $exception->getMessage();
         }
