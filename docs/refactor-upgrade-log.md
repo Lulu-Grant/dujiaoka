@@ -11,6 +11,28 @@
 
 ## 2026-04-02 阶段日志
 
+### 0. 建立大整改执行方案并切换为按阶段连续推进
+
+摘要：
+
+- 新增 [rectification-execution-plan.md](/Users/apple/Documents/dujiaoshuka/docs/rectification-execution-plan.md)，把整改目标、阶段、退出标准、同步规则和默认执行顺序固定下来。
+- 明确后续默认按阶段连续执行，不再在每个小节点停下来等待确认。
+- 继续保留“重要节点必须记日志、稳定节点应同步 GitHub `master`”的节奏，避免改造失去可追踪性。
+
+影响范围：
+
+- 整体整改节奏
+- 任务执行方式
+- 文档化治理规则
+
+验证：
+
+- 方案文档已落库，并已接入 [modernization-roadmap.md](/Users/apple/Documents/dujiaoshuka/docs/modernization-roadmap.md)。
+
+下一步：
+
+- 按方案继续执行支付层整治收口，优先清理剩余的支付控制器。
+
 ### 1. 完成第一轮重大评估
 
 摘要：
@@ -506,3 +528,26 @@
 下一步：
 
 - 继续挑选剩余支付控制器，评估是否进一步抽出更明确的支付网关适配接口。
+
+### 21. 完成 Coinbase Webhook 服务化改造
+
+摘要：
+
+- 新增 [CoinbaseWebhookService.php](/Users/apple/Documents/dujiaoshuka/app/Service/CoinbaseWebhookService.php)，把 Coinbase 回调中的 payload 解析、签名校验、币种校验、金额校验和完成支付逻辑从控制器中抽出。
+- [CoinbaseController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/Pay/CoinbaseController.php) 不再直接读取 `php://input` 和 `$_SERVER`，改为使用 Request 内容与 header，便于测试和后续统一接入。
+- 顺手修正了 Coinbase 回调里 `pay_handleroute` 历史缺少前导 `/` 的问题，继续减少路由字符串不一致带来的误判。
+
+影响范围：
+
+- Coinbase webhook 回调
+- 支付层服务化边界
+- Request 驱动的可测试性
+
+验证：
+
+- 新增 [CoinbaseWebhookServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/CoinbaseWebhookServiceTest.php)
+- 当前全量回归结果：`OK (46 tests, 136 assertions)`
+
+下一步：
+
+- 继续评估 Payjs / Alipay 这类第三方 SDK 型回调，决定是继续抽 webhook 服务，还是进一步提炼统一网关适配层。

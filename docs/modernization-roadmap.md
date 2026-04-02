@@ -49,6 +49,7 @@ Recommended order:
 From this point onward, every important modernization milestone should be recorded in:
 
 - [refactor-upgrade-log.md](/Users/apple/Documents/dujiaoshuka/docs/refactor-upgrade-log.md)
+- execution should follow [rectification-execution-plan.md](/Users/apple/Documents/dujiaoshuka/docs/rectification-execution-plan.md) as the default phase-by-phase operating plan
 
 Important milestones include:
 
