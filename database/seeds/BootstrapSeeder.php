@@ -3,6 +3,7 @@
 use Illuminate\Database\Seeder;
 
 require_once __DIR__ . '/EmailTemplateSeeder.php';
+require_once __DIR__ . '/AdminBootstrapSeeder.php';
 
 class BootstrapSeeder extends Seeder
 {
@@ -14,6 +15,7 @@ class BootstrapSeeder extends Seeder
     public function run()
     {
         $this->call([
+            AdminBootstrapSeeder::class,
             EmailTemplateSeeder::class,
         ]);
     }

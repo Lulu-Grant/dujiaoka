@@ -53,6 +53,7 @@
 - 已完成：
   - `emailtpls` 迁入 bootstrap seed
   - `pays` 迁入 sample seed
+  - `admin_menu` / `admin_permissions` / `admin_roles` 迁入安全 bootstrap seed
 - 下一步：
   - 为后台骨架数据建立单独的迁移/seed 迁出方案
   - 在安装流程中彻底禁止默认管理员账号导入

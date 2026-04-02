@@ -941,3 +941,26 @@
 下一步：
 
 - 继续补后台骨架的安全 seed 方案，并开始从安装流程中移除默认管理员账号导入。
+
+### 38. 为后台骨架补上安全 bootstrap seed，继续排除默认管理员账号
+
+摘要：
+
+- 新增了 [AdminBootstrapSeeder.php](/Users/apple/Documents/dujiaoshuka/database/seeds/AdminBootstrapSeeder.php)，将 `admin_menu`、`admin_permissions`、`admin_roles` 的非敏感骨架数据从 `install.sql` 迁入 bootstrap seed。
+- [BootstrapSeeder.php](/Users/apple/Documents/dujiaoshuka/database/seeds/BootstrapSeeder.php) 现在除了默认邮件模板，还会恢复后台菜单、权限和角色骨架。
+- 整个过程仍然明确排除了 `admin_users` 和 `admin_role_users`，避免默认管理员账号和角色绑定再次回流到安装默认路径。
+- 同时补了 [AdminBootstrapSeederTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminBootstrapSeederTest.php) 和对 [BootstrapSeederBoundaryTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/BootstrapSeederBoundaryTest.php) 的增强护栏。
+
+影响范围：
+
+- 后台骨架默认数据来源
+- bootstrap seed 的可用性
+- 默认管理员账号禁入策略
+
+验证：
+
+- 当前全量回归结果：`OK (69 tests, 195 assertions)`
+
+下一步：
+
+- 开始改安装流程，从整包 `install.sql` 导入切换到“迁移 + bootstrap seed”的新入口。

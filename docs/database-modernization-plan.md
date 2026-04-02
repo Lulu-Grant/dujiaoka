@@ -103,6 +103,9 @@
   - `admin_role_menu`
   - `admin_role_permissions`
   - `admin_settings`
+- 已开始第三批后台骨架安全 seed：
+  - `AdminBootstrapSeeder` 负责后台菜单、权限、角色骨架
+  - 不包含 `admin_users` / `admin_role_users`
 
 ## 下一步
 
