@@ -10,6 +10,7 @@
 return [
     'dujiaoka_version' => '2.0.6',
     'async_side_effects' => env('DUJIAOKA_ASYNC_SIDE_EFFECTS', false),
+    'paypal_mode' => env('DUJIAOKA_PAYPAL_MODE', 'live'),
     // 模板集合
     'templates' => [
         'avatar' => 'Avatar[modernized-default]',

@@ -1369,3 +1369,25 @@
 下一步：
 
 - 继续沿着迁移方案推进 `PayPal` 退场条件，优先整理旧 SDK 仍残留的接入假设与替换约束。
+
+### 56. 清理退役支付样例并拔掉 PayPal 模式硬编码
+
+摘要：
+
+- 将 [PaySampleSeeder.php](/Users/apple/Documents/dujiaoshuka/database/seeds/PaySampleSeeder.php) 中的 `Paysapi`、`Vpay`、`Payjs` 示例通道移除，避免新环境继续被历史样例误导。
+- [PaypalSdkService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalSdkService.php) 不再硬编码 `live` 模式，改由 [config/dujiaoka.php](/Users/apple/Documents/dujiaoshuka/config/dujiaoka.php) 中的 `paypal_mode` 配置控制。
+- 更新 [PaySampleSeederTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/PaySampleSeederTest.php) 与迁移方案文档，保持退役策略、样例数据和替换计划一致。
+
+影响范围：
+
+- 支付样例种子
+- PayPal 接入配置边界
+- 新环境初始化体验
+
+验证：
+
+- 当前全量回归结果：`OK (70 tests, 204 assertions)`
+
+下一步：
+
+- 继续梳理 `PayPal` 旧 SDK 仍残留的同步返回/异步通知假设，准备进入真正的替换实施阶段。

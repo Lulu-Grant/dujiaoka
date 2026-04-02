@@ -34,10 +34,13 @@ class PaySampleSeederTest extends TestCase
         $seeder = new \PaySampleSeeder();
         $seeder->run();
 
-        $this->assertSame(29, Pay::query()->count());
+        $this->assertSame(24, Pay::query()->count());
         $this->assertNotNull(Pay::query()->where('pay_check', 'paypal')->first());
         $this->assertNotNull(Pay::query()->where('pay_check', 'stripe')->first());
         $this->assertNotNull(Pay::query()->where('pay_check', 'coinbase')->first());
+        $this->assertNull(Pay::query()->where('pay_check', 'pszfb')->first());
+        $this->assertNull(Pay::query()->where('pay_check', 'payjswescan')->first());
+        $this->assertNull(Pay::query()->where('pay_check', 'vzfb')->first());
         $this->assertSame('/pay/paypal', Pay::query()->where('pay_check', 'paypal')->value('pay_handleroute'));
         $this->assertSame('pay/tokenpay', Pay::query()->where('pay_check', 'tokenpay-trx')->value('pay_handleroute'));
     }

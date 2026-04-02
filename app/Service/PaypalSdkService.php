@@ -43,7 +43,7 @@ class PaypalSdkService implements PaypalGatewayClientInterface
                 $payGateway->merchant_pem
             )
         );
-        $paypal->setConfig(['mode' => 'live']);
+        $paypal->setConfig(['mode' => config('dujiaoka.paypal_mode', 'live')]);
 
         return $paypal;
     }

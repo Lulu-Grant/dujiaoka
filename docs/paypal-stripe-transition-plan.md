@@ -13,6 +13,7 @@
 ### PayPal
 
 - 当前依赖：`paypal/rest-api-sdk-php ^1.14`
+- 当前运行模式：由 `DUJIAOKA_PAYPAL_MODE` 控制，默认 `live`
 - 业务入口已收敛到：
   - [PaypalCheckoutService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalCheckoutService.php)
   - [PaypalReturnService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalReturnService.php)
@@ -40,12 +41,13 @@
 ## PayPal 退场路径
 
 1. 继续消除业务层对旧 SDK 类型的泄漏
-2. 明确新接入方式的能力边界：
+2. 保持运行模式等接入假设配置化，不再散落在旧 SDK 封装内部
+3. 明确新接入方式的能力边界：
    - 创建支付链接
    - 同步返回确认
    - 支付完成状态落单
-3. 在不改动业务服务调用面的前提下引入新实现
-4. 最后移除 `paypal/rest-api-sdk-php`
+4. 在不改动业务服务调用面的前提下引入新实现
+5. 最后移除 `paypal/rest-api-sdk-php`
 
 ## Stripe 升级路径
 
