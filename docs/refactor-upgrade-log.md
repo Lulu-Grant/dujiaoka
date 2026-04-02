@@ -717,3 +717,29 @@
 下一步：
 
 - 继续拆 Stripe 的页面渲染与汇率/支付创建逻辑，并评估是否将内联 HTML 提取为视图模板。
+
+### 29. 完成 Stripe 汇率与收银页视图第一轮拆分
+
+摘要：
+
+- 新增 [StripeCurrencyService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripeCurrencyService.php)，把美元汇率获取逻辑从控制器中抽离。
+- 新增 [StripeCheckoutService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripeCheckoutService.php)，把 Stripe 收银页所需的数据组装从控制器中抽离。
+- 新增 [stripe/checkout.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/stripe/checkout.blade.php)，将原先嵌在控制器里的超长内联 HTML 收银页提取为独立视图。
+- [StripeController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/Pay/StripeController.php) 已从“大字符串生成器”进一步退化为入口控制器，代码体积和职责复杂度明显下降。
+
+影响范围：
+
+- Stripe 汇率获取逻辑
+- Stripe 收银页渲染方式
+- Stripe 支付创建页面数据组装
+- Stripe 控制器体积与可维护性
+
+验证：
+
+- 新增 [StripeCurrencyServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/StripeCurrencyServiceTest.php)
+- 新增 [StripeCheckoutServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/StripeCheckoutServiceTest.php)
+- 当前全量回归结果：`OK (65 tests, 172 assertions)`
+
+下一步：
+
+- 继续清理 Stripe 剩余耦合点，并开始评估阶段 A 是否可以准备收口转入下一阶段。

@@ -23,8 +23,8 @@
 | TokenPay | `/pay/tokenpay` | 已接入统一通知骨架 | 已修复 `pay_handleroute` 历史问题 |
 | Payjs | `/pay/payjs` | 已服务化 | 已拆出 `PayjsNotificationService` |
 | Coinbase | `/pay/coinbase` | 已服务化 | 已拆出 `CoinbaseWebhookService` |
-| Paypal | `/pay/paypal` | 部分服务化 | `returnUrl` 已抽服务，主控制器仍较重 |
-| Stripe | `/pay/stripe` | 部分服务化 | 已拆出 `StripePaymentService`，但页面渲染与汇率/创建逻辑仍较重 |
+| Paypal | `/pay/paypal` | 部分服务化 | 已拆出 checkout / return 服务，异步通知仍待进一步处理 |
+| Stripe | `/pay/stripe` | 部分服务化 | 已拆出 `StripePaymentService`、`StripeCheckoutService`、`StripeCurrencyService`，剩余耦合已明显下降 |
 
 ## 整改优先级
 
