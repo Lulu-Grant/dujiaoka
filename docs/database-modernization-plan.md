@@ -106,10 +106,13 @@
 - 已开始第三批后台骨架安全 seed：
   - `AdminBootstrapSeeder` 负责后台菜单、权限、角色骨架
   - 不包含 `admin_users` / `admin_role_users`
+- 已开始改造安装主路径：
+  - 安装服务改为 `migrate + bootstrap seed`
+  - 首个管理员账号由安装表单显式创建，不再使用默认账号
 
 ## 下一步
 
-1. 继续补后台骨架数据的结构迁移与安全 seed 方案
+1. 收口安装流程改造，继续减少对 `install.sql` 的直接依赖
 2. 在安装流程中彻底移除默认管理员账号导入
 3. 继续清理 `install.sql` 里的默认数据职责，补 bootstrap / sample seed 分层
 4. 校对 migration 与当前模型 / 测试依赖的一致性

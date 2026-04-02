@@ -761,6 +761,23 @@ TkSuQmCC" />
 
             </div>
 
+            <div class="form-group">
+                <div class="form-field">
+                    <label>管理员账号</label>
+                    <input name="admin_username" value="admin" required="" placeholder="请输入后台管理员账号">
+                </div>
+
+                <div class="form-field">
+                    <label>管理员密码</label>
+                    <input type="password" name="admin_password" required="" placeholder="至少 8 位">
+                </div>
+
+                <div class="form-field">
+                    <label>确认管理员密码</label>
+                    <input type="password" name="admin_password_confirmation" required="" placeholder="再次输入管理员密码">
+                </div>
+            </div>
+
             <div class="form-buttons">
                 <button type="submit">点击安装</button>
             </div>
@@ -782,7 +799,8 @@ TkSuQmCC" />
                         .done(function (ret) {
                             if (ret === 'success') {
                                 $('#error').hide();
-                                $("#success").text("安装成功！您的后台登录账号密码均为：admin，请及时登录修改！").show();
+                                var adminUser = $("input[name='admin_username']").val();
+                                $("#success").text("安装成功！请使用你刚才设置的管理员账号 " + adminUser + " 登录后台。").show();
                                 $('<a class="btn" href="/">访问首页</a> <a class="btn" href=\"'+ adminurl +'\" style="background:#18bc9c">访问后台</a>').insertAfter($button);
                                 $button.remove();
                             } else {

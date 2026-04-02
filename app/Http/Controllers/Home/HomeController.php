@@ -5,14 +5,11 @@ namespace App\Http\Controllers\Home;
 use App\Exceptions\RuleValidationException;
 use App\Http\Controllers\BaseController;
 use App\Models\Pay;
+use App\Service\InstallationService;
 use Germey\Geetest\Geetest;
-use Illuminate\Database\DatabaseServiceProvider;
 use Illuminate\Database\QueryException;
-use Illuminate\Encryption\Encrypter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redis;
 
 class HomeController extends BaseController
 {
@@ -29,10 +26,16 @@ class HomeController extends BaseController
      */
     private $payService;
 
+    /**
+     * @var \App\Service\InstallationService
+     */
+    private $installationService;
+
     public function __construct()
     {
         $this->goodsService = app('Service\GoodsService');
         $this->payService = app('Service\PayService');
+        $this->installationService = app(InstallationService::class);
     }
 
     /**
@@ -132,49 +135,24 @@ class HomeController extends BaseController
     public function doInstall(Request $request)
     {
         try {
-            $dbConfig = config('database');
-            $mysqlDB = [
-                'host' => $request->input('db_host'),
-                'port' => $request->input('db_port'),
-                'database' => $request->input('db_database'),
-                'username' => $request->input('db_username'),
-                'password' => $request->input('db_password'),
-            ];
-            $dbConfig['connections']['mysql'] = array_merge($dbConfig['connections']['mysql'], $mysqlDB);
-            // Redis
-            $redisDB = [
-                'host' => $request->input('redis_host'),
-                'password' => $request->input('redis_password', 'null'),
-                'port' => $request->input('redis_port'),
-            ];
-            $dbConfig['redis']['default'] = array_merge($dbConfig['redis']['default'], $redisDB);
-            config(['database' => $dbConfig]);
-            DB::purge();
-            // db测试
-            DB::connection()->select('select 1 limit 1');
-            // redis测试
-            Redis::set('dujiaoka_com', 'ok');
-            Redis::get('dujiaoka_com');
-            // 获得文件模板
-            $envExamplePath = base_path() . DIRECTORY_SEPARATOR . '.env.example';
-            $envPath =  base_path() . DIRECTORY_SEPARATOR . '.env';
-            $installLock = base_path() . DIRECTORY_SEPARATOR . 'install.lock';
-            $installSql = database_path() . DIRECTORY_SEPARATOR . 'sql' . DIRECTORY_SEPARATOR . 'install.sql';
-            $envTemp = file_get_contents($envExamplePath);
-            $postData = $request->all();
-            // 临时写入key
-            $postData['app_key'] = 'base64:' . base64_encode(
-                    Encrypter::generateKey(config('app.cipher'))
-                );
-            foreach ($postData as $key => $item) {
-                $envTemp = str_replace('{' . $key . '}', $item, $envTemp);
-            }
-            // 写入配置
-            file_put_contents($envPath, $envTemp);
-            // 导入sql
-            DB::unprepared(file_get_contents($installSql));
-            // 写入安装锁
-            file_put_contents($installLock, 'install ok');
+            $request->validate([
+                'db_host' => 'required|string',
+                'db_port' => 'required|string',
+                'db_database' => 'required|string',
+                'db_username' => 'required|string',
+                'db_password' => 'nullable|string',
+                'redis_host' => 'required|string',
+                'redis_password' => 'nullable|string',
+                'redis_port' => 'required|string',
+                'title' => 'required|string',
+                'app_url' => 'required|string',
+                'admin_path' => 'required|string',
+                'admin_username' => 'required|string|min:3|max:120',
+                'admin_password' => 'required|string|min:8|same:admin_password_confirmation',
+                'admin_password_confirmation' => 'required|string',
+            ]);
+
+            $this->installationService->install($request->all());
             return 'success';
         } catch (\RedisException $exception) {
             return 'Redis配置错误 :' . $exception->getMessage();

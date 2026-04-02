@@ -964,3 +964,29 @@
 下一步：
 
 - 开始改安装流程，从整包 `install.sql` 导入切换到“迁移 + bootstrap seed”的新入口。
+
+### 39. 将安装主路径切换到 migrate + bootstrap seed，并改为显式创建首个管理员
+
+摘要：
+
+- 新增了 [InstallationService.php](/Users/apple/Documents/dujiaoshuka/app/Service/InstallationService.php)，安装流程现在会执行运行时连接配置、迁移、bootstrap seed、安装锁写入，以及首个管理员账号创建。
+- [HomeController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/Home/HomeController.php) 的 `doInstall()` 已经不再直接执行 `DB::unprepared(file_get_contents($installSql))`，而是切到新的安装服务入口。
+- 补上了后台用户结构 migration：
+  - [create_admin_users_table.php](/Users/apple/Documents/dujiaoshuka/database/migrations/2026_04_02_000016_create_admin_users_table.php)
+  - [create_admin_role_users_table.php](/Users/apple/Documents/dujiaoshuka/database/migrations/2026_04_02_000017_create_admin_role_users_table.php)
+- 安装页 [install.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/common/install.blade.php) 新增了管理员账号、密码、确认密码字段，安装完成后也不再提示固定默认账号。
+- 同时补了 [InstallationServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/InstallationServiceTest.php)，守住“安装时显式创建首个管理员并绑定管理员角色”这条行为。
+
+影响范围：
+
+- 安装入口主流程
+- 后台首个管理员创建方式
+- `install.sql` 在安装路径中的职责
+
+验证：
+
+- 当前全量回归结果：`OK (70 tests, 198 assertions)`
+
+下一步：
+
+- 继续收缩安装流程中对 `install.sql` 的剩余依赖，并准备最终移除整包 SQL 安装主路径。
