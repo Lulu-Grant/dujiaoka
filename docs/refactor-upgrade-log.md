@@ -772,3 +772,28 @@
 下一步：
 
 - 继续补第二批业务支撑表迁移，并开始评估 seeders 与 install.sql 默认数据的拆分方案。
+
+### 31. 接入 Avatar 主题并切换为新版默认模板
+
+摘要：
+
+- 将用户提供的主题资源包接入为新主题 `avatar`，资源已落到 [public/assets/avatar](/Users/apple/Documents/dujiaoshuka/public/assets/avatar)。
+- 基于现有前台模板骨架创建了 [resources/views/avatar](/Users/apple/Documents/dujiaoshuka/resources/views/avatar)，并将视图命名空间与静态资源路径切换到 `avatar`。
+- 在 [config/dujiaoka.php](/Users/apple/Documents/dujiaoshuka/config/dujiaoka.php) 中注册 `avatar` 模板选项，并将前台基础渲染 fallback 从旧默认主题切换到 `avatar`。
+- 这一步采用兼容接入方式：以 avatar 视觉资源为主，同时补入现有页面运行所需的兼容资源，先保证新版默认主题可启用。
+
+影响范围：
+
+- 前台默认主题
+- 模板注册列表
+- 前台错误页与基础渲染 fallback
+- 主题资源目录结构
+
+验证：
+
+- `avatar` 主题目录与资源目录已落库，并已接入模板选择配置。
+- 当前全量回归结果：`OK (65 tests, 172 assertions)`
+
+下一步：
+
+- 验证 avatar 主题页面可正常渲染，并继续微调其兼容层样式与资源引用。

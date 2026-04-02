@@ -12,6 +12,7 @@ return [
     'async_side_effects' => env('DUJIAOKA_ASYNC_SIDE_EFFECTS', false),
     // 模板集合
     'templates' => [
+        'avatar' => 'Avatar[modernized-default]',
         'unicorn' => '官方[unicorn-独角兽]',
         'luna' => 'Luna[Julyssn]',
         'hyper' => 'hyper[Bimoe]'

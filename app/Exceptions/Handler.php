@@ -51,7 +51,7 @@ class Handler extends ExceptionHandler
     public function render($request, Exception $exception)
     {
         if ($exception instanceof AppException) {
-            $layout = dujiaoka_config_get('template', 'layui');
+            $layout = dujiaoka_config_get('template', 'avatar');
             $tplPath = $layout . '/errors/error';
             return view($tplPath, ['title' => __('dujiaoka.error_title'), 'content' => $exception->getMessage(), 'url' => ""]);
         }
