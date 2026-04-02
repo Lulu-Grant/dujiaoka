@@ -37,11 +37,14 @@
 - 当前 URL 假设：结账页 return / check / charge / detail URL 已收敛到独立服务
 - 当前异常边界：控制器层已不再直接处理 SDK 异常，Stripe 支付服务改为抛出应用层 `PaymentGatewayException`
 - 当前状态处理边界：`source` 检索、扣款、归属校验、完成订单已开始从支付服务中拆出
+- 当前金额换算边界：结账页与卡片扣款所需的分单位金额已开始收敛到独立金额服务
 - 业务入口已收敛到：
   - [StripeCheckoutService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripeCheckoutService.php)
   - [StripePaymentService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripePaymentService.php)
 - URL 边界已收敛到：
   - [StripeRouteService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripeRouteService.php)
+- 金额边界已收敛到：
+  - [StripeAmountService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripeAmountService.php)
 - SDK 访问已收敛到：
   - [StripeSdkService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripeSdkService.php)
 - 业务层当前只依赖：
@@ -72,9 +75,10 @@
 2. 保持币种与 URL 假设继续停留在配置 / 独立服务层，而不是散回控制器
 3. 保持异常语义停留在应用层，而不是继续让 SDK 错误直接泄漏到控制器
 4. 继续把 `source` 状态处理从支付服务中收拢成独立边界
-5. 继续清掉旧的页面/回调内联耦合
-6. 独立升级 `stripe/stripe-php`
-7. 验证 `charge / return / check` 三条路径后再收口旧兼容逻辑
+5. 继续把金额换算与分单位计算留在独立服务层，不再散回控制器
+6. 继续清掉旧的页面/回调内联耦合
+7. 独立升级 `stripe/stripe-php`
+8. 验证 `charge / return / check` 三条路径后再收口旧兼容逻辑
 
 ## 当前退出标准
 

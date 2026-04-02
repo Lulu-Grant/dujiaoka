@@ -7,6 +7,7 @@ use App\Models\Goods;
 use App\Models\GoodsGroup;
 use App\Models\Order;
 use App\Models\Pay;
+use App\Service\StripeAmountService;
 use App\Service\StripeCheckoutService;
 use App\Service\StripeRouteService;
 use Illuminate\Database\Eloquent\Model;
@@ -40,10 +41,20 @@ class StripeCheckoutServiceTest extends TestCase
 
             public function buildCheckoutViewData(\App\Models\Order $order, \App\Models\Pay $payGateway): array
             {
-                $this->stripeCurrencyService = new class {
-                    public function convertCnyToUsd(float $cny): float
+                $this->stripeAmountService = new class extends StripeAmountService {
+                    public function convertSourceToTarget(float $amount): float
                     {
                         return 1.30;
+                    }
+
+                    public function sourceMinorUnits(float $amount): float
+                    {
+                        return 1000.0;
+                    }
+
+                    public function targetMinorUnits(float $amount): float
+                    {
+                        return 130.0;
                     }
                 };
                 $this->stripeRouteService = new class extends StripeRouteService {
@@ -90,6 +101,7 @@ class StripeCheckoutServiceTest extends TestCase
         $service = new class extends StripeCheckoutService {
             public function __construct()
             {
+                $this->stripeAmountService = new StripeAmountService();
             }
 
             public function currencies(): array

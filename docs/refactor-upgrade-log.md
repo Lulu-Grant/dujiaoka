@@ -1551,3 +1551,25 @@
 下一步：
 
 - 继续清理 Stripe 剩余的旧式输入 / 页面耦合点，为独立升级 SDK 和后续前端整治做准备。
+
+### 64. 将 Stripe 金额换算与分单位计算抽出控制器
+
+摘要：
+
+- 新增 [StripeAmountService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripeAmountService.php)，统一承接 Stripe 结账页与卡片扣款所需的金额换算和分单位计算。
+- [StripeCheckoutService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripeCheckoutService.php) 与 [StripeController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/Pay/StripeController.php) 已改为通过金额服务取值，控制器不再自己做汇率换算。
+- 新增 [StripeAmountServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/StripeAmountServiceTest.php)，并同步调整 [StripeCheckoutServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/StripeCheckoutServiceTest.php) 与 [StripeControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/StripeControllerTest.php)。
+
+影响范围：
+
+- Stripe 控制器职责边界
+- Stripe 金额换算与分单位计算
+- Stripe 结账页数据组装
+
+验证：
+
+- 当前全量回归结果：`OK (85 tests, 245 assertions)`
+
+下一步：
+
+- 继续清理 Stripe 里残留的旧式页面与前端耦合点，为后续 SDK 独立升级与前台重做做准备。

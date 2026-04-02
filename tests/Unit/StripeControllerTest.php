@@ -8,6 +8,7 @@ use App\Models\Goods;
 use App\Models\GoodsGroup;
 use App\Models\Order;
 use App\Models\Pay;
+use App\Service\StripeAmountService;
 use App\Service\StripePaymentService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -75,12 +76,15 @@ class StripeControllerTest extends TestCase
             ->andReturn('success');
         $this->app->instance(StripePaymentService::class, $mock);
 
-        $controller = new class extends StripeController {
-            public function getUsdCurrency($cny)
+        $amountService = new class extends StripeAmountService {
+            public function targetMinorUnits(float $amount): float
             {
-                return 1.30;
+                return 130;
             }
         };
+        $this->app->instance(StripeAmountService::class, $amountService);
+
+        $controller = app(StripeController::class);
 
         $request = Request::create('/pay/stripe/charge', 'GET', [
             'orderid' => $order->order_sn,

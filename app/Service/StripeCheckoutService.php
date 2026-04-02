@@ -8,9 +8,9 @@ use App\Models\Pay;
 class StripeCheckoutService
 {
     /**
-     * @var \App\Service\StripeCurrencyService
+     * @var \App\Service\StripeAmountService
      */
-    protected $stripeCurrencyService;
+    protected $stripeAmountService;
 
     /**
      * @var \App\Service\StripeRouteService
@@ -19,17 +19,15 @@ class StripeCheckoutService
 
     public function __construct()
     {
-        $this->stripeCurrencyService = app(StripeCurrencyService::class);
+        $this->stripeAmountService = app(StripeAmountService::class);
         $this->stripeRouteService = app(StripeRouteService::class);
     }
 
     public function buildCheckoutViewData(Order $order, Pay $payGateway): array
     {
-        $targetAmount = $this->stripeCurrencyService->convertCnyToUsd((float) $order->actual_price);
-
         return [
-            'amount_cny' => (float) bcmul($order->actual_price, 100, 2),
-            'amount_usd' => (float) bcmul($targetAmount, 100, 2),
+            'amount_cny' => $this->stripeAmountService->sourceMinorUnits((float) $order->actual_price),
+            'amount_usd' => $this->stripeAmountService->targetMinorUnits((float) $order->actual_price),
             'price' => (float) $order->actual_price,
             'orderid' => $order->order_sn,
             'publishable_key' => $payGateway->merchant_id,
@@ -42,11 +40,11 @@ class StripeCheckoutService
 
     protected function getSourceCurrency(): string
     {
-        return (string) config('dujiaoka.stripe_source_currency', 'CNY');
+        return $this->stripeAmountService->sourceCurrency();
     }
 
     protected function getTargetCurrency(): string
     {
-        return (string) config('dujiaoka.stripe_target_currency', 'USD');
+        return strtoupper($this->stripeAmountService->targetCurrency());
     }
 }

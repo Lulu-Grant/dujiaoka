@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Pay;
 use App\Exceptions\PaymentGatewayException;
 use App\Exceptions\RuleValidationException;
 use App\Http\Controllers\PayController;
+use App\Service\StripeAmountService;
 use App\Service\StripeCheckoutService;
-use App\Service\StripeCurrencyService;
 use App\Service\OrderService;
 use App\Service\StripePaymentService;
 use Illuminate\Http\Request;
@@ -29,9 +29,9 @@ class StripeController extends PayController
     private $stripeCheckoutService;
 
     /**
-     * @var \App\Service\StripeCurrencyService
+     * @var \App\Service\StripeAmountService
      */
-    private $stripeCurrencyService;
+    private $stripeAmountService;
 
     public function __construct()
     {
@@ -39,7 +39,7 @@ class StripeController extends PayController
         $this->stripePaymentService = app(StripePaymentService::class);
         $this->orderService = app(OrderService::class);
         $this->stripeCheckoutService = app(StripeCheckoutService::class);
-        $this->stripeCurrencyService = app(StripeCurrencyService::class);
+        $this->stripeAmountService = app(StripeAmountService::class);
     }
 
     public function gateway(string $payway, string $orderSN)
@@ -96,7 +96,7 @@ class StripeController extends PayController
             return 'fail';
         }
 
-        $usdAmount = (float) bcmul($this->getUsdCurrency($cacheord->actual_price), 100, 0);
+        $usdAmount = $this->stripeAmountService->targetMinorUnits((float) $cacheord->actual_price);
 
         try {
             return $this->stripePaymentService->handleCardCharge($data['orderid'], $data['stripeToken'], $usdAmount);
@@ -104,17 +104,4 @@ class StripeController extends PayController
             return $exception->getMessage();
         }
     }
-
-    /**
-     * 根据RMB获取美元
-     * @param $cny
-     * @return float|int
-     * @throws \Exception
-     */
-    public function getUsdCurrency($cny)
-    {
-        return $this->stripeCurrencyService->convertCnyToUsd((float) $cny);
-    }
-
-
 }
