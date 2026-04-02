@@ -18,6 +18,7 @@ use App\Models\Carmis;
 use App\Models\Order;
 use App\Rules\SearchPwd;
 use App\Rules\VerifyImg;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -37,10 +38,17 @@ class OrderService
      */
     private $couponService;
 
+    /**
+     * 副作用任务派发层
+     * @var \App\Service\SideEffectDispatcherService
+     */
+    private $sideEffectDispatcher;
+
     public function __construct()
     {
         $this->goodsService = app('Service\GoodsService');
         $this->couponService = app('Service\CouponService');
+        $this->sideEffectDispatcher = app(SideEffectDispatcherService::class);
     }
 
 
@@ -228,6 +236,29 @@ class OrderService
     public function expiredOrderSN(string $orderSN): bool
     {
         return Order::query()->where('order_sn', $orderSN)->update(['status' => Order::STATUS_EXPIRED]);
+    }
+
+    /**
+     * 扫描并过期超时未支付订单
+     *
+     * @param int $expireMinutes
+     * @return int
+     */
+    public function expireTimedOutOrders(int $expireMinutes): int
+    {
+        $expiredBefore = Carbon::now()->subMinutes($expireMinutes);
+
+        $orders = Order::query()
+            ->where('status', Order::STATUS_WAIT_PAY)
+            ->where('created_at', '<=', $expiredBefore)
+            ->get();
+
+        foreach ($orders as $order) {
+            $this->expiredOrderSN($order->order_sn);
+            $this->sideEffectDispatcher->dispatch(new \App\Jobs\CouponBack($order));
+        }
+
+        return $orders->count();
     }
 
     /**

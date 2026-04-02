@@ -157,8 +157,9 @@ if (! function_exists('site_url')) {
      */
     function site_url()
     {
-        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
-        $domainName = $_SERVER['HTTP_HOST'] . '/';
+        $serverPort = $_SERVER['SERVER_PORT'] ?? null;
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $serverPort == 443) ? "https://" : "http://";
+        $domainName = ($_SERVER['HTTP_HOST'] ?? parse_url(config('app.url'), PHP_URL_HOST) ?? 'localhost') . '/';
         return $protocol . $domainName;
     }
 }

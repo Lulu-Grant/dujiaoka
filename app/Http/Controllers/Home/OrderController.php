@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Home;
 use App\Exceptions\RuleValidationException;
 use App\Http\Controllers\BaseController;
 use App\Models\Order;
+use App\Service\DataTransferObjects\CreateOrderData;
 use App\Service\OrderProcessService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
@@ -61,26 +62,22 @@ class OrderController extends BaseController
             $this->orderService->validatorCreateOrder($request);
             $goods = $this->orderService->validatorGoods($request);
             $this->orderService->validatorLoopCarmis($request);
-            // 设置商品
-            $this->orderProcessService->setGoods($goods);
             // 优惠码
             $coupon = $this->orderService->validatorCoupon($request);
-            // 设置优惠码
-            $this->orderProcessService->setCoupon($coupon);
             $otherIpt = $this->orderService->validatorChargeInput($goods, $request);
-            $this->orderProcessService->setOtherIpt($otherIpt);
-            // 数量
-            $this->orderProcessService->setBuyAmount($request->input('by_amount'));
-            // 支付方式
-            $this->orderProcessService->setPayID($request->input('payway'));
-            // 下单邮箱
-            $this->orderProcessService->setEmail($request->input('email'));
-            // ip地址
-            $this->orderProcessService->setBuyIP($request->getClientIp());
-            // 查询密码
-            $this->orderProcessService->setSearchPwd($request->input('search_pwd', ''));
             // 创建订单
-            $order = $this->orderProcessService->createOrder();
+            $order = $this->orderProcessService->createOrderFromData(
+                new CreateOrderData(
+                    $goods,
+                    $coupon,
+                    $otherIpt,
+                    (int) $request->input('by_amount'),
+                    (int) $request->input('payway'),
+                    (string) $request->input('email'),
+                    $request->getClientIp(),
+                    (string) $request->input('search_pwd', '')
+                )
+            );
             DB::commit();
             // 设置订单cookie
             $this->queueCookie($order->order_sn);

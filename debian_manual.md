@@ -162,34 +162,29 @@ su
 - 另起一行，添加 `ADMIN_HTTPS=true`
 - 尝试登入后台。如果提示 `0 error` ，刷新页面即可
 
-## 配置 Supervisor
-先安装
-```bash
-apt install supervisor
-```
-创建配置文件
-```bash
-nano /etc/supervisor/conf.d/dujiaoka.conf
-```
-写入配置文件
+## 配置计划任务
+本项目已默认按同步方式执行订单通知、回调等副作用，不再要求常驻 `queue:work` 进程。
 
-- 注意修改网站目录
+只需要让 Laravel 调度器每分钟运行一次，就能处理超时订单扫描等定时任务。
+
+编辑当前用户的 crontab：
 ```bash
-[program:laravel-worker]
-process_name=%(program_name)s_%(process_num)02d
-command=php /home/wwwroot/dujiaoka/artisan queue:work
-autostart=true
-autorestart=true
-user=www
-numprocs=1
-redirect_stderr=true
-stdout_logfile=/home/wwwlogs/worker.log
+crontab -e
 ```
-启动
+添加一行：
 ```bash
-supervisorctl reread
-supervisorctl update
-supervisorctl start laravel-worker:*
+* * * * * php /var/www/dujiaoka/artisan schedule:run >/dev/null 2>&1
+```
+
+如果你只想单独运行订单过期扫描，也可以直接配置：
+```bash
+* * * * * php /var/www/dujiaoka/artisan orders:expire >/dev/null 2>&1
+```
+
+另外建议在 `/var/www/dujiaoka/.env` 中确认：
+```bash
+QUEUE_CONNECTION=sync
+DUJIAOKA_ASYNC_SIDE_EFFECTS=false
 ```
 ## 参考来源
 https://www.digitalocean.com/community/tutorials/how-to-install-linux-nginx-mariadb-php-lemp-stack-on-debian-10
