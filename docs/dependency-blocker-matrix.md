@@ -23,7 +23,7 @@
 | `simplesoftwareio/simple-qrcode 2.0.0` | 二维码生成 | P0 | 已从主锁文件移除 | 已处理 | 已改为前端本地 JS 生成二维码 |
 | `bacon/bacon-qr-code 1.0.3` | QRCode 底层依赖 | P0 | 已随上层退出 | 已处理 | 已随 `simple-qrcode` 一起移除 |
 | `paypal/rest-api-sdk-php ^1.14` | PayPal 支付 | P1 | 历史 SDK，已收敛到单点服务 | 替换 | 已抽出 `PaypalSdkService`，后续可从单点替换 |
-| `stripe/stripe-php ^7.84` | Stripe 支付 | P1 | 偏旧 | 升级或替换接入方式 | 先稳定服务层，再升级 SDK |
+| `stripe/stripe-php ^7.84` | Stripe 支付 | P1 | 偏旧，已收敛到单点服务 | 升级或替换接入方式 | 已抽出 `StripeSdkService`，后续可从单点升级 |
 | `xhat/payjs-laravel ^1.6` | PayJS 支付 | P2 | 已从主锁文件移除 | 已处理 | 已随 PayJS 通道退役退出新版本 |
 | `yansongda/pay ^2.10` | 支付宝 / 微信支付 | P2 | 可运行 | 观察后升级 | 当前不是第一阻塞点 |
 | `phpspec/prophecy 1.13.0` | 测试依赖链 | P0 | 已从主锁文件移除 | 已处理 | 已通过升级 `phpunit/phpunit` 到 9.6.34 退出主依赖链 |

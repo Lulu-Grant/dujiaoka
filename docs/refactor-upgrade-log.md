@@ -1277,3 +1277,26 @@
 下一步：
 
 - 继续聚焦仍保留的新版本支付通道，开始制定 `paypal/rest-api-sdk-php` 与 `stripe/stripe-php` 的替换顺序与单点清障方案。
+
+### 52. 收紧 Stripe SDK 边界，进入保留支付通道单点替换阶段
+
+摘要：
+
+- 新增了 [StripeSdkService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripeSdkService.php)，将 `Stripe::setApiKey`、`Source::retrieve`、`Charge::create` 这组旧 SDK 访问收敛为单点服务。
+- [StripePaymentService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripePaymentService.php) 现在不再直接静态调用 Stripe SDK，而是统一通过 `StripeSdkService` 访问。
+- 同步更新了 [StripePaymentServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/StripePaymentServiceTest.php)，让测试围绕 SDK 边界 mock，而不是继续依赖内部受保护方法覆写。
+
+影响范围：
+
+- Stripe 支付完成路径
+- Stripe SDK 调用边界
+- 后续 Stripe SDK 升级切口
+
+验证：
+
+- 定向测试：`OK (2 tests, 10 assertions)`
+- 当前全量回归结果：`OK (67 tests, 200 assertions)`
+
+下一步：
+
+- 开始形成 `PayPal` 与 `Stripe` 两条保留支付通道的替换顺序与实施方案，优先处理更老的 `paypal/rest-api-sdk-php`。

@@ -21,7 +21,7 @@
 | TokenPay | `/pay/tokenpay` | 已接入统一通知骨架 | 已修复 `pay_handleroute` 历史问题 |
 | Coinbase | `/pay/coinbase` | 已服务化 | 已拆出 `CoinbaseWebhookService` |
 | Paypal | `/pay/paypal` | 已服务化收口中 | 已将旧 SDK 访问收敛到 `PaypalSdkService` |
-| Stripe | `/pay/stripe` | 部分服务化 | 已拆出 `StripePaymentService`、`StripeCheckoutService`、`StripeCurrencyService`，剩余耦合已明显下降 |
+| Stripe | `/pay/stripe` | 已服务化收口中 | 已将 SDK 访问收敛到 `StripeSdkService` |
 
 ## 已退役通道
 
@@ -67,6 +67,6 @@
 
 ## 下一步默认动作
 
-1. 继续推进 PayPal 历史 SDK 替换准备
-2. 开始评估 Stripe SDK 升级路径
+1. 开始制定 PayPal 历史 SDK 的替换方案
+2. 开始制定 Stripe SDK 升级方案
 3. 视情况引入更显式的支付网关适配接口

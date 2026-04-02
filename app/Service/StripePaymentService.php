@@ -12,9 +12,15 @@ class StripePaymentService
      */
     private $paymentCallbackService;
 
+    /**
+     * @var \App\Service\StripeSdkService
+     */
+    private $stripeSdkService;
+
     public function __construct()
     {
         $this->paymentCallbackService = app(PaymentCallbackService::class);
+        $this->stripeSdkService = app(StripeSdkService::class);
     }
 
     public function handleReturn(string $orderSN, string $sourceId): string
@@ -24,10 +30,10 @@ class StripePaymentService
             return 'redirect';
         }
 
-        $this->setApiKey($payGateway->merchant_pem);
-        $source = $this->retrieveSource($sourceId);
+        $this->stripeSdkService->setApiKey($payGateway->merchant_pem);
+        $source = $this->stripeSdkService->retrieveSource($sourceId);
         if ($source->status == 'chargeable') {
-            $this->createCharge([
+            $this->stripeSdkService->createCharge([
                 'amount' => $source->amount,
                 'currency' => $source->currency,
                 'source' => $sourceId,
@@ -48,10 +54,10 @@ class StripePaymentService
             return 'fail';
         }
 
-        $this->setApiKey($payGateway->merchant_pem);
-        $source = $this->retrieveSource($sourceId);
+        $this->stripeSdkService->setApiKey($payGateway->merchant_pem);
+        $source = $this->stripeSdkService->retrieveSource($sourceId);
         if ($source->status == 'chargeable') {
-            $this->createCharge([
+            $this->stripeSdkService->createCharge([
                 'amount' => $source->amount,
                 'currency' => $source->currency,
                 'source' => $sourceId,
@@ -75,8 +81,8 @@ class StripePaymentService
         }
 
         try {
-            $this->setApiKey($payGateway->merchant_pem);
-            $result = $this->createCharge([
+            $this->stripeSdkService->setApiKey($payGateway->merchant_pem);
+            $result = $this->stripeSdkService->createCharge([
                 'amount' => $usdAmount,
                 'currency' => 'usd',
                 'source' => $stripeToken,
@@ -99,20 +105,5 @@ class StripePaymentService
     protected function resolveStripeContext(string $orderSN): array
     {
         return $this->paymentCallbackService->resolveCallbackContext($orderSN, '/pay/stripe');
-    }
-
-    protected function setApiKey(string $apiKey): void
-    {
-        \Stripe\Stripe::setApiKey($apiKey);
-    }
-
-    protected function retrieveSource(string $sourceId)
-    {
-        return \Stripe\Source::retrieve($sourceId);
-    }
-
-    protected function createCharge(array $payload)
-    {
-        return \Stripe\Charge::create($payload);
     }
 }
