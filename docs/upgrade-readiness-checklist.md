@@ -67,7 +67,10 @@
 - `bacon/bacon-qr-code 1.0.3`
 - `simplesoftwareio/simple-qrcode 2.0.0`
 - `germey/geetest v3.1.0`
-- `phpspec/prophecy 1.13.0`
+
+已完成的第一条清障：
+
+- `phpspec/prophecy 1.13.0` 已随 `phpunit/phpunit` 升级到 `9.6.34` 从主锁文件移除
 
 影响：
 
@@ -77,7 +80,7 @@
 建议动作：
 
 1. 为阻塞包建立“保留 / 替换 / 移除”决策表
-2. 优先处理 QRCode、Geetest、测试依赖这三条链
+2. 优先处理 Geetest 与 QRCode 两条剩余 P0 阻塞链
 
 参考：
 

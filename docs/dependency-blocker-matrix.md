@@ -26,7 +26,7 @@
 | `stripe/stripe-php ^7.84` | Stripe 支付 | P1 | 偏旧 | 升级或替换接入方式 | 先稳定服务层，再升级 SDK |
 | `xhat/payjs-laravel ^1.6` | PayJS 支付 | P2 | 仍在用 | 观察 | 已服务化，但后续仍需看维护性 |
 | `yansongda/pay ^2.10` | 支付宝 / 微信支付 | P2 | 可运行 | 观察后升级 | 当前不是第一阻塞点 |
-| `phpspec/prophecy 1.13.0` | 测试依赖链 | P0 | 现代 PHP 不兼容 | 移除或升级测试链 | 当前会阻塞开发依赖安装 |
+| `phpspec/prophecy 1.13.0` | 测试依赖链 | P0 | 已从主锁文件移除 | 已处理 | 已通过升级 `phpunit/phpunit` 到 9.6.34 退出主依赖链 |
 
 ---
 
@@ -69,8 +69,8 @@
 
 建议：
 
-- 优先看能否通过测试栈升级或替换间接移除
-- 它应是“最适合先清掉的非业务阻塞”
+- 已通过测试栈升级完成主路径移除
+- 后续只需继续关注其他包的 `require-dev` 元数据，不再是当前项目锁文件中的直接安装阻塞
 
 ---
 
@@ -152,8 +152,8 @@
 
 因此下一步默认优先顺序建议是：
 
-1. `phpspec/prophecy`
-2. `germey/geetest`
-3. `simple-qrcode` / `bacon`
+1. `germey/geetest`
+2. `simple-qrcode` / `bacon`
+3. `paypal/rest-api-sdk-php` 与 `stripe/stripe-php`
 
-在这三条链被处理前，不建议直接发起正式 Laravel / PHP 跨版本升级。
+在剩余高优先级链路被处理前，不建议直接发起正式 Laravel / PHP 跨版本升级。

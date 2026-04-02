@@ -1180,3 +1180,26 @@
 下一步：
 
 - 开始处理第一条非业务阻塞链，优先确认 `phpspec/prophecy` 的移除路径。
+
+### 48. 完成第一条依赖阻塞链：移除 Prophecy 主依赖
+
+摘要：
+
+- 通过升级 `phpunit/phpunit` 从 `9.5.4` 到 `9.6.34`，将 `phpspec/prophecy` 从当前项目主锁文件依赖链中移除。
+- 同步更新了 [composer.lock](/Users/apple/Documents/dujiaoshuka/composer.lock)，并完成当前 PHPUnit 配置迁移，消除了旧 schema 警告。
+- 当前测试代码中并未直接使用 `Prophecy`，因此这次清障没有触碰业务测试语义，只是清掉了历史测试依赖阻塞。
+
+影响范围：
+
+- 开发依赖锁文件
+- PHPUnit 运行时
+- 升级前测试链稳定性
+
+验证：
+
+- `./scripts/composer74 why phpspec/prophecy` 已确认当前项目中找不到该包。
+- 当前全量回归结果：`OK (70 tests, 198 assertions)`
+
+下一步：
+
+- 继续处理下一条 P0 阻塞链，优先评估 `germey/geetest` 的移除或替换路径。
