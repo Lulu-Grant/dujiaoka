@@ -1,0 +1,92 @@
+# 数据库现代化拆解计划
+
+## 目标
+
+将当前仓库从“依赖 `database/sql/install.sql` 整包导入”的安装方式，逐步迁移为：
+
+- schema 由 Laravel migrations 驱动
+- 默认数据由 seeders 驱动
+- 安装器不再承担数据库结构初始化职责
+
+## 当前现状
+
+当前仓库：
+
+- 没有 `database/migrations`
+- 只有 [install.sql](/Users/apple/Documents/dujiaoshuka/database/sql/install.sql)
+- `install.sql` 同时承担：
+  - 建表
+  - 默认后台数据
+  - 默认邮件模板
+  - 默认支付方式样例
+  - 初始管理员记录
+
+这会导致：
+
+- 本地和生产安装不可组合
+- 灰度迁移困难
+- 安全默认值容易混入真实环境
+- 表结构变更无法被增量管理
+
+## 分批迁移策略
+
+### 第一批：核心商业主链表
+
+优先迁移这些表：
+
+- `goods_group`
+- `goods`
+- `carmis`
+- `coupons`
+- `coupons_goods`
+- `pays`
+- `orders`
+
+原因：
+
+- 这些表直接承载下单、支付、履约、库存、优惠码主链
+- 也是当前测试体系覆盖最多的业务域
+
+### 第二批：业务支撑表
+
+- `emailtpls`
+- `failed_jobs`
+- 后续如有业务扩展表也归入本批
+
+### 第三批：后台与系统表
+
+- `admin_*`
+- `admin_settings`
+
+原因：
+
+- 后台框架未来可能替换
+- 不应让后台表迁移阻塞核心业务表迁移
+
+## 默认数据拆分原则
+
+后续数据拆分按下面原则执行：
+
+- schema migration 只负责结构
+- sample / bootstrap data 进 seeder
+- 高风险默认值单独清理，不直接复刻进生产默认 seed
+
+特别注意：
+
+- 默认管理员账号不能作为长期 seed 保留
+- 默认支付方式样例可以作为开发 seed，但不应强制进入生产
+- 邮件模板更适合独立 seeder
+
+## 已完成起步
+
+当前已开始的迁移起步工作：
+
+- 新建 `database/migrations`
+- 已将核心商业主链表作为第一批迁移对象
+
+## 下一步
+
+1. 补第一批核心表 migration
+2. 校对 migration 与当前模型 / 测试依赖的一致性
+3. 再拆第二批业务支撑表
+4. 最后处理后台表和默认种子

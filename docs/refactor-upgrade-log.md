@@ -743,3 +743,32 @@
 下一步：
 
 - 继续清理 Stripe 剩余耦合点，并开始评估阶段 A 是否可以准备收口转入下一阶段。
+
+### 30. 启动数据库现代化并落下第一批核心表迁移骨架
+
+摘要：
+
+- 新增 [database-modernization-plan.md](/Users/apple/Documents/dujiaoshuka/docs/database-modernization-plan.md)，把 `install.sql -> migrations + seeders` 的拆解顺序和原则固定下来。
+- 新建 `database/migrations`，并把核心商业主链表的第一批迁移骨架落地：
+  - [2026_04_02_000001_create_goods_group_table.php](/Users/apple/Documents/dujiaoshuka/database/migrations/2026_04_02_000001_create_goods_group_table.php)
+  - [2026_04_02_000002_create_goods_table.php](/Users/apple/Documents/dujiaoshuka/database/migrations/2026_04_02_000002_create_goods_table.php)
+  - [2026_04_02_000003_create_carmis_table.php](/Users/apple/Documents/dujiaoshuka/database/migrations/2026_04_02_000003_create_carmis_table.php)
+  - [2026_04_02_000004_create_coupons_tables.php](/Users/apple/Documents/dujiaoshuka/database/migrations/2026_04_02_000004_create_coupons_tables.php)
+  - [2026_04_02_000005_create_pays_table.php](/Users/apple/Documents/dujiaoshuka/database/migrations/2026_04_02_000005_create_pays_table.php)
+  - [2026_04_02_000006_create_orders_table.php](/Users/apple/Documents/dujiaoshuka/database/migrations/2026_04_02_000006_create_orders_table.php)
+- 这一步标志着项目正式从“只有整包 SQL 初始化”迈向“可增量演进的 schema 管理”。
+
+影响范围：
+
+- 数据库演进模型
+- 安装层现代化起步
+- 核心商业主链表结构管理方式
+
+验证：
+
+- 第一批迁移骨架已落库，并与当前模型/测试覆盖的核心业务表域对齐。
+- 当前全量回归结果：`OK (65 tests, 172 assertions)`
+
+下一步：
+
+- 继续补第二批业务支撑表迁移，并开始评估 seeders 与 install.sql 默认数据的拆分方案。
