@@ -1323,3 +1323,26 @@
 下一步：
 
 - 开始形成 `paypal/rest-api-sdk-php` 与 `stripe/stripe-php` 的替换顺序文档，并优先设计 PayPal 的退场方案。
+
+### 54. 固化支付通道生命周期状态并接入后台管理面板
+
+摘要：
+
+- 在 [Pay.php](/Users/apple/Documents/dujiaoshuka/app/Models/Pay.php) 中正式定义支付通道生命周期，区分 `维护中`、`遗留待替换`、`已退役` 三种状态。
+- 将 `PayPal` 与 `Stripe` 标记为遗留待替换通道，将 `Paysapi`、`Vpay`、`Payjs` 标记为已退役通道。
+- 在后台 [PayController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/PayController.php) 的列表页、详情页和编辑页接入生命周期展示与提示，避免继续把退役通道当作普通可维护支付方式使用。
+- 新增 [PayLifecycleTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/PayLifecycleTest.php)，直接守住生命周期分类规则。
+
+影响范围：
+
+- 支付通道后台管理
+- 支付通道模型语义
+- 后续支付替换与退场治理
+
+验证：
+
+- 当前全量回归结果：`OK (70 tests, 207 assertions)`
+
+下一步：
+
+- 开始整理 `PayPal` 退场方案，把旧 REST SDK 的替代接入方式和迁移策略固定下来。

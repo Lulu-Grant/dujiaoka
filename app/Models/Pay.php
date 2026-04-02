@@ -46,9 +46,35 @@ class Pay extends BaseModel
         'payjs',
     ];
 
+    /**
+     * 新版本仍保留，但属于后续优先替换的遗留支付通道
+     */
+    const LEGACY_GATEWAYS = [
+        'paypal',
+        'stripe',
+    ];
+
     public static function isRetiredGateway(?string $payCheck): bool
     {
         return in_array(strtolower((string) $payCheck), self::RETIRED_GATEWAYS, true);
+    }
+
+    public static function isLegacyGateway(?string $payCheck): bool
+    {
+        return in_array(strtolower((string) $payCheck), self::LEGACY_GATEWAYS, true);
+    }
+
+    public static function getLifecycleLabel(?string $payCheck): string
+    {
+        if (self::isRetiredGateway($payCheck)) {
+            return admin_trans('pay.fields.lifecycle_retired');
+        }
+
+        if (self::isLegacyGateway($payCheck)) {
+            return admin_trans('pay.fields.lifecycle_legacy');
+        }
+
+        return admin_trans('pay.fields.lifecycle_active');
     }
 
     public static function getMethodMap()

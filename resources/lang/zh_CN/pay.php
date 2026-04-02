@@ -20,6 +20,11 @@ return [
         'pay_client_pc' => '电脑PC',
         'pay_client_mobile' => '手机',
         'pay_client_all' => '通用',
+        'lifecycle' => '生命周期',
+        'lifecycle_active' => '新版本维护中',
+        'lifecycle_legacy' => '遗留待替换',
+        'lifecycle_retired' => '已退役',
+        'pay_check_help' => '请避免继续使用已退役通道标识；PayPal 与 Stripe 当前属于遗留待替换通道。',
     ],
     'options' => [
     ],

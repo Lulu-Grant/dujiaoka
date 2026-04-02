@@ -26,6 +26,20 @@ class PayController extends AdminController
             $grid->column('id')->sortable();
             $grid->column('pay_name');
             $grid->column('pay_check');
+            $grid->column('lifecycle', admin_trans('pay.fields.lifecycle'))->display(function () {
+                $payCheck = $this->pay_check;
+                $label = PayModel::getLifecycleLabel($payCheck);
+
+                if (PayModel::isRetiredGateway($payCheck)) {
+                    return "<span class='badge badge-danger'>{$label}</span>";
+                }
+
+                if (PayModel::isLegacyGateway($payCheck)) {
+                    return "<span class='badge badge-warning'>{$label}</span>";
+                }
+
+                return "<span class='badge badge-success'>{$label}</span>";
+            });
             $grid->column('pay_method')->select(PayModel::getMethodMap());
             $grid->column('merchant_id')->limit(20);
             $grid->column('merchant_key')->limit(20);
@@ -71,6 +85,9 @@ class PayController extends AdminController
             $show->field('merchant_key');
             $show->field('merchant_pem');
             $show->field('pay_check');
+            $show->field('pay_check', admin_trans('pay.fields.lifecycle'))->as(function ($payCheck) {
+                return PayModel::getLifecycleLabel($payCheck);
+            });
             $show->field('pay_client')->as(function ($payClient) {
                 if ($payClient == PayModel::PAY_CLIENT_PC) {
                     return admin_trans('pay.fields.pay_client_pc');
@@ -111,7 +128,8 @@ class PayController extends AdminController
             $form->text('merchant_id')->required();
             $form->textarea('merchant_key');
             $form->textarea('merchant_pem')->required();
-            $form->text('pay_check')->required();
+            $form->text('pay_check')->required()
+                ->help(admin_trans('pay.fields.pay_check_help'));
             $form->radio('pay_client')
                 ->options(PayModel::getClientMap())
                 ->default(PayModel::PAY_CLIENT_PC)
