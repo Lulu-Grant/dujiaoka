@@ -1059,3 +1059,25 @@
 下一步：
 
 - 继续识别是否还需要为空关系表补最小 bootstrap 关系数据，或者直接将其维持为空结构。
+
+### 43. 完成安装现代化阶段收尾，并确认空关系表维持为空结构
+
+摘要：
+
+- 新增了 [installation-modernization-closure.md](/Users/apple/Documents/dujiaoshuka/docs/installation-modernization-closure.md)，作为本阶段的正式结项说明。
+- 这一轮明确做出最终判断：`admin_permission_menu`、`admin_role_menu`、`admin_role_permissions`、`admin_settings` 继续保持为空结构，不人为补伪造 bootstrap 关系数据。
+- 这样安装现代化阶段的未决问题已经收口，`install.sql` 也从“仍待拆解”转为“短期保留的历史参考文件”。
+
+影响范围：
+
+- 安装现代化阶段边界
+- `install.sql` 退场判断
+- 后续阶段的工作焦点
+
+验证：
+
+- 当前全量回归结果：`OK (70 tests, 198 assertions)`
+
+下一步：
+
+- 后续重点转向更高层的框架升级、后台替换评估和剩余遗留兼容清障。

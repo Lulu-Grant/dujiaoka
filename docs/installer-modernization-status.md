@@ -58,6 +58,7 @@
 
 ## 下一步
 
-- 继续把 `install.sql` 里剩余未迁出的后台关系数据做成更明确的迁移/seed 方案
-- 更新部署文档，统一以新安装流程为准
-- 在确认历史兼容窗口结束后，再评估是否彻底移除 `install.sql`
+- 本阶段安装现代化工作已完成，可转入观察与维护阶段
+- 后续在框架升级或后台替换阶段，再评估是否彻底移除 `install.sql`
+- 当前阶段结项说明可参考：
+  - [installation-modernization-closure.md](/Users/apple/Documents/dujiaoshuka/docs/installation-modernization-closure.md)
