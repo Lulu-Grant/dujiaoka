@@ -89,6 +89,7 @@
 - 不直接在控制器层处理
 - 当前业务层已进一步摆脱旧 SDK 类型泄漏，可按 [paypal-stripe-transition-plan.md](/Users/apple/Documents/dujiaoshuka/docs/paypal-stripe-transition-plan.md) 继续推进退场
 - 当前 webhook 路径已服务化为占位入口，后续替换时应明确是补全异步通知，还是继续只保留同步确认模型
+- 当前控制器层已不再直接依赖 PayPal SDK 异常类型，后续替换实现时应保持这一边界
 
 #### `stripe/stripe-php`
 

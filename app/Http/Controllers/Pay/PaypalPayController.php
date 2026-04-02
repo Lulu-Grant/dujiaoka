@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Pay;
 
+use App\Exceptions\PaymentGatewayException;
 use App\Exceptions\RuleValidationException;
 use App\Http\Controllers\PayController;
 use App\Service\PaypalCheckoutService;
@@ -9,7 +10,6 @@ use App\Service\PaypalReturnService;
 use App\Service\PaypalWebhookService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use PayPal\Exception\PayPalConnectionException;
 
 class PaypalPayController extends PayController
 {
@@ -43,8 +43,8 @@ class PaypalPayController extends PayController
             $this->loadGateWay($orderSN, $payway);
             $approvalUrl = $this->paypalCheckoutService->createApprovalUrl($this->order, $this->payGateway);
             return redirect($approvalUrl);
-        } catch (PayPalConnectionException $payPalConnectionException) {
-            return $this->err($payPalConnectionException->getMessage());
+        } catch (PaymentGatewayException $exception) {
+            return $this->err($exception->getMessage());
         } catch (RuleValidationException $exception) {
             return $this->err($exception->getMessage());
         }

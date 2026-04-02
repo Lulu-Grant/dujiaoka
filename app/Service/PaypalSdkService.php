@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Exceptions\PaymentGatewayException;
 use App\Models\Order;
 use App\Models\Pay;
 use App\Service\Contracts\PaypalGatewayClientInterface;
@@ -21,18 +22,26 @@ class PaypalSdkService implements PaypalGatewayClientInterface
 {
     public function createApprovalLink(Order $order, Pay $payGateway, float $total): string
     {
-        $paypal = $this->makeApiContext($payGateway);
-        $payment = $this->makePayment($order, $total);
-        $payment->create($paypal);
+        try {
+            $paypal = $this->makeApiContext($payGateway);
+            $payment = $this->makePayment($order, $total);
+            $payment->create($paypal);
 
-        return $payment->getApprovalLink();
+            return $payment->getApprovalLink();
+        } catch (\Throwable $exception) {
+            throw PaymentGatewayException::wrap($exception, 'PayPal approval link creation failed.');
+        }
     }
 
     public function executeApprovedPayment(Pay $payGateway, string $paymentId, string $payerId): void
     {
-        $paypal = $this->makeApiContext($payGateway);
-        $payment = $this->loadPayment($paymentId, $paypal);
-        $payment->execute($this->makePaymentExecution($payerId), $paypal);
+        try {
+            $paypal = $this->makeApiContext($payGateway);
+            $payment = $this->loadPayment($paymentId, $paypal);
+            $payment->execute($this->makePaymentExecution($payerId), $paypal);
+        } catch (\Throwable $exception) {
+            throw PaymentGatewayException::wrap($exception, 'PayPal approved payment execution failed.');
+        }
     }
 
     protected function makeApiContext(Pay $payGateway): ApiContext

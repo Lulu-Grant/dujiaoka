@@ -1414,3 +1414,26 @@
 下一步：
 
 - 继续整理 `PayPal` 替换实施所需的最终约束，准备进入旧 SDK 真正退场前的实现切换阶段。
+
+### 58. 将 PayPal SDK 异常包装为应用层异常
+
+摘要：
+
+- 新增 [PaymentGatewayException.php](/Users/apple/Documents/dujiaoshuka/app/Exceptions/PaymentGatewayException.php)，作为支付网关接入层统一异常。
+- [PaypalSdkService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalSdkService.php) 现在会把旧 SDK 抛出的异常包装成应用层异常，再向上抛出。
+- [PaypalPayController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/Pay/PaypalPayController.php) 不再直接依赖 `PayPalConnectionException`，只处理应用层异常与业务校验异常。
+- 新增 [PaypalSdkServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/PaypalSdkServiceTest.php)，确保旧 SDK 错误不会重新泄漏到业务层。
+
+影响范围：
+
+- PayPal 控制器异常边界
+- PayPal SDK 隔离层
+- 后续替换实现的异常语义
+
+验证：
+
+- 当前全量回归结果：`OK (76 tests, 218 assertions)`
+
+下一步：
+
+- 继续压缩 `PayPal` 旧 SDK 的残余实现假设，为真正移除 `paypal/rest-api-sdk-php` 做最后准备。

@@ -6,7 +6,6 @@ use AmrShawky\LaravelCurrency\Facade\Currency;
 use App\Models\Order;
 use App\Models\Pay;
 use App\Service\Contracts\PaypalGatewayClientInterface;
-use PayPal\Exception\PayPalConnectionException;
 
 class PaypalCheckoutService
 {
@@ -28,7 +27,6 @@ class PaypalCheckoutService
      * @param Order $order
      * @param Pay $payGateway
      * @return string
-     * @throws PayPalConnectionException
      */
     public function createApprovalUrl(Order $order, Pay $payGateway): string
     {
