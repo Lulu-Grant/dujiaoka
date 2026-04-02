@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Pay;
 
 use App\Exceptions\RuleValidationException;
 use App\Http\Controllers\PayController;
+use App\Service\OrderService;
+use App\Service\StripePaymentService;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Redis;
@@ -11,6 +13,22 @@ use URL;
 
 class StripeController extends PayController
 {
+    /**
+     * @var \App\Service\StripePaymentService
+     */
+    private $stripePaymentService;
+
+    /**
+     * @var \App\Service\OrderService
+     */
+    private $orderService;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->stripePaymentService = app(StripePaymentService::class);
+        $this->orderService = app(OrderService::class);
+    }
 
     public function gateway(string $payway, string $orderSN)
     {
@@ -434,24 +452,7 @@ class StripeController extends PayController
     {
 
         $data = $request->all();
-        $cacheord = $this->orderService->detailOrderSN($data['orderid']);
-        if (!$cacheord) {
-            return redirect(url('detail-order-sn', ['orderSN' => $data['orderid']]));
-        }
-        $payGateway = $this->payService->detail($cacheord->pay_id);
-        \Stripe\Stripe::setApiKey($payGateway -> merchant_pem);
-        $source_object = \Stripe\Source::retrieve($data['source']);
-        //die($source_object);
-        if ($source_object->status == 'chargeable') {
-            \Stripe\Charge::create([
-                'amount' => $source_object->amount,
-                'currency' => $source_object->currency,
-                'source' => $data['source'],
-            ]);
-            if ($source_object->owner->name == $data['orderid']) {
-                $this->orderProcessService->completedOrder($data['orderid'], $source_object->amount / 100, $source_object->id);
-            }
-        }
+        $this->stripePaymentService->handleReturn($data['orderid'], $data['source']);
         return redirect(url('detail-order-sn', ['orderSN' => $data['orderid']]));
     }
 
@@ -459,28 +460,7 @@ class StripeController extends PayController
     {
 
         $data = $request->all();
-        $cacheord = $this->orderService->detailOrderSN($data['orderid']);
-        if (!$cacheord) {
-            //可能已异步回调成功，跳转
-            return 'fail';
-        } else {
-            $payGateway = $this->payService->detail($cacheord->pay_id);
-            \Stripe\Stripe::setApiKey($payGateway -> merchant_pem);
-            $source_object = \Stripe\Source::retrieve($data['source']);
-            if ($source_object->status == 'chargeable') {
-                \Stripe\Charge::create([
-                    'amount' => $source_object->amount,
-                    'currency' => $source_object->currency,
-                    'source' => $data['source'],
-                ]);
-            }
-            if ($source_object->status == 'consumed' && $source_object->owner->name == $data['orderid']) {
-                $this->orderProcessService->completedOrder($data['orderid'], $cacheord->actual_price, $source_object->id);
-                return 'success';
-            } else {
-                return 'fail';
-            }
-        }
+        return $this->stripePaymentService->handleSourceCheck($data['orderid'], $data['source']);
 
     }
 
@@ -489,26 +469,12 @@ class StripeController extends PayController
         $data = $request->all();
         $cacheord = $this->orderService->detailOrderSN($data['orderid']);
         if (!$cacheord) {
-            //可能已异步回调成功，跳转
             return 'fail';
-        } else {
-            try {
-                $payGateway = $this->payService->detail($cacheord->pay_id);
-                \Stripe\Stripe::setApiKey($payGateway -> merchant_pem);
-                $result = \Stripe\Charge::create([
-                    'amount' => bcmul($this->getUsdCurrency($cacheord->actual_price), 100,0),
-                    'currency' => 'usd',
-                    'source' => $data['stripeToken'],
-                ]);
-                if ($result->status == 'succeeded') {
-                    $this->orderProcessService->completedOrder($data['orderid'], $cacheord->actual_price, $data['stripeToken']);
-                    return 'success';
-                }
-                return $result;
-            } catch (\Exception $e) {
-                return $e->getMessage();
-            }
         }
+
+        $usdAmount = (float) bcmul($this->getUsdCurrency($cacheord->actual_price), 100, 0);
+
+        return $this->stripePaymentService->handleCardCharge($data['orderid'], $data['stripeToken'], $usdAmount);
     }
 
     /**

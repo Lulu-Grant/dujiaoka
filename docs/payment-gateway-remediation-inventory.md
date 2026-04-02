@@ -24,7 +24,7 @@
 | Payjs | `/pay/payjs` | 已服务化 | 已拆出 `PayjsNotificationService` |
 | Coinbase | `/pay/coinbase` | 已服务化 | 已拆出 `CoinbaseWebhookService` |
 | Paypal | `/pay/paypal` | 部分服务化 | `returnUrl` 已抽服务，主控制器仍较重 |
-| Stripe | `/pay/stripe` | 仍为旧式实现 | 高风险，大控制器，内联 HTML 较多 |
+| Stripe | `/pay/stripe` | 部分服务化 | 已拆出 `StripePaymentService`，但页面渲染与汇率/创建逻辑仍较重 |
 
 ## 整改优先级
 

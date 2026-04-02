@@ -692,3 +692,28 @@
 下一步：
 
 - 开始进入 Stripe 的第一轮拆分，并继续收敛 Paypal 剩余通知路径。
+
+### 28. 完成 Stripe 支付完成路径第一轮服务化
+
+摘要：
+
+- 新增 [StripePaymentService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripePaymentService.php)，将 Stripe 的 `returnUrl`、`check`、`charge` 三条完成支付路径中的上下文解析、Source/Charge 调用和完成订单编排从控制器中抽出。
+- [StripeController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/Pay/StripeController.php) 已不再直接承担核心状态流转责任，开始向“超长页面渲染 + 轻入口委托”的中间状态收敛。
+- 这一步优先把最危险的支付完成逻辑从 540 行旧控制器中剥离出来，为后续继续拆 Stripe 的页面渲染与汇率/创建逻辑建立基础。
+
+影响范围：
+
+- Stripe 返回支付路径
+- Stripe 轮询检查路径
+- Stripe 卡支付路径
+- Stripe 控制器职责边界
+
+验证：
+
+- 新增 [StripePaymentServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/StripePaymentServiceTest.php)
+- 新增 [StripeControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/StripeControllerTest.php)
+- 当前全量回归结果：`OK (63 tests, 167 assertions)`
+
+下一步：
+
+- 继续拆 Stripe 的页面渲染与汇率/支付创建逻辑，并评估是否将内联 HTML 提取为视图模板。
