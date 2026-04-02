@@ -842,3 +842,28 @@
 下一步：
 
 - 继续围绕 avatar 细化主流程页面，并逐步清理旧主题遗留的文档和资源引用。
+
+### 34. 拆出第二批业务支撑表，并启动结构迁移与默认种子分离
+
+摘要：
+
+- 新增了 [create_emailtpls_table.php](/Users/apple/Documents/dujiaoshuka/database/migrations/2026_04_02_000007_create_emailtpls_table.php) 和 [create_failed_jobs_table.php](/Users/apple/Documents/dujiaoshuka/database/migrations/2026_04_02_000008_create_failed_jobs_table.php)，开始把第二批业务支撑表从 `install.sql` 里迁出。
+- 引入了 [BootstrapSeeder.php](/Users/apple/Documents/dujiaoshuka/database/seeds/BootstrapSeeder.php) 和 [SampleDataSeeder.php](/Users/apple/Documents/dujiaoshuka/database/seeds/SampleDataSeeder.php)，把“安装必需默认数据”和“本地开发示例数据”分成两条 seed 路径。
+- 新增 [EmailTemplateSeeder.php](/Users/apple/Documents/dujiaoshuka/database/seeds/EmailTemplateSeeder.php)，由它负责默认邮件模板 bootstrap 数据，不再让 `DatabaseSeeder` 默认灌入示例订单。
+- 补了 [EmailTemplateSeederTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/EmailTemplateSeederTest.php) 作为护栏，确保默认模板 token 集不会在后续拆分中被破坏。
+
+影响范围：
+
+- 第二批业务支撑表迁移
+- 数据库默认初始化职责划分
+- `DatabaseSeeder` 入口语义
+- 默认邮件模板来源
+
+验证：
+
+- 默认邮件模板已可通过专用 seeder 完成 bootstrap 写入。
+- 当前全量回归结果：`OK (66 tests, 178 assertions)`
+
+下一步：
+
+- 继续把 `install.sql` 中剩余的默认数据拆成更明确的 bootstrap seed 和 sample seed。

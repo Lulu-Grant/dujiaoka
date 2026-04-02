@@ -83,10 +83,17 @@
 
 - 新建 `database/migrations`
 - 已将核心商业主链表作为第一批迁移对象
+- 已开始第二批业务支撑表迁移：
+  - `emailtpls`
+  - `failed_jobs`
+- 已开始把默认数据从结构迁移中拆出去：
+  - `DatabaseSeeder` 仅保留 bootstrap 安装数据入口
+  - 默认邮件模板改由 `EmailTemplateSeeder` 提供
+  - 示例订单数据改由 `SampleDataSeeder` 单独承载
 
 ## 下一步
 
-1. 补第一批核心表 migration
-2. 校对 migration 与当前模型 / 测试依赖的一致性
-3. 再拆第二批业务支撑表
-4. 最后处理后台表和默认种子
+1. 继续把第二批剩余业务支撑表从 `install.sql` 中迁出
+2. 继续清理 `install.sql` 里的默认数据职责，补 bootstrap / sample seed 分层
+3. 校对 migration 与当前模型 / 测试依赖的一致性
+4. 最后处理后台表和高风险默认值

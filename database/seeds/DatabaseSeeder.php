@@ -2,6 +2,8 @@
 
 use Illuminate\Database\Seeder;
 
+require_once __DIR__ . '/BootstrapSeeder.php';
+
 class DatabaseSeeder extends Seeder
 {
     /**
@@ -11,6 +13,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call(OrderTableSeeder::class);
+        $this->call([
+            BootstrapSeeder::class,
+        ]);
     }
 }
