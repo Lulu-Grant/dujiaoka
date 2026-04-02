@@ -4,11 +4,22 @@ namespace App\Http\Controllers\Pay;
 
 use App\Exceptions\RuleValidationException;
 use App\Http\Controllers\PayController;
+use App\Service\AlipayNotificationService;
 use Illuminate\Http\Request;
 use Yansongda\Pay\Pay;
 
 class AlipayController extends PayController
 {
+    /**
+     * @var \App\Service\AlipayNotificationService
+     */
+    private $alipayNotificationService;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->alipayNotificationService = app(AlipayNotificationService::class);
+    }
 
     /**
      * 支付宝支付网关
@@ -76,34 +87,9 @@ class AlipayController extends PayController
      */
     public function notifyUrl(Request $request)
     {
-        $orderSN = $request->input('out_trade_no');
-        $order = $this->orderService->detailOrderSN($orderSN);
-        if (!$order) {
-            return 'error';
-        }
-        $payGateway = $this->payService->detail($order->pay_id);
-        if (!$payGateway) {
-            return 'error';
-        }
-        if($payGateway->pay_handleroute != '/pay/alipay'){
-            return 'fail';
-        }
-        $config = [
-            'app_id' => $payGateway->merchant_id,
-            'ali_public_key' => $payGateway->merchant_key,
-            'private_key' => $payGateway->merchant_pem,
-        ];
-        $pay = Pay::alipay($config);
-        try{
-            // 验证签名
-            $result = $pay->verify();
-            if ($result->trade_status == 'TRADE_SUCCESS' || $result->trade_status == 'TRADE_FINISHED') {
-                $this->orderProcessService->completedOrder($result->out_trade_no, $result->total_amount, $result->trade_no);
-            }
-            return 'success';
-        } catch (\Exception $exception) {
-            return 'fail';
-        }
+        return $this->alipayNotificationService->handleNotification(
+            (string) $request->input('out_trade_no')
+        );
     }
 
 

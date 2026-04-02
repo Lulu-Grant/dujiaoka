@@ -4,10 +4,21 @@ namespace App\Http\Controllers\Pay;
 
 use App\Exceptions\RuleValidationException;
 use App\Http\Controllers\PayController;
+use App\Service\WepayNotificationService;
 use Yansongda\Pay\Pay;
 
 class WepayController extends PayController
 {
+    /**
+     * @var \App\Service\WepayNotificationService
+     */
+    private $wepayNotificationService;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->wepayNotificationService = app(WepayNotificationService::class);
+    }
 
     public function gateway(string $payway, string $orderSN)
     {
@@ -57,33 +68,7 @@ class WepayController extends PayController
     {
         $xml = file_get_contents('php://input');
         $arr = json_decode(json_encode(simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
-        $oid = $arr['out_trade_no'];
-        $order = $this->orderService->detailOrderSN($oid);
-        if (!$order) {
-            return 'error';
-        }
-        $payGateway = $this->payService->detail($order->pay_id);
-        if (!$payGateway) {
-            return 'error';
-        }
-        if($payGateway->pay_handleroute != '/pay/wepay'){
-            return 'error';
-        }
-        $config = [
-            'app_id' => $payGateway->merchant_id,
-            'mch_id' => $payGateway->merchant_key,
-            'key' => $payGateway->merchant_pem,
-        ];
-        $pay = Pay::wechat($config);
-        try{
-            // 验证签名
-            $result = $pay->verify();
-            $total_fee = bcdiv($result->total_fee, 100, 2);
-            $this->orderProcessService->completedOrder($result->out_trade_no, $total_fee, $result->transaction_id);
-            return 'success';
-        } catch (\Exception $exception) {
-            return 'fail';
-        }
+        return $this->wepayNotificationService->handleNotification((string) ($arr['out_trade_no'] ?? ''));
     }
 
 }

@@ -575,3 +575,74 @@
 下一步：
 
 - 沿用这套模式继续处理 Alipay / Wepay 这类 SDK 型回调，逐步统一支付层编排。
+
+### 23. 完成 Alipay 回调服务化改造
+
+摘要：
+
+- 新增 [AlipayNotificationService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AlipayNotificationService.php)，把 Alipay 回调中的上下文解析、SDK 客户端创建、签名验证和支付完成编排从控制器中抽离。
+- [AlipayController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/Pay/AlipayController.php) 现在只保留回调入口职责，继续向“控制器薄壳 + 服务编排”的统一支付模式收敛。
+- 这一步为后续处理 `Wepay` 提供了几乎同构的样板。
+
+影响范围：
+
+- Alipay 回调
+- SDK 型支付通知服务化模式
+- 支付层可测试性
+
+验证：
+
+- 新增 [AlipayNotificationServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AlipayNotificationServiceTest.php)
+- 新增 [AlipayControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AlipayControllerTest.php)
+- 当前全量回归结果：`OK (52 tests, 146 assertions)`
+
+下一步：
+
+- 继续用同样模式处理 Wepay，并开始整理支付网关整改清单。
+
+### 24. 完成 Wepay 回调服务化改造
+
+摘要：
+
+- 新增 [WepayNotificationService.php](/Users/apple/Documents/dujiaoshuka/app/Service/WepayNotificationService.php)，把 Wepay 回调中的上下文解析、SDK 客户端创建、签名验证和支付完成编排从控制器中抽离。
+- [WepayController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/Pay/WepayController.php) 进一步瘦身，现在只负责从 XML 中提取订单号并委托通知服务。
+- 到这一步，Yansongda 这类 SDK 型支付回调已经建立起可复用的统一服务化模式。
+
+影响范围：
+
+- Wepay 回调
+- 微信支付 SDK 型通知服务化模式
+- 支付层服务边界清晰度
+
+验证：
+
+- 新增 [WepayNotificationServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/WepayNotificationServiceTest.php)
+- 新增 [WepayControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/WepayControllerTest.php)
+- 当前全量回归结果：待本轮测试更新
+
+下一步：
+
+- 开始整理支付网关整改清单，并评估 Stripe / Paypal 等更重网关的下一步抽象路线。
+
+### 25. 建立支付网关整改清单
+
+摘要：
+
+- 新增 [payment-gateway-remediation-inventory.md](/Users/apple/Documents/dujiaoshuka/docs/payment-gateway-remediation-inventory.md)，把当前支付网关按“已接入统一通知骨架 / 已服务化 / 仍为旧式实现 / 高风险”分类整理。
+- 明确 `Stripe` 和 `Paypal` 是当前支付层剩余的最高风险区域，后续应作为阶段 A 的重点清障对象。
+- 阶段 A 从“持续重构中”进一步升级为“有执行面板、有状态盘点、有默认下一步”的可追踪状态。
+
+影响范围：
+
+- 支付层整改追踪方式
+- 阶段 A 的优先级判断
+- 后续 Stripe / Paypal 整改路线
+
+验证：
+
+- 新增 [payment-gateway-remediation-inventory.md](/Users/apple/Documents/dujiaoshuka/docs/payment-gateway-remediation-inventory.md)
+- 当前全量回归结果：`OK (55 tests, 151 assertions)`
+
+下一步：
+
+- 继续处理 Paypal 主流程，并准备对 Stripe 进行更大颗粒度的拆解。
