@@ -1529,3 +1529,25 @@
 下一步：
 
 - 继续收敛 Stripe 里残留的状态处理假设，为后续独立升级 `stripe/stripe-php` 准备更稳定的边界。
+
+### 63. 将 Stripe source 状态处理抽成独立处理服务
+
+摘要：
+
+- 新增 [StripeSourceProcessorService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripeSourceProcessorService.php)，统一处理 `source` 的检索、按需扣款、订单归属校验与完成订单。
+- [StripePaymentService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripePaymentService.php) 现在更接近编排层，`return` 与 `check` 两条路径不再各自保留一份相似的 source 状态处理逻辑。
+- 新增 [StripeSourceProcessorServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/StripeSourceProcessorServiceTest.php)，给这段独立出来的状态处理逻辑补了直接护栏。
+
+影响范围：
+
+- Stripe source 状态处理
+- Stripe 支付服务职责边界
+- Stripe SDK 升级准备度
+
+验证：
+
+- 当前全量回归结果：`OK (84 tests, 239 assertions)`
+
+下一步：
+
+- 继续清理 Stripe 剩余的旧式输入 / 页面耦合点，为独立升级 SDK 和后续前端整治做准备。

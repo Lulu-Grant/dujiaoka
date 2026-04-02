@@ -10,9 +10,9 @@ use App\Service\Contracts\StripeGatewayClientInterface;
 class StripePaymentService
 {
     /**
-     * @var \App\Service\PaymentCallbackService
+     * @var \App\Service\StripeSourceProcessorService
      */
-    private $paymentCallbackService;
+    private $stripeSourceProcessorService;
 
     /**
      * @var \App\Service\Contracts\StripeGatewayClientInterface
@@ -21,7 +21,7 @@ class StripePaymentService
 
     public function __construct()
     {
-        $this->paymentCallbackService = app(PaymentCallbackService::class);
+        $this->stripeSourceProcessorService = app(StripeSourceProcessorService::class);
         $this->stripeGatewayClient = app(StripeGatewayClientInterface::class);
     }
 
@@ -32,23 +32,7 @@ class StripePaymentService
             return 'redirect';
         }
 
-        try {
-            $this->stripeGatewayClient->setApiKey($payGateway->merchant_pem);
-            $source = $this->stripeGatewayClient->retrieveSource($sourceId);
-            if ($source->status == 'chargeable') {
-                $this->stripeGatewayClient->createCharge([
-                    'amount' => $source->amount,
-                    'currency' => $source->currency,
-                    'source' => $sourceId,
-                ]);
-
-                if (($source->owner->name ?? null) == $orderSN) {
-                    $this->paymentCallbackService->completeOrder($orderSN, (float) $source->amount / 100, $source->id);
-                }
-            }
-        } catch (\Throwable $exception) {
-            throw PaymentGatewayException::wrap($exception, 'Stripe return handling failed.');
-        }
+        $this->stripeSourceProcessorService->processReturn($order, $payGateway, $sourceId);
 
         return 'redirect';
     }
@@ -60,27 +44,7 @@ class StripePaymentService
             return 'fail';
         }
 
-        try {
-            $this->stripeGatewayClient->setApiKey($payGateway->merchant_pem);
-            $source = $this->stripeGatewayClient->retrieveSource($sourceId);
-            if ($source->status == 'chargeable') {
-                $this->stripeGatewayClient->createCharge([
-                    'amount' => $source->amount,
-                    'currency' => $source->currency,
-                    'source' => $sourceId,
-                ]);
-            }
-
-            if ($source->status == 'consumed' && ($source->owner->name ?? null) == $orderSN) {
-                $this->paymentCallbackService->completeOrder($orderSN, (float) $order->actual_price, $source->id);
-
-                return 'success';
-            }
-        } catch (\Throwable $exception) {
-            throw PaymentGatewayException::wrap($exception, 'Stripe source check failed.');
-        }
-
-        return 'fail';
+        return $this->stripeSourceProcessorService->processSourceCheck($order, $payGateway, $sourceId);
     }
 
     public function handleCardCharge(string $orderSN, string $stripeToken, float $usdAmount): string
@@ -98,7 +62,7 @@ class StripePaymentService
                 'source' => $stripeToken,
             ]);
             if ($result->status == 'succeeded') {
-                $this->paymentCallbackService->completeOrder($orderSN, (float) $order->actual_price, $stripeToken);
+                app(PaymentCallbackService::class)->completeOrder($orderSN, (float) $order->actual_price, $stripeToken);
 
                 return 'success';
             }
@@ -114,7 +78,7 @@ class StripePaymentService
      */
     protected function resolveStripeContext(string $orderSN): array
     {
-        return $this->paymentCallbackService->resolveCallbackContext($orderSN, '/pay/stripe');
+        return app(PaymentCallbackService::class)->resolveCallbackContext($orderSN, '/pay/stripe');
     }
 
     protected function getTargetCurrency(): string
