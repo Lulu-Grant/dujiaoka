@@ -20,8 +20,8 @@
 | `dcat/laravel-admin 2.*` | 后台控制台核心框架 | P0 | 深度耦合 | 保留过渡、最终替换 | 当前不能先硬拔，应先降耦合 |
 | `dcat/easy-excel` | 后台导入导出辅助 | P2 | 依赖 Dcat 生态 | 观察、后续替换 | 随后台壳替换一起处理更合理 |
 | `germey/geetest ^3.1` | 行为验证 | P0 | 已从主锁文件移除 | 已处理 | 已退出前台下单主路径、路由、中间件与后台设置入口 |
-| `simplesoftwareio/simple-qrcode 2.0.0` | 二维码生成 | P0 | 被旧 `bacon` 链锁死 | 替换 | 当前 QRCode 链直接卡住现代 PHP 兼容性 |
-| `bacon/bacon-qr-code 1.0.3` | QRCode 底层依赖 | P0 | 旧版本 | 随上层替换退出 | 不建议单独保留 |
+| `simplesoftwareio/simple-qrcode 2.0.0` | 二维码生成 | P0 | 已从主锁文件移除 | 已处理 | 已改为前端本地 JS 生成二维码 |
+| `bacon/bacon-qr-code 1.0.3` | QRCode 底层依赖 | P0 | 已随上层退出 | 已处理 | 已随 `simple-qrcode` 一起移除 |
 | `paypal/rest-api-sdk-php ^1.14` | PayPal 支付 | P1 | 历史 SDK | 替换 | 支付链已部分服务化，但 SDK 仍旧 |
 | `stripe/stripe-php ^7.84` | Stripe 支付 | P1 | 偏旧 | 升级或替换接入方式 | 先稳定服务层，再升级 SDK |
 | `xhat/payjs-laravel ^1.6` | PayJS 支付 | P2 | 仍在用 | 观察 | 已服务化，但后续仍需看维护性 |
@@ -57,8 +57,9 @@
 
 建议：
 
-- 作为第一条可执行替换链处理
-- 目标是把 QRCode 功能从旧 `bacon 1.0.*` 链上摘下来
+- 已通过前端本地 JS 生成二维码的方式完成替换
+- 当前二维码支付页不再依赖后端 PNG 生成器
+- 这条 PHP 兼容阻塞链已经退出主锁文件
 
 #### `phpspec/prophecy`
 
@@ -152,8 +153,8 @@
 
 因此下一步默认优先顺序建议是：
 
-1. `simple-qrcode` / `bacon`
-2. `paypal/rest-api-sdk-php` 与 `stripe/stripe-php`
-3. `dcat/laravel-admin` 的进一步降耦合
+1. `paypal/rest-api-sdk-php` 与 `stripe/stripe-php`
+2. `dcat/laravel-admin` 的进一步降耦合
+3. 其余遗留包的兼容性复盘
 
 在剩余高优先级链路被处理前，不建议直接发起正式 Laravel / PHP 跨版本升级。

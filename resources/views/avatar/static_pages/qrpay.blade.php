@@ -14,7 +14,10 @@
             <div class="card-body">
                 <h5 class="card-title text-primary text-center">{{ __('hyper.qrpay_order_expiration_date') }} {{ dujiaoka_config_get('order_expire_time', 5) }} {{ __('hyper.qrpay_expiration_date') }}</h5>
                 <div class="text-center">
-                    <img src="data:image/png;base64,{!! base64_encode(QrCode::format('png')->size(200)->generate($qr_code)) !!}">
+                    <div id="pay-qrcode" class="d-inline-block" data-qr-code="{{ e($qr_code) }}"></div>
+                    <noscript>
+                        <p class="mt-3">{{ $qr_code }}</p>
+                    </noscript>
                 </div>
                 {{-- 订单金额 --}}
                 <p class="card-text text-center">{{ __('hyper.qrpay_actual_payment') }}: {{ $actual_price }}</p>
@@ -27,7 +30,19 @@
 </div>
 @stop
 @section('js')
+    <script src="/vendor/dcat-admin/dcat/plugins/jquery-qrcode/dist/jquery-qrcode.min.js"></script>
     <script>
+        $(function () {
+            var qrText = $('#pay-qrcode').data('qr-code');
+            if (qrText) {
+                $('#pay-qrcode').empty().qrcode({
+                    width: 200,
+                    height: 200,
+                    text: qrText
+                });
+            }
+        });
+
         var getting = {
             url:'{{ url('check-order-status', ['orderSN' => $orderid]) }}',
             dataType:'json',

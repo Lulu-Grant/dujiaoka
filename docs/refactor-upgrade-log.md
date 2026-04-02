@@ -1228,3 +1228,26 @@
 下一步：
 
 - 继续处理下一条 P0 阻塞链，开始替换 `simple-qrcode` / `bacon` 这一组二维码依赖。
+
+### 50. 完成第三条依赖阻塞链：移除二维码生成旧依赖
+
+摘要：
+
+- 将二维码支付页从后端 `QrCode::format('png')` 生成方式切换为前端本地 `jquery-qrcode` 渲染，不再依赖 `simple-qrcode` 和 `bacon`。
+- 清理了 [composer.json](/Users/apple/Documents/dujiaoshuka/composer.json) 与 [composer.lock](/Users/apple/Documents/dujiaoshuka/composer.lock) 中的二维码依赖。
+- 新增了 [tests/Unit/QrPayViewTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/QrPayViewTest.php)，确认二维码支付页使用本地前端二维码容器与脚本，而不是后端 PNG 生成器。
+
+影响范围：
+
+- 二维码支付页渲染方式
+- Composer 主依赖
+- 现代 PHP 阻塞链
+
+验证：
+
+- `./scripts/composer74 why simplesoftwareio/simple-qrcode` 与 `./scripts/composer74 why bacon/bacon-qr-code` 已确认当前项目中找不到这两个包。
+- 当前全量回归结果：`OK (72 tests, 203 assertions)`
+
+下一步：
+
+- 继续进入下一组高优先级阻塞，开始评估 `paypal/rest-api-sdk-php` 与 `stripe/stripe-php` 的替换顺序。

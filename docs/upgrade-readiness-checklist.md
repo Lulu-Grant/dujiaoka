@@ -71,6 +71,7 @@
 
 - `phpspec/prophecy 1.13.0` 已随 `phpunit/phpunit` 升级到 `9.6.34` 从主锁文件移除
 - `germey/geetest v3.1.0` 已从前台下单主路径与主锁文件中移除
+- `simplesoftwareio/simple-qrcode 2.0.0` 与 `bacon/bacon-qr-code 1.0.3` 已从主锁文件移除，二维码支付页已切换为前端本地生成
 
 影响：
 
@@ -80,7 +81,7 @@
 建议动作：
 
 1. 为阻塞包建立“保留 / 替换 / 移除”决策表
-2. 优先处理 QRCode 这条剩余 P0 阻塞链
+2. 优先处理支付 SDK 与后台框架这两条剩余高优先级链
 
 参考：
 
