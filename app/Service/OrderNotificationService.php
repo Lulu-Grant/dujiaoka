@@ -116,7 +116,7 @@ class OrderNotificationService
         return [
             'created_at' => $order->created_at ?: date('Y-m-d H:i'),
             'product_name' => $order->goods->gd_name,
-            'webname' => dujiaoka_config_get('text_logo', '独角数卡'),
+            'webname' => dujiaoka_config_get('text_logo', '独角数卡西瓜版'),
             'weburl' => config('app.url') ?? 'http://dujiaoka.com',
             'ord_info' => $orderInfo,
             'ord_title' => $order->title,

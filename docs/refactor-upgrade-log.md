@@ -1081,3 +1081,32 @@
 下一步：
 
 - 后续重点转向更高层的框架升级、后台替换评估和剩余遗留兼容清障。
+
+### 44. 统一品牌视觉与默认 Logo 为「独角数卡西瓜版」
+
+摘要：
+
+- 新增并接入了新的品牌主图与缩略图资源：
+  [dujiaoka-xigua.png](/Users/apple/Documents/dujiaoshuka/public/assets/avatar/images/dujiaoka-xigua.png)、
+  [favicon.png](/Users/apple/Documents/dujiaoshuka/public/assets/avatar/images/favicon.png)、
+  [public/favicon.png](/Users/apple/Documents/dujiaoshuka/public/favicon.png)。
+- 前台 `avatar` 主题导航、页脚、favicon 和品牌默认文案已统一切换为“独角数卡西瓜版”。
+- 后台 `dcat-admin` 的名称、标题、Logo 和欢迎页标题已统一为“独角数卡西瓜版”。
+- 安装页不再使用旧的超大内联 Logo，而是改为直接引用新的西瓜版品牌图，并同步更新安装程序标题和站点默认名称。
+- 订单邮件模板数据与 Bark 推送的默认站点名，也统一切换为“独角数卡西瓜版”。
+
+影响范围：
+
+- 前台主题视觉识别
+- 后台控制台品牌识别
+- 安装流程品牌呈现
+- 通知与推送默认品牌名
+
+验证：
+
+- 关键品牌文案和 favicon 引用已统一完成。
+- 当前全量回归结果：`OK (70 tests, 198 assertions)`
+
+下一步：
+
+- 后续可继续细化 `avatar` 主题的下单、查询与订单详情页视觉一致性。

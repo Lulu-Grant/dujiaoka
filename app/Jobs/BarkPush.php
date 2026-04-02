@@ -76,7 +76,7 @@ class BarkPush implements ShouldQueue
 				. __('order.fields.order_created') .': '.$this->order->created_at,
 			"icon"=>url('assets/common/images/default.jpg'),
 			"level"=>"timeSensitive",
-			"group"=>dujiaoka_config_get('text_logo', '独角数卡')
+			"group"=>dujiaoka_config_get('text_logo', '独角数卡西瓜版')
 		];
 		if (dujiaoka_config_get('is_open_bark_push_url', 0) == BaseModel::STATUS_OPEN) {
 			$params["url"] = url('detail-order-sn/'.$this->order->order_sn);

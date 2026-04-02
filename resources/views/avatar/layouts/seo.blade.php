@@ -16,7 +16,7 @@
     @if(\request()->getScheme() == "https")
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     @endif
-    <link rel="shortcut icon" href="/assets/avatar/images/favicon.ico">
+    <link rel="shortcut icon" href="/assets/avatar/images/favicon.png">
     <link href="/assets/avatar/css/bootstrap.min.css" rel="stylesheet" type="text/css">
     <link href="/assets/avatar/css/icons.min.css" rel="stylesheet" type="text/css">
     <link href="/assets/avatar/css/base.css" rel="stylesheet" type="text/css">
