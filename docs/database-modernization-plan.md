@@ -62,6 +62,7 @@
 
 - 后台框架未来可能替换
 - 不应让后台表迁移阻塞核心业务表迁移
+- 但其中的“结构”和“默认高风险账号”必须拆开推进
 
 ## 默认数据拆分原则
 
@@ -76,6 +77,7 @@
 - 默认管理员账号不能作为长期 seed 保留
 - 默认支付方式样例可以作为开发 seed，但不应强制进入生产
 - 邮件模板更适合独立 seeder
+- 后台骨架数据需要单独评估，避免和默认管理员账号一起被继续打包导入
 
 ## 已完成起步
 
@@ -91,10 +93,20 @@
   - 默认邮件模板改由 `EmailTemplateSeeder` 提供
   - 示例订单数据改由 `SampleDataSeeder` 单独承载
   - 默认支付方式样例改由 `PaySampleSeeder` 单独承载
+- 已补充安装数据分类清单：
+  - [install-data-classification.md](/Users/apple/Documents/dujiaoshuka/docs/install-data-classification.md)
+- 已开始第三批后台骨架结构迁移：
+  - `admin_menu`
+  - `admin_permissions`
+  - `admin_roles`
+  - `admin_permission_menu`
+  - `admin_role_menu`
+  - `admin_role_permissions`
+  - `admin_settings`
 
 ## 下一步
 
-1. 继续把第二批剩余业务支撑表从 `install.sql` 中迁出
-2. 继续清理 `install.sql` 里的默认数据职责，补 bootstrap / sample seed 分层
-3. 校对 migration 与当前模型 / 测试依赖的一致性
-4. 最后处理后台表和高风险默认值
+1. 继续补后台骨架数据的结构迁移与安全 seed 方案
+2. 在安装流程中彻底移除默认管理员账号导入
+3. 继续清理 `install.sql` 里的默认数据职责，补 bootstrap / sample seed 分层
+4. 校对 migration 与当前模型 / 测试依赖的一致性

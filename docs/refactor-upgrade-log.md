@@ -890,3 +890,54 @@
 下一步：
 
 - 继续识别 `install.sql` 里剩余的后台/系统默认数据，进一步划分为 bootstrap、sample 和高风险禁入三类。
+
+### 36. 固化安装数据分类边界，并为 bootstrap seed 加边界护栏
+
+摘要：
+
+- 新增了 [install-data-classification.md](/Users/apple/Documents/dujiaoshuka/docs/install-data-classification.md)，把 `install.sql` 里的后台/系统默认数据分成了 `bootstrap`、`sample`、`forbidden` 三类。
+- 这一步明确将 `admin_users` 和 `admin_role_users` 归为高风险禁入项，不再把“默认管理员账号 + 角色绑定”视为可接受的安装默认值。
+- 同时补了 [BootstrapSeederBoundaryTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/BootstrapSeederBoundaryTest.php)，确保 bootstrap seed 只恢复邮件模板这类安全默认值，不会把支付样例重新带回默认安装路径。
+
+影响范围：
+
+- 安装默认数据治理边界
+- 后台骨架数据后续迁移策略
+- bootstrap / sample seed 责任边界
+
+验证：
+
+- 当前全量回归结果：`OK (68 tests, 186 assertions)`
+
+下一步：
+
+- 继续把后台骨架数据从 `install.sql` 拆成独立迁移/seed，并在安装流程层面开始摆脱对整包 SQL 导入的依赖。
+
+### 37. 启动第三批后台骨架结构迁移，并继续隔离高风险默认账号
+
+摘要：
+
+- 新增了后台骨架相关 migration：
+  - [create_admin_menu_table.php](/Users/apple/Documents/dujiaoshuka/database/migrations/2026_04_02_000009_create_admin_menu_table.php)
+  - [create_admin_permissions_table.php](/Users/apple/Documents/dujiaoshuka/database/migrations/2026_04_02_000010_create_admin_permissions_table.php)
+  - [create_admin_roles_table.php](/Users/apple/Documents/dujiaoshuka/database/migrations/2026_04_02_000011_create_admin_roles_table.php)
+  - [create_admin_permission_menu_table.php](/Users/apple/Documents/dujiaoshuka/database/migrations/2026_04_02_000012_create_admin_permission_menu_table.php)
+  - [create_admin_role_menu_table.php](/Users/apple/Documents/dujiaoshuka/database/migrations/2026_04_02_000013_create_admin_role_menu_table.php)
+  - [create_admin_role_permissions_table.php](/Users/apple/Documents/dujiaoshuka/database/migrations/2026_04_02_000014_create_admin_role_permissions_table.php)
+  - [create_admin_settings_table.php](/Users/apple/Documents/dujiaoshuka/database/migrations/2026_04_02_000015_create_admin_settings_table.php)
+- 这一轮只迁后台骨架结构，不迁 `admin_users` 和 `admin_role_users`，继续把默认管理员账号及其角色绑定隔离在高风险禁入区。
+- 这样第三批已经从“只做策略盘点”进入“结构先行、账号后拆”的实作阶段。
+
+影响范围：
+
+- 第三批后台与系统表迁移进度
+- 后台骨架与默认凭据分离策略
+- `install.sql` 后续退场路径
+
+验证：
+
+- 当前全量回归结果：`OK (68 tests, 186 assertions)`
+
+下一步：
+
+- 继续补后台骨架的安全 seed 方案，并开始从安装流程中移除默认管理员账号导入。
