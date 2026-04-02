@@ -90,6 +90,7 @@
   - `DatabaseSeeder` 仅保留 bootstrap 安装数据入口
   - 默认邮件模板改由 `EmailTemplateSeeder` 提供
   - 示例订单数据改由 `SampleDataSeeder` 单独承载
+  - 默认支付方式样例改由 `PaySampleSeeder` 单独承载
 
 ## 下一步
 

@@ -867,3 +867,26 @@
 下一步：
 
 - 继续把 `install.sql` 中剩余的默认数据拆成更明确的 bootstrap seed 和 sample seed。
+
+### 35. 将支付方式样例从安装默认值拆入 sample seed
+
+摘要：
+
+- 新增了 [PaySampleSeeder.php](/Users/apple/Documents/dujiaoshuka/database/seeds/PaySampleSeeder.php)，把 `install.sql` 里的支付方式样例配置迁移为开发样例 seed。
+- [SampleDataSeeder.php](/Users/apple/Documents/dujiaoshuka/database/seeds/SampleDataSeeder.php) 现在会显式加载支付方式样例和示例订单，而不是让安装 bootstrap 默认带上一组伪商户配置。
+- 这样新安装环境的 bootstrap 数据会更干净，支付网关示例只在本地演示、测试和开发初始化时按需提供。
+
+影响范围：
+
+- 默认支付方式样例来源
+- sample seed 语义
+- `install.sql` 后续职责收缩方向
+
+验证：
+
+- 已补充 [PaySampleSeederTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/PaySampleSeederTest.php) 作为样例支付配置护栏。
+- 当前全量回归结果：`OK (67 tests, 184 assertions)`
+
+下一步：
+
+- 继续识别 `install.sql` 里剩余的后台/系统默认数据，进一步划分为 bootstrap、sample 和高风险禁入三类。

@@ -3,6 +3,7 @@
 use Illuminate\Database\Seeder;
 
 require_once __DIR__ . '/OrderTableSeeder.php';
+require_once __DIR__ . '/PaySampleSeeder.php';
 
 class SampleDataSeeder extends Seeder
 {
@@ -14,6 +15,7 @@ class SampleDataSeeder extends Seeder
     public function run()
     {
         $this->call([
+            PaySampleSeeder::class,
             OrderTableSeeder::class,
         ]);
     }
