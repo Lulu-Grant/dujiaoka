@@ -19,7 +19,7 @@
 | --- | --- | --- | --- | --- | --- |
 | `dcat/laravel-admin 2.*` | 后台控制台核心框架 | P0 | 深度耦合 | 保留过渡、最终替换 | 当前不能先硬拔，应先降耦合 |
 | `dcat/easy-excel` | 后台导入导出辅助 | P2 | 依赖 Dcat 生态 | 观察、后续替换 | 随后台壳替换一起处理更合理 |
-| `germey/geetest ^3.1` | 行为验证 | P0 | 老旧且 PHP 兼容性差 | 替换或移除 | 已知阻塞现代 PHP；若业务非强依赖，优先考虑移除 |
+| `germey/geetest ^3.1` | 行为验证 | P0 | 已从主锁文件移除 | 已处理 | 已退出前台下单主路径、路由、中间件与后台设置入口 |
 | `simplesoftwareio/simple-qrcode 2.0.0` | 二维码生成 | P0 | 被旧 `bacon` 链锁死 | 替换 | 当前 QRCode 链直接卡住现代 PHP 兼容性 |
 | `bacon/bacon-qr-code 1.0.3` | QRCode 底层依赖 | P0 | 旧版本 | 随上层替换退出 | 不建议单独保留 |
 | `paypal/rest-api-sdk-php ^1.14` | PayPal 支付 | P1 | 历史 SDK | 替换 | 支付链已部分服务化，但 SDK 仍旧 |
@@ -44,9 +44,9 @@
 
 建议：
 
-- 优先评估移除成本
-- 如果移除风险低，直接从默认主路径中退场
-- 如果必须保留，再寻找替代方案
+- 已按“退主路径、保留兼容数据字段”的方式移除
+- 当前不再阻塞前台下单与依赖安装
+- 后续如需重新引入行为验证，应以更轻量、可替换的方案接入
 
 #### `simplesoftwareio/simple-qrcode` / `bacon/bacon-qr-code`
 
@@ -152,8 +152,8 @@
 
 因此下一步默认优先顺序建议是：
 
-1. `germey/geetest`
-2. `simple-qrcode` / `bacon`
-3. `paypal/rest-api-sdk-php` 与 `stripe/stripe-php`
+1. `simple-qrcode` / `bacon`
+2. `paypal/rest-api-sdk-php` 与 `stripe/stripe-php`
+3. `dcat/laravel-admin` 的进一步降耦合
 
 在剩余高优先级链路被处理前，不建议直接发起正式 Laravel / PHP 跨版本升级。

@@ -85,17 +85,6 @@ class OrderService
         if ($validator->fails()) {
             throw new RuleValidationException($validator->errors()->first());
         }
-        // 极验验证
-        if (
-            dujiaoka_config_get('is_open_geetest') == BaseModel::STATUS_OPEN
-            &&
-            !Validator::make($request->all(),
-                ['geetest_challenge' => 'geetest',],
-                [ 'geetest' => __('dujiaoka.prompt.geetest_validate_fail')])
-
-        ) {
-            throw new RuleValidationException(__('dujiaoka.prompt.geetest_validate_fail'));
-        }
     }
 
     /**

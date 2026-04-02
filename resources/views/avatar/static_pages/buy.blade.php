@@ -93,14 +93,6 @@
                         </div>
                     @endforeach
                 @endif
-                @if(dujiaoka_config_get('is_open_geetest') == \App\Models\Goods::STATUS_OPEN )
-                    <div class="form-group">
-                        {{-- 极验证 --}}
-                        <div class="buy-title">{{ __('hyper.buy_behavior_verification') }}</div>
-                        <div id="geetest-captcha"></div>
-                        <p id="wait-geetest-captcha" class="show">loading...</p>
-                    </div>
-                @endif
                 @if(dujiaoka_config_get('is_open_img_code') == \App\Models\Goods::STATUS_OPEN)
                     {{-- 图形验证码 --}}
                     <div class="form-group">
@@ -256,47 +248,4 @@
         });
     });
 </script>
-@if(dujiaoka_config_get('is_open_geetest') == \App\Models\Goods::STATUS_OPEN )
-<script src="https://static.geetest.com/static/tools/gt.js"></script>
-<script>
-    var geetest = function(url) {
-        var handlerEmbed = function(captchaObj) {
-            $("#geetest-captcha").closest('form').submit(function(e) {
-                var validate = captchaObj.getValidate();
-                if (!validate) {
-                    $.NotificationApp.send("{{ __('hyper.buy_warning') }}","{{ __('hyper.buy_correct_verification') }}","top-center","rgba(0,0,0,0.2)","info");
-                    e.preventDefault();
-                }
-            });
-            captchaObj.appendTo("#geetest-captcha");
-            captchaObj.onReady(function() {
-                $("#wait-geetest-captcha")[0].className = "d-none";
-            });
-            captchaObj.onSuccess(function () {$('#geetest-captcha').attr("placeholder",'{{ __('dujiaoka.success_behavior_verification') }}')})
-
-            captchaObj.appendTo("#geetest-captcha");
-        };
-        $.ajax({
-            url: url + "?t=" + (new Date()).getTime(),
-            type: "get",
-            dataType: "json",
-            success: function(data) {
-                initGeetest({
-                    width: '100%',
-                    gt: data.gt,
-                    challenge: data.challenge,
-                    product: "popup",
-                    offline: !data.success,
-                    new_captcha: data.new_captcha,
-                    lang: '{{ dujiaoka_config_get('language') ?? 'zh_CN' }}',
-                    http: '{{ (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://" }}' + '://'
-                }, handlerEmbed);
-            }
-        });
-    };
-    (function() {
-        geetest('{{ '/check-geetest' }}');
-    })();
-</script>
-@endif
 @stop

@@ -12,8 +12,6 @@ use Illuminate\Support\Facades\Route;
 Route::group(['middleware' => ['dujiaoka.boot'],'namespace' => 'Home'], function () {
     // 首页
     Route::get('/', 'HomeController@index');
-    // 极验效验
-    Route::get('check-geetest', 'HomeController@geetest');
     // 商品详情
     Route::get('buy/{id}', 'HomeController@buy');
     // 提交订单
@@ -40,4 +38,3 @@ Route::group(['middleware' => ['install.check'],'namespace' => 'Home'], function
     // 执行安装
     Route::post('do-install', 'HomeController@doInstall');
 });
-

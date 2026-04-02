@@ -6,10 +6,8 @@ use App\Exceptions\RuleValidationException;
 use App\Http\Controllers\BaseController;
 use App\Models\Pay;
 use App\Service\InstallationService;
-use Germey\Geetest\Geetest;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class HomeController extends BaseController
 {
@@ -85,29 +83,6 @@ class HomeController extends BaseController
         }
 
     }
-
-    /**
-     * 极验行为验证
-     *
-     * @param Request $request
-     *
-     * @author    assimon<ashang@utf8.hk>
-     * @copyright assimon<ashang@utf8.hk>
-     * @link      http://utf8.hk/
-     */
-    public function geetest(Request $request)
-    {
-        $data = [
-            'user_id' => @Auth::user()?@Auth::user()->id:'UnLoginUser',
-            'client_type' => 'web',
-            'ip_address' => \Illuminate\Support\Facades\Request::ip()
-        ];
-        $status = Geetest::preProcess($data);
-        session()->put('gtserver', $status);
-        session()->put('user_id', $data['user_id']);
-        return Geetest::getResponseStr();
-    }
-
     /**
      * 安装页面
      *

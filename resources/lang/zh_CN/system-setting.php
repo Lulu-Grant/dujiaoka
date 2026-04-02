@@ -14,7 +14,6 @@ return [
         'base_setting' => '基本设置',
         'mail_setting' => '邮件服务',
         'order_push_setting' => '订单推送配置',
-        'geetest' => '极验验证',
     ],
 
     'fields' => [
@@ -55,10 +54,6 @@ return [
         'encryption' => '协议',
         'from_address' => '发件地址',
         'from_name' => '发件名称',
-
-        'geetest_id' => '极验id',
-        'geetest_key' => '极验key',
-        'is_open_geetest' => '是否开启极验',
     ],
     'options' => [
     ],

@@ -15,7 +15,6 @@
         "dcat/easy-excel": "^1.0",
         "dcat/laravel-admin": "2.*",
         "fideloper/proxy": "^4.4",
-        "germey/geetest": "^3.1",
         "jenssegers/agent": "^2.6",
         "laravel/framework": "^6.20.26",
         "laravel/tinker": "^2.5",

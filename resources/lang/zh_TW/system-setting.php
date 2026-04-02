@@ -14,7 +14,6 @@ return [
         'base_setting' => '基本設定',
         'mail_setting' => '信箱服務',
         'order_push_setting' => '訂單推送配置',
-        'geetest' => '極驗驗證',
     ],
 
     'fields' => [
@@ -46,10 +45,6 @@ return [
         'encryption' => '協議',
         'from_address' => '發件地址',
         'from_name' => '發件名稱',
-
-        'geetest_id' => '極驗id',
-        'geetest_key' => '極驗key',
-        'is_open_geetest' => '是否開啟極驗',
     ],
     'options' => [
     ],

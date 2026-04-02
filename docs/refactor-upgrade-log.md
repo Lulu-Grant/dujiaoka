@@ -1203,3 +1203,28 @@
 下一步：
 
 - 继续处理下一条 P0 阻塞链，优先评估 `germey/geetest` 的移除或替换路径。
+
+### 49. 完成第二条依赖阻塞链：移除 Geetest 主路径依赖
+
+摘要：
+
+- 将 `Geetest` 从前台下单主路径中移除，不再参与订单创建校验、前台购买页脚本、初始化路由和中间件启动流程。
+- 清理了 [composer.json](/Users/apple/Documents/dujiaoshuka/composer.json)、[composer.lock](/Users/apple/Documents/dujiaoshuka/composer.lock)、[config/app.php](/Users/apple/Documents/dujiaoshuka/config/app.php) 中的 Geetest 包级依赖与注册入口。
+- 删除了旧的 [config/geetest.php](/Users/apple/Documents/dujiaoshuka/config/geetest.php) 和 [resources/views/vendor/geetest/geetest.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/vendor/geetest/geetest.blade.php)，并移除了后台系统设置里的 Geetest 配置页。
+- 新增了 [tests/Unit/GeetestRemovalTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/GeetestRemovalTest.php)，确保旧缓存开关即使仍为开启状态，也不会再阻塞订单创建校验。
+
+影响范围：
+
+- 前台下单验证链
+- 历史行为验证依赖
+- Composer 主依赖
+- 后台系统设置入口
+
+验证：
+
+- `./scripts/composer74 why germey/geetest` 已确认当前项目中找不到该包。
+- 当前全量回归结果：`OK (71 tests, 199 assertions)`
+
+下一步：
+
+- 继续处理下一条 P0 阻塞链，开始替换 `simple-qrcode` / `bacon` 这一组二维码依赖。
