@@ -10,7 +10,7 @@
 return [
     'official_website' => '官网',
     'dashboard' => '仪表盘',
-    'dashboard_description' => '每个梦想的路上，一起前行....！',
+    'dashboard_description' => '独角数卡西瓜版，持续维护与渐进升级中。',
     'join_qq_group' => '加入qq群',
     'join_telegram_group' => '加入tg群',
     'is_open' => '是否启用',

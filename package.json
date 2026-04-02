@@ -1,4 +1,6 @@
 {
+    "name": "dujiaoka-watermelon",
+    "description": "独角数卡西瓜版前端资源构建配置",
     "private": true,
     "scripts": {
         "dev": "npm run development",

@@ -1,9 +1,11 @@
 {
-    "name": "laravel/laravel",
+    "name": "lulu-grant/dujiaoka-watermelon",
     "type": "project",
-    "description": "The Laravel Framework.",
+    "description": "独角数卡西瓜版，面向持续维护与现代化改造的 Dujiaoka 分叉版本。",
     "keywords": [
-        "framework",
+        "dujiaoka",
+        "watermelon",
+        "shop",
         "laravel"
     ],
     "license": "MIT",

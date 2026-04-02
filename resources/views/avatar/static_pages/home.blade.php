@@ -2,7 +2,7 @@
 @section('content')
 <section class="avatar-hero">
     <div class="avatar-hero-copy">
-        <span class="avatar-eyebrow">Avatar Default Theme</span>
+        <span class="avatar-eyebrow">独角数卡西瓜版</span>
         <h1>{{ dujiaoka_config_get('title') }}</h1>
         <p>{{ dujiaoka_config_get('description') ?: '更清晰的商品浏览，更顺滑的下单入口，以及更现代的前台视觉。' }}</p>
         <div class="avatar-hero-actions">
@@ -11,7 +11,7 @@
         </div>
     </div>
     <div class="avatar-hero-art">
-        <img src="/assets/avatar/images/index-img.webp" alt="Avatar Theme">
+        <img src="/assets/avatar/images/index-img.webp" alt="独角数卡西瓜版首页视觉">
     </div>
 </section>
 <section class="avatar-toolbar">

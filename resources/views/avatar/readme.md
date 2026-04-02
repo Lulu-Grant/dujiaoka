@@ -1,4 +1,4 @@
-##   Hyper Theme for dujiaoka
+## Avatar Theme for 独角数卡西瓜版
 
 ### HTML framework
 
@@ -14,6 +14,6 @@ Link: https://coderthemes.com/hyper/
 
 https://t.me/bimoe
 
-### Update
+### Status
 
-2022-4-1
+Maintained inside `Lulu-Grant/dujiaoka` as the default storefront theme for 独角数卡西瓜版.

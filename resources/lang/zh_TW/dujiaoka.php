@@ -10,7 +10,7 @@
 return [
     'official_website' => '官網',
     'dashboard' => '儀表盤',
-    'dashboard_description' => '每個夢想的路上，一起前行....！',
+    'dashboard_description' => '獨角數卡西瓜版，持續維護與漸進升級中。',
     'join_qq_group' => '加入qq群',
     'join_telegram_group' => '加入tg群',
     'is_open' => '是否啟用',
