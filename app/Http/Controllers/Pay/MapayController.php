@@ -4,10 +4,21 @@ namespace App\Http\Controllers\Pay;
 
 use App\Exceptions\RuleValidationException;
 use App\Http\Controllers\PayController;
+use App\Service\PaymentCallbackService;
 use Illuminate\Http\Request;
 
 class MapayController extends PayController
 {
+    /**
+     * @var \App\Service\PaymentCallbackService
+     */
+    private $paymentCallbackService;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->paymentCallbackService = app(PaymentCallbackService::class);
+    }
 
     public function gateway(string $payway, string $orderSN)
     {
@@ -54,30 +65,24 @@ class MapayController extends PayController
     public function notifyUrl(Request $request)
     {
         $data = $request->post();
-        $order = $this->orderService->detailOrderSN($data['pay_id']);
-        if (!$order) {
-            return 'fail';
-        }
-        $payGateway = $this->payService->detail($order->pay_id);
-        if (!$payGateway) {
-            return 'fail';
-        }
-        if($payGateway->pay_handleroute != '/pay/mapay'){
-            return 'fail';
-        }
-        $query = signquery_string($data);
-        if (!$data['pay_no'] || md5($query . $payGateway->merchant_pem ) != $data['sign']) { //不合法的数据
-            return 'fail';  //返回失败 继续补单
-        } else { //合法的数据
-            //业务处理
-            $this->orderProcessService->completedOrder($data['pay_id'], $data['money'], $data['pay_id']);
-            return 'success';
-        }
+        return $this->paymentCallbackService->handleSignedNotification(
+            $data['pay_id'],
+            '/pay/mapay',
+            function ($order, $payGateway) use ($data) {
+                $query = signquery_string($data);
+
+                return !empty($data['pay_no']) && md5($query . $payGateway->merchant_pem) == $data['sign'];
+            },
+            (float) $data['money'],
+            $data['pay_id'],
+            'fail',
+            'fail',
+            'success'
+        );
     }
 
 
 
 
 }
-
 

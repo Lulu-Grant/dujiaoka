@@ -483,3 +483,26 @@
 下一步：
 
 - 继续评估其余支付控制器，决定是继续扩大统一骨架的覆盖范围，还是开始提取更显式的支付网关适配接口。
+
+### 20. 完成 Mapay 通知型网关接入统一回调骨架
+
+摘要：
+
+- [MapayController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/Pay/MapayController.php) 已改为复用 [PaymentCallbackService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaymentCallbackService.php) 的 `handleSignedNotification()`。
+- Mapay 控制器现在只保留自身的签名串计算规则，订单解析、网关校验和支付完成入口都统一收敛到公共服务层。
+- 这样支付层统一回调骨架已经覆盖到第七个典型通知型网关，控制器重复逻辑继续下降。
+
+影响范围：
+
+- Mapay 异步通知回调
+- 支付回调统一骨架的覆盖范围
+- 支付控制器重复逻辑收敛
+
+验证：
+
+- 新增 [MapayControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/MapayControllerTest.php)
+- 当前全量回归结果：`OK (44 tests, 132 assertions)`
+
+下一步：
+
+- 继续挑选剩余支付控制器，评估是否进一步抽出更明确的支付网关适配接口。
