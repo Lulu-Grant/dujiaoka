@@ -1,0 +1,69 @@
+# PayPal / Stripe 迁移方案
+
+本文档用于承接升级前清障阶段里两条仍保留支付通道的后续动作：`PayPal` 与 `Stripe`。
+
+## 当前结论
+
+- `PayPal` 优先级高于 `Stripe`
+- 原因不是业务占比，而是 `paypal/rest-api-sdk-php` 的历史包袱更重
+- `Stripe` 当前虽然版本偏旧，但边界已经比 `PayPal` 更清晰
+
+## 当前状态
+
+### PayPal
+
+- 当前依赖：`paypal/rest-api-sdk-php ^1.14`
+- 业务入口已收敛到：
+  - [PaypalCheckoutService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalCheckoutService.php)
+  - [PaypalReturnService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalReturnService.php)
+- SDK 访问已收敛到：
+  - [PaypalSdkService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalSdkService.php)
+- 业务层当前只依赖：
+  - [PaypalGatewayClientInterface.php](/Users/apple/Documents/dujiaoshuka/app/Service/Contracts/PaypalGatewayClientInterface.php)
+
+### Stripe
+
+- 当前依赖：`stripe/stripe-php ^7.84`
+- 业务入口已收敛到：
+  - [StripeCheckoutService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripeCheckoutService.php)
+  - [StripePaymentService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripePaymentService.php)
+- SDK 访问已收敛到：
+  - [StripeSdkService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripeSdkService.php)
+- 业务层当前只依赖：
+  - [StripeGatewayClientInterface.php](/Users/apple/Documents/dujiaoshuka/app/Service/Contracts/StripeGatewayClientInterface.php)
+
+## 默认执行顺序
+
+1. 先处理 `PayPal`
+2. 再处理 `Stripe`
+
+## PayPal 退场路径
+
+1. 继续消除业务层对旧 SDK 类型的泄漏
+2. 明确新接入方式的能力边界：
+   - 创建支付链接
+   - 同步返回确认
+   - 支付完成状态落单
+3. 在不改动业务服务调用面的前提下引入新实现
+4. 最后移除 `paypal/rest-api-sdk-php`
+
+## Stripe 升级路径
+
+1. 保持 `StripeCheckoutService` 与 `StripePaymentService` 为唯一主入口
+2. 继续清掉旧的页面/回调内联耦合
+3. 独立升级 `stripe/stripe-php`
+4. 验证 `charge / return / check` 三条路径后再收口旧兼容逻辑
+
+## 当前退出标准
+
+### PayPal
+
+- 业务服务不再依赖旧 SDK 暴露的类型
+- 旧 SDK 被新实现替代
+- `composer why paypal/rest-api-sdk-php` 不再返回当前项目依赖链
+
+### Stripe
+
+- SDK 升级后主链测试通过
+- 控制器不再承担残余支付状态流转逻辑
+- 文档与后台生命周期状态同步更新

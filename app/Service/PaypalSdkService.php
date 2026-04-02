@@ -19,7 +19,23 @@ use PayPal\Rest\ApiContext;
 
 class PaypalSdkService implements PaypalGatewayClientInterface
 {
-    public function makeApiContext(Pay $payGateway): ApiContext
+    public function createApprovalLink(Order $order, Pay $payGateway, float $total): string
+    {
+        $paypal = $this->makeApiContext($payGateway);
+        $payment = $this->makePayment($order, $total);
+        $payment->create($paypal);
+
+        return $payment->getApprovalLink();
+    }
+
+    public function executeApprovedPayment(Pay $payGateway, string $paymentId, string $payerId): void
+    {
+        $paypal = $this->makeApiContext($payGateway);
+        $payment = $this->loadPayment($paymentId, $paypal);
+        $payment->execute($this->makePaymentExecution($payerId), $paypal);
+    }
+
+    protected function makeApiContext(Pay $payGateway): ApiContext
     {
         $paypal = new ApiContext(
             new OAuthTokenCredential(
@@ -32,22 +48,9 @@ class PaypalSdkService implements PaypalGatewayClientInterface
         return $paypal;
     }
 
-    public function createApprovalLink(Order $order, float $total, ApiContext $paypal): string
-    {
-        $payment = $this->makePayment($order, $total);
-        $payment->create($paypal);
-
-        return $payment->getApprovalLink();
-    }
-
-    public function loadPayment(string $paymentId, ApiContext $paypal): Payment
+    protected function loadPayment(string $paymentId, ApiContext $paypal): Payment
     {
         return Payment::get($paymentId, $paypal);
-    }
-
-    public function executeApprovedPayment(Payment $payment, string $payerId, ApiContext $paypal): void
-    {
-        $payment->execute($this->makePaymentExecution($payerId), $paypal);
     }
 
     protected function makePayment(Order $order, float $total): Payment

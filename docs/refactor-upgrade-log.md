@@ -1346,3 +1346,26 @@
 下一步：
 
 - 开始整理 `PayPal` 退场方案，把旧 REST SDK 的替代接入方式和迁移策略固定下来。
+
+### 55. 消除 PayPal 业务层的旧 SDK 类型泄漏并建立迁移顺序文档
+
+摘要：
+
+- 调整 [PaypalGatewayClientInterface.php](/Users/apple/Documents/dujiaoshuka/app/Service/Contracts/PaypalGatewayClientInterface.php)，让业务层不再直接暴露 `ApiContext`、`Payment` 这类旧 SDK 类型。
+- [PaypalCheckoutService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalCheckoutService.php) 与 [PaypalReturnService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalReturnService.php) 现在只通过更稳定的业务参数与接口交互。
+- [PaypalSdkService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalSdkService.php) 继续作为唯一旧 SDK 访问边界，旧对象构建与执行细节全部收拢在服务内部。
+- 新增 [paypal-stripe-transition-plan.md](/Users/apple/Documents/dujiaoshuka/docs/paypal-stripe-transition-plan.md)，正式固定 `PayPal` 先退场、`Stripe` 后升级的默认顺序。
+
+影响范围：
+
+- PayPal 支付业务服务
+- PayPal SDK 替换切口
+- 支付依赖升级顺序文档
+
+验证：
+
+- 当前全量回归结果：`OK (70 tests, 207 assertions)`
+
+下一步：
+
+- 继续沿着迁移方案推进 `PayPal` 退场条件，优先整理旧 SDK 仍残留的接入假设与替换约束。

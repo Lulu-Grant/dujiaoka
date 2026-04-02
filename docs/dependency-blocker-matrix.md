@@ -87,7 +87,7 @@
 建议：
 
 - 不直接在控制器层处理
-- 等现有 Paypal 服务化路径稳定后，再替换 SDK 接入
+- 当前业务层已进一步摆脱旧 SDK 类型泄漏，可按 [paypal-stripe-transition-plan.md](/Users/apple/Documents/dujiaoshuka/docs/paypal-stripe-transition-plan.md) 继续推进退场
 
 #### `stripe/stripe-php`
 
@@ -99,7 +99,7 @@
 建议：
 
 - 先继续保证 `StripePaymentService` / `StripeCheckoutService` 成为稳定边界
-- 再独立升级 SDK，而不是边拆边升
+- 再按 [paypal-stripe-transition-plan.md](/Users/apple/Documents/dujiaoshuka/docs/paypal-stripe-transition-plan.md) 独立升级 SDK，而不是边拆边升
 
 ---
 

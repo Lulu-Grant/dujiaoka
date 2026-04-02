@@ -36,12 +36,9 @@ class PaypalCheckoutServiceTest extends TestCase
         [$order, $payGateway] = $this->createPaypalContext('PAYPAL-CHECKOUT-001');
 
         $sdkService = \Mockery::mock(PaypalGatewayClientInterface::class);
-        $sdkService->shouldReceive('makeApiContext')
-            ->once()
-            ->andReturn(\Mockery::mock(\PayPal\Rest\ApiContext::class));
         $sdkService->shouldReceive('createApprovalLink')
             ->once()
-            ->with($order, 1.23, \Mockery::type(\PayPal\Rest\ApiContext::class))
+            ->with($order, $payGateway, 1.23)
             ->andReturn('https://paypal.example.com/approval');
         app()->instance(PaypalGatewayClientInterface::class, $sdkService);
 

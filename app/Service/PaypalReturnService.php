@@ -36,17 +36,6 @@ class PaypalReturnService
     }
 
     /**
-     * 构建 paypal API context
-     *
-     * @param Pay $payGateway
-     * @return \PayPal\Rest\ApiContext
-     */
-    public function makeApiContext(Pay $payGateway)
-    {
-        return $this->paypalGatewayClient->makeApiContext($payGateway);
-    }
-
-    /**
      * 处理 paypal 同步返回并完成订单
      *
      * @param string $orderSN
@@ -61,11 +50,8 @@ class PaypalReturnService
             return 'error';
         }
 
-        $paypal = $this->makeApiContext($payGateway);
-
         try {
-            $payment = $this->paypalGatewayClient->loadPayment($paymentId, $paypal);
-            $this->paypalGatewayClient->executeApprovedPayment($payment, $payerId, $paypal);
+            $this->paypalGatewayClient->executeApprovedPayment($payGateway, $paymentId, $payerId);
             $this->paymentCallbackService->completeOrder($orderSN, (float) $order->actual_price, $paymentId);
 
             return 'success';

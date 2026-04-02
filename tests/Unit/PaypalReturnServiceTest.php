@@ -56,18 +56,14 @@ class PaypalReturnServiceTest extends TestCase
     public function test_handle_approved_return_completes_order_on_success(): void
     {
         $order = $this->createPaypalOrder('PAYPAL-RETURN-SUCCESS-001');
+        $payGateway = Pay::query()->findOrFail($order->pay_id);
 
         $sdkService = \Mockery::mock(PaypalGatewayClientInterface::class);
-        $sdkService->shouldReceive('makeApiContext')
-            ->once()
-            ->andReturn(\Mockery::mock(\PayPal\Rest\ApiContext::class));
-        $sdkService->shouldReceive('loadPayment')
-            ->once()
-            ->with('PAY-ID-SUCCESS', \Mockery::type(\PayPal\Rest\ApiContext::class))
-            ->andReturn(\Mockery::mock(\PayPal\Api\Payment::class));
         $sdkService->shouldReceive('executeApprovedPayment')
             ->once()
-            ->with(\Mockery::type(\PayPal\Api\Payment::class), 'PAYER-ID-SUCCESS', \Mockery::type(\PayPal\Rest\ApiContext::class));
+            ->with(\Mockery::on(function ($gateway) use ($payGateway) {
+                return $gateway->is($payGateway);
+            }), 'PAY-ID-SUCCESS', 'PAYER-ID-SUCCESS');
         app()->instance(PaypalGatewayClientInterface::class, $sdkService);
 
         $service = app(PaypalReturnService::class);

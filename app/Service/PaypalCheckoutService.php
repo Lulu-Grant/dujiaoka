@@ -32,9 +32,8 @@ class PaypalCheckoutService
      */
     public function createApprovalUrl(Order $order, Pay $payGateway): string
     {
-        $paypal = $this->paypalGatewayClient->makeApiContext($payGateway);
         $total = $this->convertAmount((float) $order->actual_price);
-        return $this->paypalGatewayClient->createApprovalLink($order, $total, $paypal);
+        return $this->paypalGatewayClient->createApprovalLink($order, $payGateway, $total);
     }
 
     protected function convertAmount(float $amount): float
