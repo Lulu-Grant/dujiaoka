@@ -109,10 +109,12 @@
 - 已开始改造安装主路径：
   - 安装服务改为 `migrate + bootstrap seed`
   - 首个管理员账号由安装表单显式创建，不再使用默认账号
+- 已补充安装流程状态文档：
+  - [installer-modernization-status.md](/Users/apple/Documents/dujiaoshuka/docs/installer-modernization-status.md)
 
 ## 下一步
 
-1. 收口安装流程改造，继续减少对 `install.sql` 的直接依赖
-2. 在安装流程中彻底移除默认管理员账号导入
-3. 继续清理 `install.sql` 里的默认数据职责，补 bootstrap / sample seed 分层
-4. 校对 migration 与当前模型 / 测试依赖的一致性
+1. 继续把 `install.sql` 降级为历史参考文件，并收口剩余说明文档
+2. 继续清理 `install.sql` 里的默认数据职责，补 bootstrap / sample seed 分层
+3. 校对 migration 与当前模型 / 测试依赖的一致性
+4. 规划最终移除 `install.sql` 的条件

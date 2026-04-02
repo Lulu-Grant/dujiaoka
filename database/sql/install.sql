@@ -1,3 +1,7 @@
+-- DEPRECATED:
+-- This file is kept only as a legacy schema/data snapshot for audit and migration reference.
+-- Fresh installs should now use Laravel migrations plus bootstrap/sample seeders instead of importing this file.
+--
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 

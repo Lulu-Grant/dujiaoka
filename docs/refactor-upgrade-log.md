@@ -990,3 +990,26 @@
 下一步：
 
 - 继续收缩安装流程中对 `install.sql` 的剩余依赖，并准备最终移除整包 SQL 安装主路径。
+
+### 40. 将 install.sql 正式降级为历史参考文件
+
+摘要：
+
+- 给 [install.sql](/Users/apple/Documents/dujiaoshuka/database/sql/install.sql) 增加了明确的废弃说明，声明它仅作为历史结构/数据快照保留，不再作为新安装主入口。
+- 新增了 [installer-modernization-status.md](/Users/apple/Documents/dujiaoshuka/docs/installer-modernization-status.md)，把当前安装主路径、新旧职责对比、已完成项和后续退场条件集中整理出来。
+- 这一步的目标不是立刻删除 `install.sql`，而是先从代码和文档层面彻底去掉“它仍然是主安装方式”的暗示。
+
+影响范围：
+
+- 安装文档认知边界
+- `install.sql` 的仓库定位
+- 后续彻底移除旧 SQL 安装路径的准备工作
+
+验证：
+
+- 代码层安装主路径仍保持 `migrate + bootstrap seed + 显式创建首个管理员`。
+- 当前全量回归结果：`OK (70 tests, 198 assertions)`
+
+下一步：
+
+- 继续把 `install.sql` 中剩余的后台关系数据和历史默认值拆解干净，为最终移除它做准备。
