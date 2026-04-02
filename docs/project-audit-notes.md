@@ -33,18 +33,24 @@ Most notable oversized files:
 - `app/Service/OrderProcessService.php`
 - `app/Service/OrderService.php`
 
-### 2. Database lifecycle is not migration-driven
+### 2. Database lifecycle was originally not migration-driven
 
 Evidence:
 
-- there is no migrations directory under `database`
-- installation imports `database/sql/install.sql` directly
-- installer writes environment values and installation lock files itself
+- the original project shipped without `database/migrations`
+- the original installer imported `database/sql/install.sql` directly
+- the original installer wrote environment values and installation lock files itself
 
 Relevant files:
 
 - `app/Http/Controllers/Home/HomeController.php`
 - `database/sql/install.sql`
+
+Current status:
+
+- this finding has been partially remediated in the maintenance fork
+- the repository now has migration coverage for the tables from `install.sql`
+- the installer now uses migrations plus bootstrap seeders instead of raw SQL import
 
 ### 3. Tests are placeholder-only
 
@@ -62,7 +68,7 @@ Impact:
 ### P0
 
 - A real `.env` file exists in the working tree and appears to contain an application key.
-- SQL bootstrap seeds a default admin account in `database/sql/install.sql`.
+- the original SQL bootstrap seeded a default admin account in `database/sql/install.sql`.
 
 Relevant files:
 
@@ -72,7 +78,7 @@ Relevant files:
 ### P1
 
 - installer writes `.env` directly from request input
-- installer executes raw SQL from file contents
+- the original installer executed raw SQL from file contents
 - outbound API hooks use `file_get_contents` against dynamic URLs
 
 Relevant files:
@@ -109,7 +115,7 @@ Relevant files:
 
 - order creation, fulfillment, expiration, notifications, and coupon handling are too centralized
 - payment logic mixes orchestration and presentation
-- installation flow bypasses standard Laravel migration and deployment patterns
+- the original installation flow bypassed standard Laravel migration and deployment patterns
 
 ## Immediate Recommended Work
 

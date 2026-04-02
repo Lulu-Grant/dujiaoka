@@ -26,6 +26,10 @@
 
 它不再是推荐安装入口，也不应再被新的部署文档作为主流程使用。
 
+当前覆盖盘点可参考：
+
+- [install-sql-coverage-matrix.md](/Users/apple/Documents/dujiaoshuka/docs/install-sql-coverage-matrix.md)
+
 ## 新旧职责对比
 
 旧模型：

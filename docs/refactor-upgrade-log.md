@@ -1036,3 +1036,26 @@
 下一步：
 
 - 继续识别 `install.sql` 中剩余未迁出的历史数据，并评估最终移除条件。
+
+### 42. 建立 install.sql 覆盖矩阵，并修正早期审计文档的历史时态
+
+摘要：
+
+- 新增了 [install-sql-coverage-matrix.md](/Users/apple/Documents/dujiaoshuka/docs/install-sql-coverage-matrix.md)，按表列出了 `install.sql` 中每一项结构和默认数据目前是否已被 migration / bootstrap / sample / forbidden 策略接管。
+- 这份矩阵确认了一个关键结论：`install.sql` 中的表结构已经全部有对应迁移覆盖，剩余价值主要是历史快照和审计对照，而不再是安装功能依赖。
+- 同时修正了 [project-audit-notes.md](/Users/apple/Documents/dujiaoshuka/docs/project-audit-notes.md) 和 [modernization-roadmap.md](/Users/apple/Documents/dujiaoshuka/docs/modernization-roadmap.md) 中部分已经过时的“现在时”描述，改成更准确的“原始项目曾如此，当前维护分支已部分修复”。
+
+影响范围：
+
+- `install.sql` 退场评估依据
+- 审计文档准确性
+- 现代化路线文档与当前事实的一致性
+
+验证：
+
+- 当前文档已能清晰区分“历史问题”和“当前主线状态”。
+- 当前全量回归结果：`OK (70 tests, 198 assertions)`
+
+下一步：
+
+- 继续识别是否还需要为空关系表补最小 bootstrap 关系数据，或者直接将其维持为空结构。

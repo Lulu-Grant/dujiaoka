@@ -108,6 +108,12 @@ Priority issues already identified:
 - raw installer SQL import instead of structured migrations
 - legacy payment SDK usage
 
+Status update:
+
+- `.env` tracking risk has been remediated in the current maintenance branch
+- default admin bootstrap has been removed from the active install path
+- installer SQL import has been replaced by `migrate + bootstrap seed`
+
 Deliverables:
 
 - secret rotation checklist
@@ -196,6 +202,12 @@ Exit criteria:
 
 - database schema is migration-driven
 - installation is scriptable and environment-safe
+
+Status update:
+
+- this phase is already in active execution on the maintenance branch
+- install path has been switched to migrations, bootstrap seed, and explicit admin creation
+- `install.sql` is now kept as a legacy reference file rather than the active install entrypoint
 
 ### Phase 5: Framework and Toolchain Upgrade
 
