@@ -20,6 +20,16 @@ use PayPal\Rest\ApiContext;
 
 class PaypalSdkService implements PaypalGatewayClientInterface
 {
+    /**
+     * @var \App\Service\PaypalCallbackUrlService
+     */
+    private $paypalCallbackUrlService;
+
+    public function __construct()
+    {
+        $this->paypalCallbackUrlService = app(PaypalCallbackUrlService::class);
+    }
+
     public function createApprovalLink(Order $order, Pay $payGateway, float $total): string
     {
         try {
@@ -92,8 +102,8 @@ class PaypalSdkService implements PaypalGatewayClientInterface
             ->setInvoiceNumber($order->order_sn);
 
         $redirectUrls = new RedirectUrls();
-        $redirectUrls->setReturnUrl(route('paypal-return', ['success' => 'ok', 'orderSN' => $order->order_sn]))
-            ->setCancelUrl(route('paypal-return', ['success' => 'no', 'orderSN' => $order->order_sn]));
+        $redirectUrls->setReturnUrl($this->paypalCallbackUrlService->successUrl($order))
+            ->setCancelUrl($this->paypalCallbackUrlService->cancelUrl($order));
 
         $payment = new Payment();
         $payment->setIntent('sale')

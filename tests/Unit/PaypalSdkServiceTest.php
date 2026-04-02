@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use App\Exceptions\PaymentGatewayException;
 use App\Models\Order;
 use App\Models\Pay;
+use App\Service\PaypalCallbackUrlService;
 use App\Service\PaypalSdkService;
 use Tests\TestCase;
 
@@ -52,5 +53,32 @@ class PaypalSdkServiceTest extends TestCase
         };
 
         $this->assertSame('EUR', $service->targetCurrency());
+    }
+
+    public function test_sdk_service_uses_callback_url_service_contract(): void
+    {
+        $callbackUrlService = \Mockery::mock(PaypalCallbackUrlService::class);
+        $callbackUrlService->shouldReceive('successUrl')->once()->andReturn('https://example.com/paypal/success');
+        $callbackUrlService->shouldReceive('cancelUrl')->once()->andReturn('https://example.com/paypal/cancel');
+        app()->instance(PaypalCallbackUrlService::class, $callbackUrlService);
+
+        $service = new class extends PaypalSdkService {
+            public function redirectUrlsFor(Order $order): array
+            {
+                $payment = $this->makePayment($order, 1.23);
+                $redirectUrls = $payment->getRedirectUrls();
+
+                return [$redirectUrls->getReturnUrl(), $redirectUrls->getCancelUrl()];
+            }
+        };
+
+        $order = new Order();
+        $order->order_sn = 'PAYPAL-CALLBACK-002';
+        $order->title = 'PayPal Callback Product';
+
+        $this->assertSame(
+            ['https://example.com/paypal/success', 'https://example.com/paypal/cancel'],
+            $service->redirectUrlsFor($order)
+        );
     }
 }

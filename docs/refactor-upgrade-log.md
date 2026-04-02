@@ -1460,3 +1460,26 @@
 下一步：
 
 - 继续梳理 `PayPal` 旧 SDK 还剩下哪些实现假设必须保留，哪些可以直接让位给替代实现。
+
+### 60. 将 PayPal 回跳 URL 假设抽到独立服务
+
+摘要：
+
+- 新增 [PaypalCallbackUrlService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalCallbackUrlService.php)，统一负责 PayPal 同步成功与取消支付的回跳 URL 生成。
+- [PaypalSdkService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalSdkService.php) 不再直接调用 `route('paypal-return')`，而是通过独立服务获取回跳地址；当命名路由缺失时，服务会安全回退到显式 URL 拼装。
+- 新增 [PaypalCallbackUrlServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/PaypalCallbackUrlServiceTest.php)，并扩充 [PaypalSdkServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/PaypalSdkServiceTest.php)，守住回跳 URL 边界。
+- 这一步让 PayPal 替换前的剩余实现假设进一步收缩到独立边界，避免后续新实现再次把路由约定粘回 SDK 封装。
+
+影响范围：
+
+- PayPal 同步返回 / 取消回跳 URL
+- PayPal SDK 封装边界
+- PayPal 替换准备度
+
+验证：
+
+- 当前全量回归结果：`OK (80 tests, 227 assertions)`
+
+下一步：
+
+- 继续梳理 `PayPal` 最终替换前仍保留的能力边界，准备把重心逐步切向 `Stripe` 升级链。

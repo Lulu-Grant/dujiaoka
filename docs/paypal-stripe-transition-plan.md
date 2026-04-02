@@ -17,11 +17,14 @@
 - 当前币种假设：源币种与目标结算币种已配置化，默认 `CNY -> USD`
 - 当前异步通知状态：仅保留占位型 webhook 入口，实际完成支付仍以同步 return 主链为准
 - 当前异常边界：业务层与控制器层已改为只接触应用层 `PaymentGatewayException`
+- 当前回跳假设：PayPal 同步返回与取消回跳 URL 已收敛到独立服务，不再散落在 SDK 封装中，并对缺失命名路由的环境提供安全回退
 - 业务入口已收敛到：
   - [PaypalCheckoutService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalCheckoutService.php)
   - [PaypalReturnService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalReturnService.php)
 - webhook 占位入口已收敛到：
   - [PaypalWebhookService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalWebhookService.php)
+- 回跳 URL 边界已收敛到：
+  - [PaypalCallbackUrlService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalCallbackUrlService.php)
 - SDK 访问已收敛到：
   - [PaypalSdkService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalSdkService.php)
 - 业务层当前只依赖：
@@ -48,13 +51,14 @@
 1. 继续消除业务层对旧 SDK 类型的泄漏
 2. 保持运行模式、源币种、目标币种等接入假设配置化，不再散落在旧 SDK 封装内部
 3. 保持异常语义停留在应用层，避免新实现再次把 SDK 异常直接泄漏到控制器
-4. 明确新接入方式的能力边界：
+4. 保持同步返回、取消回跳等 URL 假设停留在独立服务层，而不是嵌在 SDK 实现内部
+5. 明确新接入方式的能力边界：
    - 创建支付链接
    - 同步返回确认
    - 异步通知如何参与或退出
    - 支付完成状态落单
-5. 在不改动业务服务调用面的前提下引入新实现
-6. 最后移除 `paypal/rest-api-sdk-php`
+6. 在不改动业务服务调用面的前提下引入新实现
+7. 最后移除 `paypal/rest-api-sdk-php`
 
 ## Stripe 升级路径
 
@@ -69,6 +73,7 @@
 
 - 业务服务不再依赖旧 SDK 暴露的类型
 - 运行模式与结算币种不再写死在旧 SDK 封装内部
+- 返回 / 取消回跳 URL 不再写死在旧 SDK 封装内部
 - 旧 SDK 被新实现替代
 - `composer why paypal/rest-api-sdk-php` 不再返回当前项目依赖链
 
