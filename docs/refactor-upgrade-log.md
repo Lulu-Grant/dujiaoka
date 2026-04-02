@@ -1013,3 +1013,26 @@
 下一步：
 
 - 继续把 `install.sql` 中剩余的后台关系数据和历史默认值拆解干净，为最终移除它做准备。
+
+### 41. 同步 README 与 Debian 手册到新的安装现实
+
+摘要：
+
+- 更新了 [README.md](/Users/apple/Documents/dujiaoshuka/README.md)，补入当前安装流程现代化状态、最新测试基线以及相关文档索引。
+- 更新了 [debian_manual.md](/Users/apple/Documents/dujiaoshuka/debian_manual.md)，将克隆地址切换到当前维护分支仓库，并明确安装时需要显式设置首个管理员账号密码。
+- 这一轮的目标是把仓库表层文档和我们已经完成的代码现实对齐，避免后续用户仍按“默认 admin/admin + install.sql 安装”的旧认知操作。
+
+影响范围：
+
+- README 现状说明
+- Debian 安装手册
+- 新旧安装模式认知一致性
+
+验证：
+
+- 文档已与当前主线安装模式保持一致。
+- 当前全量回归结果：`OK (70 tests, 198 assertions)`
+
+下一步：
+
+- 继续识别 `install.sql` 中剩余未迁出的历史数据，并评估最终移除条件。

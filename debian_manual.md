@@ -59,7 +59,7 @@ apt install redis
 ```bash
 cd /var/www/dujiaoka
 apt install git
-git clone https://github.com/assimon/dujiaoka.git 
+git clone https://github.com/Lulu-Grant/dujiaoka.git .
 chmod 777 -R /var/www/dujiaoka
 ```
 ## 配置 nginx
@@ -145,7 +145,6 @@ mv composer.phar /usr/local/bin/composer
 adduser user
 su user
 composer install
-composer update
 su
 ```
 ## 访问安装页面
@@ -154,6 +153,8 @@ su
 - MySQl 密码：`你设置的密码`
 - Redis 密码：`无需填写`
 - 网站URL：你的域名，如 `https://domain.com`
+- 管理员账号：你要创建的后台账号，如 `admin`
+- 管理员密码：安装时显式设置，不再存在默认 `admin/admin`
 
 ##编辑配置文件
 
@@ -161,6 +162,16 @@ su
 - 将 `APP_DEBUG=true` 改为 `APP_DEBUG=false`
 - 另起一行，添加 `ADMIN_HTTPS=true`
 - 尝试登入后台。如果提示 `0 error` ，刷新页面即可
+
+## 安装模式说明
+
+当前维护分支的安装主路径已经切换为：
+
+- Laravel migrations
+- bootstrap seed
+- 安装页显式创建首个管理员
+
+`database/sql/install.sql` 现在仅作为历史参考文件保留，不再是推荐安装入口。
 
 ## 配置计划任务
 本项目已默认按同步方式执行订单通知、回调等副作用，不再要求常驻 `queue:work` 进程。

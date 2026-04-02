@@ -21,7 +21,7 @@
 ## 当前状态
 
 - 原项目已停止维护，本仓库继续推进现代化改造。
-- 当前已完成第一轮架构评估、测试护栏建设和订单主链拆分。
+- 当前已完成第一轮架构评估、测试护栏建设、订单主链拆分，以及安装流程现代化切换。
 - 当前主线默认以“遗留基线可运行 + 渐进式重构”为原则推进。
 
 如果你想了解截至目前的改造记录，请先看：
@@ -29,6 +29,7 @@
 - [重构升级日志](docs/refactor-upgrade-log.md)
 - [现代化路线图](docs/modernization-roadmap.md)
 - [无守护进程改造清单](docs/no-daemon-migration-checklist.md)
+- [安装流程现代化状态](docs/installer-modernization-status.md)
 
 ## 目前已经完成的工作
 
@@ -38,6 +39,8 @@
 - 移除对常驻 `queue:work` / `supervisord` 的硬依赖
 - 更新 Docker / Debian / compose 部署说明
 - 将创建订单改造成明确的 DTO 输入模型
+- 将安装主路径切换为 `migrate + bootstrap seed + 显式创建首个管理员`
+- 将 `install.sql` 降级为历史兼容参考文件
 
 ## 运行与验证
 
@@ -50,7 +53,7 @@
 当前主线测试结果基线：
 
 ```bash
-OK (23 tests, 90 assertions)
+OK (70 tests, 198 assertions)
 ```
 
 更多环境说明请查看：
@@ -66,6 +69,8 @@ OK (23 tests, 90 assertions)
 - [无守护进程改造清单](docs/no-daemon-migration-checklist.md)
 - [遗留运行时基线说明](docs/legacy-runtime-baseline.md)
 - [运行时兼容阻塞点](docs/runtime-compatibility-blockers.md)
+- [安装流程现代化状态](docs/installer-modernization-status.md)
+- [数据库现代化拆解计划](docs/database-modernization-plan.md)
 
 ## 说明
 
