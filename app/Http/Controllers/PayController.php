@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\RuleValidationException;
 use App\Models\Order;
-use App\Service\OrderProcessService;
+use App\Service\PayEntryService;
 
 class PayController extends BaseController
 {
@@ -23,29 +23,15 @@ class PayController extends BaseController
     protected $order;
 
     /**
-     * 订单服务层
-     * @var \App\Service\OrderService
+     * 支付入口应用服务
+     * @var \App\Service\PayEntryService
      */
-    protected $orderService;
-
-    /**
-     * 支付服务层
-     * @var \App\Service\PayService
-     */
-    protected $payService;
-
-    /**
-     * 订单处理层.
-     * @var OrderProcessService
-     */
-    protected $orderProcessService;
+    protected $payEntryService;
 
 
     public function __construct()
     {
-        $this->orderService = app('Service\OrderService');
-        $this->payService = app('Service\PayService');
-        $this->orderProcessService = app('Service\OrderProcessService');
+        $this->payEntryService = app(PayEntryService::class);
     }
 
     /**
@@ -60,19 +46,7 @@ class PayController extends BaseController
      */
     public function checkOrder(string $orderSN)
     {
-        // 订单
-        $this->order = $this->orderService->detailOrderSN($orderSN);
-        if (!$this->order) {
-            throw new RuleValidationException(__('dujiaoka.prompt.order_does_not_exist'));
-        }
-        // 订单过期
-        if ($this->order->status == Order::STATUS_EXPIRED) {
-            throw new RuleValidationException(__('dujiaoka.prompt.order_is_expired'));
-        }
-        // 已经支付了
-        if ($this->order->status > Order::STATUS_WAIT_PAY) {
-            throw new RuleValidationException(__('dujiaoka.prompt.order_already_paid'));
-        }
+        $this->order = $this->payEntryService->requirePayableOrder($orderSN);
     }
 
     /**
@@ -88,15 +62,7 @@ class PayController extends BaseController
      */
     public function loadGateWay(string $orderSN, string $payCheck)
     {
-        $this->checkOrder($orderSN);
-        // 支付配置
-        $this->payGateway = $this->payService->detailByCheck($payCheck);
-        if (!$this->payGateway) {
-            throw new RuleValidationException(__('dujiaoka.prompt.pay_gateway_does_not_exist'));
-        }
-        // 临时保存支付方式
-        $this->order->pay_id = $this->payGateway->id;
-        $this->order->save();
+        [$this->order, $this->payGateway] = $this->payEntryService->loadGatewayForOrder($orderSN, $payCheck);
     }
 
     /**
@@ -117,7 +83,7 @@ class PayController extends BaseController
             $bccomp = bccomp($this->order->actual_price, 0.00, 2);
             // 如果订单金额为0 代表无需支付，直接成功
             if ($bccomp == 0) {
-                $this->orderProcessService->completedOrder($this->order->order_sn, 0.00);
+                $this->payEntryService->completeFreeOrder($this->order->order_sn);
                 return redirect(url('detail-order-sn', ['orderSN' => $this->order->order_sn]));
             }
             return redirect(url(urldecode($handle), ['payway' => $payway, 'orderSN' => $orderSN]));

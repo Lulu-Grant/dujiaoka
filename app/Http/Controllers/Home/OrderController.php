@@ -4,9 +4,8 @@ namespace App\Http\Controllers\Home;
 
 use App\Exceptions\RuleValidationException;
 use App\Http\Controllers\BaseController;
-use App\Models\Order;
-use App\Service\DataTransferObjects\CreateOrderData;
-use App\Service\OrderProcessService;
+use App\Service\OrderCheckoutService;
+use App\Service\OrderQueryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
@@ -25,23 +24,22 @@ use Illuminate\Support\Facades\DB;
 class OrderController extends BaseController
 {
 
+    /**
+     * 订单结账应用服务
+     * @var \App\Service\OrderCheckoutService
+     */
+    private $orderCheckoutService;
 
     /**
-     * 订单服务层
-     * @var \App\Service\OrderService
+     * 订单查询应用服务
+     * @var \App\Service\OrderQueryService
      */
-    private $orderService;
-
-    /**
-     * 订单处理层.
-     * @var OrderProcessService
-     */
-    private $orderProcessService;
+    private $orderQueryService;
 
     public function __construct()
     {
-        $this->orderService = app('Service\OrderService');
-        $this->orderProcessService = app('Service\OrderProcessService');
+        $this->orderCheckoutService = app(OrderCheckoutService::class);
+        $this->orderQueryService = app(OrderQueryService::class);
     }
 
     /**
@@ -59,25 +57,7 @@ class OrderController extends BaseController
     {
         DB::beginTransaction();
         try {
-            $this->orderService->validatorCreateOrder($request);
-            $goods = $this->orderService->validatorGoods($request);
-            $this->orderService->validatorLoopCarmis($request);
-            // 优惠码
-            $coupon = $this->orderService->validatorCoupon($request);
-            $otherIpt = $this->orderService->validatorChargeInput($goods, $request);
-            // 创建订单
-            $order = $this->orderProcessService->createOrderFromData(
-                new CreateOrderData(
-                    $goods,
-                    $coupon,
-                    $otherIpt,
-                    (int) $request->input('by_amount'),
-                    (int) $request->input('payway'),
-                    (string) $request->input('email'),
-                    $request->getClientIp(),
-                    (string) $request->input('search_pwd', '')
-                )
-            );
+            $order = $this->orderCheckoutService->createOrderFromRequest($request);
             DB::commit();
             // 设置订单cookie
             $this->queueCookie($order->order_sn);
@@ -117,14 +97,12 @@ class OrderController extends BaseController
      */
     public function bill(string $orderSN)
     {
-        $order = $this->orderService->detailOrderSN($orderSN);
-        if (empty($order)) {
-            return $this->err(__('dujiaoka.prompt.order_does_not_exist'));
+        try {
+            $order = $this->orderQueryService->requireBillOrder($orderSN);
+            return $this->render('static_pages/bill', $order, __('dujiaoka.page-title.bill'));
+        } catch (RuleValidationException $exception) {
+            return $this->err($exception->getMessage());
         }
-        if ($order->status == Order::STATUS_EXPIRED) {
-            return $this->err(__('dujiaoka.prompt.order_is_expired'));
-        }
-        return $this->render('static_pages/bill', $order, __('dujiaoka.page-title.bill'));
     }
 
 
@@ -140,19 +118,7 @@ class OrderController extends BaseController
      */
     public function checkOrderStatus(string $orderSN)
     {
-        $order = $this->orderService->detailOrderSN($orderSN);
-        // 订单不存在或者已经过期
-        if (!$order || $order->status == Order::STATUS_EXPIRED) {
-            return response()->json(['msg' => 'expired', 'code' => 400001]);
-        }
-        // 订单已经支付
-        if ($order->status == Order::STATUS_WAIT_PAY) {
-            return response()->json(['msg' => 'wait....', 'code' => 400000]);
-        }
-        // 成功
-        if ($order->status > Order::STATUS_WAIT_PAY) {
-            return response()->json(['msg' => 'success', 'code' => 200]);
-        }
+        return response()->json($this->orderQueryService->buildStatusPayload($orderSN));
     }
 
     /**
@@ -167,12 +133,12 @@ class OrderController extends BaseController
      */
     public function detailOrderSN(string $orderSN)
     {
-        $order = $this->orderService->detailOrderSN($orderSN);
-        // 订单不存在或者已经过期
-        if (!$order) {
-            return $this->err(__('dujiaoka.prompt.order_does_not_exist'));
+        try {
+            $order = $this->orderQueryService->requireDetailOrder($orderSN);
+            return $this->render('static_pages/orderinfo', ['orders' => [$order]], __('dujiaoka.page-title.order-detail'));
+        } catch (RuleValidationException $exception) {
+            return $this->err($exception->getMessage());
         }
-        return $this->render('static_pages/orderinfo', ['orders' => [$order]], __('dujiaoka.page-title.order-detail'));
     }
 
     /**
@@ -211,11 +177,15 @@ class OrderController extends BaseController
         ) {
             return $this->err(__('dujiaoka.prompt.server_illegal_request'));
         }
-        $orders = $this->orderService->withEmailAndPassword($request->input('email'), $request->input('search_pwd',''));
-        if (!$orders) {
-            return $this->err(__('dujiaoka.prompt.no_related_order_found'));
+        try {
+            $orders = $this->orderQueryService->requireOrdersByEmail(
+                $request->input('email'),
+                $request->input('search_pwd','')
+            );
+            return $this->render('static_pages/orderinfo', ['orders' => $orders], __('dujiaoka.page-title.order-detail'));
+        } catch (RuleValidationException $exception) {
+            return $this->err($exception->getMessage());
         }
-        return $this->render('static_pages/orderinfo', ['orders' => $orders], __('dujiaoka.page-title.order-detail'));
     }
 
     /**
@@ -229,13 +199,12 @@ class OrderController extends BaseController
      */
     public function searchOrderByBrowser(Request $request)
     {
-        $cookies = Cookie::get('dujiaoka_orders');
-        if (empty($cookies)) {
-            return $this->err(__('dujiaoka.prompt.no_related_order_found_for_cache'));
+        try {
+            $orders = $this->orderQueryService->requireOrdersByBrowser(Cookie::get('dujiaoka_orders'));
+            return $this->render('static_pages/orderinfo', ['orders' => $orders], __('dujiaoka.page-title.order-detail'));
+        } catch (RuleValidationException $exception) {
+            return $this->err($exception->getMessage());
         }
-        $orderSNS = json_decode($cookies, true);
-        $orders = $this->orderService->byOrderSNS($orderSNS);
-        return $this->render('static_pages/orderinfo', ['orders' => $orders], __('dujiaoka.page-title.order-detail'));
     }
 
     /**

@@ -3,10 +3,21 @@ namespace App\Http\Controllers\Pay;
 
 use App\Exceptions\RuleValidationException;
 use App\Http\Controllers\PayController;
+use App\Service\PaymentCallbackService;
 use Illuminate\Http\Request;
 
 class YipayController extends PayController
 {
+    /**
+     * @var \App\Service\PaymentCallbackService
+     */
+    private $paymentCallbackService;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->paymentCallbackService = app(PaymentCallbackService::class);
+    }
 
     public function gateway(string $payway, string $orderSN)
     {
@@ -59,37 +70,32 @@ class YipayController extends PayController
     public function notifyUrl(Request $request)
     {
         $data = $request->all();
-        $order = $this->orderService->detailOrderSN($data['out_trade_no']);
-        if (!$order) {
-            return 'fail';
-        }
-        $payGateway = $this->payService->detail($order->pay_id);
-        if (!$payGateway) {
-            return 'fail';
-        }
-        if($payGateway->pay_handleroute != '/pay/yipay'){
-            return 'fail';
-        }
-        ksort($data); //重新排序$data数组
-        reset($data); //内部指针指向数组中的第一个元素
-        $sign = '';
-        foreach ($data as $key => $val) {
-            if ($key == "sign" || $key == "sign_type" || $val == "") continue;
-            if ($key != 'sign') {
-                if ($sign != '') {
-                    $sign .= "&";
+
+        return $this->paymentCallbackService->handleSignedNotification(
+            $data['out_trade_no'],
+            '/pay/yipay',
+            function ($order, $payGateway) use ($data) {
+                ksort($data);
+                reset($data);
+                $sign = '';
+                foreach ($data as $key => $val) {
+                    if ($key == 'sign' || $key == 'sign_type' || $val == '') {
+                        continue;
+                    }
+                    if ($sign != '') {
+                        $sign .= "&";
+                    }
+                    $sign .= "$key=$val";
                 }
-                $sign .= "$key=$val"; //拼接为url参数形式
-            }
-        }
-        if (!$data['trade_no'] || md5($sign . $payGateway->merchant_pem) != $data['sign']) { //不合法的数据
-            return 'fail';  //返回失败 继续补单
-        } else {
-            //合法的数据
-            //业务处理
-            $this->orderProcessService->completedOrder($data['out_trade_no'], $data['money'], $data['trade_no']);
-            return 'success';
-        }
+
+                return !empty($data['trade_no']) && md5($sign . $payGateway->merchant_pem) == $data['sign'];
+            },
+            (float) $data['money'],
+            $data['trade_no'] ?? '',
+            'fail',
+            'fail',
+            'success'
+        );
     }
 
     public function returnUrl(Request $request)

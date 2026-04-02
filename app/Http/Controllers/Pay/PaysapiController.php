@@ -4,12 +4,24 @@ namespace App\Http\Controllers\Pay;
 
 use App\Exceptions\RuleValidationException;
 use App\Http\Controllers\PayController;
+use App\Service\PaymentCallbackService;
 use Illuminate\Http\Request;
 
 class PaysapiController extends PayController
 {
 
     const PAY_URI = 'https://pay.bearsoftware.net.cn/';
+
+    /**
+     * @var \App\Service\PaymentCallbackService
+     */
+    private $paymentCallbackService;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->paymentCallbackService = app(PaymentCallbackService::class);
+    }
 
     public function gateway(string $payway, string $orderSN)
     {
@@ -81,26 +93,28 @@ class PaysapiController extends PayController
     public function notifyUrl(Request $request)
     {
         $data = $request->post();
-        $order = $this->orderService->detailOrderSN($data['orderid']);
-        if (!$order) {
-            return 'error';
-        }
-        $payGateway = $this->payService->detail($order->pay_id);
-        if (!$payGateway) {
-            return 'error';
-        }
-        if($payGateway->pay_handleroute != '/pay/paysapi'){
-            return 'error';
-        }
-        $temps = md5($data['orderid'] . $data['orderuid'] . $data['paysapi_id'] . $data['price'] . $data['realprice'] . $payGateway->merchant_pem);
-        if ($temps != $data['key']){
-            return 'fail';
-        }else{
-            //校验key成功，是自己人。执行自己的业务逻辑：加余额，订单付款成功，装备购买成功等等。
-            //业务处理
-            $this->orderProcessService->completedOrder($data['orderid'], $data['price'], $data['paysapi_id']);
-            return 'success';
-        }
+
+        return $this->paymentCallbackService->handleSignedNotification(
+            $data['orderid'],
+            '/pay/paysapi',
+            function ($order, $payGateway) use ($data) {
+                $temps = md5(
+                    $data['orderid']
+                    . $data['orderuid']
+                    . $data['paysapi_id']
+                    . $data['price']
+                    . $data['realprice']
+                    . $payGateway->merchant_pem
+                );
+
+                return $temps == $data['key'];
+            },
+            (float) $data['price'],
+            $data['paysapi_id'],
+            'error',
+            'fail',
+            'success'
+        );
     }
 
     public function returnUrl(Request $request)

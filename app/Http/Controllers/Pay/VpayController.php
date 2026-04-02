@@ -10,10 +10,21 @@ namespace App\Http\Controllers\Pay;
 
 use App\Exceptions\RuleValidationException;
 use App\Http\Controllers\PayController;
+use App\Service\PaymentCallbackService;
 use Illuminate\Http\Request;
 
 class VpayController extends PayController
 {
+    /**
+     * @var \App\Service\PaymentCallbackService
+     */
+    private $paymentCallbackService;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->paymentCallbackService = app(PaymentCallbackService::class);
+    }
 
 
     public function gateway(string $payway, string $orderSN)
@@ -52,35 +63,28 @@ class VpayController extends PayController
     public function notifyUrl(Request $request)
     {
         $data = $request->all();
-        $order = $this->orderService->detailOrderSN($data['param']);
-        if (!$order) {
-            return 'fail';
-        }
-        $payGateway = $this->payService->detail($order->pay_id);
 
-        if($payGateway->pay_handleroute != 'pay/vpay'){
-            return 'fail';
-        }
-        if (!$payGateway) {
-            return 'fail';
-        }
+        return $this->paymentCallbackService->handleSignedNotification(
+            $data['param'],
+            '/pay/vpay',
+            function ($order, $payGateway) use ($data) {
+                $key = $payGateway->merchant_id;
+                $payId = $data['payId'];
+                $param = $data['param'];
+                $type = $data['type'];
+                $price = $data['price'];
+                $reallyPrice = $data['reallyPrice'];
+                $sign = $data['sign'];
+                $_sign = md5($payId . $param . $type . $price . $reallyPrice . $key);
 
-        $key = $payGateway->merchant_id;//通讯密钥
-        $payId = $data['payId'];//商户订单号
-        $param = $data['param'];//创建订单的时候传入的参数
-        $type = $data['type'];//支付方式 ：微信支付为1 支付宝支付为2
-        $price = $data['price'];//订单金额
-        $reallyPrice = $data['reallyPrice'];//实际支付金额
-        $sign = $data['sign'];//校验签名，计算方式 = md5(payId + param + type + price + reallyPrice + 通讯密钥)
-        //开始校验签名
-        $_sign = md5($payId . $param . $type . $price . $reallyPrice . $key);
-        if ($_sign != $sign) { //不合法的数据
-            return 'fail';  //返回失败 继续补单
-        } else { //合法的数据
-            //业务处理
-            $this->orderProcessService->completedOrder($param, $price, $payId);
-            return 'success';
-        }
+                return $_sign == $sign;
+            },
+            (float) $data['price'],
+            $data['payId'],
+            'fail',
+            'fail',
+            'success'
+        );
     }
 
     public function returnUrl(Request $request)

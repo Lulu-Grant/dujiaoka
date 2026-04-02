@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Pay;
 use AmrShawky\LaravelCurrency\Facade\Currency;
 use App\Exceptions\RuleValidationException;
 use App\Http\Controllers\PayController;
+use App\Service\PaypalReturnService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use PayPal\Api\Amount;
@@ -25,6 +26,17 @@ class PaypalPayController extends PayController
 {
 
     const Currency = 'USD'; //货币单位
+
+    /**
+     * @var \App\Service\PaypalReturnService
+     */
+    private $paypalReturnService;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->paypalReturnService = app(PaypalReturnService::class);
+    }
 
     public function gateway(string $payway, string $orderSN)
     {
@@ -85,26 +97,13 @@ class PaypalPayController extends PayController
         $orderSN = $request->input('orderSN');
         if ($success == 'no' || empty($paymentId) || empty($payerID)) {
             // 取消支付
-            redirect(url('detail-order-sn', ['orderSN' => $payerID]));
+            return redirect(url('detail-order-sn', ['orderSN' => $orderSN]));
         }
-        $order = $this->orderService->detailOrderSN($orderSN);
-        if (!$order) {
+        [$order, $payGateway] = $this->paypalReturnService->resolveReturnContext($orderSN);
+        if (!$order || !$payGateway) {
             return 'error';
         }
-        $payGateway = $this->payService->detail($order->pay_id);
-        if (!$payGateway) {
-            return 'error';
-        }
-        if($payGateway->pay_handleroute != '/pay/paypal'){
-            return 'error';
-        }
-        $paypal = new ApiContext(
-            new OAuthTokenCredential(
-                $payGateway->merchant_key,
-                $payGateway->merchant_pem
-            )
-        );
-        $paypal->setConfig(['mode' => 'live']);
+        $paypal = $this->paypalReturnService->makeApiContext($payGateway);
         $payment = Payment::get($paymentId, $paypal);
         $execute = new PaymentExecution();
         $execute->setPayerId($payerID);

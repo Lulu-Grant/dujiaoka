@@ -272,3 +272,189 @@
 下一步：
 
 - 继续评估控制器验证与应用层命令建模，逐步把 legacy request-to-service 粘连再往外拆。
+
+### 11. 完成订单创建控制器到应用服务的第一轮收口
+
+摘要：
+
+- 新增 [OrderCheckoutService.php](/Users/apple/Documents/dujiaoshuka/app/Service/OrderCheckoutService.php)，承接“请求校验 -> 组装 CreateOrderData -> 创建订单”的应用层流程。
+- [OrderController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/Home/OrderController.php) 的创建订单动作已改为直接调用结账应用服务。
+- 控制器厚度进一步降低，订单创建的请求到领域服务入口之间有了更明确的应用服务边界。
+
+影响范围：
+
+- 创建订单控制器逻辑
+- 请求校验与 DTO 组装职责划分
+- 控制器到服务层的调用路径
+
+验证：
+
+- 新增 [OrderCheckoutServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/OrderCheckoutServiceTest.php)
+- 当前全量回归结果：`OK (24 tests, 95 assertions)`
+
+下一步：
+
+- 继续梳理控制器层的重复查询与展示逻辑，评估是否需要为订单查询侧也引入更明确的应用服务。
+
+### 12. 完成订单查询控制器到应用服务的第一轮收口
+
+摘要：
+
+- 新增 [OrderQueryService.php](/Users/apple/Documents/dujiaoshuka/app/Service/OrderQueryService.php)，承接结账页订单获取、订单详情查询、状态轮询响应、邮箱查询和浏览器缓存查询。
+- [OrderController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/Home/OrderController.php) 的查询侧逻辑已大幅收缩，控制器主要保留响应渲染和错误输出。
+- 查询侧的异常消息与状态码逻辑开始从控制器分离，控制器职责进一步清晰。
+
+影响范围：
+
+- 订单详情展示
+- 订单状态轮询
+- 按邮箱查询
+- 按浏览器缓存查询
+
+验证：
+
+- 新增 [OrderQueryServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/OrderQueryServiceTest.php)
+- 当前全量回归结果：`OK (27 tests, 100 assertions)`
+
+下一步：
+
+- 继续盘点首页下单控制器之外的旧式控制器，优先评估支付入口和安装流程哪些适合先抽应用服务层。
+
+### 13. 完成支付入口控制器到应用服务的第一轮收口
+
+摘要：
+
+- 新增 [PayEntryService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PayEntryService.php)，承接支付前订单校验、支付网关加载和零元订单直达完成逻辑。
+- [PayController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/PayController.php) 已改为主要委托支付入口应用服务。
+- 为支付入口补充了零元订单直达完成的测试覆盖。
+
+影响范围：
+
+- 支付前订单校验
+- 支付网关加载
+- 0 元订单直接完成路径
+
+验证：
+
+- 扩展 [PayControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/PayControllerTest.php)
+- 当前全量回归结果：`OK (28 tests, 102 assertions)`
+
+下一步：
+
+- 继续评估各支付网关控制器，优先寻找可抽出的公共回调校验 / 完成支付入口，逐步为支付层建立更明确的网关抽象。
+
+### 14. 完成 PayPal 回调样板服务拆分并修复取消支付跳转问题
+
+摘要：
+
+- 新增 [PaypalReturnService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalReturnService.php)，承接 PayPal 同步回调中的订单/网关校验与 API context 构建。
+- [PaypalPayController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/Pay/PaypalPayController.php) 已开始把回调校验逻辑委托给应用服务。
+- 修复了 PayPal 取消支付时跳转详情页使用错误参数的问题，原先错误使用 `PayerID`，现已改为正确使用 `orderSN`。
+
+影响范围：
+
+- PayPal 同步回调入口
+- PayPal 回调上下文校验
+- PayPal 取消支付后的回跳行为
+
+验证：
+
+- 新增 [PaypalPayControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/PaypalPayControllerTest.php)
+- 当前全量回归结果：`OK (30 tests, 104 assertions)`
+
+下一步：
+
+- 继续挑选下一个典型支付控制器，优先抽出更通用的“回调上下文校验 + 完成支付入口”模式，逐步逼近统一网关抽象。
+
+### 15. 完成支付回调公共上下文服务抽取，并以 Paysapi 作为第二个网关样板
+
+摘要：
+
+- 新增 [PaymentCallbackService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaymentCallbackService.php)，统一承接“按订单号解析订单与支付网关，并校验 handleroute”的回调上下文逻辑。
+- [PaypalReturnService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalReturnService.php) 已改为复用回调公共服务。
+- [PaysapiController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/Pay/PaysapiController.php) 已开始把回调上下文解析和完成支付入口委托给公共服务，自身只保留 Paysapi 特有的签名校验。
+
+影响范围：
+
+- 支付回调公共上下文校验
+- Paysapi 异步通知处理
+- PayPal 回调服务的公共化依赖
+
+验证：
+
+- 新增 [PaysapiControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/PaysapiControllerTest.php)
+- 当前全量回归结果：`OK (32 tests, 108 assertions)`
+
+下一步：
+
+- 继续选择下一个异步通知型网关，把更多“签名校验之外的通用流程”抽到支付层公共服务中，逐步逼近统一网关适配模型。
+
+### 16. 完成 Yipay 第三个异步通知型网关样板接入
+
+摘要：
+
+- [YipayController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/Pay/YipayController.php) 已接入 [PaymentCallbackService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaymentCallbackService.php)。
+- 现在 Yipay 回调也开始复用统一的订单/网关上下文解析与完成支付入口。
+- 控制器自身继续保留易支付特有的签名规则，公共流程不再重复手写。
+
+影响范围：
+
+- 易支付异步通知回调
+- 支付回调公共服务的复用范围
+- 支付控制器的重复逻辑收敛
+
+验证：
+
+- 新增 [YipayControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/YipayControllerTest.php)
+- 当前全量回归结果：`OK (34 tests, 112 assertions)`
+
+下一步：
+
+- 继续选择下一个通知型网关，或开始抽取更上层的“签名计算策略 / 网关适配接口”，让支付层从公共流程抽取逐步进入统一抽象阶段。
+
+### 17. 完成异步通知型网关的统一通知骨架抽取
+
+摘要：
+
+- [PaymentCallbackService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaymentCallbackService.php) 新增 `handleSignedNotification()`，统一承接“回调上下文解析 -> 验签回调 -> 完成订单 -> 返回结果”的公共流程。
+- [PaysapiController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/Pay/PaysapiController.php) 与 [YipayController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/Pay/YipayController.php) 已改为复用这一统一入口。
+- 新增 [PaymentCallbackServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/PaymentCallbackServiceTest.php)，给支付回调公共服务本身补上了独立护栏。
+
+影响范围：
+
+- 支付回调公共服务抽象层
+- Paysapi 异步通知
+- Yipay 异步通知
+- 支付完成入口的统一复用
+
+验证：
+
+- 新增 [PaymentCallbackServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/PaymentCallbackServiceTest.php)
+- 当前全量回归结果：`OK (36 tests, 116 assertions)`
+
+下一步：
+
+- 继续评估是否引入更明确的网关适配接口，或者继续将更多通知型控制器接入统一通知骨架。
+
+### 18. 完成 Vpay 第四个通知型网关样板接入并修正 handleroute 校验
+
+摘要：
+
+- [VpayController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/Pay/VpayController.php) 已接入 [PaymentCallbackService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaymentCallbackService.php) 的统一通知骨架。
+- 修复了 Vpay 回调里 `pay_handleroute` 校验缺少前导 `/` 的问题，避免因路由字符串不一致导致合法通知被错误拒绝。
+- 支付回调统一骨架的复用范围进一步扩大到第四个典型网关。
+
+影响范围：
+
+- Vpay 异步通知回调
+- 支付回调统一骨架的覆盖范围
+- Vpay handleroute 校验一致性
+
+验证：
+
+- 新增 [VpayControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/VpayControllerTest.php)
+- 当前全量回归结果：`OK (38 tests, 120 assertions)`
+
+下一步：
+
+- 继续决定是扩更多网关到统一骨架，还是开始抽象更明确的网关适配协议层。

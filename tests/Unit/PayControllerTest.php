@@ -9,6 +9,8 @@ use App\Models\Goods;
 use App\Models\GoodsGroup;
 use App\Models\Order;
 use App\Models\Pay;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
@@ -22,10 +24,22 @@ class PayControllerTest extends TestCase
         parent::setUp();
 
         Model::unguard();
+        config(['dujiaoka.async_side_effects' => true]);
+        Queue::fake();
+        Cache::put('system-setting', [
+            'template' => 'hyper',
+            'text_logo' => 'Test Shop',
+            'manage_email' => 'admin@example.com',
+            'is_open_server_jiang' => BaseModel::STATUS_CLOSE,
+            'is_open_telegram_push' => BaseModel::STATUS_CLOSE,
+            'is_open_bark_push' => BaseModel::STATUS_CLOSE,
+            'is_open_qywxbot_push' => BaseModel::STATUS_CLOSE,
+        ]);
     }
 
     protected function tearDown(): void
     {
+        config(['dujiaoka.async_side_effects' => false]);
         Model::reguard();
 
         parent::tearDown();
@@ -61,7 +75,19 @@ class PayControllerTest extends TestCase
         app(PayController::class)->loadGateWay($order->order_sn, 'missing-gateway');
     }
 
-    private function createOrderAndPay(int $status, string $payCheck): array
+    public function test_redirect_gateway_completes_free_orders_without_external_gateway_jump(): void
+    {
+        [$order] = $this->createOrderAndPay(Order::STATUS_WAIT_PAY, 'pay-check-free', 0.00);
+
+        $response = app(PayController::class)->redirectGateway('pay/test', 'pay-check-free', $order->order_sn);
+
+        $order->refresh();
+
+        $this->assertSame(Order::STATUS_PENDING, $order->status);
+        $this->assertStringContainsString('detail-order-sn', $response->getTargetUrl());
+    }
+
+    private function createOrderAndPay(int $status, string $payCheck, float $actualPrice = 10.00): array
     {
         $group = GoodsGroup::query()->create([
             'gp_name' => 'Pay Group ' . $payCheck,
@@ -99,9 +125,10 @@ class PayControllerTest extends TestCase
             'goods_price' => 10.00,
             'buy_amount' => 1,
             'total_price' => 10.00,
-            'actual_price' => 10.00,
+            'actual_price' => $actualPrice,
             'search_pwd' => '',
             'email' => 'buyer@example.com',
+            'info' => 'account:demo-user',
             'buy_ip' => '127.0.0.1',
             'status' => $status,
         ]);
