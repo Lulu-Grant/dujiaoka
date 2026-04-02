@@ -69,7 +69,7 @@ class PaypalSdkService implements PaypalGatewayClientInterface
 
         $item = new Item();
         $item->setName($order->title)
-            ->setCurrency(PaypalCheckoutService::CURRENCY)
+            ->setCurrency($this->getTargetCurrency())
             ->setQuantity(1)
             ->setPrice($total);
 
@@ -81,7 +81,7 @@ class PaypalSdkService implements PaypalGatewayClientInterface
             ->setSubtotal($total);
 
         $amount = new Amount();
-        $amount->setCurrency(PaypalCheckoutService::CURRENCY)
+        $amount->setCurrency($this->getTargetCurrency())
             ->setTotal($total)
             ->setDetails($details);
 
@@ -110,5 +110,10 @@ class PaypalSdkService implements PaypalGatewayClientInterface
         $execute->setPayerId($payerId);
 
         return $execute;
+    }
+
+    protected function getTargetCurrency(): string
+    {
+        return (string) config('dujiaoka.paypal_target_currency', 'USD');
     }
 }

@@ -9,8 +9,6 @@ use App\Service\Contracts\PaypalGatewayClientInterface;
 
 class PaypalCheckoutService
 {
-    const CURRENCY = 'USD';
-
     /**
      * @var \App\Service\Contracts\PaypalGatewayClientInterface
      */
@@ -37,10 +35,20 @@ class PaypalCheckoutService
     protected function convertAmount(float $amount): float
     {
         return (float) Currency::convert()
-            ->from('CNY')
-            ->to(self::CURRENCY)
+            ->from($this->getSourceCurrency())
+            ->to($this->getTargetCurrency())
             ->amount($amount)
             ->round(2)
             ->get();
+    }
+
+    protected function getSourceCurrency(): string
+    {
+        return (string) config('dujiaoka.paypal_source_currency', 'CNY');
+    }
+
+    protected function getTargetCurrency(): string
+    {
+        return (string) config('dujiaoka.paypal_target_currency', 'USD');
     }
 }

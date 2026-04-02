@@ -1437,3 +1437,26 @@
 下一步：
 
 - 继续压缩 `PayPal` 旧 SDK 的残余实现假设，为真正移除 `paypal/rest-api-sdk-php` 做最后准备。
+
+### 59. 将 PayPal 币种假设与示例字段语义配置化
+
+摘要：
+
+- 在 [config/dujiaoka.php](/Users/apple/Documents/dujiaoshuka/config/dujiaoka.php) 中新增 `paypal_source_currency` 与 `paypal_target_currency`，默认保持 `CNY -> USD`，但不再写死在服务内部。
+- [PaypalCheckoutService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalCheckoutService.php) 与 [PaypalSdkService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalSdkService.php) 现在统一从配置读取 PayPal 源币种与目标结算币种。
+- [PaySampleSeeder.php](/Users/apple/Documents/dujiaoshuka/database/seeds/PaySampleSeeder.php) 中的 PayPal 示例字段说明已改为更明确的 `Client ID / Client Secret` 语义，减少新环境接入误解。
+- 补充 [PaypalCheckoutServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/PaypalCheckoutServiceTest.php) 与 [PaypalSdkServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/PaypalSdkServiceTest.php)，守住配置读取边界。
+
+影响范围：
+
+- PayPal 币种转换假设
+- PayPal 示例支付配置
+- 后续替换实现的配置边界
+
+验证：
+
+- 当前全量回归结果：`OK (78 tests, 220 assertions)`
+
+下一步：
+
+- 继续梳理 `PayPal` 旧 SDK 还剩下哪些实现假设必须保留，哪些可以直接让位给替代实现。

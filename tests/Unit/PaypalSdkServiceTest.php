@@ -39,4 +39,18 @@ class PaypalSdkServiceTest extends TestCase
 
         $service->executeApprovedPayment(new Pay(), 'PAY-ID', 'PAYER-ID');
     }
+
+    public function test_sdk_service_reads_configured_target_currency(): void
+    {
+        config(['dujiaoka.paypal_target_currency' => 'EUR']);
+
+        $service = new class extends PaypalSdkService {
+            public function targetCurrency(): string
+            {
+                return $this->getTargetCurrency();
+            }
+        };
+
+        $this->assertSame('EUR', $service->targetCurrency());
+    }
 }

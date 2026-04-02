@@ -54,6 +54,23 @@ class PaypalCheckoutServiceTest extends TestCase
         $this->assertSame('https://paypal.example.com/approval', $approvalUrl);
     }
 
+    public function test_checkout_service_reads_configured_currencies(): void
+    {
+        config([
+            'dujiaoka.paypal_source_currency' => 'SGD',
+            'dujiaoka.paypal_target_currency' => 'EUR',
+        ]);
+
+        $service = new class extends PaypalCheckoutService {
+            public function currencies(): array
+            {
+                return [$this->getSourceCurrency(), $this->getTargetCurrency()];
+            }
+        };
+
+        $this->assertSame(['SGD', 'EUR'], $service->currencies());
+    }
+
     private function createPaypalContext(string $orderSn): array
     {
         $group = GoodsGroup::query()->create([
