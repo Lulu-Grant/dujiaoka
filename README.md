@@ -1,4 +1,4 @@
-<p align="center"><img src="https://github.com/user-attachments/assets/9cb9369c-c5d8-4a06-ab53-a371d59f156d" width="100"></p>
+<p align="center"><img src="https://github.com/user-attachments/assets/9cb9369c-c5d8-4a06-ab53-a371d59f156d" width="150"></p>
 <p align="center">
 <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue" alt="license MIT"></a>
 <a href="https://github.com/Lulu-Grant/dujiaoka"><img src="https://img.shields.io/badge/fork-Lulu--Grant%2Fdujiaoka-green" alt="fork Lulu-Grant/dujiaoka"></a>
