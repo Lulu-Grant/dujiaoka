@@ -1618,3 +1618,27 @@
 下一步：
 
 - 继续清理 Stripe 页面的旧式前端实现细节，为独立升级 SDK 和后续主题整合做准备。
+
+### 67. 将 Stripe SDK 升级到 10.x 基线
+
+摘要：
+
+- 更新 [composer.json](/Users/apple/Documents/dujiaoshuka/composer.json) 中的 Stripe 依赖约束，从 `^7.84` 提升到 `^10.0`。
+- 通过 Composer 更新后，当前锁定版本已提升到 `stripe/stripe-php v10.21.0`。
+- 现有 Stripe 代码边界与回归测试在 `10.x` 基线上继续通过，说明前面完成的边界清理已经具备实际升级价值。
+
+影响范围：
+
+- Stripe SDK 版本基线
+- 依赖锁文件
+- 后续更高主版本升级准备
+
+验证：
+
+- `./scripts/composer74 show stripe/stripe-php`
+- 当前版本：`v10.21.0`
+- 当前全量回归结果：`OK (87 tests, 251 assertions)`
+
+下一步：
+
+- 继续清理 Stripe 剩余的旧式页面与交互耦合，并评估是否进一步升级到更高主版本。

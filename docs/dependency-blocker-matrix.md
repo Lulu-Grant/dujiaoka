@@ -23,7 +23,7 @@
 | `simplesoftwareio/simple-qrcode 2.0.0` | 二维码生成 | P0 | 已从主锁文件移除 | 已处理 | 已改为前端本地 JS 生成二维码 |
 | `bacon/bacon-qr-code 1.0.3` | QRCode 底层依赖 | P0 | 已随上层退出 | 已处理 | 已随 `simple-qrcode` 一起移除 |
 | `paypal/rest-api-sdk-php ^1.14` | PayPal 支付 | P1 | 历史 SDK，已收敛到接口绑定的单点服务 | 替换 | 已抽出 `PaypalSdkService` 与 `PaypalGatewayClientInterface` |
-| `stripe/stripe-php ^7.84` | Stripe 支付 | P1 | 偏旧，已收敛到接口绑定的单点服务 | 升级或替换接入方式 | 已抽出 `StripeSdkService` 与 `StripeGatewayClientInterface` |
+| `stripe/stripe-php ^10.0` | Stripe 支付 | P1 | 已升到较新的 10.x，但仍需继续清理残余耦合 | 继续升级或替换接入方式 | 已抽出 `StripeSdkService` 与 `StripeGatewayClientInterface` |
 | `xhat/payjs-laravel ^1.6` | PayJS 支付 | P2 | 已从主锁文件移除 | 已处理 | 已随 PayJS 通道退役退出新版本 |
 | `yansongda/pay ^2.10` | 支付宝 / 微信支付 | P2 | 可运行 | 观察后升级 | 当前不是第一阻塞点 |
 | `phpspec/prophecy 1.13.0` | 测试依赖链 | P0 | 已从主锁文件移除 | 已处理 | 已通过升级 `phpunit/phpunit` 到 9.6.34 退出主依赖链 |
@@ -97,8 +97,8 @@
 
 原因：
 
-- 当前版本较老
-- Stripe 主流程虽然已部分服务化，但剩余升级面仍较大
+- 已从 `7.84.0` 升到 `10.21.0`
+- Stripe 主流程虽然已明显服务化，但剩余升级面仍较大
 - 现已开始收敛 URL 与币种假设，为独立升级创造稳定边界
 - 当前异常边界也已开始收敛到应用层，便于后续独立升级 SDK
 - 当前 `source` 状态处理也开始脱离支付服务本体，便于后续升级时缩小改动面
@@ -108,8 +108,8 @@
 
 建议：
 
-- 先继续保证 `StripePaymentService` / `StripeCheckoutService` 成为稳定边界
-- 再按 [paypal-stripe-transition-plan.md](/Users/apple/Documents/dujiaoshuka/docs/paypal-stripe-transition-plan.md) 独立升级 SDK，而不是边拆边升
+- 先在 `10.x` 基线上继续保证 `StripePaymentService` / `StripeCheckoutService` 成为稳定边界
+- 再按 [paypal-stripe-transition-plan.md](/Users/apple/Documents/dujiaoshuka/docs/paypal-stripe-transition-plan.md) 评估是否继续升级更高主版本，而不是边拆边升
 
 ---
 
