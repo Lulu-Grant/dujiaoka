@@ -1926,3 +1926,26 @@
 下一步：
 
 - 继续清理后台控制器里剩余的闭包格式化和映射逻辑，进一步把 `app/Admin` 压到展示壳层。
+
+### 80. 将商品与卡密详情页展示映射继续抽到普通服务层
+
+摘要：
+
+- 新增 [CatalogAdminPresenterService.php](/Users/apple/Documents/dujiaoshuka/app/Service/CatalogAdminPresenterService.php)，统一负责商品类型标签、卡密状态标签、循环卡密标记。
+- [GoodsController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/GoodsController.php) 已切到该 presenter，不再在详情页闭包里自己判断自动发货/人工处理。
+- [CarmisController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/CarmisController.php) 的详情页和列表页也已复用该 presenter，不再在控制器里手写状态与循环标记逻辑。
+- 新增 [CatalogAdminPresenterServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/CatalogAdminPresenterServiceTest.php)。
+
+影响范围：
+
+- 后台商品详情页
+- 后台卡密列表页与详情页
+- 后台目录与库存相关展示壳
+
+验证：
+
+- 当前全量回归结果：`OK (110 tests, 315 assertions)`
+
+下一步：
+
+- 继续清理剩余后台控制器中的闭包和格式化分支，并把高频页面尽量收口到 presenter / option service 层。

@@ -13,6 +13,7 @@ use Dcat\Admin\Show;
 use Dcat\Admin\Http\Controllers\AdminController;
 use App\Models\Carmis as CarmisModel;
 use App\Service\AdminSelectOptionService;
+use App\Service\CatalogAdminPresenterService;
 use Dcat\Admin\Widgets\Card;
 
 class CarmisController extends AdminController
@@ -31,7 +32,9 @@ class CarmisController extends AdminController
             $grid->column('id')->sortable();
             $grid->column('goods.gd_name', admin_trans('carmis.fields.goods_id'));
             $grid->column('status')->select(CarmisModel::getStatusMap());
-            $grid->column('is_loop')->display(function($v){return $v==1?admin_trans('carmis.fields.yes'):"";});
+            $grid->column('is_loop')->display(function ($v) {
+                return app(CatalogAdminPresenterService::class)->loopLabel($v);
+            });
             $grid->column('carmi')->limit(20);
             $grid->column('created_at');
             $grid->column('updated_at')->sortable();
@@ -68,13 +71,11 @@ class CarmisController extends AdminController
             $show->field('id');
             $show->field('goods.gd_name', admin_trans('carmis.fields.goods_id'));
             $show->field('status')->as(function ($type) {
-                if ($type == CarmisModel::STATUS_UNSOLD) {
-                    return admin_trans('carmis.fields.status_unsold');
-                } else {
-                    return admin_trans('carmis.fields.status_sold');
-                }
+                return app(CatalogAdminPresenterService::class)->carmiStatusLabel($type);
             });
-			$show->field('is_loop')->as(function ($v) {return $v==1?admin_trans('carmis.fields.yes'):"";});
+            $show->field('is_loop')->as(function ($v) {
+                return app(CatalogAdminPresenterService::class)->loopLabel($v);
+            });
             $show->field('carmi');
             $show->field('created_at');
             $show->field('updated_at');

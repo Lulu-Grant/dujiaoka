@@ -9,7 +9,9 @@ use App\Models\Carmis;
 use App\Models\Coupon;
 use App\Models\GoodsGroup as GoodsGroupModel;
 use App\Service\AdminSelectOptionService;
+use App\Service\AdminStatusPresenterService;
 use App\Service\AdminTextareaPresenterService;
+use App\Service\CatalogAdminPresenterService;
 use App\Service\GoodsInventoryService;
 use Dcat\Admin\Admin;
 use Dcat\Admin\Form;
@@ -100,18 +102,10 @@ class GoodsController extends AdminController
             $show->field('ord');
             $show->field('sales_volume');
             $show->field('type')->as(function ($type) {
-                if ($type == GoodsModel::AUTOMATIC_DELIVERY) {
-                    return admin_trans('goods.fields.automatic_delivery');
-                } else {
-                    return admin_trans('goods.fields.manual_processing');
-                }
+                return app(CatalogAdminPresenterService::class)->goodsTypeLabel($type);
             });
             $show->field('is_open')->as(function ($isOpen) {
-                if ($isOpen == GoodsGroupModel::STATUS_OPEN) {
-                    return admin_trans('dujiaoka.status_open');
-                } else {
-                    return admin_trans('dujiaoka.status_close');
-                }
+                return app(AdminStatusPresenterService::class)->openStatusLabel($isOpen);
             });
             $show->wholesale_price_cnf()->unescape()->as(function ($wholesalePriceCnf) {
                 return app(AdminTextareaPresenterService::class)->render($wholesalePriceCnf);
