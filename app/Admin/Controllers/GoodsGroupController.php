@@ -5,6 +5,7 @@ namespace App\Admin\Controllers;
 use App\Admin\Actions\Post\BatchRestore;
 use App\Admin\Actions\Post\Restore;
 use App\Admin\Repositories\GoodsGroup;
+use App\Service\AdminFormBehaviorService;
 use App\Service\AdminStatusPresenterService;
 use App\Service\AdminTrashScopeService;
 use Dcat\Admin\Form;
@@ -86,8 +87,7 @@ class GoodsGroupController extends AdminController
             $form->display('updated_at');
             $form->disableViewButton();
             $form->footer(function ($footer) {
-                // 去掉`查看`checkbox
-                $footer->disableViewCheck();
+                app(AdminFormBehaviorService::class)->disableViewCheck($footer);
             });
         });
     }

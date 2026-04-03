@@ -1971,3 +1971,28 @@
 下一步：
 
 - 继续清理后台控制器里剩余的闭包与细碎判断，优先收尾到“高频后台页几乎只做展示壳”的状态。
+
+### 82. 将后台表单重复行为抽到普通服务层
+
+摘要：
+
+- 新增 [AdminFormBehaviorService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminFormBehaviorService.php)，统一负责：
+  - 邮件模板 `tpl_token` 字段在创建/编辑场景下的行为策略
+  - 后台表单 footer 的 `disableViewCheck` 行为
+- [EmailtplController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/EmailtplController.php) 与 [GoodsGroupController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/GoodsGroupController.php) 已切到这层服务，不再在控制器里直接拼表单行为细节。
+- 顺手移除了 [HomeController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/HomeController.php) 中无效的 `PopularGoodsCard` 引用。
+- 新增 [AdminFormBehaviorServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminFormBehaviorServiceTest.php)。
+
+影响范围：
+
+- 后台邮件模板表单
+- 后台商品分组表单
+- 后台表单共性行为收口
+
+验证：
+
+- 当前全量回归结果：`OK (113 tests, 320 assertions)`
+
+下一步：
+
+- 继续清理后台控制器里剩余的零散闭包与判断分支，优先把高频后台页整理到“配置 + 展示壳 + 普通服务”的结构。

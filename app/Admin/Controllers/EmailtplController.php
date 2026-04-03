@@ -5,6 +5,7 @@ namespace App\Admin\Controllers;
 use App\Admin\Actions\Post\BatchRestore;
 use App\Admin\Actions\Post\Restore;
 use App\Admin\Repositories\Emailtpl;
+use App\Service\AdminFormBehaviorService;
 use App\Service\AdminTrashScopeService;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
@@ -74,21 +75,25 @@ class EmailtplController extends AdminController
     protected function form()
     {
         return Form::make(new Emailtpl(), function (Form $form) {
+            $behavior = app(AdminFormBehaviorService::class);
+            $tokenMode = $behavior->emailTemplateTokenFieldMode($form->isCreating());
+
             $form->display('id');
             $form->text('tpl_name')->required();
             $form->editor('tpl_content')->required();
-            if ($form->isCreating()) {
-                $form->text('tpl_token')->required();
-            } else {
-                $form->text('tpl_token')->disable();
+            $tokenField = $form->text('tpl_token');
+            if ($tokenMode['required']) {
+                $tokenField->required();
+            }
+            if ($tokenMode['disabled']) {
+                $tokenField->disable();
             }
             $form->display('created_at');
             $form->display('updated_at');
             $form->disableViewButton();
             $form->disableDeleteButton();
             $form->footer(function ($footer) {
-                // 去掉`查看`checkbox
-                $footer->disableViewCheck();
+                app(AdminFormBehaviorService::class)->disableViewCheck($footer);
             });
         });
     }

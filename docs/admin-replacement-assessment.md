@@ -236,3 +236,4 @@
 - 后台高频 CRUD 页的下拉选项来源已抽到 [AdminSelectOptionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminSelectOptionService.php)，优惠码多选格式化已抽到 [CouponAdminPresenterService.php](/Users/apple/Documents/dujiaoshuka/app/Service/CouponAdminPresenterService.php)
 - 商品与卡密详情页的类型/状态/循环展示已抽到 [CatalogAdminPresenterService.php](/Users/apple/Documents/dujiaoshuka/app/Service/CatalogAdminPresenterService.php)
 - 各后台控制器重复的“回收站作用域判断”已抽到 [AdminTrashScopeService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminTrashScopeService.php)
+- 后台表单重复的 footer 行为与邮件模板 token 字段策略已抽到 [AdminFormBehaviorService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminFormBehaviorService.php)

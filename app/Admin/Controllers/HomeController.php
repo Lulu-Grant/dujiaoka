@@ -4,7 +4,6 @@ namespace App\Admin\Controllers;
 
 use App\Admin\Charts\DashBoard;
 use App\Admin\Charts\PayoutRateCard;
-use App\Admin\Charts\PopularGoodsCard;
 use App\Admin\Charts\SalesCard;
 use App\Admin\Charts\SuccessOrderCard;
 use App\Http\Controllers\Controller;
