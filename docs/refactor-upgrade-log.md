@@ -1949,3 +1949,25 @@
 下一步：
 
 - 继续清理剩余后台控制器中的闭包和格式化分支，并把高频页面尽量收口到 presenter / option service 层。
+
+### 81. 将后台重复的回收站作用域判断抽到普通服务层
+
+摘要：
+
+- 新增 [AdminTrashScopeService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminTrashScopeService.php)，统一负责后台 `_scope_ = trashed` 判断。
+- [GoodsGroupController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/GoodsGroupController.php)、[PayController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/PayController.php)、[CarmisController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/CarmisController.php)、[GoodsController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/GoodsController.php)、[OrderController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/OrderController.php)、[CouponController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/CouponController.php)、[EmailtplController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/EmailtplController.php) 已切到这层服务。
+- 新增 [AdminTrashScopeServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminTrashScopeServiceTest.php)。
+
+影响范围：
+
+- 后台所有带回收站恢复动作的高频 CRUD 页面
+- 后台 Action 显示条件的一致性
+- 后续后台壳替换时的重复判断清理成本
+
+验证：
+
+- 当前全量回归结果：`OK (111 tests, 317 assertions)`
+
+下一步：
+
+- 继续清理后台控制器里剩余的闭包与细碎判断，优先收尾到“高频后台页几乎只做展示壳”的状态。

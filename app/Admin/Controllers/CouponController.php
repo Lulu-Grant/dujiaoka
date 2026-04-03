@@ -6,6 +6,7 @@ use App\Admin\Actions\Post\BatchRestore;
 use App\Admin\Actions\Post\Restore;
 use App\Admin\Repositories\Coupon;
 use App\Service\AdminStatusPresenterService;
+use App\Service\AdminTrashScopeService;
 use Dcat\Admin\Admin;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
@@ -36,12 +37,12 @@ class CouponController extends AdminController
             $grid->column('created_at');
             $grid->column('updated_at')->sortable();
             $grid->actions(function (Grid\Displayers\Actions $actions) {
-                if (request('_scope_') == admin_trans('dujiaoka.trashed')) {
+                if (app(AdminTrashScopeService::class)->isTrashedScope()) {
                     $actions->append(new Restore(CouponModel::class));
                 }
             });
             $grid->batchActions(function (Grid\Tools\BatchActions $batch) {
-                if (request('_scope_') == admin_trans('dujiaoka.trashed')) {
+                if (app(AdminTrashScopeService::class)->isTrashedScope()) {
                     $batch->add(new BatchRestore(CouponModel::class));
                 }
             });

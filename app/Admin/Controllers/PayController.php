@@ -6,6 +6,7 @@ use App\Admin\Actions\Post\BatchRestore;
 use App\Admin\Actions\Post\Restore;
 use App\Admin\Repositories\Pay;
 use App\Service\PayAdminPresenterService;
+use App\Service\AdminTrashScopeService;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
@@ -47,12 +48,12 @@ class PayController extends AdminController
                 $filter->scope(admin_trans('dujiaoka.trashed'))->onlyTrashed();
             });
             $grid->actions(function (Grid\Displayers\Actions $actions) {
-                if (request('_scope_') == admin_trans('dujiaoka.trashed')) {
+                if (app(AdminTrashScopeService::class)->isTrashedScope()) {
                     $actions->append(new Restore(PayModel::class));
                 }
             });
             $grid->batchActions(function (Grid\Tools\BatchActions $batch) {
-                if (request('_scope_') == admin_trans('dujiaoka.trashed')) {
+                if (app(AdminTrashScopeService::class)->isTrashedScope()) {
                     $batch->add(new BatchRestore(PayModel::class));
                 }
             });

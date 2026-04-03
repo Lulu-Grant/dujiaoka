@@ -5,6 +5,7 @@ namespace App\Admin\Controllers;
 use App\Admin\Actions\Post\BatchRestore;
 use App\Admin\Actions\Post\Restore;
 use App\Admin\Repositories\Emailtpl;
+use App\Service\AdminTrashScopeService;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
@@ -34,12 +35,12 @@ class EmailtplController extends AdminController
                 $filter->like('tpl_token');
             });
             $grid->actions(function (Grid\Displayers\Actions $actions) {
-                if (request('_scope_') == admin_trans('dujiaoka.trashed')) {
+                if (app(AdminTrashScopeService::class)->isTrashedScope()) {
                     $actions->append(new Restore(EmailTplModel::class));
                 }
             });
             $grid->batchActions(function (Grid\Tools\BatchActions $batch) {
-                if (request('_scope_') == admin_trans('dujiaoka.trashed')) {
+                if (app(AdminTrashScopeService::class)->isTrashedScope()) {
                     $batch->add(new BatchRestore(EmailTplModel::class));
                 }
             });

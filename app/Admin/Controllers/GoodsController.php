@@ -11,6 +11,7 @@ use App\Models\GoodsGroup as GoodsGroupModel;
 use App\Service\AdminSelectOptionService;
 use App\Service\AdminStatusPresenterService;
 use App\Service\AdminTextareaPresenterService;
+use App\Service\AdminTrashScopeService;
 use App\Service\CatalogAdminPresenterService;
 use App\Service\GoodsInventoryService;
 use Dcat\Admin\Admin;
@@ -69,12 +70,12 @@ class GoodsController extends AdminController
                 $filter->equal('coupon.coupons_id', admin_trans('goods.fields.coupon_id'))->select(app(AdminSelectOptionService::class)->couponOptions());
             });
             $grid->actions(function (Grid\Displayers\Actions $actions) {
-                if (request('_scope_') == admin_trans('dujiaoka.trashed')) {
+                if (app(AdminTrashScopeService::class)->isTrashedScope()) {
                     $actions->append(new Restore(GoodsModel::class));
                 }
             });
             $grid->batchActions(function (Grid\Tools\BatchActions $batch) {
-                if (request('_scope_') == admin_trans('dujiaoka.trashed')) {
+                if (app(AdminTrashScopeService::class)->isTrashedScope()) {
                     $batch->add(new BatchRestore(GoodsModel::class));
                 }
             });

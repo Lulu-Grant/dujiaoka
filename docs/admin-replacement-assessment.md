@@ -235,3 +235,4 @@
 - 支付后台页与订单/商品详情页的展示格式化已抽到 [PayAdminPresenterService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PayAdminPresenterService.php) 与 [AdminTextareaPresenterService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminTextareaPresenterService.php)
 - 后台高频 CRUD 页的下拉选项来源已抽到 [AdminSelectOptionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminSelectOptionService.php)，优惠码多选格式化已抽到 [CouponAdminPresenterService.php](/Users/apple/Documents/dujiaoshuka/app/Service/CouponAdminPresenterService.php)
 - 商品与卡密详情页的类型/状态/循环展示已抽到 [CatalogAdminPresenterService.php](/Users/apple/Documents/dujiaoshuka/app/Service/CatalogAdminPresenterService.php)
+- 各后台控制器重复的“回收站作用域判断”已抽到 [AdminTrashScopeService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminTrashScopeService.php)

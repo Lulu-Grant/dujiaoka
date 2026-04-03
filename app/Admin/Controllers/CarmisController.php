@@ -13,6 +13,7 @@ use Dcat\Admin\Show;
 use Dcat\Admin\Http\Controllers\AdminController;
 use App\Models\Carmis as CarmisModel;
 use App\Service\AdminSelectOptionService;
+use App\Service\AdminTrashScopeService;
 use App\Service\CatalogAdminPresenterService;
 use Dcat\Admin\Widgets\Card;
 
@@ -45,12 +46,12 @@ class CarmisController extends AdminController
                 $filter->scope(admin_trans('dujiaoka.trashed'))->onlyTrashed();
             });
             $grid->actions(function (Grid\Displayers\Actions $actions) {
-                if (request('_scope_') == admin_trans('dujiaoka.trashed')) {
+                if (app(AdminTrashScopeService::class)->isTrashedScope()) {
                     $actions->append(new Restore(CarmisModel::class));
                 }
             });
             $grid->batchActions(function (Grid\Tools\BatchActions $batch) {
-                if (request('_scope_') == admin_trans('dujiaoka.trashed')) {
+                if (app(AdminTrashScopeService::class)->isTrashedScope()) {
                     $batch->add(new BatchRestore(CarmisModel::class));
                 }
             });
