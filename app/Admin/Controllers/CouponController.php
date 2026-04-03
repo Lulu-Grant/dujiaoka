@@ -5,6 +5,7 @@ namespace App\Admin\Controllers;
 use App\Admin\Actions\Post\BatchRestore;
 use App\Admin\Actions\Post\Restore;
 use App\Admin\Repositories\Coupon;
+use App\Service\AdminStatusPresenterService;
 use Dcat\Admin\Admin;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
@@ -65,18 +66,10 @@ class CouponController extends AdminController
             $show->field('id');
             $show->field('discount');
             $show->field('is_use')->as(function ($isUse) {
-                if ($isUse == CouponModel::STATUS_UNUSED) {
-                    return admin_trans('coupon.fields.status_unused');
-                } else {
-                    return admin_trans('coupon.fields.status_use');
-                }
+                return app(AdminStatusPresenterService::class)->couponUsageLabel($isUse);
             });
             $show->field('is_open')->as(function ($isOPen) {
-                if ($isOPen == CouponModel::STATUS_OPEN) {
-                    return admin_trans('dujiaoka.status_open');
-                } else {
-                    return admin_trans('dujiaoka.status_close');
-                }
+                return app(AdminStatusPresenterService::class)->openStatusLabel($isOPen);
             });
             $show->field('coupon');
             $show->field('ret');

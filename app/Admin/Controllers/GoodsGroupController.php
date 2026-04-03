@@ -5,6 +5,7 @@ namespace App\Admin\Controllers;
 use App\Admin\Actions\Post\BatchRestore;
 use App\Admin\Actions\Post\Restore;
 use App\Admin\Repositories\GoodsGroup;
+use App\Service\AdminStatusPresenterService;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
@@ -60,11 +61,7 @@ class GoodsGroupController extends AdminController
             $show->field('id');
             $show->field('gp_name');
             $show->field('is_open')->as(function ($isOpen) {
-                if ($isOpen == GoodsGroupModel::STATUS_OPEN) {
-                    return admin_trans('dujiaoka.status_open');
-                } else {
-                    return admin_trans('dujiaoka.status_close');
-                }
+                return app(AdminStatusPresenterService::class)->openStatusLabel($isOpen);
             });
             $show->field('ord');
             $show->field('created_at');

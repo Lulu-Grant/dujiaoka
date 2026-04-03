@@ -6,6 +6,16 @@ use App\Models\Pay;
 
 class PayAdminPresenterService
 {
+    /**
+     * @var AdminStatusPresenterService
+     */
+    private $statusPresenter;
+
+    public function __construct(AdminStatusPresenterService $statusPresenter)
+    {
+        $this->statusPresenter = $statusPresenter;
+    }
+
     public function lifecycleBadge(?string $payCheck): string
     {
         $label = Pay::getLifecycleLabel($payCheck);
@@ -42,9 +52,7 @@ class PayAdminPresenterService
 
     public function openStatusLabel($isOpen): string
     {
-        return (int) $isOpen === Pay::STATUS_OPEN
-            ? admin_trans('dujiaoka.status_open')
-            : admin_trans('dujiaoka.status_close');
+        return $this->statusPresenter->openStatusLabel($isOpen);
     }
 
     private function badge(string $variant, string $label): string

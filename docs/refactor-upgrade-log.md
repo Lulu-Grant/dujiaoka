@@ -1898,3 +1898,31 @@
 下一步：
 
 - 继续后台薄壳化与升级前清障，同时观察首轮 GitHub Actions CI 的运行结果。
+
+补充观察：
+
+- GitHub Actions `CI` 工作流已在 `add github actions ci baseline` 与 `add local dev bootstrap workflow` 两次主线推送上连续通过。
+
+### 79. 将后台通用状态映射继续抽到普通服务层
+
+摘要：
+
+- 新增 [AdminStatusPresenterService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminStatusPresenterService.php)，统一负责后台“开关状态”“优惠码使用状态”等通用标签映射。
+- [PayAdminPresenterService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PayAdminPresenterService.php) 已复用这组通用状态 presenter，不再自己维护开启/关闭标签。
+- [GoodsGroupController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/GoodsGroupController.php) 与 [CouponController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/CouponController.php) 已切到普通服务层，不再在详情页闭包里手写状态映射。
+- 新增 [AdminStatusPresenterServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminStatusPresenterServiceTest.php)。
+
+影响范围：
+
+- 后台商品分组详情页
+- 后台优惠码详情页
+- 后台通用状态标签映射边界
+
+验证：
+
+- GitHub Actions `CI` 连续两次主线推送通过
+- 当前全量回归结果：`OK (108 tests, 309 assertions)`
+
+下一步：
+
+- 继续清理后台控制器里剩余的闭包格式化和映射逻辑，进一步把 `app/Admin` 压到展示壳层。
