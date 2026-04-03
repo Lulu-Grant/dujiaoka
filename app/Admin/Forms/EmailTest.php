@@ -9,9 +9,8 @@
 
 namespace App\Admin\Forms;
 
-use App\Models\BaseModel;
+use App\Service\MailConfigService;
 use Dcat\Admin\Widgets\Form;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Mail\MailServiceProvider;
 use Illuminate\Support\Facades\Mail;
 
@@ -29,19 +28,7 @@ class EmailTest extends Form
       $to = $input['to'];
       $title = $input['title'];
       $body = $input['body'];
-      $sysConfig = cache('system-setting');
-      $mailConfig = [
-          'driver' => $sysConfig['driver'] ?? 'smtp',
-          'host' => $sysConfig['host'] ?? '',
-          'port' => $sysConfig['port'] ?? '465',
-          'username' => $sysConfig['username'] ?? '',
-          'from'      =>  [
-              'address'   =>   $sysConfig['from_address'] ?? '',
-              'name'      =>  $sysConfig['from_name'] ?? '独角发卡'
-          ],
-          'password' => $sysConfig['password'] ?? '',
-          'encryption' => $sysConfig['encryption'] ?? 'ssl'
-      ];
+      $mailConfig = app(MailConfigService::class)->runtimeConfig();
       //  覆盖 mail 配置
       config([
           'mail'  =>  array_merge(config('mail'), $mailConfig)

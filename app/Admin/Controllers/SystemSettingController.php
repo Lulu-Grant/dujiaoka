@@ -32,7 +32,7 @@ class SystemSettingController extends AdminController
     {
         return $content
             ->title(admin_trans('menu.titles.system_setting'))
-            ->body(new Card(new SystemSetting()));
+            ->body(new Card(app(SystemSetting::class)));
     }
 
 }

@@ -1666,3 +1666,27 @@
 下一步：
 
 - 继续清理 Stripe 支付页与前端协议中的遗留实现细节，在 `20.x` 基线上完成更彻底的稳定化收口。
+
+### 69. 将系统设置与邮件配置从 Dcat 表单中抽到普通服务层
+
+摘要：
+
+- 新增 [SystemSettingService.php](/Users/apple/Documents/dujiaoshuka/app/Service/SystemSettingService.php)，统一负责系统设置的默认值、字段白名单、缓存读写。
+- 新增 [MailConfigService.php](/Users/apple/Documents/dujiaoshuka/app/Service/MailConfigService.php)，统一负责从系统设置派生运行时邮件配置。
+- [SystemSetting.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Forms/SystemSetting.php) 现在只保留表单结构，保存逻辑改为委托服务层。
+- [EmailTest.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Forms/EmailTest.php)、[MailSend.php](/Users/apple/Documents/dujiaoshuka/app/Jobs/MailSend.php)、[functions.php](/Users/apple/Documents/dujiaoshuka/app/Helpers/functions.php) 已切到新的设置/邮件服务，不再各自直接操作 `system-setting` 缓存。
+- 新增 [SystemSettingServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/SystemSettingServiceTest.php) 与 [MailConfigServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/MailConfigServiceTest.php) 守住设置白名单、默认值和邮件配置派生行为。
+
+影响范围：
+
+- 后台系统设置页
+- 邮件测试与邮件发送运行时配置
+- 全局系统配置读取边界
+
+验证：
+
+- 当前全量回归结果：`OK (90 tests, 264 assertions)`
+
+下一步：
+
+- 继续沿着后台降耦合路线，优先抽离后台批量动作和数据看板中的业务计算，让 `app/Admin` 进一步退化成薄展示层。

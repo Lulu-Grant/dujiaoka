@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Service\MailConfigService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -57,19 +58,7 @@ class MailSend implements ShouldQueue
     {
         $body = $this->content;
         $title = $this->title;
-        $sysConfig = cache('system-setting');
-        $mailConfig = [
-            'driver' => $sysConfig['driver'] ?? 'smtp',
-            'host' => $sysConfig['host'] ?? '',
-            'port' => $sysConfig['port'] ?? '465',
-            'username' => $sysConfig['username'] ?? '',
-            'from'      =>  [
-                'address'   =>   $sysConfig['from_address'] ?? '',
-                'name'      =>  $sysConfig['from_name'] ?? '独角发卡'
-            ],
-            'password' => $sysConfig['password'] ?? '',
-            'encryption' => $sysConfig['encryption'] ?? ''
-        ];
+        $mailConfig = app(MailConfigService::class)->runtimeConfig();
         $to = $this->to;
         //  覆盖 mail 配置
         config([

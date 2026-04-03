@@ -9,7 +9,7 @@
 
 
 use App\Exceptions\AppException;
-use Illuminate\Support\Facades\Cache;
+use App\Service\SystemSettingService;
 use Illuminate\Support\Facades\Storage;
 
 if (! function_exists('replace_mail_tpl')) {
@@ -57,8 +57,7 @@ if (! function_exists('dujiaoka_config_get')) {
      */
     function dujiaoka_config_get(string $key, $default = null)
     {
-       $sysConfig = Cache::get('system-setting');
-       return $sysConfig[$key] ?? $default;
+       return app(SystemSettingService::class)->get($key, $default);
     }
 }
 

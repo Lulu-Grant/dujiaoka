@@ -124,6 +124,13 @@
 - 含导入/导出
 - 含较多格式化逻辑和权限控制
 
+补充说明：
+
+- 其中“系统设置”已经开始第一轮降耦合：
+  - [SystemSettingService.php](/Users/apple/Documents/dujiaoshuka/app/Service/SystemSettingService.php) 负责系统设置默认值、字段白名单、缓存读写
+  - [MailConfigService.php](/Users/apple/Documents/dujiaoshuka/app/Service/MailConfigService.php) 负责从系统设置派生运行时邮件配置
+  - [SystemSetting.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Forms/SystemSetting.php) 现在主要保留表单结构，不再直接承担设置持久化规则
+
 ### 高风险能力
 
 - 仪表盘图表
@@ -216,3 +223,8 @@
 2. 识别哪些后台页面仍直接操作业务模型或内嵌业务规则
 3. 优先把高频后台模块背后的业务逻辑继续抽到普通服务层
 4. 暂停新增 Dcat 绑定型后台能力
+
+当前已完成的第一组后台降耦合样板：
+
+- 系统设置读写与默认值已从 Dcat 表单抽出到普通服务层
+- 邮件测试与邮件发送已改为读取 [MailConfigService.php](/Users/apple/Documents/dujiaoshuka/app/Service/MailConfigService.php)，不再在 Dcat 表单/Job 中各自拼装配置
