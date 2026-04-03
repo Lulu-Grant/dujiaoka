@@ -1824,3 +1824,25 @@
 下一步：
 
 - 继续清理后台控制器里剩余的状态/标签映射和详情页格式化分支，让 `app/Admin` 更接近纯展示入口。
+
+### 76. 为仓库补上 GitHub Actions CI 基线工作流
+
+摘要：
+
+- 新增 [ci.yml](/Users/apple/Documents/dujiaoshuka/.github/workflows/ci.yml)，为仓库补上首个 GitHub Actions 工作流。
+- 当前工作流会在 `push`、`pull_request`、手动 `workflow_dispatch` 下运行，使用 PHP `7.4` + MariaDB 恢复测试数据库并执行 PHPUnit。
+- [README.md](/Users/apple/Documents/dujiaoshuka/README.md) 已加入 CI 徽章，并同步更新当前测试基线到 `OK (106 tests, 305 assertions)`。
+
+影响范围：
+
+- GitHub Actions 页面将不再是空白状态
+- 主线提交和 PR 将获得基础自动回归
+- 后续可以在此基础上再扩展到多版本或前端构建检查
+
+验证：
+
+- 本地当前全量回归结果：`OK (106 tests, 305 assertions)`
+
+下一步：
+
+- 继续推进后台薄壳化，同时观察首轮 GitHub Actions 是否一次通过，再决定是否追加第二条 workflow。

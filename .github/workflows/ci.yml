@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  phpunit:
+    name: PHPUnit (PHP 7.4)
+    runs-on: ubuntu-22.04
+
+    services:
+      mysql:
+        image: mariadb:10.5
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        options: >-
+          --health-cmd="mysqladmin ping -proot --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 7.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.4
+          coverage: none
+          tools: composer:v2
+          extensions: bcmath, ctype, curl, dom, fileinfo, gd, json, mbstring, openssl, pdo_mysql, tokenizer, xml
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php74-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php74-composer-
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Prepare test database
+        run: |
+          mysql -h 127.0.0.1 -uroot -proot -e "CREATE DATABASE IF NOT EXISTS dujiaoka_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+          mysql -h 127.0.0.1 -uroot -proot -e "CREATE USER IF NOT EXISTS 'dujiaoka'@'%' IDENTIFIED BY 'dujiaoka_local';"
+          mysql -h 127.0.0.1 -uroot -proot -e "GRANT ALL PRIVILEGES ON dujiaoka_test.* TO 'dujiaoka'@'%'; FLUSH PRIVILEGES;"
+          mysql -h 127.0.0.1 -udujiaoka -pdujiaoka_local dujiaoka_test < database/sql/install.sql
+
+      - name: Run PHPUnit
+        env:
+          APP_ENV: testing
+          CACHE_DRIVER: array
+          QUEUE_CONNECTION: sync
+        run: vendor/bin/phpunit

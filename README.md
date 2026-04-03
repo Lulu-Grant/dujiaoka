@@ -4,6 +4,7 @@
 <a href="https://github.com/Lulu-Grant/dujiaoka"><img src="https://img.shields.io/badge/fork-Lulu--Grant%2Fdujiaoka-green" alt="fork Lulu-Grant/dujiaoka"></a>
 <a href="https://www.php.net/releases/7_4_0.php"><img src="https://img.shields.io/badge/legacy_runtime-PHP%207.4-lightgrey" alt="legacy runtime php74"></a>
 <a href="https://www.php.net/supported-versions.php"><img src="https://img.shields.io/badge/modernization-in%20progress-orange" alt="modernization in progress"></a>
+<a href="https://github.com/Lulu-Grant/dujiaoka/actions/workflows/ci.yml"><img src="https://github.com/Lulu-Grant/dujiaoka/actions/workflows/ci.yml/badge.svg" alt="ci"></a>
 </p>
 
 # 独角数卡西瓜版
@@ -64,8 +65,13 @@
 当前主线测试结果基线：
 
 ```bash
-OK (70 tests, 198 assertions)
+OK (106 tests, 305 assertions)
 ```
+
+当前仓库也已经补上 GitHub Actions 基线工作流：
+
+- `CI`：在 GitHub Actions 中使用 PHP `7.4` + MariaDB 运行 PHPUnit
+- 支持 `push`、`pull_request`、手动 `workflow_dispatch`
 
 更多环境说明请查看：
 
