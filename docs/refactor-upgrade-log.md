@@ -1712,3 +1712,25 @@
 下一步：
 
 - 继续处理后台批量动作和导入能力，把更多 Dcat Action / Widget 背后的业务规则往普通服务层收口。
+
+### 71. 将卡密导入能力从 Dcat 表单抽到普通服务层
+
+摘要：
+
+- 新增 [CarmiImportService.php](/Users/apple/Documents/dujiaoshuka/app/Service/CarmiImportService.php)，统一负责卡密文本解析、去重、批量入库和上传文件清理。
+- [ImportCarmis.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Forms/ImportCarmis.php) 现在只保留表单输入和响应逻辑，不再直接承担导入规则。
+- 新增 [CarmiImportServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/CarmiImportServiceTest.php)，守住“文本导入 / 上传文件导入 / 去重 / 空输入报错”几条关键约束。
+
+影响范围：
+
+- 后台卡密导入表单
+- 卡密批量入库规则
+- 后续后台导入能力迁移成本
+
+验证：
+
+- 当前全量回归结果：`OK (95 tests, 282 assertions)`
+
+下一步：
+
+- 继续清理后台批量动作和恢复类 Action，把通用恢复/导入逻辑进一步下沉到普通服务层。
