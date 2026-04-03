@@ -39,6 +39,7 @@
 - 当前状态处理边界：`source` 检索、扣款、归属校验、完成订单已开始从支付服务中拆出
 - 当前金额换算边界：结账页与卡片扣款所需的分单位金额已开始收敛到独立金额服务
 - 当前入口参数边界：`orderid / source / stripeToken` 已开始收敛到 Stripe 专用输入对象
+- 当前页面壳边界：Stripe 收银页已改为项目内本地 CSS/JS 资源，不再依赖外部前端 CDN 提供页面壳
 - 业务入口已收敛到：
   - [StripeCheckoutService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripeCheckoutService.php)
   - [StripePaymentService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripePaymentService.php)
@@ -78,7 +79,7 @@
 4. 继续把 `source` 状态处理从支付服务中收拢成独立边界
 5. 继续把金额换算与分单位计算留在独立服务层，不再散回控制器
 6. 继续把入口参数解析从控制器原始数组访问收成明确输入对象
-7. 继续清掉旧的页面/回调内联耦合
+7. 继续清掉旧的页面 / 回调内联耦合与外部 CDN 依赖
 8. 独立升级 `stripe/stripe-php`
 9. 验证 `charge / return / check` 三条路径后再收口旧兼容逻辑
 

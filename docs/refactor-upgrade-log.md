@@ -1595,3 +1595,26 @@
 下一步：
 
 - 继续清理 Stripe 里剩余的旧式页面和前端 CDN 耦合点，为更现代的支付页与 SDK 升级做准备。
+
+### 66. 将 Stripe 收银页外部 CDN 壳替换为本地资源
+
+摘要：
+
+- 新增本地资源 [stripe-checkout.css](/Users/apple/Documents/dujiaoshuka/public/assets/avatar/css/stripe-checkout.css) 与 [stripe-checkout.js](/Users/apple/Documents/dujiaoshuka/public/assets/avatar/js/stripe-checkout.js)，接管 Stripe 收银页的样式与页面行为。
+- 重写 [stripe/checkout.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/stripe/checkout.blade.php)，去掉 `cdn.jsdelivr` 上的 AmazeUI、jQuery、jQuery.qrcode 依赖，页面壳现在主要使用仓库内资源。
+- [StripeCheckoutService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripeCheckoutService.php) 继续补充收银页配置数据，视图通过页面配置对象接收运行参数。
+- 新增 [StripeCheckoutViewTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/StripeCheckoutViewTest.php)，直接守住“页面壳使用本地资源、不再依赖前端 CDN”这一约束。
+
+影响范围：
+
+- Stripe 收银页模板
+- Stripe 前端资源依赖
+- Stripe 页面协议边界
+
+验证：
+
+- 当前全量回归结果：`OK (87 tests, 251 assertions)`
+
+下一步：
+
+- 继续清理 Stripe 页面的旧式前端实现细节，为独立升级 SDK 和后续主题整合做准备。

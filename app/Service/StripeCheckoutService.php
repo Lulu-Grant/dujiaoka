@@ -31,6 +31,8 @@ class StripeCheckoutService
             'price' => (float) $order->actual_price,
             'orderid' => $order->order_sn,
             'publishable_key' => $payGateway->merchant_id,
+            'source_currency' => strtolower($this->getSourceCurrency()),
+            'target_currency' => strtolower($this->getTargetCurrency()),
             'return_url' => $this->stripeRouteService->returnUrl($order, $payGateway),
             'detail_url' => $this->stripeRouteService->detailUrl($order),
             'check_url' => $this->stripeRouteService->checkUrl(),
