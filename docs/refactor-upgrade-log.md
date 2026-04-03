@@ -1734,3 +1734,25 @@
 下一步：
 
 - 继续清理后台批量动作和恢复类 Action，把通用恢复/导入逻辑进一步下沉到普通服务层。
+
+### 72. 将后台通用恢复动作从 Dcat Action 抽到普通服务层
+
+摘要：
+
+- 新增 [SoftDeleteRestoreService.php](/Users/apple/Documents/dujiaoshuka/app/Service/SoftDeleteRestoreService.php)，统一负责软删除模型的单条恢复、批量恢复以及模型类型校验。
+- [Restore.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Actions/Post/Restore.php) 与 [BatchRestore.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Actions/Post/BatchRestore.php) 已切到普通服务层，不再在 Dcat Action 内直接操作模型。
+- 新增 [SoftDeleteRestoreServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/SoftDeleteRestoreServiceTest.php)，守住单条恢复、批量恢复和非法模型拒绝行为。
+
+影响范围：
+
+- 后台回收站恢复动作
+- 后台批量恢复动作
+- 后续后台 Action 迁移成本
+
+验证：
+
+- 当前全量回归结果：`OK (98 tests, 288 assertions)`
+
+下一步：
+
+- 继续沿着后台降耦合路线，优先检查后台控制器里还残留的批量导出、筛选和特殊格式化逻辑。

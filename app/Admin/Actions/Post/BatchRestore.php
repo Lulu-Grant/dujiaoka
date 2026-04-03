@@ -10,6 +10,7 @@
 namespace App\Admin\Actions\Post;
 
 
+use App\Service\SoftDeleteRestoreService;
 use Dcat\Admin\Grid\BatchAction;
 use Illuminate\Http\Request;
 
@@ -30,10 +31,7 @@ class BatchRestore extends BatchAction
     public function handle(Request $request)
     {
         $model = $request->get('model');
-
-        foreach ((array) $this->getKey() as $key) {
-            $model::withTrashed()->findOrFail($key)->restore();
-        }
+        app(SoftDeleteRestoreService::class)->restoreMany($model, (array) $this->getKey());
 
         return $this->response()->success(admin_trans('dujiaoka.restored'))->refresh();
     }

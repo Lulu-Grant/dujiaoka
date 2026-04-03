@@ -10,6 +10,7 @@
 namespace App\Admin\Actions\Post;
 
 
+use App\Service\SoftDeleteRestoreService;
 use Dcat\Admin\Grid\RowAction;
 use Illuminate\Http\Request;
 
@@ -32,7 +33,7 @@ class Restore extends RowAction
         $key = $this->getKey();
         $model = $request->get('model');
 
-        $model::withTrashed()->findOrFail($key)->restore();
+        app(SoftDeleteRestoreService::class)->restoreOne($model, $key);
 
         return $this->response()->success(admin_trans('dujiaoka.restored'))->refresh();
     }
