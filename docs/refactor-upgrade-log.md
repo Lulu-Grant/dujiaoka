@@ -1642,3 +1642,27 @@
 下一步：
 
 - 继续清理 Stripe 剩余的旧式页面与交互耦合，并评估是否进一步升级到更高主版本。
+
+### 68. 将 Stripe SDK 继续升级到 20.x 基线
+
+摘要：
+
+- 更新 [composer.json](/Users/apple/Documents/dujiaoshuka/composer.json) 中的 Stripe 依赖约束，从 `^10.0` 进一步提升到 `^20.0`。
+- 通过 Composer 更新后，当前锁定版本已提升到 `stripe/stripe-php v20.0.0`。根据本地 `composer show` 结果，该版本发布时间为 `2026-03-26`。
+- 现有 Stripe 代码边界和回归测试在 `20.x` 基线上继续通过，说明当前服务化切口已经足以承接更高主版本。
+
+影响范围：
+
+- Stripe SDK 版本基线
+- 依赖锁文件
+- 后续 Stripe 升级与维护策略
+
+验证：
+
+- `./scripts/composer74 show stripe/stripe-php`
+- 当前版本：`v20.0.0`
+- 当前全量回归结果：`OK (87 tests, 251 assertions)`
+
+下一步：
+
+- 继续清理 Stripe 支付页与前端协议中的遗留实现细节，在 `20.x` 基线上完成更彻底的稳定化收口。

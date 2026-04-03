@@ -110,7 +110,7 @@
 重点对象：
 
 - `paypal/rest-api-sdk-php`
-- `stripe/stripe-php v10`
+- `stripe/stripe-php v20`
 - 各类旧式支付控制器遗留实现
 
 影响：
