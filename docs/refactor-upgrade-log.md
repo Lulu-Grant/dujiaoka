@@ -1846,3 +1846,55 @@
 下一步：
 
 - 继续推进后台薄壳化，同时观察首轮 GitHub Actions 是否一次通过，再决定是否追加第二条 workflow。
+
+### 77. 补上本地快速拉站模板与准备脚本
+
+摘要：
+
+- 新增 [/.env.local.example](/Users/apple/Documents/dujiaoshuka/.env.local.example)，为本地快速启动提供一份不进仓的开发模板。
+- 新增 [/scripts/prepare-local-dev](/Users/apple/Documents/dujiaoshuka/scripts/prepare-local-dev)，统一负责准备 `.env`、生成 `APP_KEY`、补齐 `install.lock`。
+- [README.md](/Users/apple/Documents/dujiaoshuka/README.md) 已补上本地快速启动路径，仓库现在同时具备：
+  - PHPUnit 回归入口
+  - GitHub Actions CI 入口
+  - 本地快速拉站入口
+
+影响范围：
+
+- 本地开发启动体验
+- 新机器接手仓库的落地速度
+- 后续把“拉站验证”纳入整改节奏的可操作性
+
+验证：
+
+- 本地当前全量回归结果：`OK (106 tests, 305 assertions)`
+
+下一步：
+
+- 继续完成一次真实 HTTP 启动验证，并把结果记回升级日志。
+
+### 78. 完成本地 HTTP 启动验证
+
+摘要：
+
+- 使用 [/scripts/prepare-local-dev](/Users/apple/Documents/dujiaoshuka/scripts/prepare-local-dev) 生成了本地 `.env`，并验证了 Homebrew MariaDB socket 自适应路径。
+- `./scripts/php74 artisan migrate:status --no-ansi` 已经验证数据库连接成功。
+- 通过 `./scripts/php74 -S 127.0.0.1:8030 -t public` 启动本地服务，并使用 `curl -I http://127.0.0.1:8030/` 验证首页返回 `HTTP/1.1 200 OK`。
+- 新增 [local-dev-quickstart.md](/Users/apple/Documents/dujiaoshuka/docs/local-dev-quickstart.md)，把这条本地拉站路径正式沉淀为文档。
+
+影响范围：
+
+- 本地开发启动体验
+- 新机器接手仓库的可操作性
+- 后续把“真实拉站验证”纳入整改节奏的可重复性
+
+验证：
+
+- `./scripts/php74 artisan --version`
+- `./scripts/php74 artisan route:list`
+- `./scripts/php74 artisan migrate:status --no-ansi`
+- `curl -I http://127.0.0.1:8030/`
+- 当前全量回归结果：`OK (106 tests, 305 assertions)`
+
+下一步：
+
+- 继续后台薄壳化与升级前清障，同时观察首轮 GitHub Actions CI 的运行结果。

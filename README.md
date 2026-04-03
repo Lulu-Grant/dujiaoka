@@ -73,10 +73,27 @@ OK (106 tests, 305 assertions)
 - `CI`：在 GitHub Actions 中使用 PHP `7.4` + MariaDB 运行 PHPUnit
 - 支持 `push`、`pull_request`、手动 `workflow_dispatch`
 
+如果你想在本机快速把站点拉起来，可以先走这条本地开发路径：
+
+```bash
+./scripts/prepare-local-dev
+./scripts/php74 artisan --version
+./scripts/php74 -S 127.0.0.1:8020 -t public
+```
+
+说明：
+
+- 本地开发模板在 [/.env.local.example](/Users/apple/Documents/dujiaoshuka/.env.local.example)
+- 准备脚本在 [/scripts/prepare-local-dev](/Users/apple/Documents/dujiaoshuka/scripts/prepare-local-dev)
+- 默认会使用本机 `127.0.0.1:3306` 的 `dujiaoka_test` 数据库和本机 Redis
+- 如果检测到 Homebrew MariaDB 的 `/private/tmp/mysql.sock`，准备脚本会自动切到 socket 模式并使用当前系统用户
+- `.env` 不会进入版本控制
+
 更多环境说明请查看：
 
 - [遗留运行时基线说明](docs/legacy-runtime-baseline.md)
 - [运行时兼容阻塞点](docs/runtime-compatibility-blockers.md)
+- [本地快速拉站](docs/local-dev-quickstart.md)
 
 ## 文档索引
 

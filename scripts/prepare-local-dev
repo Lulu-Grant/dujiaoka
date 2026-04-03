@@ -1,0 +1,63 @@
+#!/bin/sh
+
+set -eu
+
+ROOT_DIR="$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)"
+ENV_PATH="$ROOT_DIR/.env"
+ENV_TEMPLATE="$ROOT_DIR/.env.local.example"
+
+if [ ! -f "$ENV_PATH" ]; then
+  cp "$ENV_TEMPLATE" "$ENV_PATH"
+fi
+
+if ! grep -q '^APP_KEY=base64:' "$ENV_PATH"; then
+  APP_KEY="$("$ROOT_DIR/scripts/php74" -r 'echo "base64:".base64_encode(random_bytes(32));')"
+  "$ROOT_DIR/scripts/php74" -r '
+$path = $argv[1];
+$key = $argv[2];
+$contents = file_get_contents($path);
+if (preg_match("/^APP_KEY=.*$/m", $contents)) {
+    $contents = preg_replace("/^APP_KEY=.*$/m", "APP_KEY=".$key, $contents, 1);
+} else {
+    $contents .= PHP_EOL."APP_KEY=".$key.PHP_EOL;
+}
+file_put_contents($path, $contents);
+' "$ENV_PATH" "$APP_KEY"
+fi
+
+if [ -S /private/tmp/mysql.sock ]; then
+  DB_SOCKET="/private/tmp/mysql.sock"
+  DB_USERNAME="$(id -un)"
+  "$ROOT_DIR/scripts/php74" -r '
+$path = $argv[1];
+$socket = $argv[2];
+$username = $argv[3];
+$contents = file_get_contents($path);
+$upsert = static function (string $contents, string $key, string $value): string {
+    $line = $key."=".$value;
+    $pattern = "/^".preg_quote($key, "/")."=.*$/m";
+
+    if (preg_match($pattern, $contents)) {
+        return preg_replace($pattern, $line, $contents, 1);
+    }
+
+    return rtrim($contents).PHP_EOL.$line.PHP_EOL;
+};
+
+$contents = $upsert($contents, "DB_HOST", "localhost");
+$contents = $upsert($contents, "DB_PORT", "3306");
+$contents = $upsert($contents, "DB_SOCKET", $socket);
+$contents = $upsert($contents, "DB_USERNAME", $username);
+$contents = $upsert($contents, "DB_PASSWORD", "");
+
+file_put_contents($path, $contents);
+' "$ENV_PATH" "$DB_SOCKET" "$DB_USERNAME"
+fi
+
+if [ ! -f "$ROOT_DIR/install.lock" ]; then
+  printf 'install ok' > "$ROOT_DIR/install.lock"
+fi
+
+echo "Prepared local runtime files:"
+echo "  - $ENV_PATH"
+echo "  - $ROOT_DIR/install.lock"
