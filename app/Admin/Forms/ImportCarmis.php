@@ -2,7 +2,7 @@
 
 namespace App\Admin\Forms;
 
-use App\Models\Goods;
+use App\Service\AdminSelectOptionService;
 use App\Service\CarmiImportService;
 use Dcat\Admin\Widgets\Form;
 use InvalidArgumentException;
@@ -42,9 +42,7 @@ class ImportCarmis extends Form
     public function form()
     {
         $this->confirm(admin_trans('carmis.fields.are_you_import_sure'));
-        $this->select('goods_id')->options(
-            Goods::query()->where('type', Goods::AUTOMATIC_DELIVERY)->pluck('gd_name', 'id')
-        )->required();
+        $this->select('goods_id')->options(app(AdminSelectOptionService::class)->automaticGoodsOptions())->required();
         $this->textarea('carmis_list')
             ->rows(20)
             ->help(admin_trans('carmis.helps.carmis_list'));

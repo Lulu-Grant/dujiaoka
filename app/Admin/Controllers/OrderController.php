@@ -8,6 +8,8 @@ use App\Admin\Repositories\Order;
 use App\Models\Coupon;
 use App\Models\Goods;
 use App\Models\Pay;
+use App\Service\AdminSelectOptionService;
+use App\Service\AdminTextareaPresenterService;
 use Dcat\Admin\Admin;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
@@ -61,9 +63,9 @@ class OrderController extends AdminController
                 $filter->equal('email');
                 $filter->equal('trade_no');
                 $filter->equal('type')->select(OrderModel::getTypeMap());
-                $filter->equal('goods_id')->select(Goods::query()->pluck('gd_name', 'id'));
-                $filter->equal('coupon_id')->select(Coupon::query()->pluck('coupon', 'id'));
-                $filter->equal('pay_id')->select(Pay::query()->pluck('pay_name', 'id'));
+                $filter->equal('goods_id')->select(app(AdminSelectOptionService::class)->goodsOptions());
+                $filter->equal('coupon_id')->select(app(AdminSelectOptionService::class)->couponOptions());
+                $filter->equal('pay_id')->select(app(AdminSelectOptionService::class)->payOptions());
                 $filter->whereBetween('created_at', function ($q) {
                     $start = $this->input['start'] ?? null;
                     $end = $this->input['end'] ?? null;
@@ -109,7 +111,7 @@ class OrderController extends AdminController
             $show->field('actual_price');
             $show->field('buy_ip');
             $show->field('info')->unescape()->as(function ($info) {
-                return  "<textarea class=\"form-control field_wholesale_price_cnf _normal_\"  rows=\"10\" cols=\"30\">" . $info . "</textarea>";
+                return app(AdminTextareaPresenterService::class)->render($info);
             });
             $show->field('pay.pay_name', admin_trans('order.fields.pay_id'));
             $show->field('status')->using(OrderModel::getStatusMap());

@@ -6,13 +6,13 @@ use App\Admin\Actions\Post\BatchRestore;
 use App\Admin\Actions\Post\Restore;
 use App\Admin\Forms\ImportCarmis;
 use App\Admin\Repositories\Carmis;
-use App\Models\Goods;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Layout\Content;
 use Dcat\Admin\Show;
 use Dcat\Admin\Http\Controllers\AdminController;
 use App\Models\Carmis as CarmisModel;
+use App\Service\AdminSelectOptionService;
 use Dcat\Admin\Widgets\Card;
 
 class CarmisController extends AdminController
@@ -37,9 +37,7 @@ class CarmisController extends AdminController
             $grid->column('updated_at')->sortable();
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->equal('id');
-                $filter->equal('goods_id')->select(
-                    Goods::query()->where('type', Goods::AUTOMATIC_DELIVERY)->pluck('gd_name', 'id')
-                );
+                $filter->equal('goods_id')->select(app(AdminSelectOptionService::class)->automaticGoodsOptions());
                 $filter->equal('status')->select(CarmisModel::getStatusMap());
                 $filter->scope(admin_trans('dujiaoka.trashed'))->onlyTrashed();
             });
@@ -92,9 +90,7 @@ class CarmisController extends AdminController
     {
         return Form::make(new Carmis(), function (Form $form) {
             $form->display('id');
-            $form->select('goods_id')->options(
-                Goods::query()->where('type', Goods::AUTOMATIC_DELIVERY)->pluck('gd_name', 'id')
-            )->required();
+            $form->select('goods_id')->options(app(AdminSelectOptionService::class)->automaticGoodsOptions())->required();
             $form->radio('status')
                 ->options(CarmisModel::getStatusMap())
                 ->default(CarmisModel::STATUS_UNSOLD);

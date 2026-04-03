@@ -1778,3 +1778,49 @@
 下一步：
 
 - 继续清理后台控制器中的筛选、格式化和展示规则，把高频列表页进一步收敛到普通服务层或展示辅助层。
+
+### 74. 将后台支付页与详情页展示格式化抽到普通服务层
+
+摘要：
+
+- 新增 [PayAdminPresenterService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PayAdminPresenterService.php)，统一负责支付通道生命周期徽标、客户端标签、支付方式标签和启用状态标签。
+- 新增 [AdminTextareaPresenterService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminTextareaPresenterService.php)，统一负责后台详情页中长文本 textarea 的安全渲染。
+- [PayController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/PayController.php)、[OrderController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/OrderController.php)、[GoodsController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/GoodsController.php) 已改为通过 presenter 服务输出展示内容，不再在控制器闭包里内嵌格式化分支。
+- 新增 [PayAdminPresenterServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/PayAdminPresenterServiceTest.php) 与 [AdminTextareaPresenterServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminTextareaPresenterServiceTest.php)。
+
+影响范围：
+
+- 后台支付通道列表与详情页
+- 后台订单详情页
+- 后台商品详情页
+
+验证：
+
+- 当前全量回归结果：`OK (102 tests, 296 assertions)`
+
+下一步：
+
+- 继续清理后台控制器里的筛选选项来源和多对多表单格式化逻辑，让后台 CRUD 更接近纯展示壳。
+
+### 75. 将后台 CRUD 选项来源与多选格式化抽到普通服务层
+
+摘要：
+
+- 新增 [AdminSelectOptionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminSelectOptionService.php)，统一负责商品、自动发货商品、优惠码、支付通道、商品分组等后台下拉选项来源。
+- 新增 [CouponAdminPresenterService.php](/Users/apple/Documents/dujiaoshuka/app/Service/CouponAdminPresenterService.php)，统一处理优惠码后台多选商品字段的 relation -> id 格式化。
+- [CarmisController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/CarmisController.php)、[CouponController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/CouponController.php)、[GoodsController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/GoodsController.php)、[OrderController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/OrderController.php)、[ImportCarmis.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Forms/ImportCarmis.php) 已切到普通服务层，不再各自直接查模型拼选项。
+- 新增 [AdminSelectOptionServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminSelectOptionServiceTest.php) 与 [CouponAdminPresenterServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/CouponAdminPresenterServiceTest.php)。
+
+影响范围：
+
+- 后台订单、商品、优惠码、卡密导入等高频 CRUD 页面
+- 后台表单选项源与多对多字段格式化
+- 后续后台壳层替换的重复工作量
+
+验证：
+
+- 当前全量回归结果：`OK (106 tests, 305 assertions)`
+
+下一步：
+
+- 继续清理后台控制器里剩余的状态/标签映射和详情页格式化分支，让 `app/Admin` 更接近纯展示入口。

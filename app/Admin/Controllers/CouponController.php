@@ -5,13 +5,14 @@ namespace App\Admin\Controllers;
 use App\Admin\Actions\Post\BatchRestore;
 use App\Admin\Actions\Post\Restore;
 use App\Admin\Repositories\Coupon;
-use App\Models\Goods;
 use Dcat\Admin\Admin;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
 use Dcat\Admin\Http\Controllers\AdminController;
 use App\Models\Coupon as CouponModel;
+use App\Service\AdminSelectOptionService;
+use App\Service\CouponAdminPresenterService;
 
 class CouponController extends AdminController
 {
@@ -45,9 +46,7 @@ class CouponController extends AdminController
             });
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->equal('id');
-                $filter->equal('goods.goods_id', admin_trans('coupon.fields.goods_id'))->select(
-                    Goods::query()->pluck('gd_name', 'id')
-                );
+                $filter->equal('goods.goods_id', admin_trans('coupon.fields.goods_id'))->select(app(AdminSelectOptionService::class)->goodsOptions());
                 $filter->scope(admin_trans('dujiaoka.trashed'))->onlyTrashed();
             });
         });
@@ -96,13 +95,9 @@ class CouponController extends AdminController
         return Form::make(Coupon::with('goods'), function (Form $form) {
             $form->display('id');
             $form->multipleSelect('goods', admin_trans('coupon.fields.goods_id'))
-                ->options(Goods::all()->pluck('gd_name', 'id'))
+                ->options(app(AdminSelectOptionService::class)->goodsOptions())
                 ->customFormat(function ($v) {
-                    if (! $v) {
-                        return [];
-                    }
-                    // 从数据库中查出的二维数组中转化成ID
-                    return array_column($v, 'id');
+                    return app(CouponAdminPresenterService::class)->selectedGoodsIds($v);
                 });
             $form->currency('discount')->default(0)->required();
             $form->text('coupon')->required();

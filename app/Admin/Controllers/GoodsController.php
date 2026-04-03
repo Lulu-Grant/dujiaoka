@@ -8,6 +8,8 @@ use App\Admin\Repositories\Goods;
 use App\Models\Carmis;
 use App\Models\Coupon;
 use App\Models\GoodsGroup as GoodsGroupModel;
+use App\Service\AdminSelectOptionService;
+use App\Service\AdminTextareaPresenterService;
 use App\Service\GoodsInventoryService;
 use Dcat\Admin\Admin;
 use Dcat\Admin\Form;
@@ -60,11 +62,9 @@ class GoodsController extends AdminController
                 $filter->equal('id');
                 $filter->like('gd_name');
                 $filter->equal('type')->select(GoodsModel::getGoodsTypeMap());
-                $filter->equal('group_id')->select(GoodsGroupModel::query()->pluck('gp_name', 'id'));
+                $filter->equal('group_id')->select(app(AdminSelectOptionService::class)->goodsGroupOptions());
                 $filter->scope(admin_trans('dujiaoka.trashed'))->onlyTrashed();
-                $filter->equal('coupon.coupons_id', admin_trans('goods.fields.coupon_id'))->select(
-                    Coupon::query()->pluck('coupon', 'id')
-                );
+                $filter->equal('coupon.coupons_id', admin_trans('goods.fields.coupon_id'))->select(app(AdminSelectOptionService::class)->couponOptions());
             });
             $grid->actions(function (Grid\Displayers\Actions $actions) {
                 if (request('_scope_') == admin_trans('dujiaoka.trashed')) {
@@ -114,13 +114,13 @@ class GoodsController extends AdminController
                 }
             });
             $show->wholesale_price_cnf()->unescape()->as(function ($wholesalePriceCnf) {
-                return  "<textarea class=\"form-control field_wholesale_price_cnf _normal_\"  rows=\"10\" cols=\"30\">" . $wholesalePriceCnf . "</textarea>";
+                return app(AdminTextareaPresenterService::class)->render($wholesalePriceCnf);
             });
             $show->other_ipu_cnf()->unescape()->as(function ($otherIpuCnf) {
-                return  "<textarea class=\"form-control field_wholesale_price_cnf _normal_\"  rows=\"10\" cols=\"30\">" . $otherIpuCnf . "</textarea>";
+                return app(AdminTextareaPresenterService::class)->render($otherIpuCnf);
             });
             $show->api_hook()->unescape()->as(function ($apiHook) {
-                return  "<textarea class=\"form-control field_wholesale_price_cnf _normal_\"  rows=\"10\" cols=\"30\">" . $apiHook . "</textarea>";
+                return app(AdminTextareaPresenterService::class)->render($apiHook);
             });;
         });
     }
@@ -137,9 +137,7 @@ class GoodsController extends AdminController
             $form->text('gd_name')->required();
             $form->text('gd_description')->required();
             $form->text('gd_keywords')->required();
-            $form->select('group_id')->options(
-                GoodsGroupModel::query()->pluck('gp_name', 'id')
-            )->required();
+            $form->select('group_id')->options(app(AdminSelectOptionService::class)->goodsGroupOptions())->required();
             $form->image('picture')->autoUpload()->uniqueName()->help(admin_trans('goods.helps.picture'));
             $form->radio('type')->options(GoodsModel::getGoodsTypeMap())->default(GoodsModel::AUTOMATIC_DELIVERY)->required();
             $form->currency('retail_price')->default(0)->help(admin_trans('goods.helps.retail_price'));

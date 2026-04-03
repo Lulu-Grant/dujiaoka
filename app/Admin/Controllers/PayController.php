@@ -5,6 +5,7 @@ namespace App\Admin\Controllers;
 use App\Admin\Actions\Post\BatchRestore;
 use App\Admin\Actions\Post\Restore;
 use App\Admin\Repositories\Pay;
+use App\Service\PayAdminPresenterService;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
@@ -27,18 +28,7 @@ class PayController extends AdminController
             $grid->column('pay_name');
             $grid->column('pay_check');
             $grid->column('lifecycle', admin_trans('pay.fields.lifecycle'))->display(function () {
-                $payCheck = $this->pay_check;
-                $label = PayModel::getLifecycleLabel($payCheck);
-
-                if (PayModel::isRetiredGateway($payCheck)) {
-                    return "<span class='badge badge-danger'>{$label}</span>";
-                }
-
-                if (PayModel::isLegacyGateway($payCheck)) {
-                    return "<span class='badge badge-warning'>{$label}</span>";
-                }
-
-                return "<span class='badge badge-success'>{$label}</span>";
+                return app(PayAdminPresenterService::class)->lifecycleBadge($this->pay_check);
             });
             $grid->column('pay_method')->select(PayModel::getMethodMap());
             $grid->column('merchant_id')->limit(20);
@@ -86,29 +76,17 @@ class PayController extends AdminController
             $show->field('merchant_pem');
             $show->field('pay_check');
             $show->field('pay_check', admin_trans('pay.fields.lifecycle'))->as(function ($payCheck) {
-                return PayModel::getLifecycleLabel($payCheck);
+                return app(PayAdminPresenterService::class)->lifecycleLabel($payCheck);
             });
             $show->field('pay_client')->as(function ($payClient) {
-                if ($payClient == PayModel::PAY_CLIENT_PC) {
-                    return admin_trans('pay.fields.pay_client_pc');
-                } else {
-                    return admin_trans('pay.fields.pay_client_mobile');
-                }
+                return app(PayAdminPresenterService::class)->clientLabel($payClient);
             });
             $show->field('pay_handleroute');
             $show->field('pay_method')->as(function ($payMethod) {
-                if ($payMethod == PayModel::METHOD_JUMP) {
-                    return admin_trans('pay.fields.method_jump');
-                } else {
-                    return admin_trans('pay.fields.method_scan');
-                }
+                return app(PayAdminPresenterService::class)->methodLabel($payMethod);
             });
             $show->field('is_open')->as(function ($isOpen) {
-                if ($isOpen == PayModel::STATUS_OPEN) {
-                    return admin_trans('dujiaoka.status_open');
-                } else {
-                    return admin_trans('dujiaoka.status_close');
-                }
+                return app(PayAdminPresenterService::class)->openStatusLabel($isOpen);
             });
             $show->field('created_at');
             $show->field('updated_at');
