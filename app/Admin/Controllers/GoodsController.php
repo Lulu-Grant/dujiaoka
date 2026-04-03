@@ -8,6 +8,7 @@ use App\Admin\Repositories\Goods;
 use App\Models\Carmis;
 use App\Models\Coupon;
 use App\Models\GoodsGroup as GoodsGroupModel;
+use App\Service\GoodsInventoryService;
 use Dcat\Admin\Admin;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
@@ -43,14 +44,12 @@ class GoodsController extends AdminController
             $grid->column('retail_price');
             $grid->column('actual_price')->sortable();
             $grid->column('in_stock')->display(function () {
-                // 如果为自动发货，则加载库存卡密
-                if ($this->type == GoodsModel::AUTOMATIC_DELIVERY) {
-                    return Carmis::query()->where('goods_id', $this->id)
-                        ->where('status', Carmis::STATUS_UNSOLD)
-                        ->count();
-                } else {
-                    return $this->in_stock;
-                }
+                $goods = new GoodsModel();
+                $goods->id = $this->id;
+                $goods->type = $this->type;
+                $goods->in_stock = $this->in_stock;
+
+                return app(GoodsInventoryService::class)->resolveStock($goods);
             });
             $grid->column('sales_volume');
             $grid->column('ord')->editable()->sortable();

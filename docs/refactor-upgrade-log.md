@@ -1756,3 +1756,25 @@
 下一步：
 
 - 继续沿着后台降耦合路线，优先检查后台控制器里还残留的批量导出、筛选和特殊格式化逻辑。
+
+### 73. 将商品列表库存计算从后台控制器抽到普通服务层
+
+摘要：
+
+- 新增 [GoodsInventoryService.php](/Users/apple/Documents/dujiaoshuka/app/Service/GoodsInventoryService.php)，统一负责“自动发货商品按未售卡密实时统计库存、人工商品读取固定库存”这条规则。
+- [GoodsController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/GoodsController.php) 已改为通过服务层解析库存，不再在 Grid 闭包里直接查库。
+- 新增 [GoodsInventoryServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/GoodsInventoryServiceTest.php)，守住自动发货与人工处理两种库存规则。
+
+影响范围：
+
+- 后台商品列表库存展示
+- 商品库存规则边界
+- 后续后台列表层替换成本
+
+验证：
+
+- 当前全量回归结果：`OK (100 tests, 290 assertions)`
+
+下一步：
+
+- 继续清理后台控制器中的筛选、格式化和展示规则，把高频列表页进一步收敛到普通服务层或展示辅助层。
