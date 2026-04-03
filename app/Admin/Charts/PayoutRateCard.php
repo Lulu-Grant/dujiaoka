@@ -10,11 +10,10 @@
 namespace App\Admin\Charts;
 
 
-use App\Models\Order;
+use App\Service\AdminDashboardMetricsService;
 use Dcat\Admin\Admin;
 use Dcat\Admin\Widgets\Metrics\Donut;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 
 class PayoutRateCard extends Donut
 {
@@ -53,38 +52,12 @@ class PayoutRateCard extends Donut
      */
     public function handle(Request $request)
     {
-        $endTime = Carbon::now();
-        switch ($request->get('option')) {
-            case 'seven':
-                $startTime = Carbon::now()->subDays(7);
-                break;
-            case 'month':
-                $startTime = Carbon::now()->subDays(30);
-                break;
-            case 'year':
-                $startTime = Carbon::now()->subDays(365);
-                break;
-            case 'today':
-                $startTime = Carbon::today();
-                break;
-            default:
-                $startTime =  Carbon::now()->subDays(7);
-        }
-        // 成功的数量
-        $success = Order::query()
-            ->where('created_at', '>=', $startTime)
-            ->where('created_at', '<=', $endTime)
-            ->where('status', '>', Order::STATUS_WAIT_PAY)
-            ->count();
-        // 待支付的数量
-        $unpaid = Order::query()
-            ->where('created_at', '>=', $startTime)
-            ->where('created_at', '<=', $endTime)
-            ->where('status', '<=', Order::STATUS_WAIT_PAY)
-            ->count();
-        $this->withContent($success, $unpaid);
+        $summary = app(AdminDashboardMetricsService::class)
+            ->payoutSummary((string) $request->get('option', 'seven'));
+
+        $this->withContent($summary['success'], $summary['unpaid']);
         // 图表数据
-        $this->withChart([$success, $unpaid]);
+        $this->withChart($summary['series']);
     }
 
     /**

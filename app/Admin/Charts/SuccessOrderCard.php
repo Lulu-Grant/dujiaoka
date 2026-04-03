@@ -10,11 +10,9 @@
 namespace App\Admin\Charts;
 
 
-use App\Models\Order;
+use App\Service\AdminDashboardMetricsService;
 use Dcat\Admin\Widgets\Metrics\Line;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 
 class SuccessOrderCard extends Line
 {
@@ -45,34 +43,13 @@ class SuccessOrderCard extends Line
      */
     public function handle(Request $request)
     {
-        $endTime = Carbon::now();
-        switch ($request->get('option')) {
-            case 'seven':
-                $startTime = Carbon::now()->subDays(7);
-                break;
-            case 'month':
-                $startTime = Carbon::now()->subDays(30);
-                break;
-            case 'today':
-                $startTime = Carbon::today();
-                break;
-            default:
-                $startTime =  Carbon::now()->subDays(7);
-        }
-        // 分组查询
-        $orderGroup = Order::query()
-            ->where('created_at', '>=', $startTime)
-            ->where('created_at', '<=', $endTime)
-            ->where('status', Order::STATUS_COMPLETED)
-            ->select(DB::raw('DATE(created_at) as date'), DB::raw('count(id) as num'))
-            ->groupBy('date')
-            ->pluck('num')
-            ->toArray();
-        $successCount = array_sum($orderGroup);
+        $summary = app(AdminDashboardMetricsService::class)
+            ->successOrderSummary((string) $request->get('option', 'seven'));
+
         // 卡片内容
-        $this->withContent($successCount);
+        $this->withContent($summary['success_count']);
         // 图表数据
-        $this->withChart($orderGroup);
+        $this->withChart($summary['series']);
     }
 
     /**

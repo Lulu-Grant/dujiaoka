@@ -228,3 +228,4 @@
 
 - 系统设置读写与默认值已从 Dcat 表单抽出到普通服务层
 - 邮件测试与邮件发送已改为读取 [MailConfigService.php](/Users/apple/Documents/dujiaoshuka/app/Service/MailConfigService.php)，不再在 Dcat 表单/Job 中各自拼装配置
+- 数据看板统计口径已抽到 [AdminDashboardMetricsService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminDashboardMetricsService.php)，图表组件开始只保留展示拼装

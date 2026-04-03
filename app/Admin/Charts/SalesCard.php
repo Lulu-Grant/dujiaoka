@@ -10,12 +10,10 @@
 namespace App\Admin\Charts;
 
 
-use App\Models\Order;
+use App\Service\AdminDashboardMetricsService;
 use Dcat\Admin\Admin;
 use Dcat\Admin\Widgets\Metrics\Bar;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 
 class SalesCard extends Bar
 {
@@ -57,35 +55,14 @@ class SalesCard extends Bar
      */
     public function handle(Request $request)
     {
-        $endTime = Carbon::now();
-        switch ($request->get('option')) {
-            case 'seven':
-                $startTime = Carbon::now()->subDays(7);
-                break;
-            case 'month':
-                $startTime = Carbon::now()->subDays(30);
-                break;
-            case 'today':
-                $startTime = Carbon::today();
-                break;
-            default:
-                $startTime =  Carbon::now()->subDays(7);
-        }
-        // 分组查询
-        $orderGroup = Order::query()
-            ->where('created_at', '>=', $startTime)
-            ->where('created_at', '<=', $endTime)
-            ->where('status', '>', Order::STATUS_PENDING)
-            ->select(DB::raw('DATE(created_at) as date'), DB::raw('sum(actual_price) as actual_price'))
-            ->groupBy('date')
-            ->pluck('actual_price')
-            ->toArray();
-        $totalPrice = array_sum($orderGroup);
-        $this->withContent($totalPrice, '', '', $startTime, $endTime);
+        $summary = app(AdminDashboardMetricsService::class)
+            ->salesSummary((string) $request->get('option', 'seven'));
+
+        $this->withContent($summary['total_price'], '', '', $summary['start_time'], $summary['end_time']);
         $this->withChart([
             [
                 'name' => admin_trans('dujiaoka.sales_chart'),
-                'data' => $orderGroup,
+                'data' => $summary['series'],
             ]
         ]);
     }

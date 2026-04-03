@@ -11,10 +11,9 @@ namespace App\Admin\Charts;
 
 
 use App\Models\Order;
+use App\Service\AdminDashboardMetricsService;
 use Dcat\Admin\Widgets\Metrics\RadialBar;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 
 class DashBoard extends RadialBar
 {
@@ -47,47 +46,21 @@ class DashBoard extends RadialBar
      */
     public function handle(Request $request)
     {
-        $endTime = Carbon::now();
-        switch ($request->get('option')) {
-            case 'seven':
-                $startTime = Carbon::now()->subDays(7);
-                break;
-            case 'month':
-                $startTime = Carbon::now()->subDays(30);
-                break;
-            case 'year':
-                $startTime = Carbon::now()->subDays(365);
-                break;
-            case 'today':
-            default:
-                $startTime = Carbon::today();
-        }
-        // 分组查询
-        $orderGroup = Order::query()
-            ->where('created_at', '>=', $startTime)
-            ->where('created_at', '<=', $endTime)
-            ->select('status', DB::raw('count(id) as num'))
-            ->groupBy('status')
-            ->pluck('num', 'status')
-            ->toArray();
-        $pending = $orderGroup[Order::STATUS_PENDING] ?? 0;
-        $processing = $orderGroup[Order::STATUS_PROCESSING] ?? 0;
-        $completed = $orderGroup[Order::STATUS_COMPLETED] ?? 0;
-        $failure = $orderGroup[Order::STATUS_FAILURE] ?? 0;
-        $abnormal = $orderGroup[Order::STATUS_ABNORMAL] ?? 0;
-        $orderCount = array_sum($orderGroup);
-        if ($orderCount == 0) {
-            $successRate = 0;
-        } else {
-            $rate = bcdiv($completed, $orderCount, 2);
-            $successRate = bcmul($rate, 100);
-        }
+        $summary = app(AdminDashboardMetricsService::class)
+            ->successRateSummary((string) $request->get('option', 'today'));
+
         // 订单数
-        $this->withOrderCount($orderCount);
+        $this->withOrderCount($summary['order_count']);
         // 卡片底部
-        $this->withFooter($pending, $processing, $completed, $failure, $abnormal);
+        $this->withFooter(
+            $summary['status_totals']['pending'],
+            $summary['status_totals']['processing'],
+            $summary['status_totals']['completed'],
+            $summary['status_totals']['failure'],
+            $summary['status_totals']['abnormal']
+        );
         // 图表数据
-        $this->withChart($successRate);
+        $this->withChart($summary['success_rate']);
     }
 
     /**

@@ -1690,3 +1690,25 @@
 下一步：
 
 - 继续沿着后台降耦合路线，优先抽离后台批量动作和数据看板中的业务计算，让 `app/Admin` 进一步退化成薄展示层。
+
+### 70. 将后台数据看板统计从 Dcat 图表组件抽到普通服务层
+
+摘要：
+
+- 新增 [AdminDashboardMetricsService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminDashboardMetricsService.php)，统一负责后台看板的成交率、销售额、成功订单数、支付状态占比统计。
+- [DashBoard.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Charts/DashBoard.php)、[SalesCard.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Charts/SalesCard.php)、[SuccessOrderCard.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Charts/SuccessOrderCard.php)、[PayoutRateCard.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Charts/PayoutRateCard.php) 已改为只负责展示层拼装和调用服务层结果。
+- 新增 [AdminDashboardMetricsServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminDashboardMetricsServiceTest.php)，直接守住后台看板统计口径。
+
+影响范围：
+
+- 后台首页数据看板
+- 看板统计口径边界
+- 后续后台壳替换成本
+
+验证：
+
+- 当前全量回归结果：`OK (92 tests, 276 assertions)`
+
+下一步：
+
+- 继续处理后台批量动作和导入能力，把更多 Dcat Action / Widget 背后的业务规则往普通服务层收口。
