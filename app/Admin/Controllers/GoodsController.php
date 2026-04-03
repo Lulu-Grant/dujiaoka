@@ -8,10 +8,10 @@ use App\Admin\Repositories\Goods;
 use App\Models\Carmis;
 use App\Models\Coupon;
 use App\Models\GoodsGroup as GoodsGroupModel;
+use App\Service\AdminGridRestoreActionService;
 use App\Service\AdminSelectOptionService;
 use App\Service\AdminStatusPresenterService;
 use App\Service\AdminTextareaPresenterService;
-use App\Service\AdminTrashScopeService;
 use App\Service\CatalogAdminPresenterService;
 use App\Service\GoodsInventoryService;
 use Dcat\Admin\Admin;
@@ -70,13 +70,13 @@ class GoodsController extends AdminController
                 $filter->equal('coupon.coupons_id', admin_trans('goods.fields.coupon_id'))->select(app(AdminSelectOptionService::class)->couponOptions());
             });
             $grid->actions(function (Grid\Displayers\Actions $actions) {
-                if (app(AdminTrashScopeService::class)->isTrashedScope()) {
-                    $actions->append(new Restore(GoodsModel::class));
+                if (app(AdminGridRestoreActionService::class)->shouldAttach()) {
+                    $actions->append(new Restore(app(AdminGridRestoreActionService::class)->model(GoodsModel::class)));
                 }
             });
             $grid->batchActions(function (Grid\Tools\BatchActions $batch) {
-                if (app(AdminTrashScopeService::class)->isTrashedScope()) {
-                    $batch->add(new BatchRestore(GoodsModel::class));
+                if (app(AdminGridRestoreActionService::class)->shouldAttach()) {
+                    $batch->add(new BatchRestore(app(AdminGridRestoreActionService::class)->model(GoodsModel::class)));
                 }
             });
         });

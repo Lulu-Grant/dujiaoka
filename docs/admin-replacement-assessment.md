@@ -237,3 +237,4 @@
 - 商品与卡密详情页的类型/状态/循环展示已抽到 [CatalogAdminPresenterService.php](/Users/apple/Documents/dujiaoshuka/app/Service/CatalogAdminPresenterService.php)
 - 各后台控制器重复的“回收站作用域判断”已抽到 [AdminTrashScopeService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminTrashScopeService.php)
 - 后台表单重复的 footer 行为与邮件模板 token 字段策略已抽到 [AdminFormBehaviorService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminFormBehaviorService.php)
+- 后台各 CRUD 页面重复的“恢复动作挂载”已抽到 [AdminGridRestoreActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminGridRestoreActionService.php)

@@ -6,7 +6,7 @@ use App\Admin\Actions\Post\BatchRestore;
 use App\Admin\Actions\Post\Restore;
 use App\Admin\Repositories\Emailtpl;
 use App\Service\AdminFormBehaviorService;
-use App\Service\AdminTrashScopeService;
+use App\Service\AdminGridRestoreActionService;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
@@ -36,13 +36,13 @@ class EmailtplController extends AdminController
                 $filter->like('tpl_token');
             });
             $grid->actions(function (Grid\Displayers\Actions $actions) {
-                if (app(AdminTrashScopeService::class)->isTrashedScope()) {
-                    $actions->append(new Restore(EmailTplModel::class));
+                if (app(AdminGridRestoreActionService::class)->shouldAttach()) {
+                    $actions->append(new Restore(app(AdminGridRestoreActionService::class)->model(EmailTplModel::class)));
                 }
             });
             $grid->batchActions(function (Grid\Tools\BatchActions $batch) {
-                if (app(AdminTrashScopeService::class)->isTrashedScope()) {
-                    $batch->add(new BatchRestore(EmailTplModel::class));
+                if (app(AdminGridRestoreActionService::class)->shouldAttach()) {
+                    $batch->add(new BatchRestore(app(AdminGridRestoreActionService::class)->model(EmailTplModel::class)));
                 }
             });
         });

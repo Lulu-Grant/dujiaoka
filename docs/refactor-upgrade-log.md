@@ -1996,3 +1996,25 @@
 下一步：
 
 - 继续清理后台控制器里剩余的零散闭包与判断分支，优先把高频后台页整理到“配置 + 展示壳 + 普通服务”的结构。
+
+### 83. 将后台恢复动作挂载逻辑抽到普通服务层
+
+摘要：
+
+- 新增 [AdminGridRestoreActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminGridRestoreActionService.php)，统一负责后台列表页“是否挂载恢复动作”以及模型类传递。
+- [GoodsGroupController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/GoodsGroupController.php)、[PayController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/PayController.php)、[CarmisController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/CarmisController.php)、[GoodsController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/GoodsController.php)、[OrderController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/OrderController.php)、[CouponController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/CouponController.php)、[EmailtplController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/EmailtplController.php) 已改为通过这层服务挂载 `Restore` / `BatchRestore`。
+- 新增 [AdminGridRestoreActionServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminGridRestoreActionServiceTest.php)。
+
+影响范围：
+
+- 后台所有支持回收站恢复的高频 CRUD 页面
+- 后台动作挂载条件的一致性
+- 后续替换后台壳时的动作接线成本
+
+验证：
+
+- 当前全量回归结果：`OK (115 tests, 323 assertions)`
+
+下一步：
+
+- 继续把后台剩余细碎判断和展示闭包往普通服务层收口，朝“高频后台页仅保留展示配置”继续推进。

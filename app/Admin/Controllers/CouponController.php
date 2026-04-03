@@ -5,8 +5,8 @@ namespace App\Admin\Controllers;
 use App\Admin\Actions\Post\BatchRestore;
 use App\Admin\Actions\Post\Restore;
 use App\Admin\Repositories\Coupon;
+use App\Service\AdminGridRestoreActionService;
 use App\Service\AdminStatusPresenterService;
-use App\Service\AdminTrashScopeService;
 use Dcat\Admin\Admin;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
@@ -37,13 +37,13 @@ class CouponController extends AdminController
             $grid->column('created_at');
             $grid->column('updated_at')->sortable();
             $grid->actions(function (Grid\Displayers\Actions $actions) {
-                if (app(AdminTrashScopeService::class)->isTrashedScope()) {
-                    $actions->append(new Restore(CouponModel::class));
+                if (app(AdminGridRestoreActionService::class)->shouldAttach()) {
+                    $actions->append(new Restore(app(AdminGridRestoreActionService::class)->model(CouponModel::class)));
                 }
             });
             $grid->batchActions(function (Grid\Tools\BatchActions $batch) {
-                if (app(AdminTrashScopeService::class)->isTrashedScope()) {
-                    $batch->add(new BatchRestore(CouponModel::class));
+                if (app(AdminGridRestoreActionService::class)->shouldAttach()) {
+                    $batch->add(new BatchRestore(app(AdminGridRestoreActionService::class)->model(CouponModel::class)));
                 }
             });
             $grid->filter(function (Grid\Filter $filter) {

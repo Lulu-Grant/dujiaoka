@@ -8,9 +8,9 @@ use App\Admin\Repositories\Order;
 use App\Models\Coupon;
 use App\Models\Goods;
 use App\Models\Pay;
+use App\Service\AdminGridRestoreActionService;
 use App\Service\AdminSelectOptionService;
 use App\Service\AdminTextareaPresenterService;
-use App\Service\AdminTrashScopeService;
 use Dcat\Admin\Admin;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
@@ -76,13 +76,13 @@ class OrderController extends AdminController
                 $filter->scope(admin_trans('dujiaoka.trashed'))->onlyTrashed();
             });
             $grid->actions(function (Grid\Displayers\Actions $actions) {
-                if (app(AdminTrashScopeService::class)->isTrashedScope()) {
-                    $actions->append(new Restore(OrderModel::class));
+                if (app(AdminGridRestoreActionService::class)->shouldAttach()) {
+                    $actions->append(new Restore(app(AdminGridRestoreActionService::class)->model(OrderModel::class)));
                 }
             });
             $grid->batchActions(function (Grid\Tools\BatchActions $batch) {
-                if (app(AdminTrashScopeService::class)->isTrashedScope()) {
-                    $batch->add(new BatchRestore(OrderModel::class));
+                if (app(AdminGridRestoreActionService::class)->shouldAttach()) {
+                    $batch->add(new BatchRestore(app(AdminGridRestoreActionService::class)->model(OrderModel::class)));
                 }
             });
         });

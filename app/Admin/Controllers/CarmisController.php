@@ -12,8 +12,8 @@ use Dcat\Admin\Layout\Content;
 use Dcat\Admin\Show;
 use Dcat\Admin\Http\Controllers\AdminController;
 use App\Models\Carmis as CarmisModel;
+use App\Service\AdminGridRestoreActionService;
 use App\Service\AdminSelectOptionService;
-use App\Service\AdminTrashScopeService;
 use App\Service\CatalogAdminPresenterService;
 use Dcat\Admin\Widgets\Card;
 
@@ -46,13 +46,13 @@ class CarmisController extends AdminController
                 $filter->scope(admin_trans('dujiaoka.trashed'))->onlyTrashed();
             });
             $grid->actions(function (Grid\Displayers\Actions $actions) {
-                if (app(AdminTrashScopeService::class)->isTrashedScope()) {
-                    $actions->append(new Restore(CarmisModel::class));
+                if (app(AdminGridRestoreActionService::class)->shouldAttach()) {
+                    $actions->append(new Restore(app(AdminGridRestoreActionService::class)->model(CarmisModel::class)));
                 }
             });
             $grid->batchActions(function (Grid\Tools\BatchActions $batch) {
-                if (app(AdminTrashScopeService::class)->isTrashedScope()) {
-                    $batch->add(new BatchRestore(CarmisModel::class));
+                if (app(AdminGridRestoreActionService::class)->shouldAttach()) {
+                    $batch->add(new BatchRestore(app(AdminGridRestoreActionService::class)->model(CarmisModel::class)));
                 }
             });
             $grid->export()->titles(['goods.gd_name' => admin_trans('carmis.fields.goods_id'), 'carmi' => admin_trans('carmis.fields.carmi'), 'created_at' => admin_trans('admin.created_at')]);
