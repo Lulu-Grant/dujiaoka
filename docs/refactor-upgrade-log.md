@@ -2040,3 +2040,49 @@
 下一步：
 
 - 继续把后台详情页字段映射、状态文案和剩余零散闭包往普通服务层收口，进一步压薄 `app/Admin`。
+
+### 85. 将后台详情字段挂载和展示回调进一步收口
+
+摘要：
+
+- 新增 [AdminDetailFieldService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminDetailFieldService.php)，统一负责后台 `Show` / `Form` 的机械字段挂载。
+- [GoodsGroupController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/GoodsGroupController.php)、[PayController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/PayController.php)、[CarmisController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/CarmisController.php)、[OrderController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/OrderController.php)、[CouponController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/CouponController.php)、[EmailtplController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/EmailtplController.php) 里的详情页与只读表单字段长列表已收口到这层服务。
+- 同时把一批简单的 `as/display` 匿名闭包改成了直接指向 presenter/service 的 callable，后台控制器里只剩少数确实依赖行上下文的展示闭包。
+- 新增 [AdminDetailFieldServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminDetailFieldServiceTest.php)。
+
+影响范围：
+
+- 后台详情页与只读表单字段声明的一致性
+- 后台 presenter 回调的可读性与可迁移性
+- 后续替换 Dcat 时的字段映射搬迁成本
+
+验证：
+
+- 当前全量回归结果：`OK (119 tests, 328 assertions)`
+
+下一步：
+
+- 继续清理后台仅剩的高上下文展示闭包，并开始评估哪些后台页面已经足够适合迁到新的展示壳。
+
+### 86. 将后台页面壳和首页看板布局抽到普通服务层
+
+摘要：
+
+- 新增 [AdminPageCardService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminPageCardService.php)，统一负责“标题 + Card 表单页”这一类后台页面壳拼装。
+- [SystemSettingController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/SystemSettingController.php)、[EmailTestController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/EmailTestController.php)、[CarmisController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/CarmisController.php) 的对应页面已切到这层服务。
+- 新增 [AdminDashboardLayoutService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminDashboardLayoutService.php)，后台首页 [HomeController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/HomeController.php) 不再直接手写看板布局。
+- 新增 [AdminPageCardServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminPageCardServiceTest.php) 与 [AdminDashboardLayoutServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminDashboardLayoutServiceTest.php)。
+
+影响范围：
+
+- 后台首页看板布局的可替换性
+- 后台卡片式管理页的壳层一致性
+- 后续替换 Dcat 时的页面装配成本
+
+验证：
+
+- 当前全量回归结果：`OK (121 tests, 333 assertions)`
+
+下一步：
+
+- 继续清理后台仅剩的高上下文闭包，并开始标记哪些后台页已经接近可迁移状态。

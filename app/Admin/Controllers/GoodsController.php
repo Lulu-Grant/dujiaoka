@@ -103,21 +103,11 @@ class GoodsController extends AdminController
             $show->field('in_stock');
             $show->field('ord');
             $show->field('sales_volume');
-            $show->field('type')->as(function ($type) {
-                return app(CatalogAdminPresenterService::class)->goodsTypeLabel($type);
-            });
-            $show->field('is_open')->as(function ($isOpen) {
-                return app(AdminStatusPresenterService::class)->openStatusLabel($isOpen);
-            });
-            $show->wholesale_price_cnf()->unescape()->as(function ($wholesalePriceCnf) {
-                return app(AdminTextareaPresenterService::class)->render($wholesalePriceCnf);
-            });
-            $show->other_ipu_cnf()->unescape()->as(function ($otherIpuCnf) {
-                return app(AdminTextareaPresenterService::class)->render($otherIpuCnf);
-            });
-            $show->api_hook()->unescape()->as(function ($apiHook) {
-                return app(AdminTextareaPresenterService::class)->render($apiHook);
-            });;
+            $show->field('type')->as([app(CatalogAdminPresenterService::class), 'goodsTypeLabel']);
+            $show->field('is_open')->as([app(AdminStatusPresenterService::class), 'openStatusLabel']);
+            $show->wholesale_price_cnf()->unescape()->as([app(AdminTextareaPresenterService::class), 'render']);
+            $show->other_ipu_cnf()->unescape()->as([app(AdminTextareaPresenterService::class), 'render']);
+            $show->api_hook()->unescape()->as([app(AdminTextareaPresenterService::class), 'render']);
         });
     }
 

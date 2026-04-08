@@ -11,9 +11,9 @@ namespace App\Admin\Controllers;
 
 
 use App\Admin\Forms\EmailTest;
+use App\Service\AdminPageCardService;
 use Dcat\Admin\Http\Controllers\AdminController;
 use Dcat\Admin\Layout\Content;
-use Dcat\Admin\Widgets\Card;
 
 class EmailTestController extends AdminController
 {
@@ -30,9 +30,11 @@ class EmailTestController extends AdminController
      */
     public function emailTest(Content $content)
     {
-        return $content
-            ->title(admin_trans('menu.titles.email_test'))
-            ->body(new Card(new EmailTest()));
+        return app(AdminPageCardService::class)->attach(
+            $content,
+            admin_trans('menu.titles.email_test'),
+            new EmailTest()
+        );
     }
 
 }

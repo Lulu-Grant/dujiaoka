@@ -11,9 +11,9 @@ namespace App\Admin\Controllers;
 
 
 use App\Admin\Forms\SystemSetting;
+use App\Service\AdminPageCardService;
 use Dcat\Admin\Http\Controllers\AdminController;
 use Dcat\Admin\Layout\Content;
-use Dcat\Admin\Widgets\Card;
 
 class SystemSettingController extends AdminController
 {
@@ -30,9 +30,11 @@ class SystemSettingController extends AdminController
      */
     public function systemSetting(Content $content)
     {
-        return $content
-            ->title(admin_trans('menu.titles.system_setting'))
-            ->body(new Card(app(SystemSetting::class)));
+        return app(AdminPageCardService::class)->attach(
+            $content,
+            admin_trans('menu.titles.system_setting'),
+            app(SystemSetting::class)
+        );
     }
 
 }

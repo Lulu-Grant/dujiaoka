@@ -6,6 +6,8 @@ use App\Admin\Actions\Post\BatchRestore;
 use App\Admin\Actions\Post\Restore;
 use App\Admin\Forms\ImportCarmis;
 use App\Admin\Repositories\Carmis;
+use App\Service\AdminDetailFieldService;
+use App\Service\AdminPageCardService;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Layout\Content;
@@ -16,7 +18,6 @@ use App\Service\AdminFilterService;
 use App\Service\AdminGridRestoreActionService;
 use App\Service\AdminSelectOptionService;
 use App\Service\CatalogAdminPresenterService;
-use Dcat\Admin\Widgets\Card;
 
 class CarmisController extends AdminController
 {
@@ -34,9 +35,7 @@ class CarmisController extends AdminController
             $grid->column('id')->sortable();
             $grid->column('goods.gd_name', admin_trans('carmis.fields.goods_id'));
             $grid->column('status')->select(CarmisModel::getStatusMap());
-            $grid->column('is_loop')->display(function ($v) {
-                return app(CatalogAdminPresenterService::class)->loopLabel($v);
-            });
+            $grid->column('is_loop')->display([app(CatalogAdminPresenterService::class), 'loopLabel']);
             $grid->column('carmi')->limit(20);
             $grid->column('created_at');
             $grid->column('updated_at')->sortable();
@@ -70,17 +69,17 @@ class CarmisController extends AdminController
     protected function detail($id)
     {
         return Show::make($id, new Carmis(['goods']), function (Show $show) {
-            $show->field('id');
-            $show->field('goods.gd_name', admin_trans('carmis.fields.goods_id'));
-            $show->field('status')->as(function ($type) {
-                return app(CatalogAdminPresenterService::class)->carmiStatusLabel($type);
-            });
-            $show->field('is_loop')->as(function ($v) {
-                return app(CatalogAdminPresenterService::class)->loopLabel($v);
-            });
-            $show->field('carmi');
-            $show->field('created_at');
-            $show->field('updated_at');
+            app(AdminDetailFieldService::class)->attachShowFields($show, [
+                'id',
+                'goods.gd_name' => admin_trans('carmis.fields.goods_id'),
+            ]);
+            $show->field('status')->as([app(CatalogAdminPresenterService::class), 'carmiStatusLabel']);
+            $show->field('is_loop')->as([app(CatalogAdminPresenterService::class), 'loopLabel']);
+            app(AdminDetailFieldService::class)->attachShowFields($show, [
+                'carmi',
+                'created_at',
+                'updated_at',
+            ]);
         });
     }
 
@@ -92,15 +91,17 @@ class CarmisController extends AdminController
     protected function form()
     {
         return Form::make(new Carmis(), function (Form $form) {
-            $form->display('id');
+            app(AdminDetailFieldService::class)->attachDisplayFields($form, ['id']);
             $form->select('goods_id')->options(app(AdminSelectOptionService::class)->automaticGoodsOptions())->required();
             $form->radio('status')
                 ->options(CarmisModel::getStatusMap())
                 ->default(CarmisModel::STATUS_UNSOLD);
             $form->switch('is_loop')->default(false);
             $form->textarea('carmi')->required();
-            $form->display('created_at');
-            $form->display('updated_at');
+            app(AdminDetailFieldService::class)->attachDisplayFields($form, [
+                'created_at',
+                'updated_at',
+            ]);
         });
     }
 
@@ -116,8 +117,10 @@ class CarmisController extends AdminController
      */
     public function importCarmis(Content $content)
     {
-        return $content
-            ->title(admin_trans('carmis.fields.import_carmis'))
-            ->body(new Card(new ImportCarmis()));
+        return app(AdminPageCardService::class)->attach(
+            $content,
+            admin_trans('carmis.fields.import_carmis'),
+            new ImportCarmis()
+        );
     }
 }

@@ -5,6 +5,7 @@ namespace App\Admin\Controllers;
 use App\Admin\Actions\Post\BatchRestore;
 use App\Admin\Actions\Post\Restore;
 use App\Admin\Repositories\GoodsGroup;
+use App\Service\AdminDetailFieldService;
 use App\Service\AdminFilterService;
 use App\Service\AdminFormBehaviorService;
 use App\Service\AdminGridRestoreActionService;
@@ -61,14 +62,16 @@ class GoodsGroupController extends AdminController
     protected function detail($id)
     {
         return Show::make($id, new GoodsGroup(), function (Show $show) {
-            $show->field('id');
-            $show->field('gp_name');
-            $show->field('is_open')->as(function ($isOpen) {
-                return app(AdminStatusPresenterService::class)->openStatusLabel($isOpen);
-            });
-            $show->field('ord');
-            $show->field('created_at');
-            $show->field('updated_at');
+            app(AdminDetailFieldService::class)->attachShowFields($show, [
+                'id',
+                'gp_name',
+            ]);
+            $show->field('is_open')->as([app(AdminStatusPresenterService::class), 'openStatusLabel']);
+            app(AdminDetailFieldService::class)->attachShowFields($show, [
+                'ord',
+                'created_at',
+                'updated_at',
+            ]);
         });
     }
 
@@ -80,12 +83,14 @@ class GoodsGroupController extends AdminController
     protected function form()
     {
         return Form::make(new GoodsGroup(), function (Form $form) {
-            $form->display('id');
+            app(AdminDetailFieldService::class)->attachDisplayFields($form, ['id']);
             $form->text('gp_name');
             $form->switch('is_open')->default(GoodsGroupModel::STATUS_OPEN);
             $form->number('ord')->default(1)->help(admin_trans('dujiaoka.ord'));
-            $form->display('created_at');
-            $form->display('updated_at');
+            app(AdminDetailFieldService::class)->attachDisplayFields($form, [
+                'created_at',
+                'updated_at',
+            ]);
             $form->disableViewButton();
             $form->footer(function ($footer) {
                 app(AdminFormBehaviorService::class)->disableViewCheck($footer);

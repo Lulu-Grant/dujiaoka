@@ -8,6 +8,7 @@ use App\Admin\Repositories\Order;
 use App\Models\Coupon;
 use App\Models\Goods;
 use App\Models\Pay;
+use App\Service\AdminDetailFieldService;
 use App\Service\AdminFilterService;
 use App\Service\AdminGridRestoreActionService;
 use App\Service\AdminSelectOptionService;
@@ -96,29 +97,35 @@ class OrderController extends AdminController
     protected function detail($id)
     {
         return Show::make($id, new Order(['goods', 'coupon', 'pay']), function (Show $show) {
-            $show->field('id');
-            $show->field('order_sn');
-            $show->field('title');
-            $show->field('email');
-            $show->field('goods.gd_name', admin_trans('order.fields.goods_id'));
-            $show->field('goods_price');
-            $show->field('buy_amount');
-            $show->field('coupon.coupon', admin_trans('order.fields.coupon_id'));
-            $show->field('coupon_discount_price');
-            $show->field('wholesale_discount_price');
-            $show->field('total_price');
-            $show->field('actual_price');
-            $show->field('buy_ip');
-            $show->field('info')->unescape()->as(function ($info) {
-                return app(AdminTextareaPresenterService::class)->render($info);
-            });
-            $show->field('pay.pay_name', admin_trans('order.fields.pay_id'));
+            app(AdminDetailFieldService::class)->attachShowFields($show, [
+                'id',
+                'order_sn',
+                'title',
+                'email',
+                'goods.gd_name' => admin_trans('order.fields.goods_id'),
+                'goods_price',
+                'buy_amount',
+                'coupon.coupon' => admin_trans('order.fields.coupon_id'),
+                'coupon_discount_price',
+                'wholesale_discount_price',
+                'total_price',
+                'actual_price',
+                'buy_ip',
+            ]);
+            $show->field('info')->unescape()->as([app(AdminTextareaPresenterService::class), 'render']);
+            app(AdminDetailFieldService::class)->attachShowFields($show, [
+                'pay.pay_name' => admin_trans('order.fields.pay_id'),
+            ]);
             $show->field('status')->using(OrderModel::getStatusMap());
-            $show->field('search_pwd');
-            $show->field('trade_no');
+            app(AdminDetailFieldService::class)->attachShowFields($show, [
+                'search_pwd',
+                'trade_no',
+            ]);
             $show->field('type')->using(OrderModel::getTypeMap());
-            $show->field('created_at');
-            $show->field('updated_at');
+            app(AdminDetailFieldService::class)->attachShowFields($show, [
+                'created_at',
+                'updated_at',
+            ]);
             $show->disableEditButton();
         });
     }
@@ -131,27 +138,37 @@ class OrderController extends AdminController
     protected function form()
     {
         return Form::make(new Order(['goods', 'coupon', 'pay']), function (Form $form) {
-            $form->display('id');
-            $form->display('order_sn');
+            app(AdminDetailFieldService::class)->attachDisplayFields($form, [
+                'id',
+                'order_sn',
+            ]);
             $form->text('title');
-            $form->display('goods.gd_name', admin_trans('order.fields.goods_id'));
-            $form->display('goods_price');
-            $form->display('buy_amount');
-            $form->display('coupon.coupon', admin_trans('order.fields.coupon_id'));
-            $form->display('coupon_discount_price');
-            $form->display('wholesale_discount_price');
-            $form->display('total_price');
-            $form->display('actual_price');
-            $form->display('email');
+            app(AdminDetailFieldService::class)->attachDisplayFields($form, [
+                'goods.gd_name' => admin_trans('order.fields.goods_id'),
+                'goods_price',
+                'buy_amount',
+                'coupon.coupon' => admin_trans('order.fields.coupon_id'),
+                'coupon_discount_price',
+                'wholesale_discount_price',
+                'total_price',
+                'actual_price',
+                'email',
+            ]);
             $form->textarea('info');
-            $form->display('buy_ip');
-            $form->display('pay.pay_name', admin_trans('order.fields.pay_id'));
+            app(AdminDetailFieldService::class)->attachDisplayFields($form, [
+                'buy_ip',
+                'pay.pay_name' => admin_trans('order.fields.pay_id'),
+            ]);
             $form->radio('status')->options(OrderModel::getStatusMap());
             $form->text('search_pwd');
-            $form->display('trade_no');
+            app(AdminDetailFieldService::class)->attachDisplayFields($form, [
+                'trade_no',
+            ]);
             $form->radio('type')->options(OrderModel::getTypeMap());
-            $form->display('created_at');
-            $form->display('updated_at');
+            app(AdminDetailFieldService::class)->attachDisplayFields($form, [
+                'created_at',
+                'updated_at',
+            ]);
         });
     }
 }

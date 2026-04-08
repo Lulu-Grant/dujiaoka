@@ -5,6 +5,7 @@ namespace App\Admin\Controllers;
 use App\Admin\Actions\Post\BatchRestore;
 use App\Admin\Actions\Post\Restore;
 use App\Admin\Repositories\Coupon;
+use App\Service\AdminDetailFieldService;
 use App\Service\AdminFilterService;
 use App\Service\AdminGridRestoreActionService;
 use App\Service\AdminStatusPresenterService;
@@ -65,18 +66,18 @@ class CouponController extends AdminController
     protected function detail($id)
     {
         return Show::make($id, new Coupon(), function (Show $show) {
-            $show->field('id');
-            $show->field('discount');
-            $show->field('is_use')->as(function ($isUse) {
-                return app(AdminStatusPresenterService::class)->couponUsageLabel($isUse);
-            });
-            $show->field('is_open')->as(function ($isOPen) {
-                return app(AdminStatusPresenterService::class)->openStatusLabel($isOPen);
-            });
-            $show->field('coupon');
-            $show->field('ret');
-            $show->field('created_at');
-            $show->field('updated_at');
+            app(AdminDetailFieldService::class)->attachShowFields($show, [
+                'id',
+                'discount',
+            ]);
+            $show->field('is_use')->as([app(AdminStatusPresenterService::class), 'couponUsageLabel']);
+            $show->field('is_open')->as([app(AdminStatusPresenterService::class), 'openStatusLabel']);
+            app(AdminDetailFieldService::class)->attachShowFields($show, [
+                'coupon',
+                'ret',
+                'created_at',
+                'updated_at',
+            ]);
         });
     }
 
@@ -88,7 +89,7 @@ class CouponController extends AdminController
     protected function form()
     {
         return Form::make(Coupon::with('goods'), function (Form $form) {
-            $form->display('id');
+            app(AdminDetailFieldService::class)->attachDisplayFields($form, ['id']);
             $form->multipleSelect('goods', admin_trans('coupon.fields.goods_id'))
                 ->options(app(AdminSelectOptionService::class)->goodsOptions())
                 ->customFormat(function ($v) {
@@ -99,8 +100,10 @@ class CouponController extends AdminController
             $form->number('ret')->default(1);
             $form->radio('is_use')->options(CouponModel::getStatusUseMap())->default(CouponModel::STATUS_UNUSED);
             $form->switch('is_open')->default(CouponModel::STATUS_OPEN);
-            $form->display('created_at');
-            $form->display('updated_at');
+            app(AdminDetailFieldService::class)->attachDisplayFields($form, [
+                'created_at',
+                'updated_at',
+            ]);
         });
     }
 }

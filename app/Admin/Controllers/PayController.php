@@ -5,6 +5,7 @@ namespace App\Admin\Controllers;
 use App\Admin\Actions\Post\BatchRestore;
 use App\Admin\Actions\Post\Restore;
 use App\Admin\Repositories\Pay;
+use App\Service\AdminDetailFieldService;
 use App\Service\AdminFilterService;
 use App\Service\AdminGridRestoreActionService;
 use App\Service\PayAdminPresenterService;
@@ -71,27 +72,23 @@ class PayController extends AdminController
     protected function detail($id)
     {
         return Show::make($id, new Pay(), function (Show $show) {
-            $show->field('id');
-            $show->field('pay_name');
-            $show->field('merchant_id');
-            $show->field('merchant_key');
-            $show->field('merchant_pem');
-            $show->field('pay_check');
-            $show->field('pay_check', admin_trans('pay.fields.lifecycle'))->as(function ($payCheck) {
-                return app(PayAdminPresenterService::class)->lifecycleLabel($payCheck);
-            });
-            $show->field('pay_client')->as(function ($payClient) {
-                return app(PayAdminPresenterService::class)->clientLabel($payClient);
-            });
+            app(AdminDetailFieldService::class)->attachShowFields($show, [
+                'id',
+                'pay_name',
+                'merchant_id',
+                'merchant_key',
+                'merchant_pem',
+                'pay_check',
+            ]);
+            $show->field('pay_check', admin_trans('pay.fields.lifecycle'))->as([app(PayAdminPresenterService::class), 'lifecycleLabel']);
+            $show->field('pay_client')->as([app(PayAdminPresenterService::class), 'clientLabel']);
             $show->field('pay_handleroute');
-            $show->field('pay_method')->as(function ($payMethod) {
-                return app(PayAdminPresenterService::class)->methodLabel($payMethod);
-            });
-            $show->field('is_open')->as(function ($isOpen) {
-                return app(PayAdminPresenterService::class)->openStatusLabel($isOpen);
-            });
-            $show->field('created_at');
-            $show->field('updated_at');
+            $show->field('pay_method')->as([app(PayAdminPresenterService::class), 'methodLabel']);
+            $show->field('is_open')->as([app(PayAdminPresenterService::class), 'openStatusLabel']);
+            app(AdminDetailFieldService::class)->attachShowFields($show, [
+                'created_at',
+                'updated_at',
+            ]);
         });
     }
 
@@ -103,7 +100,7 @@ class PayController extends AdminController
     protected function form()
     {
         return Form::make(new Pay(), function (Form $form) {
-            $form->display('id');
+            app(AdminDetailFieldService::class)->attachDisplayFields($form, ['id']);
             $form->text('pay_name')->required();
             $form->text('merchant_id')->required();
             $form->textarea('merchant_key');
@@ -120,8 +117,10 @@ class PayController extends AdminController
                 ->required();
             $form->text('pay_handleroute')->required();
             $form->switch('is_open')->default(PayModel::STATUS_OPEN);
-            $form->display('created_at');
-            $form->display('updated_at');
+            app(AdminDetailFieldService::class)->attachDisplayFields($form, [
+                'created_at',
+                'updated_at',
+            ]);
             $form->disableDeleteButton();
         });
     }

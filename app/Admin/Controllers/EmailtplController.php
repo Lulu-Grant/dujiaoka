@@ -5,6 +5,7 @@ namespace App\Admin\Controllers;
 use App\Admin\Actions\Post\BatchRestore;
 use App\Admin\Actions\Post\Restore;
 use App\Admin\Repositories\Emailtpl;
+use App\Service\AdminDetailFieldService;
 use App\Service\AdminFormBehaviorService;
 use App\Service\AdminGridRestoreActionService;
 use Dcat\Admin\Form;
@@ -58,12 +59,14 @@ class EmailtplController extends AdminController
     protected function detail($id)
     {
         return Show::make($id, new Emailtpl(), function (Show $show) {
-            $show->field('id');
-            $show->field('tpl_name');
-            $show->field('tpl_content');
-            $show->field('tpl_token');
-            $show->field('created_at');
-            $show->field('updated_at');
+            app(AdminDetailFieldService::class)->attachShowFields($show, [
+                'id',
+                'tpl_name',
+                'tpl_content',
+                'tpl_token',
+                'created_at',
+                'updated_at',
+            ]);
         });
     }
 
@@ -78,7 +81,7 @@ class EmailtplController extends AdminController
             $behavior = app(AdminFormBehaviorService::class);
             $tokenMode = $behavior->emailTemplateTokenFieldMode($form->isCreating());
 
-            $form->display('id');
+            app(AdminDetailFieldService::class)->attachDisplayFields($form, ['id']);
             $form->text('tpl_name')->required();
             $form->editor('tpl_content')->required();
             $tokenField = $form->text('tpl_token');
@@ -88,8 +91,10 @@ class EmailtplController extends AdminController
             if ($tokenMode['disabled']) {
                 $tokenField->disable();
             }
-            $form->display('created_at');
-            $form->display('updated_at');
+            app(AdminDetailFieldService::class)->attachDisplayFields($form, [
+                'created_at',
+                'updated_at',
+            ]);
             $form->disableViewButton();
             $form->disableDeleteButton();
             $form->footer(function ($footer) {
