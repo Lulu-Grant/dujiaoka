@@ -2154,3 +2154,25 @@
 下一步：
 
 - 继续沿优先级清单推进，优先把第一优先级页面的 Dcat 迁移切口做得更清楚。
+
+### 90. 固化第一批后台迁移页面合同
+
+摘要：
+
+- 新增 [admin-first-batch-migration-contracts.md](/Users/apple/Documents/dujiaoshuka/docs/admin-first-batch-migration-contracts.md)，明确第一批迁移页面的列表列、筛选项、详情字段、表单字段和页面行为。
+- 当前已为商品分类、邮件模板、支付通道 3 组页面固定迁移合同。
+- [admin-migration-candidates.md](/Users/apple/Documents/dujiaoshuka/docs/admin-migration-candidates.md) 已接入这份合同文档，后续新后台壳开发可以直接按合同落地，而不需要再次反推 Dcat 页面。
+
+影响范围：
+
+- 第一批后台迁移实施效率
+- 新后台壳开发的输入清晰度
+- 后续验收清单的稳定性
+
+验证：
+
+- 当前全量回归结果：`OK (126 tests, 340 assertions)`
+
+下一步：
+
+- 在第一批页面中选择一个页面作为真正的新后台壳样板，优先从商品分类或邮件模板入手。

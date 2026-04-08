@@ -27,6 +27,10 @@
 
 这些页面已经最接近“新壳直接接服务”的状态，适合作为第一批迁移对象。
 
+第一批迁移合同见：
+
+- [admin-first-batch-migration-contracts.md](/Users/apple/Documents/dujiaoshuka/docs/admin-first-batch-migration-contracts.md)
+
 ### 1. 商品分类管理
 
 对应文件：
