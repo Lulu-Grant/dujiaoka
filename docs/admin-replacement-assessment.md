@@ -215,6 +215,10 @@
 2. 再决定用什么新后台壳去接这些服务
 3. 最后再把 Dcat 从主线路径中退场
 
+配套优先级清单见：
+
+- [admin-migration-candidates.md](/Users/apple/Documents/dujiaoshuka/docs/admin-migration-candidates.md)
+
 ---
 
 ## 下一步默认动作
@@ -241,4 +245,4 @@
 - 后台各 CRUD 页面重复的“回收站筛选挂载”和订单列表日期区间过滤已抽到 [AdminFilterService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminFilterService.php)
 - 后台高频 CRUD 页详情页/只读表单的机械字段挂载已抽到 [AdminDetailFieldService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminDetailFieldService.php)，并且大量简单展示闭包已替换成明确的 presenter callable
 - 后台“标题 + Card 表单页”壳已抽到 [AdminPageCardService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminPageCardService.php)，后台首页看板布局已抽到 [AdminDashboardLayoutService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminDashboardLayoutService.php)
-- 后台恢复动作挂载已进一步收口到 [AdminGridRestoreActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminGridRestoreActionService.php) 的完整接线方法；目前后台控制器里仅剩一个明显依赖 Dcat 行上下文的库存展示闭包
+- 后台恢复动作挂载已进一步收口到 [AdminGridRestoreActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminGridRestoreActionService.php) 的完整接线方法；商品后台库存展示也已经改成模型 accessor + 查询预载，后台控制器中不再保留明显依赖 Dcat 行上下文的业务展示闭包

@@ -2110,3 +2110,47 @@
 下一步：
 
 - 继续围绕 `GoodsController` 最后一个高上下文库存闭包评估更合适的迁移切口，并开始标记优先迁移的后台页面。
+
+### 88. 去掉后台控制器中最后一个高上下文库存闭包
+
+摘要：
+
+- [GoodsController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/GoodsController.php) 的商品库存列已改为通过列表查询 `withCount` 预载未售卡密数量，不再依赖控制器内的 `display(function () {})` 闭包。
+- [Goods.php](/Users/apple/Documents/dujiaoshuka/app/Models/Goods.php) 既有的 `getInStockAttribute()` 现在真正成为后台库存展示的主边界：自动发货商品读取未售卡密数，人工商品继续读取存量字段。
+- 新增 [GoodsModelInventoryAttributeTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/GoodsModelInventoryAttributeTest.php) 护栏，直接守住模型库存读取行为。
+
+影响范围：
+
+- 商品后台列表库存展示
+- 后台控制器对 Dcat 行上下文的耦合度
+- 后续迁移商品后台页时的数据读取边界
+
+验证：
+
+- 当前全量回归结果：`OK (126 tests, 340 assertions)`
+
+下一步：
+
+- 开始盘点哪些后台页面已经足够“服务化 + 壳层化”，可以进入优先迁移名单。
+
+### 89. 固化后台迁移优先级清单
+
+摘要：
+
+- 新增 [admin-migration-candidates.md](/Users/apple/Documents/dujiaoshuka/docs/admin-migration-candidates.md)，将后台页面按迁移风险、Dcat 绑定度、服务化完成度、验证成本划分为三档优先级。
+- [admin-replacement-assessment.md](/Users/apple/Documents/dujiaoshuka/docs/admin-replacement-assessment.md) 已接入这份优先级清单，后续后台替换不再从零盘点页面顺序。
+- 当前默认迁移顺序已明确为：商品分类 -> 邮件模板 -> 支付通道 -> 优惠码 -> 卡密 -> 系统设置/邮件测试 -> 商品 -> 订单 -> 首页看板。
+
+影响范围：
+
+- 后台替换阶段的实施顺序
+- 后续新后台壳样板选择
+- 资源投入与验证计划安排
+
+验证：
+
+- 当前全量回归结果：`OK (126 tests, 340 assertions)`
+
+下一步：
+
+- 继续沿优先级清单推进，优先把第一优先级页面的 Dcat 迁移切口做得更清楚。

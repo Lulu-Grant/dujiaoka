@@ -14,7 +14,6 @@ use App\Service\AdminSelectOptionService;
 use App\Service\AdminStatusPresenterService;
 use App\Service\AdminTextareaPresenterService;
 use App\Service\CatalogAdminPresenterService;
-use App\Service\GoodsInventoryService;
 use Dcat\Admin\Admin;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
@@ -35,7 +34,11 @@ class GoodsController extends AdminController
     {
         return Grid::make(new Goods(['group', 'coupon']), function (Grid $grid) {
             $restoreActions = app(AdminGridRestoreActionService::class);
-            $grid->model()->orderBy('id', 'DESC');
+            $grid->model()
+                ->withCount(['carmis as carmis_count' => function ($query) {
+                    $query->where('status', \App\Models\Carmis::STATUS_UNSOLD);
+                }])
+                ->orderBy('id', 'DESC');
             $grid->column('id')->sortable();
             $grid->column('picture')->image('', 100, 100);
             $grid->column('gd_name');
@@ -50,13 +53,7 @@ class GoodsController extends AdminController
                 ]);
             $grid->column('retail_price');
             $grid->column('actual_price')->sortable();
-            $grid->column('in_stock')->display(function () {
-                return app(GoodsInventoryService::class)->resolveStockFromRow(
-                    (int) $this->id,
-                    (int) $this->type,
-                    (int) $this->in_stock
-                );
-            });
+            $grid->column('in_stock');
             $grid->column('sales_volume');
             $grid->column('ord')->editable()->sortable();
             $grid->column('is_open')->switch();
