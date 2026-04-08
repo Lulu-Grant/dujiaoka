@@ -2018,3 +2018,25 @@
 下一步：
 
 - 继续把后台剩余细碎判断和展示闭包往普通服务层收口，朝“高频后台页仅保留展示配置”继续推进。
+
+### 84. 将后台筛选规则抽到普通服务层
+
+摘要：
+
+- 新增 [AdminFilterService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminFilterService.php)，统一负责后台列表页的“回收站”筛选挂载，以及订单页 `created_at` 日期区间过滤条件应用。
+- [GoodsGroupController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/GoodsGroupController.php)、[PayController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/PayController.php)、[CarmisController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/CarmisController.php)、[GoodsController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/GoodsController.php)、[OrderController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/OrderController.php)、[CouponController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/CouponController.php) 已改为通过这层服务复用筛选逻辑。
+- 新增 [AdminFilterServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminFilterServiceTest.php)。
+
+影响范围：
+
+- 后台高频 CRUD 页面筛选条件的一致性
+- 订单后台日期区间过滤逻辑的复用性
+- 后续替换 Dcat 列表筛选层时的迁移成本
+
+验证：
+
+- 当前全量回归结果：`OK (117 tests, 326 assertions)`
+
+下一步：
+
+- 继续把后台详情页字段映射、状态文案和剩余零散闭包往普通服务层收口，进一步压薄 `app/Admin`。

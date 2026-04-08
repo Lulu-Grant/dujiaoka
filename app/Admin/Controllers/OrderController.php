@@ -8,6 +8,7 @@ use App\Admin\Repositories\Order;
 use App\Models\Coupon;
 use App\Models\Goods;
 use App\Models\Pay;
+use App\Service\AdminFilterService;
 use App\Service\AdminGridRestoreActionService;
 use App\Service\AdminSelectOptionService;
 use App\Service\AdminTextareaPresenterService;
@@ -68,12 +69,9 @@ class OrderController extends AdminController
                 $filter->equal('coupon_id')->select(app(AdminSelectOptionService::class)->couponOptions());
                 $filter->equal('pay_id')->select(app(AdminSelectOptionService::class)->payOptions());
                 $filter->whereBetween('created_at', function ($q) {
-                    $start = $this->input['start'] ?? null;
-                    $end = $this->input['end'] ?? null;
-                    $q->where('created_at', '>=', $start)
-                        ->where('created_at', '<=', $end);
+                    app(AdminFilterService::class)->applyCreatedAtRange($q, (array) $this->input);
                 })->datetime();
-                $filter->scope(admin_trans('dujiaoka.trashed'))->onlyTrashed();
+                app(AdminFilterService::class)->attachTrashedScope($filter);
             });
             $grid->actions(function (Grid\Displayers\Actions $actions) {
                 if (app(AdminGridRestoreActionService::class)->shouldAttach()) {

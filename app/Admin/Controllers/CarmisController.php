@@ -12,6 +12,7 @@ use Dcat\Admin\Layout\Content;
 use Dcat\Admin\Show;
 use Dcat\Admin\Http\Controllers\AdminController;
 use App\Models\Carmis as CarmisModel;
+use App\Service\AdminFilterService;
 use App\Service\AdminGridRestoreActionService;
 use App\Service\AdminSelectOptionService;
 use App\Service\CatalogAdminPresenterService;
@@ -43,7 +44,7 @@ class CarmisController extends AdminController
                 $filter->equal('id');
                 $filter->equal('goods_id')->select(app(AdminSelectOptionService::class)->automaticGoodsOptions());
                 $filter->equal('status')->select(CarmisModel::getStatusMap());
-                $filter->scope(admin_trans('dujiaoka.trashed'))->onlyTrashed();
+                app(AdminFilterService::class)->attachTrashedScope($filter);
             });
             $grid->actions(function (Grid\Displayers\Actions $actions) {
                 if (app(AdminGridRestoreActionService::class)->shouldAttach()) {

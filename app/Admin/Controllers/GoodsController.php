@@ -8,6 +8,7 @@ use App\Admin\Repositories\Goods;
 use App\Models\Carmis;
 use App\Models\Coupon;
 use App\Models\GoodsGroup as GoodsGroupModel;
+use App\Service\AdminFilterService;
 use App\Service\AdminGridRestoreActionService;
 use App\Service\AdminSelectOptionService;
 use App\Service\AdminStatusPresenterService;
@@ -66,7 +67,7 @@ class GoodsController extends AdminController
                 $filter->like('gd_name');
                 $filter->equal('type')->select(GoodsModel::getGoodsTypeMap());
                 $filter->equal('group_id')->select(app(AdminSelectOptionService::class)->goodsGroupOptions());
-                $filter->scope(admin_trans('dujiaoka.trashed'))->onlyTrashed();
+                app(AdminFilterService::class)->attachTrashedScope($filter);
                 $filter->equal('coupon.coupons_id', admin_trans('goods.fields.coupon_id'))->select(app(AdminSelectOptionService::class)->couponOptions());
             });
             $grid->actions(function (Grid\Displayers\Actions $actions) {

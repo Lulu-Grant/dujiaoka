@@ -5,6 +5,7 @@ namespace App\Admin\Controllers;
 use App\Admin\Actions\Post\BatchRestore;
 use App\Admin\Actions\Post\Restore;
 use App\Admin\Repositories\Coupon;
+use App\Service\AdminFilterService;
 use App\Service\AdminGridRestoreActionService;
 use App\Service\AdminStatusPresenterService;
 use Dcat\Admin\Admin;
@@ -49,7 +50,7 @@ class CouponController extends AdminController
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->equal('id');
                 $filter->equal('goods.goods_id', admin_trans('coupon.fields.goods_id'))->select(app(AdminSelectOptionService::class)->goodsOptions());
-                $filter->scope(admin_trans('dujiaoka.trashed'))->onlyTrashed();
+                app(AdminFilterService::class)->attachTrashedScope($filter);
             });
         });
     }

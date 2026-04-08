@@ -5,6 +5,7 @@ namespace App\Admin\Controllers;
 use App\Admin\Actions\Post\BatchRestore;
 use App\Admin\Actions\Post\Restore;
 use App\Admin\Repositories\GoodsGroup;
+use App\Service\AdminFilterService;
 use App\Service\AdminFormBehaviorService;
 use App\Service\AdminGridRestoreActionService;
 use App\Service\AdminStatusPresenterService;
@@ -35,7 +36,7 @@ class GoodsGroupController extends AdminController
             $grid->disableViewButton();
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->equal('id');
-                $filter->scope(admin_trans('dujiaoka.trashed'))->onlyTrashed();
+                app(AdminFilterService::class)->attachTrashedScope($filter);
             });
             $grid->actions(function (Grid\Displayers\Actions $actions) {
                 if (app(AdminGridRestoreActionService::class)->shouldAttach()) {

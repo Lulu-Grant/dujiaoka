@@ -5,6 +5,7 @@ namespace App\Admin\Controllers;
 use App\Admin\Actions\Post\BatchRestore;
 use App\Admin\Actions\Post\Restore;
 use App\Admin\Repositories\Pay;
+use App\Service\AdminFilterService;
 use App\Service\AdminGridRestoreActionService;
 use App\Service\PayAdminPresenterService;
 use Dcat\Admin\Form;
@@ -45,7 +46,7 @@ class PayController extends AdminController
                 $filter->equal('id');
                 $filter->equal('pay_check');
                 $filter->like('pay_name');
-                $filter->scope(admin_trans('dujiaoka.trashed'))->onlyTrashed();
+                app(AdminFilterService::class)->attachTrashedScope($filter);
             });
             $grid->actions(function (Grid\Displayers\Actions $actions) {
                 if (app(AdminGridRestoreActionService::class)->shouldAttach()) {
