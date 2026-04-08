@@ -66,4 +66,16 @@ class GoodsInventoryServiceTest extends TestCase
 
         $this->assertSame(15, app(GoodsInventoryService::class)->resolveStock($goods));
     }
+
+    public function test_resolve_stock_from_row_supports_grid_context_without_model_instance(): void
+    {
+        $this->assertSame(
+            15,
+            app(GoodsInventoryService::class)->resolveStockFromRow(
+                2001,
+                Goods::MANUAL_PROCESSING,
+                15
+            )
+        );
+    }
 }

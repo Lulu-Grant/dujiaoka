@@ -31,6 +31,7 @@ class CarmisController extends AdminController
     protected function grid()
     {
         return Grid::make(new Carmis(['goods']), function (Grid $grid) {
+            $restoreActions = app(AdminGridRestoreActionService::class);
             $grid->model()->orderBy('id', 'DESC');
             $grid->column('id')->sortable();
             $grid->column('goods.gd_name', admin_trans('carmis.fields.goods_id'));
@@ -46,14 +47,10 @@ class CarmisController extends AdminController
                 app(AdminFilterService::class)->attachTrashedScope($filter);
             });
             $grid->actions(function (Grid\Displayers\Actions $actions) {
-                if (app(AdminGridRestoreActionService::class)->shouldAttach()) {
-                    $actions->append(new Restore(app(AdminGridRestoreActionService::class)->model(CarmisModel::class)));
-                }
+                $restoreActions->attachRowRestore($actions, CarmisModel::class);
             });
             $grid->batchActions(function (Grid\Tools\BatchActions $batch) {
-                if (app(AdminGridRestoreActionService::class)->shouldAttach()) {
-                    $batch->add(new BatchRestore(app(AdminGridRestoreActionService::class)->model(CarmisModel::class)));
-                }
+                $restoreActions->attachBatchRestore($batch, CarmisModel::class);
             });
             $grid->export()->titles(['goods.gd_name' => admin_trans('carmis.fields.goods_id'), 'carmi' => admin_trans('carmis.fields.carmi'), 'created_at' => admin_trans('admin.created_at')]);
         });

@@ -25,4 +25,44 @@ class AdminGridRestoreActionServiceTest extends TestCase
 
         $this->assertSame(\App\Models\Order::class, $service->model(\App\Models\Order::class));
     }
+
+    public function test_attach_row_restore_appends_action_when_scope_is_trashed(): void
+    {
+        $trashScope = \Mockery::mock(AdminTrashScopeService::class);
+        $trashScope->shouldReceive('isTrashedScope')->once()->andReturn(true);
+
+        $actions = new class {
+            public $appended;
+
+            public function append($action): void
+            {
+                $this->appended = $action;
+            }
+        };
+
+        $service = new AdminGridRestoreActionService($trashScope);
+        $service->attachRowRestore($actions, \App\Models\Order::class);
+
+        $this->assertInstanceOf(\App\Admin\Actions\Post\Restore::class, $actions->appended);
+    }
+
+    public function test_attach_batch_restore_skips_when_scope_is_not_trashed(): void
+    {
+        $trashScope = \Mockery::mock(AdminTrashScopeService::class);
+        $trashScope->shouldReceive('isTrashedScope')->once()->andReturn(false);
+
+        $batch = new class {
+            public $added = false;
+
+            public function add($action): void
+            {
+                $this->added = $action;
+            }
+        };
+
+        $service = new AdminGridRestoreActionService($trashScope);
+        $service->attachBatchRestore($batch, \App\Models\Order::class);
+
+        $this->assertFalse($batch->added);
+    }
 }

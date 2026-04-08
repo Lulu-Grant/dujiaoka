@@ -32,6 +32,7 @@ class OrderController extends AdminController
     protected function grid()
     {
         return Grid::make(new Order(['goods', 'coupon', 'pay']), function (Grid $grid) {
+            $restoreActions = app(AdminGridRestoreActionService::class);
             $grid->model()->orderBy('id', 'DESC');
             $grid->column('id')->sortable();
             $grid->column('order_sn')->copyable();
@@ -75,14 +76,10 @@ class OrderController extends AdminController
                 app(AdminFilterService::class)->attachTrashedScope($filter);
             });
             $grid->actions(function (Grid\Displayers\Actions $actions) {
-                if (app(AdminGridRestoreActionService::class)->shouldAttach()) {
-                    $actions->append(new Restore(app(AdminGridRestoreActionService::class)->model(OrderModel::class)));
-                }
+                $restoreActions->attachRowRestore($actions, OrderModel::class);
             });
             $grid->batchActions(function (Grid\Tools\BatchActions $batch) {
-                if (app(AdminGridRestoreActionService::class)->shouldAttach()) {
-                    $batch->add(new BatchRestore(app(AdminGridRestoreActionService::class)->model(OrderModel::class)));
-                }
+                $restoreActions->attachBatchRestore($batch, OrderModel::class);
             });
         });
     }

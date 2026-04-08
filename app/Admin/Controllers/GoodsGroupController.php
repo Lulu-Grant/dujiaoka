@@ -27,6 +27,7 @@ class GoodsGroupController extends AdminController
     protected function grid()
     {
         return Grid::make(new GoodsGroup(), function (Grid $grid) {
+            $restoreActions = app(AdminGridRestoreActionService::class);
             $grid->model()->orderBy('id', 'DESC');
             $grid->column('id')->sortable();
             $grid->column('gp_name')->editable();
@@ -40,14 +41,10 @@ class GoodsGroupController extends AdminController
                 app(AdminFilterService::class)->attachTrashedScope($filter);
             });
             $grid->actions(function (Grid\Displayers\Actions $actions) {
-                if (app(AdminGridRestoreActionService::class)->shouldAttach()) {
-                    $actions->append(new Restore(app(AdminGridRestoreActionService::class)->model(GoodsGroupModel::class)));
-                }
+                $restoreActions->attachRowRestore($actions, GoodsGroupModel::class);
             });
             $grid->batchActions(function (Grid\Tools\BatchActions $batch) {
-                if (app(AdminGridRestoreActionService::class)->shouldAttach()) {
-                    $batch->add(new BatchRestore(app(AdminGridRestoreActionService::class)->model(GoodsGroupModel::class)));
-                }
+                $restoreActions->attachBatchRestore($batch, GoodsGroupModel::class);
             });
         });
     }

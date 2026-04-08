@@ -24,6 +24,7 @@ class EmailtplController extends AdminController
     protected function grid()
     {
         return Grid::make(new Emailtpl(), function (Grid $grid) {
+            $restoreActions = app(AdminGridRestoreActionService::class);
             $grid->column('id')->sortable();
             $grid->column('tpl_name');
             $grid->column('tpl_token');
@@ -37,14 +38,10 @@ class EmailtplController extends AdminController
                 $filter->like('tpl_token');
             });
             $grid->actions(function (Grid\Displayers\Actions $actions) {
-                if (app(AdminGridRestoreActionService::class)->shouldAttach()) {
-                    $actions->append(new Restore(app(AdminGridRestoreActionService::class)->model(EmailTplModel::class)));
-                }
+                $restoreActions->attachRowRestore($actions, EmailTplModel::class);
             });
             $grid->batchActions(function (Grid\Tools\BatchActions $batch) {
-                if (app(AdminGridRestoreActionService::class)->shouldAttach()) {
-                    $batch->add(new BatchRestore(app(AdminGridRestoreActionService::class)->model(EmailTplModel::class)));
-                }
+                $restoreActions->attachBatchRestore($batch, EmailTplModel::class);
             });
         });
     }

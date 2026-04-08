@@ -34,6 +34,7 @@ class GoodsController extends AdminController
     protected function grid()
     {
         return Grid::make(new Goods(['group', 'coupon']), function (Grid $grid) {
+            $restoreActions = app(AdminGridRestoreActionService::class);
             $grid->model()->orderBy('id', 'DESC');
             $grid->column('id')->sortable();
             $grid->column('picture')->image('', 100, 100);
@@ -50,12 +51,11 @@ class GoodsController extends AdminController
             $grid->column('retail_price');
             $grid->column('actual_price')->sortable();
             $grid->column('in_stock')->display(function () {
-                $goods = new GoodsModel();
-                $goods->id = $this->id;
-                $goods->type = $this->type;
-                $goods->in_stock = $this->in_stock;
-
-                return app(GoodsInventoryService::class)->resolveStock($goods);
+                return app(GoodsInventoryService::class)->resolveStockFromRow(
+                    (int) $this->id,
+                    (int) $this->type,
+                    (int) $this->in_stock
+                );
             });
             $grid->column('sales_volume');
             $grid->column('ord')->editable()->sortable();
@@ -71,14 +71,10 @@ class GoodsController extends AdminController
                 $filter->equal('coupon.coupons_id', admin_trans('goods.fields.coupon_id'))->select(app(AdminSelectOptionService::class)->couponOptions());
             });
             $grid->actions(function (Grid\Displayers\Actions $actions) {
-                if (app(AdminGridRestoreActionService::class)->shouldAttach()) {
-                    $actions->append(new Restore(app(AdminGridRestoreActionService::class)->model(GoodsModel::class)));
-                }
+                $restoreActions->attachRowRestore($actions, GoodsModel::class);
             });
             $grid->batchActions(function (Grid\Tools\BatchActions $batch) {
-                if (app(AdminGridRestoreActionService::class)->shouldAttach()) {
-                    $batch->add(new BatchRestore(app(AdminGridRestoreActionService::class)->model(GoodsModel::class)));
-                }
+                $restoreActions->attachBatchRestore($batch, GoodsModel::class);
             });
         });
     }

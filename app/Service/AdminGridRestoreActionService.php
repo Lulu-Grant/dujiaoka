@@ -2,6 +2,9 @@
 
 namespace App\Service;
 
+use App\Admin\Actions\Post\BatchRestore;
+use App\Admin\Actions\Post\Restore;
+
 class AdminGridRestoreActionService
 {
     /**
@@ -22,5 +25,23 @@ class AdminGridRestoreActionService
     public function model(string $modelClass): string
     {
         return $modelClass;
+    }
+
+    public function attachRowRestore($actions, string $modelClass): void
+    {
+        if (!$this->shouldAttach()) {
+            return;
+        }
+
+        $actions->append(new Restore($this->model($modelClass)));
+    }
+
+    public function attachBatchRestore($batch, string $modelClass): void
+    {
+        if (!$this->shouldAttach()) {
+            return;
+        }
+
+        $batch->add(new BatchRestore($this->model($modelClass)));
     }
 }

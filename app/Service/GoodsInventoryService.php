@@ -7,6 +7,16 @@ use App\Models\Goods;
 
 class GoodsInventoryService
 {
+    public function resolveStockFromRow(int $id, int $type, int $inStock): int
+    {
+        $goods = new Goods();
+        $goods->id = $id;
+        $goods->type = $type;
+        $goods->in_stock = $inStock;
+
+        return $this->resolveStock($goods);
+    }
+
     public function resolveStock(Goods $goods): int
     {
         if ((int) $goods->type === Goods::AUTOMATIC_DELIVERY) {

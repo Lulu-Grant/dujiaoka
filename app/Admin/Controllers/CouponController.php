@@ -29,6 +29,7 @@ class CouponController extends AdminController
     protected function grid()
     {
         return Grid::make(new Coupon(['goods']), function (Grid $grid) {
+            $restoreActions = app(AdminGridRestoreActionService::class);
             $grid->model()->orderBy('id', 'DESC');
             $grid->column('id')->sortable();
             $grid->column('discount');
@@ -39,14 +40,10 @@ class CouponController extends AdminController
             $grid->column('created_at');
             $grid->column('updated_at')->sortable();
             $grid->actions(function (Grid\Displayers\Actions $actions) {
-                if (app(AdminGridRestoreActionService::class)->shouldAttach()) {
-                    $actions->append(new Restore(app(AdminGridRestoreActionService::class)->model(CouponModel::class)));
-                }
+                $restoreActions->attachRowRestore($actions, CouponModel::class);
             });
             $grid->batchActions(function (Grid\Tools\BatchActions $batch) {
-                if (app(AdminGridRestoreActionService::class)->shouldAttach()) {
-                    $batch->add(new BatchRestore(app(AdminGridRestoreActionService::class)->model(CouponModel::class)));
-                }
+                $restoreActions->attachBatchRestore($batch, CouponModel::class);
             });
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->equal('id');

@@ -27,12 +27,11 @@ class PayController extends AdminController
     protected function grid()
     {
         return Grid::make(new Pay(), function (Grid $grid) {
+            $restoreActions = app(AdminGridRestoreActionService::class);
             $grid->column('id')->sortable();
             $grid->column('pay_name');
             $grid->column('pay_check');
-            $grid->column('lifecycle', admin_trans('pay.fields.lifecycle'))->display(function () {
-                return app(PayAdminPresenterService::class)->lifecycleBadge($this->pay_check);
-            });
+            $grid->column('lifecycle', admin_trans('pay.fields.lifecycle'))->display([app(PayAdminPresenterService::class), 'lifecycleBadge']);
             $grid->column('pay_method')->select(PayModel::getMethodMap());
             $grid->column('merchant_id')->limit(20);
             $grid->column('merchant_key')->limit(20);
@@ -50,14 +49,10 @@ class PayController extends AdminController
                 app(AdminFilterService::class)->attachTrashedScope($filter);
             });
             $grid->actions(function (Grid\Displayers\Actions $actions) {
-                if (app(AdminGridRestoreActionService::class)->shouldAttach()) {
-                    $actions->append(new Restore(app(AdminGridRestoreActionService::class)->model(PayModel::class)));
-                }
+                $restoreActions->attachRowRestore($actions, PayModel::class);
             });
             $grid->batchActions(function (Grid\Tools\BatchActions $batch) {
-                if (app(AdminGridRestoreActionService::class)->shouldAttach()) {
-                    $batch->add(new BatchRestore(app(AdminGridRestoreActionService::class)->model(PayModel::class)));
-                }
+                $restoreActions->attachBatchRestore($batch, PayModel::class);
             });
         });
     }

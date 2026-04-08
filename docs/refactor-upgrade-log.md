@@ -2086,3 +2086,27 @@
 下一步：
 
 - 继续清理后台仅剩的高上下文闭包，并开始标记哪些后台页已经接近可迁移状态。
+
+### 87. 将后台恢复接线与剩余展示边界进一步压薄
+
+摘要：
+
+- [AdminGridRestoreActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminGridRestoreActionService.php) 新增 `attachRowRestore()` 与 `attachBatchRestore()`，后台各 CRUD 页不再自己判断回收站作用域后再手动挂 `Restore` / `BatchRestore`。
+- [GoodsGroupController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/GoodsGroupController.php)、[PayController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/PayController.php)、[CarmisController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/CarmisController.php)、[GoodsController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/GoodsController.php)、[OrderController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/OrderController.php)、[CouponController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/CouponController.php)、[EmailtplController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/EmailtplController.php) 的恢复动作接线已进一步收口。
+- [PayController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/PayController.php) 的生命周期徽章展示已经改成模型 accessor + presenter callable，不再依赖控制器匿名闭包。
+- [GoodsInventoryService.php](/Users/apple/Documents/dujiaoshuka/app/Service/GoodsInventoryService.php) 新增 `resolveStockFromRow()`，商品列表库存展示仍保留 Dcat 行上下文闭包，但控制器已不再临时组装模型对象。
+- 更新了 [AdminGridRestoreActionServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminGridRestoreActionServiceTest.php) 与 [GoodsInventoryServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/GoodsInventoryServiceTest.php)。
+
+影响范围：
+
+- 后台 CRUD 页动作挂载的一致性
+- 支付后台页展示壳的可迁移性
+- 商品列表库存展示的控制器耦合度
+
+验证：
+
+- 当前全量回归结果：`OK (124 tests, 338 assertions)`
+
+下一步：
+
+- 继续围绕 `GoodsController` 最后一个高上下文库存闭包评估更合适的迁移切口，并开始标记优先迁移的后台页面。

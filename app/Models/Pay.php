@@ -77,6 +77,11 @@ class Pay extends BaseModel
         return admin_trans('pay.fields.lifecycle_active');
     }
 
+    public function getLifecycleAttribute(): ?string
+    {
+        return $this->pay_check;
+    }
+
     public static function getMethodMap()
     {
         return [
