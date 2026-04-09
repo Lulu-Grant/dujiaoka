@@ -2301,3 +2301,25 @@
 下一步：
 
 - 观察最新一轮 GitHub Actions 结果，确认 `CI` 恢复为绿色后继续后台壳底座抽象。
+
+### 96. 移除仓库内硬编码测试 APP_KEY
+
+摘要：
+
+- GitHub secret scanning 提示仓库暴露了 Laravel `APP_KEY`，定位到问题来自测试环境里硬编码的测试 key，而不是运行中的生产配置。
+- 已将 PHPUnit 启动方式改为加载 [tests/bootstrap.php](/Users/apple/Documents/dujiaoshuka/tests/bootstrap.php)，在测试进程启动时动态生成临时 `APP_KEY`。
+- 已从 [phpunit.xml](/Users/apple/Documents/dujiaoshuka/phpunit.xml) 和 [ci.yml](/Users/apple/Documents/dujiaoshuka/.github/workflows/ci.yml) 中移除明文 `APP_KEY`，避免后续再次触发 GitHub 告警。
+
+影响范围：
+
+- GitHub secret scanning 告警面
+- 本地 PHPUnit 启动方式
+- GitHub Actions `CI` 测试环境初始化
+
+验证：
+
+- 预期全量 PHPUnit 仍保持通过
+
+下一步：
+
+- 重新跑本地 PHPUnit，并观察 GitHub Actions 新一轮结果，确认仓库已不再包含可疑 Laravel key。

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd" bootstrap="vendor/autoload.php" colors="true">
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd" bootstrap="tests/bootstrap.php" colors="true">
   <coverage processUncoveredFiles="true">
     <include>
       <directory suffix=".php">./app</directory>
@@ -14,7 +14,6 @@
     </testsuite>
   </testsuites>
   <php>
-    <server name="APP_KEY" value="base64:7v8Q6Bivn8YH9cYfV4b5xg6k5wK1v2f6o6p2u8d1m4Y="/>
     <server name="APP_ENV" value="testing"/>
     <server name="BCRYPT_ROUNDS" value="4"/>
     <server name="CACHE_DRIVER" value="array"/>
