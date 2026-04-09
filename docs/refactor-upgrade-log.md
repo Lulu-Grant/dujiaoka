@@ -2203,3 +2203,29 @@
 下一步：
 
 - 继续沿第一批合同推进，优先补邮件模板或支付通道的新后台壳样板。
+
+### 92. 落地第二个新后台壳样板页
+
+摘要：
+
+- 新增 [EmailTemplateShellController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/EmailTemplateShellController.php) 与 [AdminShellEmailTemplatePageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellEmailTemplatePageService.php)，把邮件模板管理的列表页与详情页落成普通 Laravel 页面。
+- 新增后台样板页视图：
+  - [admin-shell/emailtpl/index.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/emailtpl/index.blade.php)
+  - [admin-shell/emailtpl/show.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/emailtpl/show.blade.php)
+- [app/Admin/routes.php](/Users/apple/Documents/dujiaoshuka/app/Admin/routes.php) 已挂出 `/admin/v2/emailtpl` 与 `/admin/v2/emailtpl/{id}`。
+- [config/admin.php](/Users/apple/Documents/dujiaoshuka/config/admin.php) 已将 `v2/emailtpl*` 加入后台权限例外。
+- 新增 [AdminShellEmailTemplateControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellEmailTemplateControllerTest.php) 验证列表页与详情页真实可访问。
+
+影响范围：
+
+- 第一批后台迁移第二张样板页
+- 新后台壳在“列表 + 详情 + 文本内容展示”场景下的复用基础
+- 后续第三张支付通道样板页的布局复用
+
+验证：
+
+- 当前全量回归结果：`OK (130 tests, 353 assertions)`
+
+下一步：
+
+- 继续沿第一批合同推进，优先补支付通道的新后台壳样板。

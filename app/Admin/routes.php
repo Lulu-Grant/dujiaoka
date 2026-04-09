@@ -21,6 +21,8 @@ Route::group([
     $router->resource('order', 'OrderController');
     $router->get('v2/goods-group', [\App\Http\Controllers\AdminShell\GoodsGroupShellController::class, 'index'])->name('admin-shell.goods-group.index');
     $router->get('v2/goods-group/{id}', [\App\Http\Controllers\AdminShell\GoodsGroupShellController::class, 'show'])->name('admin-shell.goods-group.show');
+    $router->get('v2/emailtpl', [\App\Http\Controllers\AdminShell\EmailTemplateShellController::class, 'index'])->name('admin-shell.emailtpl.index');
+    $router->get('v2/emailtpl/{id}', [\App\Http\Controllers\AdminShell\EmailTemplateShellController::class, 'show'])->name('admin-shell.emailtpl.show');
     $router->get('import-carmis', 'CarmisController@importCarmis');
     $router->get('system-setting', 'SystemSettingController@systemSetting');
     $router->get('email-test', 'EmailTestController@emailTest');

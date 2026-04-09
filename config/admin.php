@@ -215,6 +215,7 @@ return [
             'auth/logout',
             'auth/setting',
             'v2/goods-group*',
+            'v2/emailtpl*',
         ],
     ],
 
