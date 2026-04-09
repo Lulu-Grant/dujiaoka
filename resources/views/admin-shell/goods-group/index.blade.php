@@ -1,36 +1,25 @@
 @extends('admin-shell.layout', ['title' => '商品分类管理 - 后台壳样板'])
 
 @section('content')
-    <header class="page-header">
-        <div>
-            <div class="page-kicker">Admin Shell Sample</div>
-            <h1 class="page-title">商品分类管理</h1>
-            <p class="page-description">这是第一批后台迁移样板页。当前使用普通 Laravel 控制器、服务和 Blade 渲染，不再依赖 Dcat Grid。</p>
-        </div>
-        <div class="meta">共 {{ $groups->total() }} 条记录</div>
-    </header>
+    @include('admin-shell.partials.page-header', [
+        'title' => '商品分类管理',
+        'description' => '这是第一批后台迁移样板页。当前使用普通 Laravel 控制器、服务和 Blade 渲染，不再依赖 Dcat Grid。',
+        'meta' => '共 '.$groups->total().' 条记录',
+    ])
 
-    <section class="panel">
-        <div class="panel-body">
-            <form method="get" class="filters">
-                <label>
-                    ID
-                    <input type="number" name="id" value="{{ $filters['id'] }}">
-                </label>
-                <label>
-                    范围
-                    <select name="scope">
-                        <option value="">全部</option>
-                        <option value="trashed" @if(($filters['scope'] ?? null) === 'trashed') selected @endif>回收站</option>
-                    </select>
-                </label>
-                <div class="button-row">
-                    <button class="button" type="submit">筛选</button>
-                    <a class="button secondary" href="{{ admin_url('v2/goods-group') }}">重置</a>
-                </div>
-            </form>
-        </div>
-    </section>
+    @include('admin-shell.partials.filter-panel', [
+        'fields' => [
+            ['label' => 'ID', 'name' => 'id', 'type' => 'number', 'value' => $filters['id']],
+            [
+                'label' => '范围',
+                'name' => 'scope',
+                'type' => 'select',
+                'value' => $filters['scope'],
+                'options' => ['' => '全部', 'trashed' => '回收站'],
+            ],
+        ],
+        'resetUrl' => admin_url('v2/goods-group'),
+    ])
 
     <section class="panel">
         <div class="panel-body table-wrap">

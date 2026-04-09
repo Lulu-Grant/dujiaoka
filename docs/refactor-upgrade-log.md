@@ -2255,3 +2255,28 @@
 下一步：
 
 - 开始把第一批样板页提炼成可复用的后台壳组件，准备进入批量迁移阶段。
+
+### 94. 抽出新后台壳可复用视图片段
+
+摘要：
+
+- 新增后台壳公共视图片段：
+  - [partials/page-header.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/partials/page-header.blade.php)
+  - [partials/filter-panel.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/partials/filter-panel.blade.php)
+  - [partials/detail-grid.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/partials/detail-grid.blade.php)
+- 已将商品分类、邮件模板、支付通道三组样板页的头部、筛选面板、详情网格切到统一片段。
+- 新后台壳已经从“单页样板复制”进入“可复用页面片段”阶段，为后续批量迁移打底。
+
+影响范围：
+
+- 第一批样板页结构一致性
+- 后续后台页面迁移的模板复用成本
+- 新后台壳设计语言的一致性
+
+验证：
+
+- 当前全量回归结果：`OK (132 tests, 360 assertions)`
+
+下一步：
+
+- 继续把列表表格与详情字段数据源也抽成更统一的数据结构，进入批量迁移底座阶段。

@@ -1,44 +1,27 @@
 @extends('admin-shell.layout', ['title' => '支付通道管理 - 后台壳样板'])
 
 @section('content')
-    <header class="page-header">
-        <div>
-            <div class="page-kicker">Admin Shell Sample</div>
-            <h1 class="page-title">支付通道管理</h1>
-            <p class="page-description">这是第一批后台迁移的第三张样板页。支付通道的生命周期、支付方式、支付场景都直接复用现有 presenter 与模型映射。</p>
-        </div>
-        <div class="meta">共 {{ $pays->total() }} 条通道</div>
-    </header>
+    @include('admin-shell.partials.page-header', [
+        'title' => '支付通道管理',
+        'description' => '这是第一批后台迁移的第三张样板页。支付通道的生命周期、支付方式、支付场景都直接复用现有 presenter 与模型映射。',
+        'meta' => '共 '.$pays->total().' 条通道',
+    ])
 
-    <section class="panel">
-        <div class="panel-body">
-            <form method="get" class="filters">
-                <label>
-                    ID
-                    <input type="number" name="id" value="{{ $filters['id'] }}">
-                </label>
-                <label>
-                    支付标识
-                    <input type="text" name="pay_check" value="{{ $filters['pay_check'] }}">
-                </label>
-                <label>
-                    支付名称
-                    <input type="text" name="pay_name" value="{{ $filters['pay_name'] }}">
-                </label>
-                <label>
-                    范围
-                    <select name="scope">
-                        <option value="">全部</option>
-                        <option value="trashed" @if(($filters['scope'] ?? null) === 'trashed') selected @endif>回收站</option>
-                    </select>
-                </label>
-                <div class="button-row">
-                    <button class="button" type="submit">筛选</button>
-                    <a class="button secondary" href="{{ admin_url('v2/pay') }}">重置</a>
-                </div>
-            </form>
-        </div>
-    </section>
+    @include('admin-shell.partials.filter-panel', [
+        'fields' => [
+            ['label' => 'ID', 'name' => 'id', 'type' => 'number', 'value' => $filters['id']],
+            ['label' => '支付标识', 'name' => 'pay_check', 'value' => $filters['pay_check']],
+            ['label' => '支付名称', 'name' => 'pay_name', 'value' => $filters['pay_name']],
+            [
+                'label' => '范围',
+                'name' => 'scope',
+                'type' => 'select',
+                'value' => $filters['scope'],
+                'options' => ['' => '全部', 'trashed' => '回收站'],
+            ],
+        ],
+        'resetUrl' => admin_url('v2/pay'),
+    ])
 
     <section class="panel">
         <div class="panel-body table-wrap">

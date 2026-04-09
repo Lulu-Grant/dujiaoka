@@ -1,37 +1,20 @@
 @extends('admin-shell.layout', ['title' => '邮件模板管理 - 后台壳样板'])
 
 @section('content')
-    <header class="page-header">
-        <div>
-            <div class="page-kicker">Admin Shell Sample</div>
-            <h1 class="page-title">邮件模板管理</h1>
-            <p class="page-description">这是第二张后台壳样板页。当前列表、筛选和详情都通过普通 Laravel 控制器与 Blade 组合，不再依赖 Dcat Grid/Show。</p>
-        </div>
-        <div class="meta">共 {{ $templates->total() }} 条模板</div>
-    </header>
+    @include('admin-shell.partials.page-header', [
+        'title' => '邮件模板管理',
+        'description' => '这是第二张后台壳样板页。当前列表、筛选和详情都通过普通 Laravel 控制器与 Blade 组合，不再依赖 Dcat Grid/Show。',
+        'meta' => '共 '.$templates->total().' 条模板',
+    ])
 
-    <section class="panel">
-        <div class="panel-body">
-            <form method="get" class="filters">
-                <label>
-                    ID
-                    <input type="number" name="id" value="{{ $filters['id'] }}">
-                </label>
-                <label>
-                    邮件标题
-                    <input type="text" name="tpl_name" value="{{ $filters['tpl_name'] }}">
-                </label>
-                <label>
-                    邮件标识
-                    <input type="text" name="tpl_token" value="{{ $filters['tpl_token'] }}">
-                </label>
-                <div class="button-row">
-                    <button class="button" type="submit">筛选</button>
-                    <a class="button secondary" href="{{ admin_url('v2/emailtpl') }}">重置</a>
-                </div>
-            </form>
-        </div>
-    </section>
+    @include('admin-shell.partials.filter-panel', [
+        'fields' => [
+            ['label' => 'ID', 'name' => 'id', 'type' => 'number', 'value' => $filters['id']],
+            ['label' => '邮件标题', 'name' => 'tpl_name', 'value' => $filters['tpl_name']],
+            ['label' => '邮件标识', 'name' => 'tpl_token', 'value' => $filters['tpl_token']],
+        ],
+        'resetUrl' => admin_url('v2/emailtpl'),
+    ])
 
     <section class="panel">
         <div class="panel-body table-wrap">
