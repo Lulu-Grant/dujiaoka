@@ -2176,3 +2176,30 @@
 下一步：
 
 - 在第一批页面中选择一个页面作为真正的新后台壳样板，优先从商品分类或邮件模板入手。
+
+### 91. 落地第一个新后台壳样板页
+
+摘要：
+
+- 新增 [GoodsGroupShellController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/GoodsGroupShellController.php) 与 [AdminShellGoodsGroupPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellGoodsGroupPageService.php)，把商品分类管理的列表页与详情页先用普通 Laravel 控制器 + 服务层跑起来。
+- 新增后台样板页视图：
+  - [admin-shell/layout.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/layout.blade.php)
+  - [admin-shell/goods-group/index.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/goods-group/index.blade.php)
+  - [admin-shell/goods-group/show.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/goods-group/show.blade.php)
+- [app/Admin/routes.php](/Users/apple/Documents/dujiaoshuka/app/Admin/routes.php) 已挂出 `/admin/v2/goods-group` 和 `/admin/v2/goods-group/{id}` 作为实验性新后台壳入口。
+- [config/admin.php](/Users/apple/Documents/dujiaoshuka/config/admin.php) 已将 `v2/goods-group*` 加入权限例外，保证样板页在现有后台鉴权下可直接访问。
+- 新增 [AdminShellGoodsGroupControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellGoodsGroupControllerTest.php) 验证样板列表页和详情页真实可访问。
+
+影响范围：
+
+- 第一批后台迁移的真实落地起点
+- 新后台壳布局、筛选、列表、详情页的样板实现
+- 后续迁移邮件模板和支付通道页的复用基础
+
+验证：
+
+- 当前全量回归结果：`OK (128 tests, 346 assertions)`
+
+下一步：
+
+- 继续沿第一批合同推进，优先补邮件模板或支付通道的新后台壳样板。

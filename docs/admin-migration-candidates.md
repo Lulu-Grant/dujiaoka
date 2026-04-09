@@ -36,12 +36,14 @@
 对应文件：
 
 - [GoodsGroupController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/GoodsGroupController.php)
+- [GoodsGroupShellController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/GoodsGroupShellController.php)
 
 原因：
 
 - 标准 CRUD
 - 状态、筛选、恢复、字段挂载都已服务化
 - 风险低，适合做新后台壳样板
+- 当前已落地第一版只读样板页：`/admin/v2/goods-group`
 
 ### 2. 邮件模板管理
 
