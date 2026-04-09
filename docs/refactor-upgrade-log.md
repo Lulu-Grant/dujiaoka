@@ -2229,3 +2229,29 @@
 下一步：
 
 - 继续沿第一批合同推进，优先补支付通道的新后台壳样板。
+
+### 93. 落地第三个新后台壳样板页
+
+摘要：
+
+- 新增 [PayShellController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/PayShellController.php) 与 [AdminShellPayPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellPayPageService.php)，把支付通道管理的列表页与详情页也落成普通 Laravel 页面。
+- 新增后台样板页视图：
+  - [admin-shell/pay/index.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/pay/index.blade.php)
+  - [admin-shell/pay/show.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/pay/show.blade.php)
+- [app/Admin/routes.php](/Users/apple/Documents/dujiaoshuka/app/Admin/routes.php) 已挂出 `/admin/v2/pay` 与 `/admin/v2/pay/{id}`。
+- [config/admin.php](/Users/apple/Documents/dujiaoshuka/config/admin.php) 已将 `v2/pay*` 加入后台权限例外。
+- 新增 [AdminShellPayControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellPayControllerTest.php) 验证样板列表页与详情页真实可访问。
+
+影响范围：
+
+- 第一批后台迁移三张样板页全部落地
+- 新后台壳在“状态文案 + 生命周期徽章 + 列表/详情”场景下的复用基础
+- 后续可以从样板页阶段切到批量迁移阶段
+
+验证：
+
+- 当前全量回归结果：`OK (132 tests, 360 assertions)`
+
+下一步：
+
+- 开始把第一批样板页提炼成可复用的后台壳组件，准备进入批量迁移阶段。

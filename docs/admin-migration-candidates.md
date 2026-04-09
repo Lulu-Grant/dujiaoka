@@ -62,12 +62,20 @@
 对应文件：
 
 - [PayController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/PayController.php)
+- [PayShellController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/PayShellController.php)
 
 原因：
 
 - 展示格式化、生命周期文案、恢复动作、筛选都已收口
 - 当前剩余主要是普通字段编辑
 - 适合作为“状态文案 + 配置表单”迁移样板
+
+当前样板状态：
+
+- 第一优先级三张只读样板页已全部落地：
+  - `/admin/v2/goods-group`
+  - `/admin/v2/emailtpl`
+  - `/admin/v2/pay`
 
 ---
 

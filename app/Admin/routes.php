@@ -23,6 +23,8 @@ Route::group([
     $router->get('v2/goods-group/{id}', [\App\Http\Controllers\AdminShell\GoodsGroupShellController::class, 'show'])->name('admin-shell.goods-group.show');
     $router->get('v2/emailtpl', [\App\Http\Controllers\AdminShell\EmailTemplateShellController::class, 'index'])->name('admin-shell.emailtpl.index');
     $router->get('v2/emailtpl/{id}', [\App\Http\Controllers\AdminShell\EmailTemplateShellController::class, 'show'])->name('admin-shell.emailtpl.show');
+    $router->get('v2/pay', [\App\Http\Controllers\AdminShell\PayShellController::class, 'index'])->name('admin-shell.pay.index');
+    $router->get('v2/pay/{id}', [\App\Http\Controllers\AdminShell\PayShellController::class, 'show'])->name('admin-shell.pay.show');
     $router->get('import-carmis', 'CarmisController@importCarmis');
     $router->get('system-setting', 'SystemSettingController@systemSetting');
     $router->get('email-test', 'EmailTestController@emailTest');

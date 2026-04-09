@@ -249,7 +249,7 @@
         <nav class="nav-list">
             <a class="nav-item{{ request()->is(config('admin.route.prefix').'/v2/goods-group*') ? ' active' : '' }}" href="{{ admin_url('v2/goods-group') }}">商品分类管理</a>
             <a class="nav-item{{ request()->is(config('admin.route.prefix').'/v2/emailtpl*') ? ' active' : '' }}" href="{{ admin_url('v2/emailtpl') }}">邮件模板管理</a>
-            <span class="nav-item">支付通道管理</span>
+            <a class="nav-item{{ request()->is(config('admin.route.prefix').'/v2/pay*') ? ' active' : '' }}" href="{{ admin_url('v2/pay') }}">支付通道管理</a>
         </nav>
     </aside>
     <main class="content">
