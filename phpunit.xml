@@ -14,6 +14,7 @@
     </testsuite>
   </testsuites>
   <php>
+    <server name="APP_KEY" value="base64:7v8Q6Bivn8YH9cYfV4b5xg6k5wK1v2f6o6p2u8d1m4Y="/>
     <server name="APP_ENV" value="testing"/>
     <server name="BCRYPT_ROUNDS" value="4"/>
     <server name="CACHE_DRIVER" value="array"/>

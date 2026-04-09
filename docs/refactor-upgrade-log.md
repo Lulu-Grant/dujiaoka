@@ -2280,3 +2280,24 @@
 下一步：
 
 - 继续把列表表格与详情字段数据源也抽成更统一的数据结构，进入批量迁移底座阶段。
+
+### 95. 修复 GitHub Actions 测试环境缺失 APP_KEY
+
+摘要：
+
+- GitHub Actions 最近几次 `CI` 失败并非业务回归，而是新增后台壳 Feature 测试在 HTTP 请求阶段触发了 Laravel 加密服务，而工作流环境没有提供 `APP_KEY`。
+- 已在 [phpunit.xml](/Users/apple/Documents/dujiaoshuka/phpunit.xml) 和 [ci.yml](/Users/apple/Documents/dujiaoshuka/.github/workflows/ci.yml) 中补齐测试专用 `APP_KEY`，让本地 PHPUnit 与 GitHub Actions 保持同一套测试环境前提。
+
+影响范围：
+
+- GitHub Actions `CI`
+- 全量 PHPUnit 运行环境一致性
+- 后续 Feature 测试继续扩充时的稳定性
+
+验证：
+
+- 当前全量回归结果：`OK (132 tests, 360 assertions)`
+
+下一步：
+
+- 观察最新一轮 GitHub Actions 结果，确认 `CI` 恢复为绿色后继续后台壳底座抽象。

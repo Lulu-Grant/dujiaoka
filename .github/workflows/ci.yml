@@ -57,6 +57,7 @@ jobs:
 
       - name: Run PHPUnit
         env:
+          APP_KEY: base64:7v8Q6Bivn8YH9cYfV4b5xg6k5wK1v2f6o6p2u8d1m4Y=
           APP_ENV: testing
           CACHE_DRIVER: array
           QUEUE_CONNECTION: sync
