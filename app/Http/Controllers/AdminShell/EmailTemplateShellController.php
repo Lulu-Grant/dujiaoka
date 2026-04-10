@@ -10,11 +10,7 @@ class EmailTemplateShellController extends Controller
 {
     public function index(Request $request, AdminShellEmailTemplatePageService $pageService)
     {
-        $filters = [
-            'id' => $request->query('id'),
-            'tpl_name' => $request->query('tpl_name'),
-            'tpl_token' => $request->query('tpl_token'),
-        ];
+        $filters = $pageService->extractFilters($request);
 
         $templates = $pageService->paginate($filters);
 

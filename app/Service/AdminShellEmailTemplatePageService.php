@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Models\Emailtpl;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Http\Request;
 
 class AdminShellEmailTemplatePageService
 {
@@ -24,6 +25,15 @@ class AdminShellEmailTemplatePageService
         }
 
         return $query->paginate(15)->appends($filters);
+    }
+
+    public function extractFilters(Request $request): array
+    {
+        return [
+            'id' => $request->query('id'),
+            'tpl_name' => $request->query('tpl_name'),
+            'tpl_token' => $request->query('tpl_token'),
+        ];
     }
 
     public function find(int $id): Emailtpl

@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Models\GoodsGroup;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Http\Request;
 
 class AdminShellGoodsGroupPageService
 {
@@ -30,6 +31,14 @@ class AdminShellGoodsGroupPageService
         }
 
         return $query->paginate(15)->appends($filters);
+    }
+
+    public function extractFilters(Request $request): array
+    {
+        return [
+            'id' => $request->query('id'),
+            'scope' => $request->query('scope'),
+        ];
     }
 
     public function find(int $id, ?string $scope = null): GoodsGroup

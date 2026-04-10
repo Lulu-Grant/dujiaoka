@@ -10,10 +10,7 @@ class GoodsGroupShellController extends Controller
 {
     public function index(Request $request, AdminShellGoodsGroupPageService $pageService)
     {
-        $filters = [
-            'id' => $request->query('id'),
-            'scope' => $request->query('scope'),
-        ];
+        $filters = $pageService->extractFilters($request);
 
         $groups = $pageService->paginate($filters);
 
@@ -22,8 +19,9 @@ class GoodsGroupShellController extends Controller
 
     public function show(int $id, Request $request, AdminShellGoodsGroupPageService $pageService)
     {
-        $group = $pageService->find($id, $request->query('scope'));
+        $filters = $pageService->extractFilters($request);
+        $group = $pageService->find($id, $filters['scope'] ?? null);
 
-        return view('admin-shell.pages.show', $pageService->buildShowPageData($group, $request->query('scope')));
+        return view('admin-shell.pages.show', $pageService->buildShowPageData($group, $filters['scope'] ?? null));
     }
 }

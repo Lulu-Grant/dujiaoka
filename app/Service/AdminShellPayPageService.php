@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Models\Pay;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Http\Request;
 
 class AdminShellPayPageService
 {
@@ -38,6 +39,16 @@ class AdminShellPayPageService
         }
 
         return $query->paginate(15)->appends($filters);
+    }
+
+    public function extractFilters(Request $request): array
+    {
+        return [
+            'id' => $request->query('id'),
+            'pay_check' => $request->query('pay_check'),
+            'pay_name' => $request->query('pay_name'),
+            'scope' => $request->query('scope'),
+        ];
     }
 
     public function find(int $id, ?string $scope = null): Pay

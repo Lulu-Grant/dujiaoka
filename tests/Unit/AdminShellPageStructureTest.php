@@ -10,6 +10,7 @@ use App\Service\AdminShellGoodsGroupPageService;
 use App\Service\AdminShellPayPageService;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Http\Request;
 use Tests\TestCase;
 
 class AdminShellPageStructureTest extends TestCase
@@ -38,9 +39,11 @@ class AdminShellPageStructureTest extends TestCase
         $indexPage = $service->buildIndexPageData(new LengthAwarePaginator(collect([$group]), 1, 15), ['id' => 101, 'scope' => '']);
         $showPage = $service->buildShowPageData($group, 'trashed');
         $items = $service->detailItems($group);
+        $requestFilters = $service->extractFilters(Request::create('/admin/v2/goods-group?id=101&scope=trashed', 'GET'));
 
         $this->assertSame('商品分类管理', $header['title']);
         $this->assertSame('迁移合同', $header['actions'][0]['label']);
+        $this->assertSame('trashed', $requestFilters['scope']);
         $this->assertSame('范围', $filters['fields'][1]['label']);
         $this->assertSame('商品分类详情', $showHeader['title']);
         $this->assertSame('商品分类管理 - 后台壳样板', $indexPage['title']);
@@ -75,9 +78,11 @@ class AdminShellPageStructureTest extends TestCase
         $indexPage = $service->buildIndexPageData(new LengthAwarePaginator(collect([$template]), 1, 15), ['tpl_name' => '发货']);
         $showPage = $service->buildShowPageData($template);
         $items = $service->detailItems($template);
+        $requestFilters = $service->extractFilters(Request::create('/admin/v2/emailtpl?tpl_name=test&tpl_token=deliver_notice', 'GET'));
 
         $this->assertSame('邮件模板管理', $header['title']);
         $this->assertSame('迁移合同', $header['actions'][0]['label']);
+        $this->assertSame('deliver_notice', $requestFilters['tpl_token']);
         $this->assertSame('邮件标题', $filters['fields'][1]['label']);
         $this->assertSame('邮件模板详情', $showHeader['title']);
         $this->assertSame('邮件模板管理 - 后台壳样板', $indexPage['title']);
@@ -115,9 +120,11 @@ class AdminShellPageStructureTest extends TestCase
         $indexPage = $service->buildIndexPageData(new LengthAwarePaginator(collect([$pay]), 1, 15), ['pay_check' => 'stripe', 'scope' => '']);
         $showPage = $service->buildShowPageData($pay, 'trashed');
         $items = $service->detailItems($pay);
+        $requestFilters = $service->extractFilters(Request::create('/admin/v2/pay?pay_check=stripe&pay_name=Stripe&scope=trashed', 'GET'));
 
         $this->assertSame('支付通道管理', $header['title']);
         $this->assertSame('迁移合同', $header['actions'][0]['label']);
+        $this->assertSame('Stripe', $requestFilters['pay_name']);
         $this->assertSame('支付标识', $filters['fields'][1]['label']);
         $this->assertSame('支付通道详情', $showHeader['title']);
         $this->assertSame('支付通道管理 - 后台壳样板', $indexPage['title']);
