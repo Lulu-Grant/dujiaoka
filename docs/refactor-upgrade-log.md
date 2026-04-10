@@ -2508,3 +2508,26 @@
 下一步：
 
 - 继续提炼页面工厂或页级配置协议，让不同后台页能更统一地接入壳模板与控制器基类。
+
+### 105. 为新后台壳引入页面服务协议
+
+摘要：
+
+- 新增 [AdminShellPageServiceInterface.php](/Users/apple/Documents/dujiaoshuka/app/Service/Contracts/AdminShellPageServiceInterface.php)，把后台壳页面服务统一到同一套协议下。
+- 商品分类、邮件模板、支付通道三张后台壳样板页的页面服务已经全部实现该协议。
+- [BaseAdminShellController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/BaseAdminShellController.php) 现在通过统一协议驱动页面服务，三个后台壳控制器已进一步退化成仅声明服务类和 scope 行为。
+- [AdminShellPageStructureTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellPageStructureTest.php) 已扩展为覆盖服务协议实现。
+
+影响范围：
+
+- 第一批后台壳样板页页面服务的统一契约
+- 后续后台壳页面迁移时的可替换性与复用度
+- 控制器基类与页面服务之间的协议边界
+
+验证：
+
+- 当前全量回归结果：`OK (135 tests, 411 assertions)`
+
+下一步：
+
+- 继续提炼页面工厂或资源注册表，让不同后台页能按统一注册方式挂入后台壳。

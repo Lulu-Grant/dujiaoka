@@ -3,12 +3,13 @@
 namespace App\Service;
 
 use App\Models\Emailtpl;
+use App\Service\Contracts\AdminShellPageServiceInterface;
 use App\Service\DataTransferObjects\AdminShellIndexPageData;
 use App\Service\DataTransferObjects\AdminShellShowPageData;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 
-class AdminShellEmailTemplatePageService
+class AdminShellEmailTemplatePageService implements AdminShellPageServiceInterface
 {
     public function paginate(array $filters): LengthAwarePaginator
     {
@@ -38,7 +39,7 @@ class AdminShellEmailTemplatePageService
         ];
     }
 
-    public function find(int $id): Emailtpl
+    public function find(int $id, ?string $scope = null): Emailtpl
     {
         return Emailtpl::query()->findOrFail($id);
     }
@@ -114,7 +115,7 @@ class AdminShellEmailTemplatePageService
         );
     }
 
-    public function buildShowPageData(Emailtpl $template): AdminShellShowPageData
+    public function buildShowPageData($template, ?string $scope = null): AdminShellShowPageData
     {
         return new AdminShellShowPageData(
             '邮件模板详情 - 后台壳样板',

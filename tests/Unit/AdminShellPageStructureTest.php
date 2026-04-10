@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use App\Models\Emailtpl;
 use App\Models\GoodsGroup;
 use App\Models\Pay;
+use App\Service\Contracts\AdminShellPageServiceInterface;
 use App\Service\DataTransferObjects\AdminShellIndexPageData;
 use App\Service\DataTransferObjects\AdminShellShowPageData;
 use App\Service\AdminShellEmailTemplatePageService;
@@ -31,6 +32,7 @@ class AdminShellPageStructureTest extends TestCase
         $group->goods_count = 3;
 
         $service = $this->app->make(AdminShellGoodsGroupPageService::class);
+        $this->assertInstanceOf(AdminShellPageServiceInterface::class, $service);
         $table = $service->buildTable(
             new LengthAwarePaginator(collect([$group]), 1, 15),
             ['scope' => '']
@@ -74,6 +76,7 @@ class AdminShellPageStructureTest extends TestCase
         ]);
 
         $service = $this->app->make(AdminShellEmailTemplatePageService::class);
+        $this->assertInstanceOf(AdminShellPageServiceInterface::class, $service);
         $table = $service->buildTable(
             new LengthAwarePaginator(collect([$template]), 1, 15)
         );
@@ -118,6 +121,7 @@ class AdminShellPageStructureTest extends TestCase
         ]);
 
         $service = $this->app->make(AdminShellPayPageService::class);
+        $this->assertInstanceOf(AdminShellPageServiceInterface::class, $service);
         $table = $service->buildTable(
             new LengthAwarePaginator(collect([$pay]), 1, 15),
             ['scope' => '']

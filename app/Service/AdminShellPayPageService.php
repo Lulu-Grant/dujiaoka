@@ -3,12 +3,13 @@
 namespace App\Service;
 
 use App\Models\Pay;
+use App\Service\Contracts\AdminShellPageServiceInterface;
 use App\Service\DataTransferObjects\AdminShellIndexPageData;
 use App\Service\DataTransferObjects\AdminShellShowPageData;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 
-class AdminShellPayPageService
+class AdminShellPayPageService implements AdminShellPageServiceInterface
 {
     /**
      * @var \App\Service\PayAdminPresenterService
@@ -150,7 +151,7 @@ class AdminShellPayPageService
         );
     }
 
-    public function buildShowPageData(Pay $pay, ?string $scope = null): AdminShellShowPageData
+    public function buildShowPageData($pay, ?string $scope = null): AdminShellShowPageData
     {
         return new AdminShellShowPageData(
             '支付通道详情 - 后台壳样板',

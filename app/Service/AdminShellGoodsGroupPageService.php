@@ -3,12 +3,13 @@
 namespace App\Service;
 
 use App\Models\GoodsGroup;
+use App\Service\Contracts\AdminShellPageServiceInterface;
 use App\Service\DataTransferObjects\AdminShellIndexPageData;
 use App\Service\DataTransferObjects\AdminShellShowPageData;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 
-class AdminShellGoodsGroupPageService
+class AdminShellGoodsGroupPageService implements AdminShellPageServiceInterface
 {
     /**
      * @var \App\Service\AdminStatusPresenterService
@@ -137,7 +138,7 @@ class AdminShellGoodsGroupPageService
         );
     }
 
-    public function buildShowPageData(GoodsGroup $group, ?string $scope = null): AdminShellShowPageData
+    public function buildShowPageData($group, ?string $scope = null): AdminShellShowPageData
     {
         return new AdminShellShowPageData(
             '商品分类详情 - 后台壳样板',
