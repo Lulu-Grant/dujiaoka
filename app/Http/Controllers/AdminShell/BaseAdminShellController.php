@@ -4,19 +4,15 @@ namespace App\Http\Controllers\AdminShell;
 
 use App\Http\Controllers\Controller;
 use App\Service\Contracts\AdminShellPageServiceInterface;
+use App\Service\AdminShellResourceRegistry;
 use Illuminate\Http\Request;
 
 abstract class BaseAdminShellController extends Controller
 {
     /**
-     * @var class-string<\App\Service\Contracts\AdminShellPageServiceInterface>
+     * @var string
      */
-    protected $pageServiceClass;
-
-    /**
-     * @var bool
-     */
-    protected $usesScope = false;
+    protected $resourceKey;
 
     public function index(Request $request)
     {
@@ -32,12 +28,13 @@ abstract class BaseAdminShellController extends Controller
         $pageService = $this->resolvePageService();
         $filters = $pageService->extractFilters($request);
         $scope = $filters['scope'] ?? null;
+        $resource = $this->resolveResource();
 
-        $record = $this->usesScope
+        $record = $resource['uses_scope']
             ? $pageService->find($id, $scope)
             : $pageService->find($id);
 
-        $page = $this->usesScope
+        $page = $resource['uses_scope']
             ? $pageService->buildShowPageData($record, $scope)
             : $pageService->buildShowPageData($record);
 
@@ -46,9 +43,16 @@ abstract class BaseAdminShellController extends Controller
 
     protected function resolvePageService(): AdminShellPageServiceInterface
     {
+        $resource = $this->resolveResource();
+
         /** @var \App\Service\Contracts\AdminShellPageServiceInterface $service */
-        $service = app($this->pageServiceClass);
+        $service = app($resource['service']);
 
         return $service;
+    }
+
+    protected function resolveResource(): array
+    {
+        return app(AdminShellResourceRegistry::class)->get($this->resourceKey);
     }
 }

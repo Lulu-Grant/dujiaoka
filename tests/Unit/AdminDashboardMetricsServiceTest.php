@@ -40,7 +40,7 @@ class AdminDashboardMetricsServiceTest extends TestCase
 
     public function test_sales_success_and_payout_summaries_share_same_service_boundary(): void
     {
-        $createdAt = now()->subHours(2);
+        $createdAt = now()->startOfDay()->addSecond();
 
         $this->seedOrder('DASH-011', Order::STATUS_COMPLETED, 10.5, $createdAt);
         $this->seedOrder('DASH-012', Order::STATUS_PROCESSING, 7.5, $createdAt);

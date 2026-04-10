@@ -2531,3 +2531,46 @@
 下一步：
 
 - 继续提炼页面工厂或资源注册表，让不同后台页能按统一注册方式挂入后台壳。
+
+### 106. 为新后台壳引入资源注册表
+
+摘要：
+
+- 新增 [AdminShellResourceRegistry.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellResourceRegistry.php)，统一注册后台壳资源与其页面服务、`scope` 行为。
+- [BaseAdminShellController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/BaseAdminShellController.php) 已改为通过资源注册表解析页面服务，不再依赖子控制器手写服务类属性之外的接线逻辑。
+- 商品分类、邮件模板、支付通道三张后台壳样板页控制器已进一步退化成仅声明 `resourceKey`。
+- 新增 [AdminShellResourceRegistryTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellResourceRegistryTest.php) 守住注册表映射。
+
+影响范围：
+
+- 第一批后台壳样板页的资源接入方式
+- 后续后台壳页面批量迁移时的统一注册能力
+- 控制器基类与页面服务协议之间的调度层
+
+验证：
+
+- 当前全量回归结果：`OK (138 tests, 417 assertions)`
+
+下一步：
+
+- 继续提炼更明确的资源元数据或页面工厂，让新后台页真正按“注册一个资源”即可接入后台壳。
+
+### 107. 修复后台看板统计的跨时段脆弱测试
+
+摘要：
+
+- [AdminDashboardMetricsServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminDashboardMetricsServiceTest.php) 中有一条基于“today”范围的测试依赖当前时间，白天与凌晨运行结果不稳定。
+- 已将测试订单时间改为“当天开始后 1 秒”，避免在凌晨或白天不同时间段落入未来时间导致统计为 0。
+
+影响范围：
+
+- 后台看板统计测试稳定性
+- GitHub Actions 与本地全量回归的一致性
+
+验证：
+
+- 当前全量回归结果：`OK (138 tests, 417 assertions)`
+
+下一步：
+
+- 继续保持测试对时间边界的稳定性要求，避免后续 CI 再出现时段型假红。
