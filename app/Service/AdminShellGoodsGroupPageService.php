@@ -116,6 +116,25 @@ class AdminShellGoodsGroupPageService
         ];
     }
 
+    public function buildIndexPageData(LengthAwarePaginator $groups, array $filters): array
+    {
+        return [
+            'title' => '商品分类管理 - 后台壳样板',
+            'header' => $this->buildHeader($groups),
+            'filterPanel' => $this->buildFilters($filters),
+            'table' => $this->buildTable($groups, $filters),
+        ];
+    }
+
+    public function buildShowPageData(GoodsGroup $group, ?string $scope = null): array
+    {
+        return [
+            'title' => '商品分类详情 - 后台壳样板',
+            'header' => $this->buildShowHeader($scope),
+            'items' => $this->detailItems($group),
+        ];
+    }
+
     public function detailItems(GoodsGroup $group): array
     {
         return [

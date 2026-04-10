@@ -19,24 +19,13 @@ class PayShellController extends Controller
 
         $pays = $pageService->paginate($filters);
 
-        return view('admin-shell.pay.index', [
-            'pays' => $pays,
-            'filters' => $filters,
-            'header' => $pageService->buildHeader($pays),
-            'filterPanel' => $pageService->buildFilters($filters),
-            'table' => $pageService->buildTable($pays, $filters),
-        ]);
+        return view('admin-shell.pages.index', $pageService->buildIndexPageData($pays, $filters));
     }
 
     public function show(int $id, Request $request, AdminShellPayPageService $pageService)
     {
         $pay = $pageService->find($id, $request->query('scope'));
 
-        return view('admin-shell.pay.show', [
-            'pay' => $pay,
-            'header' => $pageService->buildShowHeader($request->query('scope')),
-            'items' => $pageService->detailItems($pay),
-            'scope' => $request->query('scope'),
-        ]);
+        return view('admin-shell.pages.show', $pageService->buildShowPageData($pay, $request->query('scope')));
     }
 }

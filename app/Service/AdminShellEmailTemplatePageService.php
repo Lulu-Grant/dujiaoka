@@ -92,6 +92,25 @@ class AdminShellEmailTemplatePageService
         ];
     }
 
+    public function buildIndexPageData(LengthAwarePaginator $templates, array $filters): array
+    {
+        return [
+            'title' => '邮件模板管理 - 后台壳样板',
+            'header' => $this->buildHeader($templates),
+            'filterPanel' => $this->buildFilters($filters),
+            'table' => $this->buildTable($templates),
+        ];
+    }
+
+    public function buildShowPageData(Emailtpl $template): array
+    {
+        return [
+            'title' => '邮件模板详情 - 后台壳样板',
+            'header' => $this->buildShowHeader(),
+            'items' => $this->detailItems($template),
+        ];
+    }
+
     public function detailItems(Emailtpl $template): array
     {
         return [

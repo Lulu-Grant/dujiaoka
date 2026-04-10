@@ -127,6 +127,25 @@ class AdminShellPayPageService
         ];
     }
 
+    public function buildIndexPageData(LengthAwarePaginator $pays, array $filters): array
+    {
+        return [
+            'title' => '支付通道管理 - 后台壳样板',
+            'header' => $this->buildHeader($pays),
+            'filterPanel' => $this->buildFilters($filters),
+            'table' => $this->buildTable($pays, $filters),
+        ];
+    }
+
+    public function buildShowPageData(Pay $pay, ?string $scope = null): array
+    {
+        return [
+            'title' => '支付通道详情 - 后台壳样板',
+            'header' => $this->buildShowHeader($scope),
+            'items' => $this->detailItems($pay),
+        ];
+    }
+
     public function detailItems(Pay $pay): array
     {
         return [

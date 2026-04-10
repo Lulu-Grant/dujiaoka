@@ -2414,3 +2414,28 @@
 下一步：
 
 - 继续抽通用详情动作与页面级配置对象，让后台壳从“页面服务合同”继续走向“迁移模板骨架”。
+
+### 101. 将新后台壳样板页切到通用页面模板
+
+摘要：
+
+- 新增通用后台壳页面模板：
+  - [pages/index.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/pages/index.blade.php)
+  - [pages/show.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/pages/show.blade.php)
+- 商品分类、邮件模板、支付通道三张后台壳样板页已经不再依赖各自单独的页面模板，统一走通用页面骨架。
+- 三个页面服务现在都具备 `buildIndexPageData()` / `buildShowPageData()`，控制器进一步收敛成“查询数据 + 交给页面服务组装整页配置”。
+- [AdminShellPageStructureTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellPageStructureTest.php) 已扩展为守住整页配置对象输出。
+
+影响范围：
+
+- 第一批后台壳样板页的模板复用方式
+- 后续批量迁移后台页面时的骨架复用粒度
+- 控制器、页面服务与 Blade 模板之间的职责分层
+
+验证：
+
+- 当前全量回归结果：`OK (135 tests, 396 assertions)`
+
+下一步：
+
+- 继续把筛选解析和页面配置再往上抽，朝“单页声明式迁移模板”推进。

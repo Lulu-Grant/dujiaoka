@@ -18,23 +18,13 @@ class EmailTemplateShellController extends Controller
 
         $templates = $pageService->paginate($filters);
 
-        return view('admin-shell.emailtpl.index', [
-            'templates' => $templates,
-            'filters' => $filters,
-            'header' => $pageService->buildHeader($templates),
-            'filterPanel' => $pageService->buildFilters($filters),
-            'table' => $pageService->buildTable($templates),
-        ]);
+        return view('admin-shell.pages.index', $pageService->buildIndexPageData($templates, $filters));
     }
 
     public function show(int $id, AdminShellEmailTemplatePageService $pageService)
     {
         $template = $pageService->find($id);
 
-        return view('admin-shell.emailtpl.show', [
-            'template' => $template,
-            'header' => $pageService->buildShowHeader(),
-            'items' => $pageService->detailItems($template),
-        ]);
+        return view('admin-shell.pages.show', $pageService->buildShowPageData($template));
     }
 }
