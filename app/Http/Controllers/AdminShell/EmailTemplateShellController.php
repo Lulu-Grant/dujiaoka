@@ -21,6 +21,8 @@ class EmailTemplateShellController extends Controller
         return view('admin-shell.emailtpl.index', [
             'templates' => $templates,
             'filters' => $filters,
+            'header' => $pageService->buildHeader($templates),
+            'filterPanel' => $pageService->buildFilters($filters),
             'table' => $pageService->buildTable($templates),
         ]);
     }

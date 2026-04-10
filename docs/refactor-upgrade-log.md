@@ -2346,3 +2346,26 @@
 下一步：
 
 - 继续抽筛选字段与页面元信息合同，把后台壳迁移从“复用片段”推进到“复用整页结构配置”。
+
+### 98. 将新后台壳样板页切到结构化头部与筛选合同
+
+摘要：
+
+- 商品分类、邮件模板、支付通道三张后台壳样板页，已将页面头部信息与筛选面板配置收进页面服务。
+- [AdminShellGoodsGroupPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellGoodsGroupPageService.php)、[AdminShellEmailTemplatePageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellEmailTemplatePageService.php)、[AdminShellPayPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellPayPageService.php) 现在都具备 `buildHeader()` / `buildFilters()`。
+- 三个后台壳控制器现在统一按“头部合同 + 筛选合同 + 表格合同 + 详情合同”组合页面数据，新页面迁移已经更接近纯配置式接入。
+- [AdminShellPageStructureTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellPageStructureTest.php) 已扩展为同时守住头部、筛选、表格和详情四层结构输出。
+
+影响范围：
+
+- 第一批后台壳样板页的页面装配方式
+- 后续后台壳批量迁移时的结构复用粒度
+- 控制器到页面服务的数据边界
+
+验证：
+
+- 当前全量回归结果：`OK (135 tests, 378 assertions)`
+
+下一步：
+
+- 继续抽详情动作、列表操作和通用空态/文案配置，让后台壳进入更完整的批量迁移底座阶段。

@@ -50,6 +50,27 @@ class AdminShellEmailTemplatePageService
         ];
     }
 
+    public function buildHeader(LengthAwarePaginator $templates): array
+    {
+        return [
+            'title' => '邮件模板管理',
+            'description' => '这是第二张后台壳样板页。当前列表、筛选和详情都通过普通 Laravel 控制器与 Blade 组合，不再依赖 Dcat Grid/Show。',
+            'meta' => '共 '.$templates->total().' 条模板',
+        ];
+    }
+
+    public function buildFilters(array $filters): array
+    {
+        return [
+            'fields' => [
+                ['label' => 'ID', 'name' => 'id', 'type' => 'number', 'value' => $filters['id'] ?? null],
+                ['label' => '邮件标题', 'name' => 'tpl_name', 'value' => $filters['tpl_name'] ?? null],
+                ['label' => '邮件标识', 'name' => 'tpl_token', 'value' => $filters['tpl_token'] ?? null],
+            ],
+            'resetUrl' => admin_url('v2/emailtpl'),
+        ];
+    }
+
     public function detailItems(Emailtpl $template): array
     {
         return [

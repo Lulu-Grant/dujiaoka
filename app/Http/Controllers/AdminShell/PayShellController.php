@@ -22,6 +22,8 @@ class PayShellController extends Controller
         return view('admin-shell.pay.index', [
             'pays' => $pays,
             'filters' => $filters,
+            'header' => $pageService->buildHeader($pays),
+            'filterPanel' => $pageService->buildFilters($filters),
             'table' => $pageService->buildTable($pays, $filters),
         ]);
     }

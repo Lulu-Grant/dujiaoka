@@ -20,6 +20,8 @@ class GoodsGroupShellController extends Controller
         return view('admin-shell.goods-group.index', [
             'groups' => $groups,
             'filters' => $filters,
+            'header' => $pageService->buildHeader($groups),
+            'filterPanel' => $pageService->buildFilters($filters),
             'table' => $pageService->buildTable($groups, $filters),
         ]);
     }

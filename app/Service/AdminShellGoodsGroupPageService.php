@@ -69,6 +69,32 @@ class AdminShellGoodsGroupPageService
         ];
     }
 
+    public function buildHeader(LengthAwarePaginator $groups): array
+    {
+        return [
+            'title' => '商品分类管理',
+            'description' => '这是第一批后台迁移样板页。当前使用普通 Laravel 控制器、服务和 Blade 渲染，不再依赖 Dcat Grid。',
+            'meta' => '共 '.$groups->total().' 条记录',
+        ];
+    }
+
+    public function buildFilters(array $filters): array
+    {
+        return [
+            'fields' => [
+                ['label' => 'ID', 'name' => 'id', 'type' => 'number', 'value' => $filters['id'] ?? null],
+                [
+                    'label' => '范围',
+                    'name' => 'scope',
+                    'type' => 'select',
+                    'value' => $filters['scope'] ?? null,
+                    'options' => ['' => '全部', 'trashed' => '回收站'],
+                ],
+            ],
+            'resetUrl' => admin_url('v2/goods-group'),
+        ];
+    }
+
     public function detailItems(GoodsGroup $group): array
     {
         return [

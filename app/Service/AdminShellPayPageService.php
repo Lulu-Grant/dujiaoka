@@ -78,6 +78,34 @@ class AdminShellPayPageService
         ];
     }
 
+    public function buildHeader(LengthAwarePaginator $pays): array
+    {
+        return [
+            'title' => '支付通道管理',
+            'description' => '这是第一批后台迁移的第三张样板页。支付通道的生命周期、支付方式、支付场景都直接复用现有 presenter 与模型映射。',
+            'meta' => '共 '.$pays->total().' 条通道',
+        ];
+    }
+
+    public function buildFilters(array $filters): array
+    {
+        return [
+            'fields' => [
+                ['label' => 'ID', 'name' => 'id', 'type' => 'number', 'value' => $filters['id'] ?? null],
+                ['label' => '支付标识', 'name' => 'pay_check', 'value' => $filters['pay_check'] ?? null],
+                ['label' => '支付名称', 'name' => 'pay_name', 'value' => $filters['pay_name'] ?? null],
+                [
+                    'label' => '范围',
+                    'name' => 'scope',
+                    'type' => 'select',
+                    'value' => $filters['scope'] ?? null,
+                    'options' => ['' => '全部', 'trashed' => '回收站'],
+                ],
+            ],
+            'resetUrl' => admin_url('v2/pay'),
+        ];
+    }
+
     public function detailItems(Pay $pay): array
     {
         return [
