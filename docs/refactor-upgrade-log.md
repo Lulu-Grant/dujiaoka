@@ -2391,3 +2391,26 @@
 下一步：
 
 - 继续抽列表操作列和通用空态/说明文案配置，让后台壳底座更接近批量迁移模板。
+
+### 100. 将新后台壳样板页切到结构化操作列与空态文案
+
+摘要：
+
+- 商品分类、邮件模板、支付通道三张后台壳样板页，已将列表操作列文本与空态文案收进页面服务。
+- [data-table.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/partials/data-table.blade.php) 现在支持统一渲染 `empty_title` 与 `empty_description`。
+- 三个页面服务的 `buildTable()` 已开始统一产出操作列内容、空态标题与空态说明；`buildHeader()` 也已经带有统一的“迁移合同”入口动作。
+- [AdminShellPageStructureTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellPageStructureTest.php) 已扩展为覆盖操作列与空态结构输出。
+
+影响范围：
+
+- 第一批后台壳样板页的列表空态与操作列一致性
+- 后续后台壳页面批量迁移时的列表装配复用粒度
+- 页面服务对整页展示文案的集中承载能力
+
+验证：
+
+- 当前全量回归结果：`OK (135 tests, 390 assertions)`
+
+下一步：
+
+- 继续抽通用详情动作与页面级配置对象，让后台壳从“页面服务合同”继续走向“迁移模板骨架”。

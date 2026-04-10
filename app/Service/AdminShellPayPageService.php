@@ -67,13 +67,16 @@ class AdminShellPayPageService
                     e($this->presenter->clientLabel($pay->pay_client)),
                     $this->renderStatusCell($pay),
                     e((string) $pay->updated_at),
-                    sprintf(
-                        '<a href="%s">查看详情</a>',
-                        e(admin_url('v2/pay/'.$pay->id.($scope ? '?scope='.$scope : '')))
-                    ),
+                    $this->renderActionLinks([
+                        [
+                            'label' => '查看详情',
+                            'href' => admin_url('v2/pay/'.$pay->id.($scope ? '?scope='.$scope : '')),
+                        ],
+                    ]),
                 ];
             })->all(),
-            'empty' => '当前条件下没有支付通道记录。',
+            'empty_title' => '当前条件下没有支付通道记录。',
+            'empty_description' => '可以调整支付名称、支付标识或范围筛选条件，继续查找通道。',
             'paginator' => $pays,
         ];
     }
@@ -84,6 +87,13 @@ class AdminShellPayPageService
             'title' => '支付通道管理',
             'description' => '这是第一批后台迁移的第三张样板页。支付通道的生命周期、支付方式、支付场景都直接复用现有 presenter 与模型映射。',
             'meta' => '共 '.$pays->total().' 条通道',
+            'actions' => [
+                [
+                    'label' => '迁移合同',
+                    'href' => 'https://github.com/Lulu-Grant/dujiaoka/blob/master/docs/admin-first-batch-migration-contracts.md',
+                    'variant' => 'secondary',
+                ],
+            ],
         ];
     }
 
@@ -147,5 +157,12 @@ class AdminShellPayPageService
             (int) $pay->is_open ? 'open' : 'closed',
             e(strip_tags($this->presenter->openStatusLabel($pay->is_open)))
         );
+    }
+
+    private function renderActionLinks(array $actions): string
+    {
+        return collect($actions)->map(function (array $action) {
+            return sprintf('<a href="%s">%s</a>', e($action['href']), e($action['label']));
+        })->implode(' / ');
     }
 }

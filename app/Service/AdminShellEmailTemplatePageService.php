@@ -42,10 +42,13 @@ class AdminShellEmailTemplatePageService
                     e($template->tpl_token),
                     e((string) $template->created_at),
                     e((string) $template->updated_at),
-                    sprintf('<a href="%s">查看详情</a>', e(admin_url('v2/emailtpl/'.$template->id))),
+                    $this->renderActionLinks([
+                        ['label' => '查看详情', 'href' => admin_url('v2/emailtpl/'.$template->id)],
+                    ]),
                 ];
             })->all(),
-            'empty' => '当前条件下没有邮件模板记录。',
+            'empty_title' => '当前条件下没有邮件模板记录。',
+            'empty_description' => '可以调整邮件标题或模板标识筛选条件，继续查找需要的模板。',
             'paginator' => $templates,
         ];
     }
@@ -56,6 +59,13 @@ class AdminShellEmailTemplatePageService
             'title' => '邮件模板管理',
             'description' => '这是第二张后台壳样板页。当前列表、筛选和详情都通过普通 Laravel 控制器与 Blade 组合，不再依赖 Dcat Grid/Show。',
             'meta' => '共 '.$templates->total().' 条模板',
+            'actions' => [
+                [
+                    'label' => '迁移合同',
+                    'href' => 'https://github.com/Lulu-Grant/dujiaoka/blob/master/docs/admin-first-batch-migration-contracts.md',
+                    'variant' => 'secondary',
+                ],
+            ],
         ];
     }
 
@@ -97,5 +107,12 @@ class AdminShellEmailTemplatePageService
             ['label' => '创建时间', 'value' => e((string) $template->created_at)],
             ['label' => '更新时间', 'value' => e((string) $template->updated_at)],
         ];
+    }
+
+    private function renderActionLinks(array $actions): string
+    {
+        return collect($actions)->map(function (array $action) {
+            return sprintf('<a href="%s">%s</a>', e($action['href']), e($action['label']));
+        })->implode(' / ');
     }
 }

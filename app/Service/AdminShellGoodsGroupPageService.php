@@ -58,13 +58,16 @@ class AdminShellGoodsGroupPageService
                     $group->goods_count,
                     e((string) $group->created_at),
                     e((string) $group->updated_at),
-                    sprintf(
-                        '<a href="%s">查看详情</a>',
-                        e(admin_url('v2/goods-group/'.$group->id.($scope ? '?scope='.$scope : '')))
-                    ),
+                    $this->renderActionLinks([
+                        [
+                            'label' => '查看详情',
+                            'href' => admin_url('v2/goods-group/'.$group->id.($scope ? '?scope='.$scope : '')),
+                        ],
+                    ]),
                 ];
             })->all(),
-            'empty' => '当前条件下没有商品分类记录。',
+            'empty_title' => '当前条件下没有商品分类记录。',
+            'empty_description' => '可以调整筛选条件，或切换范围查看回收站中的分类。',
             'paginator' => $groups,
         ];
     }
@@ -75,6 +78,13 @@ class AdminShellGoodsGroupPageService
             'title' => '商品分类管理',
             'description' => '这是第一批后台迁移样板页。当前使用普通 Laravel 控制器、服务和 Blade 渲染，不再依赖 Dcat Grid。',
             'meta' => '共 '.$groups->total().' 条记录',
+            'actions' => [
+                [
+                    'label' => '迁移合同',
+                    'href' => 'https://github.com/Lulu-Grant/dujiaoka/blob/master/docs/admin-first-batch-migration-contracts.md',
+                    'variant' => 'secondary',
+                ],
+            ],
         ];
     }
 
@@ -131,5 +141,12 @@ class AdminShellGoodsGroupPageService
             (int) $group->is_open ? 'open' : 'closed',
             e(strip_tags($this->statusPresenter->openStatusLabel($group->is_open)))
         );
+    }
+
+    private function renderActionLinks(array $actions): string
+    {
+        return collect($actions)->map(function (array $action) {
+            return sprintf('<a href="%s">%s</a>', e($action['href']), e($action['label']));
+        })->implode(' / ');
     }
 }

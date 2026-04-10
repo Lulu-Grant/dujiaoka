@@ -38,11 +38,13 @@ class AdminShellPageStructureTest extends TestCase
         $items = $service->detailItems($group);
 
         $this->assertSame('商品分类管理', $header['title']);
+        $this->assertSame('迁移合同', $header['actions'][0]['label']);
         $this->assertSame('范围', $filters['fields'][1]['label']);
         $this->assertSame('商品分类详情', $showHeader['title']);
         $this->assertStringContainsString('?scope=trashed', $showHeader['actions'][0]['href']);
         $this->assertSame('分类名称', $table['headers'][1]);
         $this->assertStringContainsString('默认分类', $table['rows'][0][1]);
+        $this->assertSame('当前条件下没有商品分类记录。', $table['empty_title']);
         $this->assertSame('分类名称', $items[1]['label']);
         $this->assertSame('默认分类', $items[1]['value']);
     }
@@ -69,11 +71,13 @@ class AdminShellPageStructureTest extends TestCase
         $items = $service->detailItems($template);
 
         $this->assertSame('邮件模板管理', $header['title']);
+        $this->assertSame('迁移合同', $header['actions'][0]['label']);
         $this->assertSame('邮件标题', $filters['fields'][1]['label']);
         $this->assertSame('邮件模板详情', $showHeader['title']);
         $this->assertSame(admin_url('v2/emailtpl'), $showHeader['actions'][0]['href']);
         $this->assertSame('邮件标题', $table['headers'][1]);
         $this->assertStringContainsString('发货通知', $table['rows'][0][1]);
+        $this->assertSame('当前条件下没有邮件模板记录。', $table['empty_title']);
         $this->assertSame('邮件内容', $items[3]['label']);
         $this->assertSame('hello', $items[3]['value']);
     }
@@ -103,11 +107,13 @@ class AdminShellPageStructureTest extends TestCase
         $items = $service->detailItems($pay);
 
         $this->assertSame('支付通道管理', $header['title']);
+        $this->assertSame('迁移合同', $header['actions'][0]['label']);
         $this->assertSame('支付标识', $filters['fields'][1]['label']);
         $this->assertSame('支付通道详情', $showHeader['title']);
         $this->assertStringContainsString('?scope=trashed', $showHeader['actions'][0]['href']);
         $this->assertSame('支付名称', $table['headers'][1]);
         $this->assertStringContainsString('Stripe', $table['rows'][0][1]);
+        $this->assertSame('当前条件下没有支付通道记录。', $table['empty_title']);
         $this->assertSame('支付名称', $items[1]['label']);
         $this->assertSame('Stripe', $items[1]['value']);
     }
