@@ -33,6 +33,7 @@ class EmailTemplateShellController extends Controller
 
         return view('admin-shell.emailtpl.show', [
             'template' => $template,
+            'header' => $pageService->buildShowHeader(),
             'items' => $pageService->detailItems($template),
         ]);
     }

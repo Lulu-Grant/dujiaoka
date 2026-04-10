@@ -71,6 +71,17 @@ class AdminShellEmailTemplatePageService
         ];
     }
 
+    public function buildShowHeader(): array
+    {
+        return [
+            'title' => '邮件模板详情',
+            'description' => '这张详情页用于固定邮件模板的字段合同，后续新后台壳可以直接复用。',
+            'actions' => [
+                ['label' => '返回列表', 'href' => admin_url('v2/emailtpl')],
+            ],
+        ];
+    }
+
     public function detailItems(Emailtpl $template): array
     {
         return [

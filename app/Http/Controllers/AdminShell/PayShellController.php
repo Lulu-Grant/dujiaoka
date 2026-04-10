@@ -34,6 +34,7 @@ class PayShellController extends Controller
 
         return view('admin-shell.pay.show', [
             'pay' => $pay,
+            'header' => $pageService->buildShowHeader($request->query('scope')),
             'items' => $pageService->detailItems($pay),
             'scope' => $request->query('scope'),
         ]);

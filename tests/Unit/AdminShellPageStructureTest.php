@@ -34,10 +34,13 @@ class AdminShellPageStructureTest extends TestCase
         );
         $header = $service->buildHeader(new LengthAwarePaginator(collect([$group]), 1, 15));
         $filters = $service->buildFilters(['id' => 101, 'scope' => 'trashed']);
+        $showHeader = $service->buildShowHeader('trashed');
         $items = $service->detailItems($group);
 
         $this->assertSame('商品分类管理', $header['title']);
         $this->assertSame('范围', $filters['fields'][1]['label']);
+        $this->assertSame('商品分类详情', $showHeader['title']);
+        $this->assertStringContainsString('?scope=trashed', $showHeader['actions'][0]['href']);
         $this->assertSame('分类名称', $table['headers'][1]);
         $this->assertStringContainsString('默认分类', $table['rows'][0][1]);
         $this->assertSame('分类名称', $items[1]['label']);
@@ -62,10 +65,13 @@ class AdminShellPageStructureTest extends TestCase
         );
         $header = $service->buildHeader(new LengthAwarePaginator(collect([$template]), 1, 15));
         $filters = $service->buildFilters(['tpl_name' => '发货', 'tpl_token' => 'deliver_notice']);
+        $showHeader = $service->buildShowHeader();
         $items = $service->detailItems($template);
 
         $this->assertSame('邮件模板管理', $header['title']);
         $this->assertSame('邮件标题', $filters['fields'][1]['label']);
+        $this->assertSame('邮件模板详情', $showHeader['title']);
+        $this->assertSame(admin_url('v2/emailtpl'), $showHeader['actions'][0]['href']);
         $this->assertSame('邮件标题', $table['headers'][1]);
         $this->assertStringContainsString('发货通知', $table['rows'][0][1]);
         $this->assertSame('邮件内容', $items[3]['label']);
@@ -93,10 +99,13 @@ class AdminShellPageStructureTest extends TestCase
         );
         $header = $service->buildHeader(new LengthAwarePaginator(collect([$pay]), 1, 15));
         $filters = $service->buildFilters(['pay_check' => 'stripe', 'scope' => 'trashed']);
+        $showHeader = $service->buildShowHeader('trashed');
         $items = $service->detailItems($pay);
 
         $this->assertSame('支付通道管理', $header['title']);
         $this->assertSame('支付标识', $filters['fields'][1]['label']);
+        $this->assertSame('支付通道详情', $showHeader['title']);
+        $this->assertStringContainsString('?scope=trashed', $showHeader['actions'][0]['href']);
         $this->assertSame('支付名称', $table['headers'][1]);
         $this->assertStringContainsString('Stripe', $table['rows'][0][1]);
         $this->assertSame('支付名称', $items[1]['label']);

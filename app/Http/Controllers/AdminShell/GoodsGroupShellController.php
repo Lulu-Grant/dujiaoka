@@ -32,6 +32,7 @@ class GoodsGroupShellController extends Controller
 
         return view('admin-shell.goods-group.show', [
             'group' => $group,
+            'header' => $pageService->buildShowHeader($request->query('scope')),
             'items' => $pageService->detailItems($group),
             'scope' => $request->query('scope'),
         ]);
