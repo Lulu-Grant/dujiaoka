@@ -3,6 +3,8 @@
 namespace App\Service;
 
 use App\Models\Emailtpl;
+use App\Service\DataTransferObjects\AdminShellIndexPageData;
+use App\Service\DataTransferObjects\AdminShellShowPageData;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 
@@ -102,23 +104,23 @@ class AdminShellEmailTemplatePageService
         ];
     }
 
-    public function buildIndexPageData(LengthAwarePaginator $templates, array $filters): array
+    public function buildIndexPageData(LengthAwarePaginator $templates, array $filters): AdminShellIndexPageData
     {
-        return [
-            'title' => '邮件模板管理 - 后台壳样板',
-            'header' => $this->buildHeader($templates),
-            'filterPanel' => $this->buildFilters($filters),
-            'table' => $this->buildTable($templates),
-        ];
+        return new AdminShellIndexPageData(
+            '邮件模板管理 - 后台壳样板',
+            $this->buildHeader($templates),
+            $this->buildFilters($filters),
+            $this->buildTable($templates)
+        );
     }
 
-    public function buildShowPageData(Emailtpl $template): array
+    public function buildShowPageData(Emailtpl $template): AdminShellShowPageData
     {
-        return [
-            'title' => '邮件模板详情 - 后台壳样板',
-            'header' => $this->buildShowHeader(),
-            'items' => $this->detailItems($template),
-        ];
+        return new AdminShellShowPageData(
+            '邮件模板详情 - 后台壳样板',
+            $this->buildShowHeader(),
+            $this->detailItems($template)
+        );
     }
 
     public function detailItems(Emailtpl $template): array

@@ -2461,3 +2461,28 @@
 下一步：
 
 - 继续往“单页声明式迁移模板”推进，开始提炼更明确的页面配置对象或通用壳控制器基类。
+
+### 103. 为新后台壳引入页面配置对象
+
+摘要：
+
+- 新增后台壳页面配置 DTO：
+  - [AdminShellIndexPageData.php](/Users/apple/Documents/dujiaoshuka/app/Service/DataTransferObjects/AdminShellIndexPageData.php)
+  - [AdminShellShowPageData.php](/Users/apple/Documents/dujiaoshuka/app/Service/DataTransferObjects/AdminShellShowPageData.php)
+- 商品分类、邮件模板、支付通道三张后台壳样板页的页面服务，已将 `buildIndexPageData()` / `buildShowPageData()` 从散数组升级为明确的页面配置对象。
+- 三个后台壳控制器现在统一通过 `toViewData()` 把页面配置对象交给通用页面模板，新后台壳已经更接近声明式迁移骨架。
+- [AdminShellPageStructureTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellPageStructureTest.php) 已扩展为覆盖页面配置对象实例与 `toViewData()` 输出。
+
+影响范围：
+
+- 第一批后台壳样板页的整页配置边界
+- 后续后台壳批量迁移的声明式接入能力
+- 控制器、页面服务、Blade 模板之间的数据传递契约
+
+验证：
+
+- 当前全量回归结果：`OK (135 tests, 408 assertions)`
+
+下一步：
+
+- 继续提炼通用壳控制器基类或页面工厂，让不同后台页的迁移代码进一步收敛。

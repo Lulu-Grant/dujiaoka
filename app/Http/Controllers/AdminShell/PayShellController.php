@@ -14,7 +14,7 @@ class PayShellController extends Controller
 
         $pays = $pageService->paginate($filters);
 
-        return view('admin-shell.pages.index', $pageService->buildIndexPageData($pays, $filters));
+        return view('admin-shell.pages.index', $pageService->buildIndexPageData($pays, $filters)->toViewData());
     }
 
     public function show(int $id, Request $request, AdminShellPayPageService $pageService)
@@ -22,6 +22,6 @@ class PayShellController extends Controller
         $filters = $pageService->extractFilters($request);
         $pay = $pageService->find($id, $filters['scope'] ?? null);
 
-        return view('admin-shell.pages.show', $pageService->buildShowPageData($pay, $filters['scope'] ?? null));
+        return view('admin-shell.pages.show', $pageService->buildShowPageData($pay, $filters['scope'] ?? null)->toViewData());
     }
 }

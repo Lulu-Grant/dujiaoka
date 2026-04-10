@@ -3,6 +3,8 @@
 namespace App\Service;
 
 use App\Models\Pay;
+use App\Service\DataTransferObjects\AdminShellIndexPageData;
+use App\Service\DataTransferObjects\AdminShellShowPageData;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 
@@ -138,23 +140,23 @@ class AdminShellPayPageService
         ];
     }
 
-    public function buildIndexPageData(LengthAwarePaginator $pays, array $filters): array
+    public function buildIndexPageData(LengthAwarePaginator $pays, array $filters): AdminShellIndexPageData
     {
-        return [
-            'title' => '支付通道管理 - 后台壳样板',
-            'header' => $this->buildHeader($pays),
-            'filterPanel' => $this->buildFilters($filters),
-            'table' => $this->buildTable($pays, $filters),
-        ];
+        return new AdminShellIndexPageData(
+            '支付通道管理 - 后台壳样板',
+            $this->buildHeader($pays),
+            $this->buildFilters($filters),
+            $this->buildTable($pays, $filters)
+        );
     }
 
-    public function buildShowPageData(Pay $pay, ?string $scope = null): array
+    public function buildShowPageData(Pay $pay, ?string $scope = null): AdminShellShowPageData
     {
-        return [
-            'title' => '支付通道详情 - 后台壳样板',
-            'header' => $this->buildShowHeader($scope),
-            'items' => $this->detailItems($pay),
-        ];
+        return new AdminShellShowPageData(
+            '支付通道详情 - 后台壳样板',
+            $this->buildShowHeader($scope),
+            $this->detailItems($pay)
+        );
     }
 
     public function detailItems(Pay $pay): array

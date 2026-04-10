@@ -3,6 +3,8 @@
 namespace App\Service;
 
 use App\Models\GoodsGroup;
+use App\Service\DataTransferObjects\AdminShellIndexPageData;
+use App\Service\DataTransferObjects\AdminShellShowPageData;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 
@@ -125,23 +127,23 @@ class AdminShellGoodsGroupPageService
         ];
     }
 
-    public function buildIndexPageData(LengthAwarePaginator $groups, array $filters): array
+    public function buildIndexPageData(LengthAwarePaginator $groups, array $filters): AdminShellIndexPageData
     {
-        return [
-            'title' => '商品分类管理 - 后台壳样板',
-            'header' => $this->buildHeader($groups),
-            'filterPanel' => $this->buildFilters($filters),
-            'table' => $this->buildTable($groups, $filters),
-        ];
+        return new AdminShellIndexPageData(
+            '商品分类管理 - 后台壳样板',
+            $this->buildHeader($groups),
+            $this->buildFilters($filters),
+            $this->buildTable($groups, $filters)
+        );
     }
 
-    public function buildShowPageData(GoodsGroup $group, ?string $scope = null): array
+    public function buildShowPageData(GoodsGroup $group, ?string $scope = null): AdminShellShowPageData
     {
-        return [
-            'title' => '商品分类详情 - 后台壳样板',
-            'header' => $this->buildShowHeader($scope),
-            'items' => $this->detailItems($group),
-        ];
+        return new AdminShellShowPageData(
+            '商品分类详情 - 后台壳样板',
+            $this->buildShowHeader($scope),
+            $this->detailItems($group)
+        );
     }
 
     public function detailItems(GoodsGroup $group): array

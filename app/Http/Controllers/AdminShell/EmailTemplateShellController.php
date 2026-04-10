@@ -14,13 +14,13 @@ class EmailTemplateShellController extends Controller
 
         $templates = $pageService->paginate($filters);
 
-        return view('admin-shell.pages.index', $pageService->buildIndexPageData($templates, $filters));
+        return view('admin-shell.pages.index', $pageService->buildIndexPageData($templates, $filters)->toViewData());
     }
 
     public function show(int $id, AdminShellEmailTemplatePageService $pageService)
     {
         $template = $pageService->find($id);
 
-        return view('admin-shell.pages.show', $pageService->buildShowPageData($template));
+        return view('admin-shell.pages.show', $pageService->buildShowPageData($template)->toViewData());
     }
 }
