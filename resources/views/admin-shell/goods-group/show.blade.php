@@ -9,16 +9,5 @@
         ],
     ])
 
-    @include('admin-shell.partials.detail-grid', [
-        'items' => [
-            ['label' => 'ID', 'value' => $group->id],
-            ['label' => '分类名称', 'value' => $group->gp_name],
-            ['label' => '状态', 'value' => strip_tags($statusPresenter->openStatusLabel($group->is_open))],
-            ['label' => '排序', 'value' => $group->ord],
-            ['label' => '商品数', 'value' => $group->goods_count],
-            ['label' => '创建时间', 'value' => $group->created_at],
-            ['label' => '更新时间', 'value' => $group->updated_at],
-            ['label' => '删除状态', 'value' => $group->deleted_at ? '已删除' : '正常'],
-        ],
-    ])
+    @include('admin-shell.partials.detail-grid', ['items' => $items])
 @endsection

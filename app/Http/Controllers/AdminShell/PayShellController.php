@@ -4,16 +4,12 @@ namespace App\Http\Controllers\AdminShell;
 
 use App\Http\Controllers\Controller;
 use App\Service\AdminShellPayPageService;
-use App\Service\PayAdminPresenterService;
 use Illuminate\Http\Request;
 
 class PayShellController extends Controller
 {
-    public function index(
-        Request $request,
-        AdminShellPayPageService $pageService,
-        PayAdminPresenterService $presenter
-    ) {
+    public function index(Request $request, AdminShellPayPageService $pageService)
+    {
         $filters = [
             'id' => $request->query('id'),
             'pay_check' => $request->query('pay_check'),
@@ -21,23 +17,23 @@ class PayShellController extends Controller
             'scope' => $request->query('scope'),
         ];
 
+        $pays = $pageService->paginate($filters);
+
         return view('admin-shell.pay.index', [
-            'pays' => $pageService->paginate($filters),
+            'pays' => $pays,
             'filters' => $filters,
-            'presenter' => $presenter,
+            'table' => $pageService->buildTable($pays, $filters),
         ]);
     }
 
-    public function show(
-        int $id,
-        Request $request,
-        AdminShellPayPageService $pageService,
-        PayAdminPresenterService $presenter
-    ) {
+    public function show(int $id, Request $request, AdminShellPayPageService $pageService)
+    {
+        $pay = $pageService->find($id, $request->query('scope'));
+
         return view('admin-shell.pay.show', [
-            'pay' => $pageService->find($id, $request->query('scope')),
+            'pay' => $pay,
+            'items' => $pageService->detailItems($pay),
             'scope' => $request->query('scope'),
-            'presenter' => $presenter,
         ]);
     }
 }

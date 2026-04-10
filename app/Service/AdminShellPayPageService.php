@@ -7,6 +7,16 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class AdminShellPayPageService
 {
+    /**
+     * @var \App\Service\PayAdminPresenterService
+     */
+    private $presenter;
+
+    public function __construct(PayAdminPresenterService $presenter)
+    {
+        $this->presenter = $presenter;
+    }
+
     public function paginate(array $filters): LengthAwarePaginator
     {
         $query = Pay::query()->orderByDesc('id');
@@ -39,5 +49,64 @@ class AdminShellPayPageService
         }
 
         return $query->findOrFail($id);
+    }
+
+    public function buildTable(LengthAwarePaginator $pays, array $filters): array
+    {
+        $scope = $filters['scope'] ?? null;
+
+        return [
+            'headers' => ['ID', '支付名称', '支付标识', '生命周期', '支付方式', '支付场景', '启用状态', '更新时间', '操作'],
+            'rows' => $pays->getCollection()->map(function (Pay $pay) use ($scope) {
+                return [
+                    $pay->id,
+                    e($pay->pay_name),
+                    e($pay->pay_check),
+                    $this->presenter->lifecycleBadge($pay->lifecycle),
+                    e($this->presenter->methodLabel($pay->pay_method)),
+                    e($this->presenter->clientLabel($pay->pay_client)),
+                    $this->renderStatusCell($pay),
+                    e((string) $pay->updated_at),
+                    sprintf(
+                        '<a href="%s">查看详情</a>',
+                        e(admin_url('v2/pay/'.$pay->id.($scope ? '?scope='.$scope : '')))
+                    ),
+                ];
+            })->all(),
+            'empty' => '当前条件下没有支付通道记录。',
+            'paginator' => $pays,
+        ];
+    }
+
+    public function detailItems(Pay $pay): array
+    {
+        return [
+            ['label' => 'ID', 'value' => $pay->id],
+            ['label' => '支付名称', 'value' => e($pay->pay_name)],
+            ['label' => '支付标识', 'value' => e($pay->pay_check)],
+            ['label' => '生命周期', 'value' => e($this->presenter->lifecycleLabel($pay->lifecycle))],
+            ['label' => '支付场景', 'value' => e($this->presenter->clientLabel($pay->pay_client))],
+            ['label' => '支付方式', 'value' => e($this->presenter->methodLabel($pay->pay_method))],
+            ['label' => '启用状态', 'value' => e(strip_tags($this->presenter->openStatusLabel($pay->is_open)))],
+            ['label' => '支付路由', 'value' => e($pay->pay_handleroute)],
+            ['label' => '商户 ID', 'value' => e($pay->merchant_id)],
+            ['label' => '商户 KEY', 'value' => e($pay->merchant_key)],
+            ['label' => '商户密钥', 'value' => e($pay->merchant_pem)],
+            ['label' => '创建时间', 'value' => e((string) $pay->created_at)],
+            ['label' => '更新时间', 'value' => e((string) $pay->updated_at)],
+        ];
+    }
+
+    private function renderStatusCell(Pay $pay): string
+    {
+        if ($pay->deleted_at) {
+            return '<span class="pill trashed">回收站</span>';
+        }
+
+        return sprintf(
+            '<span class="pill %s">%s</span>',
+            (int) $pay->is_open ? 'open' : 'closed',
+            e(strip_tags($this->presenter->openStatusLabel($pay->is_open)))
+        );
     }
 }

@@ -16,16 +16,22 @@ class EmailTemplateShellController extends Controller
             'tpl_token' => $request->query('tpl_token'),
         ];
 
+        $templates = $pageService->paginate($filters);
+
         return view('admin-shell.emailtpl.index', [
-            'templates' => $pageService->paginate($filters),
+            'templates' => $templates,
             'filters' => $filters,
+            'table' => $pageService->buildTable($templates),
         ]);
     }
 
     public function show(int $id, AdminShellEmailTemplatePageService $pageService)
     {
+        $template = $pageService->find($id);
+
         return view('admin-shell.emailtpl.show', [
-            'template' => $pageService->find($id),
+            'template' => $template,
+            'items' => $pageService->detailItems($template),
         ]);
     }
 }

@@ -4,38 +4,34 @@ namespace App\Http\Controllers\AdminShell;
 
 use App\Http\Controllers\Controller;
 use App\Service\AdminShellGoodsGroupPageService;
-use App\Service\AdminStatusPresenterService;
 use Illuminate\Http\Request;
 
 class GoodsGroupShellController extends Controller
 {
-    public function index(
-        Request $request,
-        AdminShellGoodsGroupPageService $pageService,
-        AdminStatusPresenterService $statusPresenter
-    ) {
+    public function index(Request $request, AdminShellGoodsGroupPageService $pageService)
+    {
         $filters = [
             'id' => $request->query('id'),
             'scope' => $request->query('scope'),
         ];
 
+        $groups = $pageService->paginate($filters);
+
         return view('admin-shell.goods-group.index', [
-            'groups' => $pageService->paginate($filters),
+            'groups' => $groups,
             'filters' => $filters,
-            'statusPresenter' => $statusPresenter,
+            'table' => $pageService->buildTable($groups, $filters),
         ]);
     }
 
-    public function show(
-        int $id,
-        Request $request,
-        AdminShellGoodsGroupPageService $pageService,
-        AdminStatusPresenterService $statusPresenter
-    ) {
+    public function show(int $id, Request $request, AdminShellGoodsGroupPageService $pageService)
+    {
+        $group = $pageService->find($id, $request->query('scope'));
+
         return view('admin-shell.goods-group.show', [
-            'group' => $pageService->find($id, $request->query('scope')),
+            'group' => $group,
+            'items' => $pageService->detailItems($group),
             'scope' => $request->query('scope'),
-            'statusPresenter' => $statusPresenter,
         ]);
     }
 }

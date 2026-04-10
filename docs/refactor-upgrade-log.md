@@ -2323,3 +2323,26 @@
 下一步：
 
 - 重新跑本地 PHPUnit，并观察 GitHub Actions 新一轮结果，确认仓库已不再包含可疑 Laravel key。
+
+### 97. 将新后台壳样板页切到结构化表格与详情数据
+
+摘要：
+
+- 新增 [data-table.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/partials/data-table.blade.php)，作为新后台壳统一列表表格片段。
+- 商品分类、邮件模板、支付通道三张后台壳样板页已从“Blade 内部手写表头/行/详情项”改为“页面服务产出结构化数据，视图只负责渲染”。
+- [AdminShellGoodsGroupPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellGoodsGroupPageService.php)、[AdminShellEmailTemplatePageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellEmailTemplatePageService.php)、[AdminShellPayPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellPayPageService.php) 现在都具备了 `buildTable()` / `detailItems()` 这一层页面数据合同。
+- 新增 [AdminShellPageStructureTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellPageStructureTest.php)，专门守住三张后台壳样板页的结构化数据输出。
+
+影响范围：
+
+- 第一批后台壳样板页的复用粒度
+- 后续批量迁移后台页面时的数据合同一致性
+- Blade 模板与页面服务职责边界
+
+验证：
+
+- 当前全量回归结果：`OK (135 tests, 372 assertions)`
+
+下一步：
+
+- 继续抽筛选字段与页面元信息合同，把后台壳迁移从“复用片段”推进到“复用整页结构配置”。

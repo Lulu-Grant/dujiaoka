@@ -16,41 +16,5 @@
         'resetUrl' => admin_url('v2/emailtpl'),
     ])
 
-    <section class="panel">
-        <div class="panel-body table-wrap">
-            @if($templates->count())
-                <table>
-                    <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>邮件标题</th>
-                        <th>邮件标识</th>
-                        <th>创建时间</th>
-                        <th>更新时间</th>
-                        <th>操作</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach($templates as $template)
-                        <tr>
-                            <td>{{ $template->id }}</td>
-                            <td>{{ $template->tpl_name }}</td>
-                            <td>{{ $template->tpl_token }}</td>
-                            <td>{{ $template->created_at }}</td>
-                            <td>{{ $template->updated_at }}</td>
-                            <td>
-                                <a href="{{ admin_url('v2/emailtpl/'.$template->id) }}">查看详情</a>
-                            </td>
-                        </tr>
-                    @endforeach
-                    </tbody>
-                </table>
-                <div class="pagination">
-                    {{ $templates->links() }}
-                </div>
-            @else
-                <div class="empty">当前条件下没有邮件模板记录。</div>
-            @endif
-        </div>
-    </section>
+    @include('admin-shell.partials.data-table', $table)
 @endsection

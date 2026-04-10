@@ -1,0 +1,93 @@
+<?php
+
+namespace Tests\Unit;
+
+use App\Models\Emailtpl;
+use App\Models\GoodsGroup;
+use App\Models\Pay;
+use App\Service\AdminShellEmailTemplatePageService;
+use App\Service\AdminShellGoodsGroupPageService;
+use App\Service\AdminShellPayPageService;
+use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Tests\TestCase;
+
+class AdminShellPageStructureTest extends TestCase
+{
+    public function test_goods_group_page_service_builds_table_and_detail_items()
+    {
+        $group = new GoodsGroup();
+        $group->forceFill([
+            'id' => 101,
+            'gp_name' => '默认分类',
+            'is_open' => 1,
+            'ord' => 9,
+            'created_at' => Carbon::parse('2026-04-10 10:00:00'),
+            'updated_at' => Carbon::parse('2026-04-10 11:00:00'),
+        ]);
+        $group->goods_count = 3;
+
+        $service = $this->app->make(AdminShellGoodsGroupPageService::class);
+        $table = $service->buildTable(
+            new LengthAwarePaginator(collect([$group]), 1, 15),
+            ['scope' => '']
+        );
+        $items = $service->detailItems($group);
+
+        $this->assertSame('分类名称', $table['headers'][1]);
+        $this->assertStringContainsString('默认分类', $table['rows'][0][1]);
+        $this->assertSame('分类名称', $items[1]['label']);
+        $this->assertSame('默认分类', $items[1]['value']);
+    }
+
+    public function test_email_template_page_service_builds_table_and_detail_items()
+    {
+        $template = new Emailtpl();
+        $template->forceFill([
+            'id' => 202,
+            'tpl_name' => '发货通知',
+            'tpl_token' => 'deliver_notice',
+            'tpl_content' => 'hello',
+            'created_at' => Carbon::parse('2026-04-10 12:00:00'),
+            'updated_at' => Carbon::parse('2026-04-10 13:00:00'),
+        ]);
+
+        $service = $this->app->make(AdminShellEmailTemplatePageService::class);
+        $table = $service->buildTable(
+            new LengthAwarePaginator(collect([$template]), 1, 15)
+        );
+        $items = $service->detailItems($template);
+
+        $this->assertSame('邮件标题', $table['headers'][1]);
+        $this->assertStringContainsString('发货通知', $table['rows'][0][1]);
+        $this->assertSame('邮件内容', $items[3]['label']);
+        $this->assertSame('hello', $items[3]['value']);
+    }
+
+    public function test_pay_page_service_builds_table_and_detail_items()
+    {
+        $pay = new Pay();
+        $pay->forceFill([
+            'id' => 303,
+            'pay_name' => 'Stripe',
+            'pay_check' => 'stripe',
+            'pay_method' => 2,
+            'pay_client' => 1,
+            'is_open' => 1,
+            'created_at' => Carbon::parse('2026-04-10 14:00:00'),
+            'updated_at' => Carbon::parse('2026-04-10 15:00:00'),
+        ]);
+
+        $service = $this->app->make(AdminShellPayPageService::class);
+        $table = $service->buildTable(
+            new LengthAwarePaginator(collect([$pay]), 1, 15),
+            ['scope' => '']
+        );
+        $items = $service->detailItems($pay);
+
+        $this->assertSame('支付名称', $table['headers'][1]);
+        $this->assertStringContainsString('Stripe', $table['rows'][0][1]);
+        $this->assertSame('支付名称', $items[1]['label']);
+        $this->assertSame('Stripe', $items[1]['value']);
+    }
+}

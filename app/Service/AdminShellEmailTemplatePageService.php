@@ -30,4 +30,40 @@ class AdminShellEmailTemplatePageService
     {
         return Emailtpl::query()->findOrFail($id);
     }
+
+    public function buildTable(LengthAwarePaginator $templates): array
+    {
+        return [
+            'headers' => ['ID', '邮件标题', '邮件标识', '创建时间', '更新时间', '操作'],
+            'rows' => $templates->getCollection()->map(function (Emailtpl $template) {
+                return [
+                    $template->id,
+                    e($template->tpl_name),
+                    e($template->tpl_token),
+                    e((string) $template->created_at),
+                    e((string) $template->updated_at),
+                    sprintf('<a href="%s">查看详情</a>', e(admin_url('v2/emailtpl/'.$template->id))),
+                ];
+            })->all(),
+            'empty' => '当前条件下没有邮件模板记录。',
+            'paginator' => $templates,
+        ];
+    }
+
+    public function detailItems(Emailtpl $template): array
+    {
+        return [
+            ['label' => 'ID', 'value' => $template->id],
+            ['label' => '邮件标题', 'value' => e($template->tpl_name)],
+            ['label' => '邮件标识', 'value' => e($template->tpl_token)],
+            [
+                'label' => '邮件内容',
+                'value' => e($template->tpl_content),
+                'style' => 'grid-column: 1 / -1;',
+                'value_style' => 'white-space: pre-wrap; font-size: 14px; font-weight: 500;',
+            ],
+            ['label' => '创建时间', 'value' => e((string) $template->created_at)],
+            ['label' => '更新时间', 'value' => e((string) $template->updated_at)],
+        ];
+    }
 }
