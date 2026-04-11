@@ -2689,3 +2689,25 @@
 下一步：
 
 - 继续把资源级动作和页面行为往注册表与抽象层收拢，让新增后台壳资源更接近“只写查询和字段合同”。
+
+### 113. 落地第二批后台壳样板页：优惠码管理
+
+摘要：
+
+- 新增 [CouponShellController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/CouponShellController.php) 和 [AdminShellCouponPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellCouponPageService.php)，将优惠码管理接入新后台壳。
+- [AdminShellResourceRegistry.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellResourceRegistry.php) 已加入 `coupon` 资源定义，因此后台壳路由、权限白名单和导航会自动接入 `/admin/v2/coupon`。
+- 新增 [AdminShellCouponControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellCouponControllerTest.php) 与 [AdminShellPageStructureTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellPageStructureTest.php) 的优惠码页断言，守住第二批迁移样板的展示合同。
+
+影响范围：
+
+- 第二批后台页的实际迁移起点
+- 后台壳资源注册表的批量扩展能力
+- 优惠码管理页的只读样板接入路径
+
+验证：
+
+- 当前全量回归结果：`OK (146 tests, 441 assertions)`
+
+下一步：
+
+- 继续沿着第二批优先级推进卡密管理或系统设置，让后台壳从第一批样板扩展到更复杂的页面类型。

@@ -4,8 +4,10 @@ namespace Tests\Unit;
 
 use App\Models\Emailtpl;
 use App\Models\GoodsGroup;
+use App\Models\Coupon;
 use App\Models\Pay;
 use App\Service\AbstractAdminShellPageService;
+use App\Service\AdminShellCouponPageService;
 use App\Service\Contracts\AdminShellPageServiceInterface;
 use App\Service\DataTransferObjects\AdminShellIndexPageData;
 use App\Service\DataTransferObjects\AdminShellShowPageData;
@@ -158,5 +160,53 @@ class AdminShellPageStructureTest extends TestCase
         $this->assertInstanceOf(AbstractAdminShellPageService::class, $this->app->make(AdminShellGoodsGroupPageService::class));
         $this->assertInstanceOf(AbstractAdminShellPageService::class, $this->app->make(AdminShellEmailTemplatePageService::class));
         $this->assertInstanceOf(AbstractAdminShellPageService::class, $this->app->make(AdminShellPayPageService::class));
+        $this->assertInstanceOf(AbstractAdminShellPageService::class, $this->app->make(AdminShellCouponPageService::class));
+    }
+
+    public function test_coupon_page_service_builds_table_and_detail_items()
+    {
+        $coupon = new Coupon();
+        $coupon->forceFill([
+            'id' => 404,
+            'discount' => 8.8,
+            'coupon' => 'XIGUA-404',
+            'ret' => 2,
+            'is_use' => Coupon::STATUS_UNUSED,
+            'is_open' => 1,
+            'created_at' => Carbon::parse('2026-04-10 16:00:00'),
+            'updated_at' => Carbon::parse('2026-04-10 17:00:00'),
+        ]);
+        $coupon->setRelation('goods', collect([
+            (object) ['gd_name' => '西瓜会员'],
+        ]));
+
+        $service = $this->app->make(AdminShellCouponPageService::class);
+        $this->assertInstanceOf(AdminShellPageServiceInterface::class, $service);
+        $table = $service->buildTable(
+            new LengthAwarePaginator(collect([$coupon]), 1, 15),
+            ['scope' => '']
+        );
+        $header = $service->buildHeader(new LengthAwarePaginator(collect([$coupon]), 1, 15));
+        $filters = $service->buildFilters(['coupon' => 'XIGUA', 'goods_id' => 404, 'scope' => 'trashed']);
+        $showHeader = $service->buildShowHeader('trashed');
+        $indexPage = $service->buildIndexPageData(new LengthAwarePaginator(collect([$coupon]), 1, 15), ['coupon' => 'XIGUA', 'scope' => '']);
+        $showPage = $service->buildShowPageData($coupon, 'trashed');
+        $items = $service->detailItems($coupon);
+        $requestFilters = $service->extractFilters(Request::create('/admin/v2/coupon?coupon=XIGUA&goods_id=404&scope=trashed', 'GET'));
+
+        $this->assertSame('优惠码管理', $header['title']);
+        $this->assertSame('XIGUA', $requestFilters['coupon']);
+        $this->assertSame('商品 ID', $filters['fields'][2]['label']);
+        $this->assertSame('优惠码详情', $showHeader['title']);
+        $this->assertInstanceOf(AdminShellIndexPageData::class, $indexPage);
+        $this->assertInstanceOf(AdminShellShowPageData::class, $showPage);
+        $this->assertSame('优惠码管理 - 后台壳样板', $indexPage->title);
+        $this->assertSame('优惠码详情 - 后台壳样板', $showPage->title);
+        $this->assertStringContainsString('?scope=trashed', $showHeader['actions'][0]['href']);
+        $this->assertSame('优惠码', $table['headers'][1]);
+        $this->assertStringContainsString('XIGUA-404', $table['rows'][0][1]);
+        $this->assertSame('当前条件下没有优惠码记录。', $table['empty_title']);
+        $this->assertSame('关联商品', $items[6]['label']);
+        $this->assertSame('西瓜会员', $items[6]['value']);
     }
 }

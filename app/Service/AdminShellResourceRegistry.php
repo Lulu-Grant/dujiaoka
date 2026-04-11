@@ -45,6 +45,17 @@ class AdminShellResourceRegistry
                 'uri' => 'v2/pay',
                 'uses_scope' => true,
             ],
+            'coupon' => [
+                'nav_label' => '优惠码管理',
+                'index_title' => '优惠码管理',
+                'index_description' => '这是第二批后台迁移的第一张样板页。优惠码的使用状态、启用状态和关联商品展示都已经通过普通 Laravel 服务和 Blade 接管。',
+                'show_title' => '优惠码详情',
+                'show_description' => '这张详情页固定了优惠码的列表、状态与关联商品展示合同，后续可以继续在这套壳上扩展编辑能力。',
+                'controller' => \App\Http\Controllers\AdminShell\CouponShellController::class,
+                'service' => \App\Service\AdminShellCouponPageService::class,
+                'uri' => 'v2/coupon',
+                'uses_scope' => true,
+            ],
         ];
     }
 
