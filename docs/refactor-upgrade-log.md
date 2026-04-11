@@ -2641,3 +2641,29 @@
 下一步：
 
 - 继续提炼资源元数据，让资源标题、分组、说明等页面级元信息也逐步从注册表集中派生。
+
+### 111. 让后台壳页面元信息跟随资源注册表生成
+
+摘要：
+
+- [AdminShellResourceRegistry.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellResourceRegistry.php) 现在继续收拢页面级元信息，包含：
+  - 导航分组标题
+  - 列表页标题与说明
+  - 详情页标题与说明
+- 商品分类、邮件模板、支付通道三张后台壳样板页的页面服务，已改为从资源注册表读取这些元信息，而不再各自硬编码重复文案。
+- [layout.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/layout.blade.php) 的导航分组标题也已经走注册表派生。
+- [AdminShellResourceRegistryTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellResourceRegistryTest.php) 已扩展为守住页面元信息派生结果。
+
+影响范围：
+
+- 后台壳样板页标题、说明、导航分组的维护方式
+- 后续新增后台壳资源时的页面元信息接入成本
+- 资源注册表从路由/权限/导航中心进一步扩展到页面元信息中心
+
+验证：
+
+- 当前全量回归结果：`OK (142 tests, 427 assertions)`
+
+下一步：
+
+- 继续收拢更多资源级配置，让新后台壳更接近“注册一个资源即可完整生成页面骨架”的状态。

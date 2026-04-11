@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 
 class AdminShellEmailTemplatePageService implements AdminShellPageServiceInterface
 {
+    private const RESOURCE_KEY = 'emailtpl';
+
     public function paginate(array $filters): LengthAwarePaginator
     {
         $query = Emailtpl::query()->orderByDesc('id');
@@ -46,9 +48,11 @@ class AdminShellEmailTemplatePageService implements AdminShellPageServiceInterfa
 
     public function buildTable(LengthAwarePaginator $templates): array
     {
+        $definition = $this->resourceDefinition();
+
         return [
             'headers' => ['ID', '邮件标题', '邮件标识', '创建时间', '更新时间', '操作'],
-            'rows' => $templates->getCollection()->map(function (Emailtpl $template) {
+            'rows' => $templates->getCollection()->map(function (Emailtpl $template) use ($definition) {
                 return [
                     $template->id,
                     e($template->tpl_name),
@@ -56,7 +60,7 @@ class AdminShellEmailTemplatePageService implements AdminShellPageServiceInterfa
                     e((string) $template->created_at),
                     e((string) $template->updated_at),
                     $this->renderActionLinks([
-                        ['label' => '查看详情', 'href' => admin_url('v2/emailtpl/'.$template->id)],
+                        ['label' => '查看详情', 'href' => admin_url($definition['uri'].'/'.$template->id)],
                     ]),
                 ];
             })->all(),
@@ -68,9 +72,11 @@ class AdminShellEmailTemplatePageService implements AdminShellPageServiceInterfa
 
     public function buildHeader(LengthAwarePaginator $templates): array
     {
+        $definition = $this->resourceDefinition();
+
         return [
-            'title' => '邮件模板管理',
-            'description' => '这是第二张后台壳样板页。当前列表、筛选和详情都通过普通 Laravel 控制器与 Blade 组合，不再依赖 Dcat Grid/Show。',
+            'title' => $definition['index_title'],
+            'description' => $definition['index_description'],
             'meta' => '共 '.$templates->total().' 条模板',
             'actions' => [
                 [
@@ -84,23 +90,27 @@ class AdminShellEmailTemplatePageService implements AdminShellPageServiceInterfa
 
     public function buildFilters(array $filters): array
     {
+        $definition = $this->resourceDefinition();
+
         return [
             'fields' => [
                 ['label' => 'ID', 'name' => 'id', 'type' => 'number', 'value' => $filters['id'] ?? null],
                 ['label' => '邮件标题', 'name' => 'tpl_name', 'value' => $filters['tpl_name'] ?? null],
                 ['label' => '邮件标识', 'name' => 'tpl_token', 'value' => $filters['tpl_token'] ?? null],
             ],
-            'resetUrl' => admin_url('v2/emailtpl'),
+            'resetUrl' => admin_url($definition['uri']),
         ];
     }
 
     public function buildShowHeader(): array
     {
+        $definition = $this->resourceDefinition();
+
         return [
-            'title' => '邮件模板详情',
-            'description' => '这张详情页用于固定邮件模板的字段合同，后续新后台壳可以直接复用。',
+            'title' => $definition['show_title'],
+            'description' => $definition['show_description'],
             'actions' => [
-                ['label' => '返回列表', 'href' => admin_url('v2/emailtpl')],
+                ['label' => '返回列表', 'href' => admin_url($definition['uri'])],
             ],
         ];
     }
@@ -108,7 +118,7 @@ class AdminShellEmailTemplatePageService implements AdminShellPageServiceInterfa
     public function buildIndexPageData(LengthAwarePaginator $templates, array $filters): AdminShellIndexPageData
     {
         return new AdminShellIndexPageData(
-            '邮件模板管理 - 后台壳样板',
+            $this->resourceDefinition()['index_title'].' - 后台壳样板',
             $this->buildHeader($templates),
             $this->buildFilters($filters),
             $this->buildTable($templates)
@@ -118,7 +128,7 @@ class AdminShellEmailTemplatePageService implements AdminShellPageServiceInterfa
     public function buildShowPageData($template, ?string $scope = null): AdminShellShowPageData
     {
         return new AdminShellShowPageData(
-            '邮件模板详情 - 后台壳样板',
+            $this->resourceDefinition()['show_title'].' - 后台壳样板',
             $this->buildShowHeader(),
             $this->detailItems($template)
         );
@@ -146,5 +156,10 @@ class AdminShellEmailTemplatePageService implements AdminShellPageServiceInterfa
         return collect($actions)->map(function (array $action) {
             return sprintf('<a href="%s">%s</a>', e($action['href']), e($action['label']));
         })->implode(' / ');
+    }
+
+    private function resourceDefinition(): array
+    {
+        return AdminShellResourceRegistry::definitions()[self::RESOURCE_KEY];
     }
 }

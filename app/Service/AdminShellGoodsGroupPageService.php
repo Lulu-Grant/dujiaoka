@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 
 class AdminShellGoodsGroupPageService implements AdminShellPageServiceInterface
 {
+    private const RESOURCE_KEY = 'goods-group';
+
     /**
      * @var \App\Service\AdminStatusPresenterService
      */
@@ -58,10 +60,11 @@ class AdminShellGoodsGroupPageService implements AdminShellPageServiceInterface
     public function buildTable(LengthAwarePaginator $groups, array $filters): array
     {
         $scope = $filters['scope'] ?? null;
+        $definition = $this->resourceDefinition();
 
         return [
             'headers' => ['ID', '分类名称', '状态', '排序', '商品数', '创建时间', '更新时间', '操作'],
-            'rows' => $groups->getCollection()->map(function (GoodsGroup $group) use ($scope) {
+            'rows' => $groups->getCollection()->map(function (GoodsGroup $group) use ($scope, $definition) {
                 return [
                     $group->id,
                     e($group->gp_name),
@@ -73,7 +76,7 @@ class AdminShellGoodsGroupPageService implements AdminShellPageServiceInterface
                     $this->renderActionLinks([
                         [
                             'label' => '查看详情',
-                            'href' => admin_url('v2/goods-group/'.$group->id.($scope ? '?scope='.$scope : '')),
+                            'href' => admin_url($definition['uri'].'/'.$group->id.($scope ? '?scope='.$scope : '')),
                         ],
                     ]),
                 ];
@@ -86,9 +89,11 @@ class AdminShellGoodsGroupPageService implements AdminShellPageServiceInterface
 
     public function buildHeader(LengthAwarePaginator $groups): array
     {
+        $definition = $this->resourceDefinition();
+
         return [
-            'title' => '商品分类管理',
-            'description' => '这是第一批后台迁移样板页。当前使用普通 Laravel 控制器、服务和 Blade 渲染，不再依赖 Dcat Grid。',
+            'title' => $definition['index_title'],
+            'description' => $definition['index_description'],
             'meta' => '共 '.$groups->total().' 条记录',
             'actions' => [
                 [
@@ -102,6 +107,8 @@ class AdminShellGoodsGroupPageService implements AdminShellPageServiceInterface
 
     public function buildFilters(array $filters): array
     {
+        $definition = $this->resourceDefinition();
+
         return [
             'fields' => [
                 ['label' => 'ID', 'name' => 'id', 'type' => 'number', 'value' => $filters['id'] ?? null],
@@ -113,17 +120,19 @@ class AdminShellGoodsGroupPageService implements AdminShellPageServiceInterface
                     'options' => ['' => '全部', 'trashed' => '回收站'],
                 ],
             ],
-            'resetUrl' => admin_url('v2/goods-group'),
+            'resetUrl' => admin_url($definition['uri']),
         ];
     }
 
     public function buildShowHeader(?string $scope = null): array
     {
+        $definition = $this->resourceDefinition();
+
         return [
-            'title' => '商品分类详情',
-            'description' => '这是商品分类页的详情样板。后续真正替换后台壳时，可以直接照着这组字段合同迁移。',
+            'title' => $definition['show_title'],
+            'description' => $definition['show_description'],
             'actions' => [
-                ['label' => '返回列表', 'href' => admin_url('v2/goods-group'.($scope ? '?scope='.$scope : ''))],
+                ['label' => '返回列表', 'href' => admin_url($definition['uri'].($scope ? '?scope='.$scope : ''))],
             ],
         ];
     }
@@ -131,7 +140,7 @@ class AdminShellGoodsGroupPageService implements AdminShellPageServiceInterface
     public function buildIndexPageData(LengthAwarePaginator $groups, array $filters): AdminShellIndexPageData
     {
         return new AdminShellIndexPageData(
-            '商品分类管理 - 后台壳样板',
+            $this->resourceDefinition()['index_title'].' - 后台壳样板',
             $this->buildHeader($groups),
             $this->buildFilters($filters),
             $this->buildTable($groups, $filters)
@@ -141,7 +150,7 @@ class AdminShellGoodsGroupPageService implements AdminShellPageServiceInterface
     public function buildShowPageData($group, ?string $scope = null): AdminShellShowPageData
     {
         return new AdminShellShowPageData(
-            '商品分类详情 - 后台壳样板',
+            $this->resourceDefinition()['show_title'].' - 后台壳样板',
             $this->buildShowHeader($scope),
             $this->detailItems($group)
         );
@@ -179,5 +188,10 @@ class AdminShellGoodsGroupPageService implements AdminShellPageServiceInterface
         return collect($actions)->map(function (array $action) {
             return sprintf('<a href="%s">%s</a>', e($action['href']), e($action['label']));
         })->implode(' / ');
+    }
+
+    private function resourceDefinition(): array
+    {
+        return AdminShellResourceRegistry::definitions()[self::RESOURCE_KEY];
     }
 }

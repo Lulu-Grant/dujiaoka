@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 
 class AdminShellPayPageService implements AdminShellPageServiceInterface
 {
+    private const RESOURCE_KEY = 'pay';
+
     /**
      * @var \App\Service\PayAdminPresenterService
      */
@@ -68,10 +70,11 @@ class AdminShellPayPageService implements AdminShellPageServiceInterface
     public function buildTable(LengthAwarePaginator $pays, array $filters): array
     {
         $scope = $filters['scope'] ?? null;
+        $definition = $this->resourceDefinition();
 
         return [
             'headers' => ['ID', '支付名称', '支付标识', '生命周期', '支付方式', '支付场景', '启用状态', '更新时间', '操作'],
-            'rows' => $pays->getCollection()->map(function (Pay $pay) use ($scope) {
+            'rows' => $pays->getCollection()->map(function (Pay $pay) use ($scope, $definition) {
                 return [
                     $pay->id,
                     e($pay->pay_name),
@@ -84,7 +87,7 @@ class AdminShellPayPageService implements AdminShellPageServiceInterface
                     $this->renderActionLinks([
                         [
                             'label' => '查看详情',
-                            'href' => admin_url('v2/pay/'.$pay->id.($scope ? '?scope='.$scope : '')),
+                            'href' => admin_url($definition['uri'].'/'.$pay->id.($scope ? '?scope='.$scope : '')),
                         ],
                     ]),
                 ];
@@ -97,9 +100,11 @@ class AdminShellPayPageService implements AdminShellPageServiceInterface
 
     public function buildHeader(LengthAwarePaginator $pays): array
     {
+        $definition = $this->resourceDefinition();
+
         return [
-            'title' => '支付通道管理',
-            'description' => '这是第一批后台迁移的第三张样板页。支付通道的生命周期、支付方式、支付场景都直接复用现有 presenter 与模型映射。',
+            'title' => $definition['index_title'],
+            'description' => $definition['index_description'],
             'meta' => '共 '.$pays->total().' 条通道',
             'actions' => [
                 [
@@ -113,6 +118,8 @@ class AdminShellPayPageService implements AdminShellPageServiceInterface
 
     public function buildFilters(array $filters): array
     {
+        $definition = $this->resourceDefinition();
+
         return [
             'fields' => [
                 ['label' => 'ID', 'name' => 'id', 'type' => 'number', 'value' => $filters['id'] ?? null],
@@ -126,17 +133,19 @@ class AdminShellPayPageService implements AdminShellPageServiceInterface
                     'options' => ['' => '全部', 'trashed' => '回收站'],
                 ],
             ],
-            'resetUrl' => admin_url('v2/pay'),
+            'resetUrl' => admin_url($definition['uri']),
         ];
     }
 
     public function buildShowHeader(?string $scope = null): array
     {
+        $definition = $this->resourceDefinition();
+
         return [
-            'title' => '支付通道详情',
-            'description' => '这张详情页固定了支付通道的展示合同，后续迁移编辑页时可以直接在这套壳上扩展。',
+            'title' => $definition['show_title'],
+            'description' => $definition['show_description'],
             'actions' => [
-                ['label' => '返回列表', 'href' => admin_url('v2/pay'.($scope ? '?scope='.$scope : ''))],
+                ['label' => '返回列表', 'href' => admin_url($definition['uri'].($scope ? '?scope='.$scope : ''))],
             ],
         ];
     }
@@ -144,7 +153,7 @@ class AdminShellPayPageService implements AdminShellPageServiceInterface
     public function buildIndexPageData(LengthAwarePaginator $pays, array $filters): AdminShellIndexPageData
     {
         return new AdminShellIndexPageData(
-            '支付通道管理 - 后台壳样板',
+            $this->resourceDefinition()['index_title'].' - 后台壳样板',
             $this->buildHeader($pays),
             $this->buildFilters($filters),
             $this->buildTable($pays, $filters)
@@ -154,7 +163,7 @@ class AdminShellPayPageService implements AdminShellPageServiceInterface
     public function buildShowPageData($pay, ?string $scope = null): AdminShellShowPageData
     {
         return new AdminShellShowPageData(
-            '支付通道详情 - 后台壳样板',
+            $this->resourceDefinition()['show_title'].' - 后台壳样板',
             $this->buildShowHeader($scope),
             $this->detailItems($pay)
         );
@@ -197,5 +206,10 @@ class AdminShellPayPageService implements AdminShellPageServiceInterface
         return collect($actions)->map(function (array $action) {
             return sprintf('<a href="%s">%s</a>', e($action['href']), e($action['label']));
         })->implode(' / ');
+    }
+
+    private function resourceDefinition(): array
+    {
+        return AdminShellResourceRegistry::definitions()[self::RESOURCE_KEY];
     }
 }

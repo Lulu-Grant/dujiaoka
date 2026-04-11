@@ -245,7 +245,7 @@
                 <div class="brand-subtitle">后台壳样板</div>
             </div>
         </div>
-        <div class="nav-label">First Batch</div>
+        <div class="nav-label">{{ \App\Service\AdminShellResourceRegistry::navigationSectionLabel() }}</div>
         <nav class="nav-list">
             @foreach(\App\Service\AdminShellResourceRegistry::navigationItems() as $item)
                 <a class="nav-item{{ request()->is($item['active_pattern']) ? ' active' : '' }}" href="{{ $item['href'] }}">{{ $item['label'] }}</a>
