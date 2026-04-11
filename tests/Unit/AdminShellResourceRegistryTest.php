@@ -39,11 +39,19 @@ class AdminShellResourceRegistryTest extends TestCase
         $this->assertTrue($resource['uses_scope']);
     }
 
+    public function test_registry_returns_carmis_resource_definition(): void
+    {
+        $resource = $this->app->make(AdminShellResourceRegistry::class)->get('carmis');
+
+        $this->assertSame(\App\Service\AdminShellCarmisPageService::class, $resource['service']);
+        $this->assertTrue($resource['uses_scope']);
+    }
+
     public function test_registry_exposes_permission_except_patterns(): void
     {
         $patterns = AdminShellResourceRegistry::permissionExceptPatterns();
 
-        $this->assertSame(['v2/goods-group*', 'v2/emailtpl*', 'v2/pay*', 'v2/coupon*'], $patterns);
+        $this->assertSame(['v2/goods-group*', 'v2/emailtpl*', 'v2/pay*', 'v2/coupon*', 'v2/carmis*'], $patterns);
     }
 
     public function test_registry_exposes_navigation_items(): void
@@ -54,6 +62,7 @@ class AdminShellResourceRegistryTest extends TestCase
         $this->assertStringEndsWith('v2/goods-group', $items[0]['href']);
         $this->assertSame('admin/v2/pay*', $items[2]['active_pattern']);
         $this->assertSame('优惠码管理', $items[3]['label']);
+        $this->assertSame('卡密管理', $items[4]['label']);
     }
 
     public function test_registry_exposes_page_metadata(): void

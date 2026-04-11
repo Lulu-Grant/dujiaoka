@@ -5,8 +5,10 @@ namespace Tests\Unit;
 use App\Models\Emailtpl;
 use App\Models\GoodsGroup;
 use App\Models\Coupon;
+use App\Models\Carmis;
 use App\Models\Pay;
 use App\Service\AbstractAdminShellPageService;
+use App\Service\AdminShellCarmisPageService;
 use App\Service\AdminShellCouponPageService;
 use App\Service\Contracts\AdminShellPageServiceInterface;
 use App\Service\DataTransferObjects\AdminShellIndexPageData;
@@ -161,6 +163,7 @@ class AdminShellPageStructureTest extends TestCase
         $this->assertInstanceOf(AbstractAdminShellPageService::class, $this->app->make(AdminShellEmailTemplatePageService::class));
         $this->assertInstanceOf(AbstractAdminShellPageService::class, $this->app->make(AdminShellPayPageService::class));
         $this->assertInstanceOf(AbstractAdminShellPageService::class, $this->app->make(AdminShellCouponPageService::class));
+        $this->assertInstanceOf(AbstractAdminShellPageService::class, $this->app->make(AdminShellCarmisPageService::class));
     }
 
     public function test_coupon_page_service_builds_table_and_detail_items()
@@ -208,5 +211,49 @@ class AdminShellPageStructureTest extends TestCase
         $this->assertSame('当前条件下没有优惠码记录。', $table['empty_title']);
         $this->assertSame('关联商品', $items[6]['label']);
         $this->assertSame('西瓜会员', $items[6]['value']);
+    }
+
+    public function test_carmis_page_service_builds_table_and_detail_items()
+    {
+        $carmi = new Carmis();
+        $carmi->forceFill([
+            'id' => 505,
+            'goods_id' => 505,
+            'status' => Carmis::STATUS_UNSOLD,
+            'is_loop' => 0,
+            'carmi' => 'CARD-505-XYZ',
+            'created_at' => Carbon::parse('2026-04-10 18:00:00'),
+            'updated_at' => Carbon::parse('2026-04-10 19:00:00'),
+        ]);
+        $carmi->setRelation('goods', (object) ['gd_name' => '自动发货商品']);
+
+        $service = $this->app->make(AdminShellCarmisPageService::class);
+        $this->assertInstanceOf(AdminShellPageServiceInterface::class, $service);
+        $table = $service->buildTable(
+            new LengthAwarePaginator(collect([$carmi]), 1, 15),
+            ['scope' => '']
+        );
+        $header = $service->buildHeader(new LengthAwarePaginator(collect([$carmi]), 1, 15));
+        $filters = $service->buildFilters(['goods_id' => 505, 'status' => Carmis::STATUS_UNSOLD, 'scope' => 'trashed']);
+        $showHeader = $service->buildShowHeader('trashed');
+        $indexPage = $service->buildIndexPageData(new LengthAwarePaginator(collect([$carmi]), 1, 15), ['goods_id' => 505, 'scope' => '']);
+        $showPage = $service->buildShowPageData($carmi, 'trashed');
+        $items = $service->detailItems($carmi);
+        $requestFilters = $service->extractFilters(Request::create('/admin/v2/carmis?goods_id=505&status=1&scope=trashed', 'GET'));
+
+        $this->assertSame('卡密管理', $header['title']);
+        $this->assertSame('505', $requestFilters['goods_id']);
+        $this->assertSame('状态', $filters['fields'][2]['label']);
+        $this->assertSame('卡密详情', $showHeader['title']);
+        $this->assertInstanceOf(AdminShellIndexPageData::class, $indexPage);
+        $this->assertInstanceOf(AdminShellShowPageData::class, $showPage);
+        $this->assertSame('卡密管理 - 后台壳样板', $indexPage->title);
+        $this->assertSame('卡密详情 - 后台壳样板', $showPage->title);
+        $this->assertStringContainsString('?scope=trashed', $showHeader['actions'][0]['href']);
+        $this->assertSame('关联商品', $table['headers'][1]);
+        $this->assertStringContainsString('自动发货商品', $table['rows'][0][1]);
+        $this->assertSame('当前条件下没有卡密记录。', $table['empty_title']);
+        $this->assertSame('卡密内容', $items[4]['label']);
+        $this->assertSame('CARD-505-XYZ', $items[4]['value']);
     }
 }

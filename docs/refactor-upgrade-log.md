@@ -2711,3 +2711,25 @@
 下一步：
 
 - 继续沿着第二批优先级推进卡密管理或系统设置，让后台壳从第一批样板扩展到更复杂的页面类型。
+
+### 114. 落地第二批后台壳样板页：卡密管理
+
+摘要：
+
+- 新增 [CarmisShellController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/CarmisShellController.php) 和 [AdminShellCarmisPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellCarmisPageService.php)，将卡密管理接入新后台壳。
+- [AdminShellResourceRegistry.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellResourceRegistry.php) 已加入 `carmis` 资源定义，因此后台壳路由、权限白名单和导航会自动接入 `/admin/v2/carmis`。
+- 新增 [AdminShellCarmisControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellCarmisControllerTest.php) 与 [AdminShellPageStructureTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellPageStructureTest.php) 的卡密页断言，守住第二批第二张样板页的展示合同。
+
+影响范围：
+
+- 第二批后台页的实际迁移覆盖面
+- 后台壳资源注册表的复用能力
+- 卡密管理页的只读样板接入路径
+
+验证：
+
+- 当前全量回归结果：`OK (151 tests, 473 assertions)`
+
+下一步：
+
+- 继续沿着第二批优先级推进系统设置或邮件测试，让后台壳开始覆盖非标准 CRUD 页面。

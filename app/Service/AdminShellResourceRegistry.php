@@ -56,6 +56,17 @@ class AdminShellResourceRegistry
                 'uri' => 'v2/coupon',
                 'uses_scope' => true,
             ],
+            'carmis' => [
+                'nav_label' => '卡密管理',
+                'index_title' => '卡密管理',
+                'index_description' => '这是第二批后台迁移的第二张样板页。卡密状态、循环使用标记和关联商品展示已经脱离 Dcat Grid，进入普通 Laravel 页面服务。',
+                'show_title' => '卡密详情',
+                'show_description' => '这张详情页固定了卡密状态和内容展示合同，后续可以在这套壳上继续扩展导入与编辑能力。',
+                'controller' => \App\Http\Controllers\AdminShell\CarmisShellController::class,
+                'service' => \App\Service\AdminShellCarmisPageService::class,
+                'uri' => 'v2/carmis',
+                'uses_scope' => true,
+            ],
         ];
     }
 
