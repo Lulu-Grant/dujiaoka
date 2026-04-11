@@ -2619,3 +2619,25 @@
 下一步：
 
 - 继续提炼资源元数据，让菜单、导航或页面元信息也逐步从注册表派生。
+
+### 110. 让后台壳导航跟随资源注册表生成
+
+摘要：
+
+- [AdminShellResourceRegistry.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellResourceRegistry.php) 现在新增导航元信息与 `navigationItems()`。
+- [layout.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/layout.blade.php) 已从手写三条侧边导航，切到通过资源注册表动态派生。
+- [AdminShellResourceRegistryTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellResourceRegistryTest.php) 已扩展为覆盖导航项派生结果。
+
+影响范围：
+
+- 后台壳样板页侧边导航的维护方式
+- 后续新增后台壳资源时的导航接入成本
+- 资源注册表从路由、控制器、权限中心扩展到导航元数据中心
+
+验证：
+
+- 当前全量回归结果：`OK (141 tests, 424 assertions)`
+
+下一步：
+
+- 继续提炼资源元数据，让资源标题、分组、说明等页面级元信息也逐步从注册表集中派生。

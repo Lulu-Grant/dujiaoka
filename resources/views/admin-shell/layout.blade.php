@@ -247,9 +247,9 @@
         </div>
         <div class="nav-label">First Batch</div>
         <nav class="nav-list">
-            <a class="nav-item{{ request()->is(config('admin.route.prefix').'/v2/goods-group*') ? ' active' : '' }}" href="{{ admin_url('v2/goods-group') }}">商品分类管理</a>
-            <a class="nav-item{{ request()->is(config('admin.route.prefix').'/v2/emailtpl*') ? ' active' : '' }}" href="{{ admin_url('v2/emailtpl') }}">邮件模板管理</a>
-            <a class="nav-item{{ request()->is(config('admin.route.prefix').'/v2/pay*') ? ' active' : '' }}" href="{{ admin_url('v2/pay') }}">支付通道管理</a>
+            @foreach(\App\Service\AdminShellResourceRegistry::navigationItems() as $item)
+                <a class="nav-item{{ request()->is($item['active_pattern']) ? ' active' : '' }}" href="{{ $item['href'] }}">{{ $item['label'] }}</a>
+            @endforeach
         </nav>
     </aside>
     <main class="content">

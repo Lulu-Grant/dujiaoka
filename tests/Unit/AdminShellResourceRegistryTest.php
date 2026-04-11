@@ -37,4 +37,13 @@ class AdminShellResourceRegistryTest extends TestCase
 
         $this->assertSame(['v2/goods-group*', 'v2/emailtpl*', 'v2/pay*'], $patterns);
     }
+
+    public function test_registry_exposes_navigation_items(): void
+    {
+        $items = AdminShellResourceRegistry::navigationItems();
+
+        $this->assertSame('商品分类管理', $items[0]['label']);
+        $this->assertStringEndsWith('v2/goods-group', $items[0]['href']);
+        $this->assertSame('admin/v2/pay*', $items[2]['active_pattern']);
+    }
 }
