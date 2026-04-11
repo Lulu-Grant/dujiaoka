@@ -3,23 +3,21 @@
 namespace App\Service;
 
 use App\Models\Pay;
-use App\Service\Contracts\AdminShellPageServiceInterface;
 use App\Service\DataTransferObjects\AdminShellIndexPageData;
 use App\Service\DataTransferObjects\AdminShellShowPageData;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 
-class AdminShellPayPageService implements AdminShellPageServiceInterface
+class AdminShellPayPageService extends AbstractAdminShellPageService
 {
-    private const RESOURCE_KEY = 'pay';
-
     /**
      * @var \App\Service\PayAdminPresenterService
      */
     private $presenter;
 
-    public function __construct(PayAdminPresenterService $presenter)
+    public function __construct(AdminShellResourceRegistry $resourceRegistry, PayAdminPresenterService $presenter)
     {
+        parent::__construct($resourceRegistry);
         $this->presenter = $presenter;
     }
 
@@ -100,20 +98,7 @@ class AdminShellPayPageService implements AdminShellPageServiceInterface
 
     public function buildHeader(LengthAwarePaginator $pays): array
     {
-        $definition = $this->resourceDefinition();
-
-        return [
-            'title' => $definition['index_title'],
-            'description' => $definition['index_description'],
-            'meta' => '共 '.$pays->total().' 条通道',
-            'actions' => [
-                [
-                    'label' => '迁移合同',
-                    'href' => 'https://github.com/Lulu-Grant/dujiaoka/blob/master/docs/admin-first-batch-migration-contracts.md',
-                    'variant' => 'secondary',
-                ],
-            ],
-        ];
+        return $this->buildResourceHeader('共 '.$pays->total().' 条通道');
     }
 
     public function buildFilters(array $filters): array
@@ -139,21 +124,13 @@ class AdminShellPayPageService implements AdminShellPageServiceInterface
 
     public function buildShowHeader(?string $scope = null): array
     {
-        $definition = $this->resourceDefinition();
-
-        return [
-            'title' => $definition['show_title'],
-            'description' => $definition['show_description'],
-            'actions' => [
-                ['label' => '返回列表', 'href' => admin_url($definition['uri'].($scope ? '?scope='.$scope : ''))],
-            ],
-        ];
+        return $this->buildResourceShowHeader($scope);
     }
 
     public function buildIndexPageData(LengthAwarePaginator $pays, array $filters): AdminShellIndexPageData
     {
         return new AdminShellIndexPageData(
-            $this->resourceDefinition()['index_title'].' - 后台壳样板',
+            $this->buildDocumentTitle('index_title'),
             $this->buildHeader($pays),
             $this->buildFilters($filters),
             $this->buildTable($pays, $filters)
@@ -163,7 +140,7 @@ class AdminShellPayPageService implements AdminShellPageServiceInterface
     public function buildShowPageData($pay, ?string $scope = null): AdminShellShowPageData
     {
         return new AdminShellShowPageData(
-            $this->resourceDefinition()['show_title'].' - 后台壳样板',
+            $this->buildDocumentTitle('show_title'),
             $this->buildShowHeader($scope),
             $this->detailItems($pay)
         );
@@ -208,8 +185,8 @@ class AdminShellPayPageService implements AdminShellPageServiceInterface
         })->implode(' / ');
     }
 
-    private function resourceDefinition(): array
+    protected function resourceKey(): string
     {
-        return AdminShellResourceRegistry::definitions()[self::RESOURCE_KEY];
+        return 'pay';
     }
 }

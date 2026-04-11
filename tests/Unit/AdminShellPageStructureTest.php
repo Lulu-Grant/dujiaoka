@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use App\Models\Emailtpl;
 use App\Models\GoodsGroup;
 use App\Models\Pay;
+use App\Service\AbstractAdminShellPageService;
 use App\Service\Contracts\AdminShellPageServiceInterface;
 use App\Service\DataTransferObjects\AdminShellIndexPageData;
 use App\Service\DataTransferObjects\AdminShellShowPageData;
@@ -150,5 +151,12 @@ class AdminShellPageStructureTest extends TestCase
         $this->assertSame('当前条件下没有支付通道记录。', $table['empty_title']);
         $this->assertSame('支付名称', $items[1]['label']);
         $this->assertSame('Stripe', $items[1]['value']);
+    }
+
+    public function test_admin_shell_page_services_share_common_base_class()
+    {
+        $this->assertInstanceOf(AbstractAdminShellPageService::class, $this->app->make(AdminShellGoodsGroupPageService::class));
+        $this->assertInstanceOf(AbstractAdminShellPageService::class, $this->app->make(AdminShellEmailTemplatePageService::class));
+        $this->assertInstanceOf(AbstractAdminShellPageService::class, $this->app->make(AdminShellPayPageService::class));
     }
 }

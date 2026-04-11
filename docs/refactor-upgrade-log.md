@@ -2667,3 +2667,25 @@
 下一步：
 
 - 继续收拢更多资源级配置，让新后台壳更接近“注册一个资源即可完整生成页面骨架”的状态。
+
+### 112. 引入后台壳页面服务抽象基类
+
+摘要：
+
+- 新增 [AbstractAdminShellPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AbstractAdminShellPageService.php)，统一承载后台壳页面服务共享的资源定义读取、列表页头构造、详情页头构造、页面标题生成和迁移合同动作。
+- 商品分类、邮件模板、支付通道三张后台壳样板页的页面服务，都已经改成继承这层抽象基类，不再分别维护重复的页头和标题装配逻辑。
+- [AdminShellPageStructureTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellPageStructureTest.php) 已补充断言，确保三张样板页继续共享同一套页面服务基座。
+
+影响范围：
+
+- 后台壳页面服务的继承结构
+- 后台壳样板页列表/详情页头的共用方式
+- 后续新增后台壳资源时的页面服务样板成本
+
+验证：
+
+- 当前全量回归结果：`OK (143 tests, 430 assertions)`
+
+下一步：
+
+- 继续把资源级动作和页面行为往注册表与抽象层收拢，让新增后台壳资源更接近“只写查询和字段合同”。

@@ -3,16 +3,13 @@
 namespace App\Service;
 
 use App\Models\Emailtpl;
-use App\Service\Contracts\AdminShellPageServiceInterface;
 use App\Service\DataTransferObjects\AdminShellIndexPageData;
 use App\Service\DataTransferObjects\AdminShellShowPageData;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 
-class AdminShellEmailTemplatePageService implements AdminShellPageServiceInterface
+class AdminShellEmailTemplatePageService extends AbstractAdminShellPageService
 {
-    private const RESOURCE_KEY = 'emailtpl';
-
     public function paginate(array $filters): LengthAwarePaginator
     {
         $query = Emailtpl::query()->orderByDesc('id');
@@ -72,20 +69,7 @@ class AdminShellEmailTemplatePageService implements AdminShellPageServiceInterfa
 
     public function buildHeader(LengthAwarePaginator $templates): array
     {
-        $definition = $this->resourceDefinition();
-
-        return [
-            'title' => $definition['index_title'],
-            'description' => $definition['index_description'],
-            'meta' => '共 '.$templates->total().' 条模板',
-            'actions' => [
-                [
-                    'label' => '迁移合同',
-                    'href' => 'https://github.com/Lulu-Grant/dujiaoka/blob/master/docs/admin-first-batch-migration-contracts.md',
-                    'variant' => 'secondary',
-                ],
-            ],
-        ];
+        return $this->buildResourceHeader('共 '.$templates->total().' 条模板');
     }
 
     public function buildFilters(array $filters): array
@@ -104,21 +88,13 @@ class AdminShellEmailTemplatePageService implements AdminShellPageServiceInterfa
 
     public function buildShowHeader(): array
     {
-        $definition = $this->resourceDefinition();
-
-        return [
-            'title' => $definition['show_title'],
-            'description' => $definition['show_description'],
-            'actions' => [
-                ['label' => '返回列表', 'href' => admin_url($definition['uri'])],
-            ],
-        ];
+        return $this->buildResourceShowHeader();
     }
 
     public function buildIndexPageData(LengthAwarePaginator $templates, array $filters): AdminShellIndexPageData
     {
         return new AdminShellIndexPageData(
-            $this->resourceDefinition()['index_title'].' - 后台壳样板',
+            $this->buildDocumentTitle('index_title'),
             $this->buildHeader($templates),
             $this->buildFilters($filters),
             $this->buildTable($templates)
@@ -128,7 +104,7 @@ class AdminShellEmailTemplatePageService implements AdminShellPageServiceInterfa
     public function buildShowPageData($template, ?string $scope = null): AdminShellShowPageData
     {
         return new AdminShellShowPageData(
-            $this->resourceDefinition()['show_title'].' - 后台壳样板',
+            $this->buildDocumentTitle('show_title'),
             $this->buildShowHeader(),
             $this->detailItems($template)
         );
@@ -158,8 +134,8 @@ class AdminShellEmailTemplatePageService implements AdminShellPageServiceInterfa
         })->implode(' / ');
     }
 
-    private function resourceDefinition(): array
+    protected function resourceKey(): string
     {
-        return AdminShellResourceRegistry::definitions()[self::RESOURCE_KEY];
+        return 'emailtpl';
     }
 }

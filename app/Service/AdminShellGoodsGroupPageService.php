@@ -3,23 +3,21 @@
 namespace App\Service;
 
 use App\Models\GoodsGroup;
-use App\Service\Contracts\AdminShellPageServiceInterface;
 use App\Service\DataTransferObjects\AdminShellIndexPageData;
 use App\Service\DataTransferObjects\AdminShellShowPageData;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 
-class AdminShellGoodsGroupPageService implements AdminShellPageServiceInterface
+class AdminShellGoodsGroupPageService extends AbstractAdminShellPageService
 {
-    private const RESOURCE_KEY = 'goods-group';
-
     /**
      * @var \App\Service\AdminStatusPresenterService
      */
     private $statusPresenter;
 
-    public function __construct(AdminStatusPresenterService $statusPresenter)
+    public function __construct(AdminShellResourceRegistry $resourceRegistry, AdminStatusPresenterService $statusPresenter)
     {
+        parent::__construct($resourceRegistry);
         $this->statusPresenter = $statusPresenter;
     }
 
@@ -89,20 +87,7 @@ class AdminShellGoodsGroupPageService implements AdminShellPageServiceInterface
 
     public function buildHeader(LengthAwarePaginator $groups): array
     {
-        $definition = $this->resourceDefinition();
-
-        return [
-            'title' => $definition['index_title'],
-            'description' => $definition['index_description'],
-            'meta' => '共 '.$groups->total().' 条记录',
-            'actions' => [
-                [
-                    'label' => '迁移合同',
-                    'href' => 'https://github.com/Lulu-Grant/dujiaoka/blob/master/docs/admin-first-batch-migration-contracts.md',
-                    'variant' => 'secondary',
-                ],
-            ],
-        ];
+        return $this->buildResourceHeader('共 '.$groups->total().' 条记录');
     }
 
     public function buildFilters(array $filters): array
@@ -126,21 +111,13 @@ class AdminShellGoodsGroupPageService implements AdminShellPageServiceInterface
 
     public function buildShowHeader(?string $scope = null): array
     {
-        $definition = $this->resourceDefinition();
-
-        return [
-            'title' => $definition['show_title'],
-            'description' => $definition['show_description'],
-            'actions' => [
-                ['label' => '返回列表', 'href' => admin_url($definition['uri'].($scope ? '?scope='.$scope : ''))],
-            ],
-        ];
+        return $this->buildResourceShowHeader($scope);
     }
 
     public function buildIndexPageData(LengthAwarePaginator $groups, array $filters): AdminShellIndexPageData
     {
         return new AdminShellIndexPageData(
-            $this->resourceDefinition()['index_title'].' - 后台壳样板',
+            $this->buildDocumentTitle('index_title'),
             $this->buildHeader($groups),
             $this->buildFilters($filters),
             $this->buildTable($groups, $filters)
@@ -150,7 +127,7 @@ class AdminShellGoodsGroupPageService implements AdminShellPageServiceInterface
     public function buildShowPageData($group, ?string $scope = null): AdminShellShowPageData
     {
         return new AdminShellShowPageData(
-            $this->resourceDefinition()['show_title'].' - 后台壳样板',
+            $this->buildDocumentTitle('show_title'),
             $this->buildShowHeader($scope),
             $this->detailItems($group)
         );
@@ -190,8 +167,8 @@ class AdminShellGoodsGroupPageService implements AdminShellPageServiceInterface
         })->implode(' / ');
     }
 
-    private function resourceDefinition(): array
+    protected function resourceKey(): string
     {
-        return AdminShellResourceRegistry::definitions()[self::RESOURCE_KEY];
+        return 'goods-group';
     }
 }
