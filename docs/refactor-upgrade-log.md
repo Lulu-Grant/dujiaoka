@@ -2597,3 +2597,25 @@
 下一步：
 
 - 继续提炼资源元数据和通用路由约定，朝“注册一个资源即可接入后台壳”再收一层。
+
+### 109. 让后台壳权限白名单跟随资源注册表生成
+
+摘要：
+
+- [AdminShellResourceRegistry.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellResourceRegistry.php) 现在新增 `definitions()` 与 `permissionExceptPatterns()`，可以统一产出后台壳资源元数据与权限白名单模式。
+- [config/admin.php](/Users/apple/Documents/dujiaoshuka/config/admin.php) 已从手写三条 `v2/*` 白名单，切到通过资源注册表动态派生。
+- [AdminShellResourceRegistryTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellResourceRegistryTest.php) 已扩展为覆盖权限白名单派生结果。
+
+影响范围：
+
+- 后台壳权限白名单维护方式
+- 后续新增后台壳资源时的接入一致性
+- 资源注册表从路由与控制器调度中心继续扩展到权限约定中心
+
+验证：
+
+- 当前全量回归结果：`OK (140 tests, 421 assertions)`
+
+下一步：
+
+- 继续提炼资源元数据，让菜单、导航或页面元信息也逐步从注册表派生。

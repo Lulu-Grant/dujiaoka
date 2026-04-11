@@ -214,9 +214,7 @@ return [
             'auth/login',
             'auth/logout',
             'auth/setting',
-            'v2/goods-group*',
-            'v2/emailtpl*',
-            'v2/pay*',
+            ...\App\Service\AdminShellResourceRegistry::permissionExceptPatterns(),
         ],
     ],
 

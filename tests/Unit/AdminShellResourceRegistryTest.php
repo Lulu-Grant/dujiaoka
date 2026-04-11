@@ -30,4 +30,11 @@ class AdminShellResourceRegistryTest extends TestCase
         $this->assertSame(\App\Service\AdminShellPayPageService::class, $resource['service']);
         $this->assertTrue($resource['uses_scope']);
     }
+
+    public function test_registry_exposes_permission_except_patterns(): void
+    {
+        $patterns = AdminShellResourceRegistry::permissionExceptPatterns();
+
+        $this->assertSame(['v2/goods-group*', 'v2/emailtpl*', 'v2/pay*'], $patterns);
+    }
 }
