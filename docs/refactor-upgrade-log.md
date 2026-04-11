@@ -2574,3 +2574,26 @@
 下一步：
 
 - 继续保持测试对时间边界的稳定性要求，避免后续 CI 再出现时段型假红。
+
+### 108. 为新后台壳引入路由注册器
+
+摘要：
+
+- 新增 [AdminShellRouteRegistrar.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellRouteRegistrar.php)，把后台壳 `index/show` 路由注册逻辑接入资源注册表。
+- [app/Admin/routes.php](/Users/apple/Documents/dujiaoshuka/app/Admin/routes.php) 已从手写三组 `v2/*` 路由切到通过注册器统一挂载。
+- [AdminShellResourceRegistry.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellResourceRegistry.php) 现在除了页面服务与 `scope` 行为，也统一记录后台壳控制器映射。
+- 新增 [AdminShellRouteRegistrarTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellRouteRegistrarTest.php) 守住路由挂载行为。
+
+影响范围：
+
+- 第一批后台壳样板页的路由接入方式
+- 后续后台壳资源批量注册能力
+- 资源注册表从“页面服务注册”扩展到“控制器 + 路由注册”调度中心
+
+验证：
+
+- 当前全量回归结果：`OK (139 tests, 420 assertions)`
+
+下一步：
+
+- 继续提炼资源元数据和通用路由约定，朝“注册一个资源即可接入后台壳”再收一层。
