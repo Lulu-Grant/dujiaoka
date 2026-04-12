@@ -255,7 +255,7 @@ class AdminShellPageStructureTest extends TestCase
         );
         $header = $service->buildHeader(new LengthAwarePaginator(collect([$order]), 1, 15));
         $filters = $service->buildFilters(['order_sn' => 'XIGUA', 'status' => Order::STATUS_COMPLETED, 'scope' => 'trashed']);
-        $showHeader = $service->buildShowHeader('trashed');
+        $showHeader = $service->buildShowHeader('trashed', $order);
         $indexPage = $service->buildIndexPageData(new LengthAwarePaginator(collect([$order]), 1, 15), ['order_sn' => 'XIGUA', 'scope' => '']);
         $showPage = $service->buildShowPageData($order, 'trashed');
         $items = $service->detailItems($order);
@@ -270,8 +270,10 @@ class AdminShellPageStructureTest extends TestCase
         $this->assertSame('订单管理 - 后台壳样板', $indexPage->title);
         $this->assertSame('订单详情 - 后台壳样板', $showPage->title);
         $this->assertStringContainsString('?scope=trashed', $showHeader['actions'][0]['href']);
+        $this->assertSame('编辑订单', $showHeader['actions'][1]['label']);
         $this->assertSame('订单号', $table['headers'][1]);
         $this->assertStringContainsString('XIGUA-ORDER-350', $table['rows'][0][1]);
+        $this->assertStringContainsString('编辑订单', $table['rows'][0][10]);
         $this->assertSame('当前条件下没有订单记录。', $table['empty_title']);
         $this->assertSame('支付通道', $items[14]['label']);
         $this->assertSame('Stripe', $items[14]['value']);

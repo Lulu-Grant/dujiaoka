@@ -48,6 +48,44 @@ class AdminShellOrderControllerTest extends TestCase
         $response->assertSee('订单附加信息');
     }
 
+    public function test_edit_renders_order_action_form(): void
+    {
+        $this->seedOrderFixture();
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/order/97001/edit');
+
+        $response->assertOk();
+        $response->assertSee('编辑订单');
+        $response->assertSee('XIGUA-ORDER-97001');
+        $response->assertSee('search-me');
+    }
+
+    public function test_edit_can_update_order_fields(): void
+    {
+        $this->seedOrderFixture();
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/order/97001/edit', [
+                'title' => '更新后的订单标题',
+                'info' => "新的附加信息\n第二行",
+                'status' => 2,
+                'search_pwd' => 'updated-pwd',
+                'type' => 2,
+            ]);
+
+        $response->assertRedirect('/admin/v2/order/97001/edit');
+        $response->assertSessionHas('status', '订单已保存');
+
+        $record = DB::table('orders')->where('id', 97001)->first();
+
+        $this->assertSame('更新后的订单标题', $record->title);
+        $this->assertSame("新的附加信息\n第二行", $record->info);
+        $this->assertSame(2, $record->status);
+        $this->assertSame('updated-pwd', $record->search_pwd);
+        $this->assertSame(2, $record->type);
+    }
+
     private function seedOrderFixture(): void
     {
         DB::table('goods_group')->insert([

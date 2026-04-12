@@ -3232,3 +3232,6 @@
 - [AbstractAdminShellPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AbstractAdminShellPageService.php) 已移除后台壳默认的旧版回退入口派生逻辑，页头动作现在只保留新后台壳自身需要的入口。
 - [AdminShellResourceRegistry.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellResourceRegistry.php) 已删除 `system-setting` 与 `email-test` 的 `legacy_uri` 兼容定义，后台壳不再默认向旧 Dcat 功能页回退。
 - [AdminShellDashboardPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellDashboardPageService.php) 与多张后台壳动作页已去掉“进入旧版首页/功能页”按钮，后台替换方向正式切换为单向收缩旧版。
+- 新增 [OrderActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/OrderActionController.php)、[OrderActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/OrderActionService.php) 和 [order/form.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/order/form.blade.php)，把订单编辑页正式接进后台壳。
+- [AdminShellOrderPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellOrderPageService.php) 已为订单列表与详情页补上“编辑订单”动作入口，后台壳里的订单资源从只读样板推进为低风险可操作页面。
+- [AdminShellOrderControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellOrderControllerTest.php) 与 [AdminShellPageStructureTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellPageStructureTest.php) 已补上订单编辑页护栏，当前只承接旧后台原本就允许修改的低风险字段。

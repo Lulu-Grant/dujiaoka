@@ -125,6 +125,10 @@ class AdminShellOrderPageService extends AbstractAdminShellPageService
                     e((string) $order->updated_at),
                     $this->renderActionLinks([
                         [
+                            'label' => '编辑订单',
+                            'href' => admin_url($definition['uri'].'/'.$order->id.'/edit'),
+                        ],
+                        [
                             'label' => '查看详情',
                             'href' => admin_url($definition['uri'].'/'.$order->id.($scope ? '?scope='.$scope : '')),
                         ],
@@ -183,9 +187,19 @@ class AdminShellOrderPageService extends AbstractAdminShellPageService
         ];
     }
 
-    public function buildShowHeader(?string $scope = null): array
+    public function buildShowHeader(?string $scope = null, ?Order $order = null): array
     {
-        return $this->buildResourceShowHeader($scope);
+        $header = $this->buildResourceShowHeader($scope);
+
+        if ($order) {
+            $header['actions'][] = [
+                'label' => '编辑订单',
+                'href' => admin_url('v2/order/'.$order->id.'/edit'),
+                'variant' => 'secondary',
+            ];
+        }
+
+        return $header;
     }
 
     public function buildIndexPageData(LengthAwarePaginator $orders, array $filters): AdminShellIndexPageData
@@ -202,7 +216,7 @@ class AdminShellOrderPageService extends AbstractAdminShellPageService
     {
         return new AdminShellShowPageData(
             $this->buildDocumentTitle('show_title'),
-            $this->buildShowHeader($scope),
+            $this->buildShowHeader($scope, $order),
             $this->detailItems($order)
         );
     }

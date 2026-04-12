@@ -1,0 +1,63 @@
+<?php
+
+namespace App\Http\Controllers\AdminShell;
+
+use App\Http\Controllers\Controller;
+use App\Models\Order;
+use App\Service\OrderActionService;
+use Illuminate\Http\Request;
+
+class OrderActionController extends Controller
+{
+    /**
+     * @var \App\Service\OrderActionService
+     */
+    private $orderActionService;
+
+    public function __construct(OrderActionService $orderActionService)
+    {
+        $this->orderActionService = $orderActionService;
+    }
+
+    public function edit(int $id)
+    {
+        $order = Order::query()->with(['goods:id,gd_name', 'coupon:id,coupon', 'pay:id,pay_name'])->findOrFail($id);
+
+        return view('admin-shell.order.form', [
+            'title' => '编辑订单 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Action',
+                'title' => '编辑订单',
+                'description' => '这是后台壳中的订单编辑样板页。当前只承接旧后台原本可编辑的标题、附加信息、状态、查询密码和订单类型，不直接触碰支付完成与履约链动作。',
+                'meta' => '这一步优先把订单的低风险人工维护入口迁进后台壳，后续再评估更复杂的订单动作页。',
+                'actions' => [
+                    ['label' => '返回订单概览', 'href' => admin_url('v2/order')],
+                    ['label' => '查看详情', 'href' => admin_url('v2/order/'.$order->id), 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/order/'.$order->id.'/edit'),
+            'submitLabel' => '保存订单',
+            'defaults' => $this->orderActionService->editDefaults($order),
+            'statusOptions' => Order::getStatusMap(),
+            'typeOptions' => Order::getTypeMap(),
+            'order' => $order,
+        ]);
+    }
+
+    public function update(int $id, Request $request)
+    {
+        $order = Order::query()->findOrFail($id);
+        $payload = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'info' => ['nullable', 'string'],
+            'status' => ['required', 'integer'],
+            'search_pwd' => ['required', 'string', 'max:255'],
+            'type' => ['required', 'integer'],
+        ]);
+
+        $this->orderActionService->update($order, $payload);
+
+        return redirect(admin_url('v2/order/'.$order->id.'/edit'))
+            ->with('status', '订单已保存');
+    }
+}
