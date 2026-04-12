@@ -121,6 +121,16 @@
 
 ### 已删除
 
+- `app/Admin/Controllers/CarmisController.php`
+- `app/Admin/Controllers/CouponController.php`
+- `app/Admin/Controllers/EmailTestController.php`
+- `app/Admin/Controllers/EmailtplController.php`
+- `app/Admin/Controllers/GoodsController.php`
+- `app/Admin/Controllers/GoodsGroupController.php`
+- `app/Admin/Controllers/HomeController.php`
+- `app/Admin/Controllers/OrderController.php`
+- `app/Admin/Controllers/PayController.php`
+- `app/Admin/Controllers/SystemSettingController.php`
 - `app/Admin/Actions/Post/Restore.php`
 - `app/Admin/Actions/Post/BatchRestore.php`
 - `app/Admin/bootstrap.php`
@@ -142,6 +152,8 @@
 
 ### 依据
 
+- 旧 `/admin/*` 兼容跳转已直接收进 `app/Admin/routes.php`
+- 这些控制器删除前已不包含任何业务逻辑，只负责把旧入口转向 `/admin/v2/*`
 - 上述文件在删除前只剩测试引用或互相弱引用，没有生产控制器、路由、页面服务继续调用
 - `/admin` 已经直接重定向到 `/admin/v2/dashboard`，旧 Dcat dashboard 不再承担主入口职责
 - 恢复动作链已不再被任何生产 Grid 控制器挂载

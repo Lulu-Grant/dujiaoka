@@ -67,6 +67,38 @@
 
 - 继续审计剩余旧兼容控制器与历史文档，清理第四批废弃文件
 
+### 150. 旧兼容控制器出清
+
+摘要：
+
+- 将旧 `/admin/*` 兼容跳转逻辑直接收进了 [app/Admin/routes.php](/Users/apple/Documents/dujiaoshuka/app/Admin/routes.php)，不再依赖一组仅负责 `redirect` 的空壳控制器。
+- 删除了以下 10 个旧兼容控制器：
+  - [app/Admin/Controllers/CarmisController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/CarmisController.php)
+  - [app/Admin/Controllers/CouponController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/CouponController.php)
+  - [app/Admin/Controllers/EmailTestController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/EmailTestController.php)
+  - [app/Admin/Controllers/EmailtplController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/EmailtplController.php)
+  - [app/Admin/Controllers/GoodsController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/GoodsController.php)
+  - [app/Admin/Controllers/GoodsGroupController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/GoodsGroupController.php)
+  - [app/Admin/Controllers/HomeController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/HomeController.php)
+  - [app/Admin/Controllers/OrderController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/OrderController.php)
+  - [app/Admin/Controllers/PayController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/PayController.php)
+  - [app/Admin/Controllers/SystemSettingController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/SystemSettingController.php)
+- 现在旧后台兼容入口依然保留，但已经退化成路由层的跳转语义，不再保留一整套空控制器文件。
+
+影响范围：
+
+- `app/Admin/Controllers` 目录继续显著瘦身
+- 旧后台兼容层从“路由 + 控制器壳”简化成“路由直接跳转”
+- 新后台壳继续作为真正的主承载层
+
+验证：
+
+- 继续执行全量 PHPUnit 与后台壳烟雾检查
+
+下一步：
+
+- 继续审计 `app/Admin/routes.php` 与 `database/sql/install.sql` 这类最后几处历史兼容面
+
 ### 147. 第一批废弃文件审计与清理
 
 摘要：
