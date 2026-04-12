@@ -46,6 +46,27 @@
 
 - 继续审计剩余旧兼容控制器与历史文档，清理第三批废弃文件
 
+### 149. 第三批历史文件清理
+
+摘要：
+
+- 删除了无运行时引用的主题说明文件 [resources/views/avatar/readme.md](/Users/apple/Documents/dujiaoshuka/resources/views/avatar/readme.md)，避免仓库继续保留不参与前台或后台渲染的历史说明页。
+- 删除了已被当前基线审计替代的历史审计文档 [docs/project-audit-notes.md](/Users/apple/Documents/dujiaoshuka/docs/project-audit-notes.md)。
+- 同步更新了 [README.md](/Users/apple/Documents/dujiaoshuka/README.md) 和 [docs/obsolete-file-audit.md](/Users/apple/Documents/dujiaoshuka/docs/obsolete-file-audit.md)，把仓库入口统一到当前仍在维护的审计与路线文档上。
+
+影响范围：
+
+- 仓库文档入口进一步收敛到当前基线
+- 主题目录移除了一份不参与运行时的历史说明文件
+
+验证：
+
+- 变更后继续执行全量 PHPUnit 与后台壳烟雾检查
+
+下一步：
+
+- 继续审计剩余旧兼容控制器与历史文档，清理第四批废弃文件
+
 ### 147. 第一批废弃文件审计与清理
 
 摘要：

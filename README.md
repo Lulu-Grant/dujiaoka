@@ -176,7 +176,6 @@ OK (230 tests, 1049 assertions)
 
 - [重构升级日志](docs/refactor-upgrade-log.md)
 - [现代化路线图](docs/modernization-roadmap.md)
-- [项目审计记录](docs/project-audit-notes.md)
 - [无守护进程改造清单](docs/no-daemon-migration-checklist.md)
 - [遗留运行时基线说明](docs/legacy-runtime-baseline.md)
 - [运行时兼容阻塞点](docs/runtime-compatibility-blockers.md)

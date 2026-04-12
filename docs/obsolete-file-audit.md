@@ -101,6 +101,15 @@
 - 运行时未引用，但仍带有主题来源与维护说明
 - 是否保留取决于仓库是否继续需要主题署名/来源说明
 
+### 历史审计文档
+
+- `docs/project-audit-notes.md`
+
+原因：
+
+- 内容已经明显被 `current-baseline-audit.md`、`legacy-runtime-baseline.md`、`runtime-compatibility-blockers.md` 分流覆盖
+- README 已改为以当前基线审计为主入口，旧文档不再承担主导航职责
+
 ## 下一批建议目标
 
 1. 把 `SystemSettingController`、`EmailTestController` 这类兼容跳转控制器进一步收口
@@ -128,9 +137,12 @@
 - `tests/Unit/AdminGridRestoreActionServiceTest.php`
 - `tests/Unit/AdminPageCardServiceTest.php`
 - `tests/Unit/SoftDeleteRestoreServiceTest.php`
+- `resources/views/avatar/readme.md`
+- `docs/project-audit-notes.md`
 
 ### 依据
 
 - 上述文件在删除前只剩测试引用或互相弱引用，没有生产控制器、路由、页面服务继续调用
 - `/admin` 已经直接重定向到 `/admin/v2/dashboard`，旧 Dcat dashboard 不再承担主入口职责
 - 恢复动作链已不再被任何生产 Grid 控制器挂载
+- 主题内部说明文件和旧项目审计文档都不再作为仓库主导航入口
