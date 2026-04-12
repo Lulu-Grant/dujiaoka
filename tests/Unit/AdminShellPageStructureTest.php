@@ -10,6 +10,7 @@ use App\Models\Pay;
 use App\Service\AbstractAdminShellPageService;
 use App\Service\AdminShellCarmisPageService;
 use App\Service\AdminShellCouponPageService;
+use App\Service\AdminShellEmailTestPageService;
 use App\Service\AdminShellSystemSettingPageService;
 use App\Service\Contracts\AdminShellPageServiceInterface;
 use App\Service\DataTransferObjects\AdminShellIndexPageData;
@@ -166,6 +167,7 @@ class AdminShellPageStructureTest extends TestCase
         $this->assertInstanceOf(AbstractAdminShellPageService::class, $this->app->make(AdminShellCouponPageService::class));
         $this->assertInstanceOf(AbstractAdminShellPageService::class, $this->app->make(AdminShellCarmisPageService::class));
         $this->assertInstanceOf(AbstractAdminShellPageService::class, $this->app->make(AdminShellSystemSettingPageService::class));
+        $this->assertInstanceOf(AbstractAdminShellPageService::class, $this->app->make(AdminShellEmailTestPageService::class));
     }
 
     public function test_coupon_page_service_builds_table_and_detail_items()
@@ -284,6 +286,34 @@ class AdminShellPageStructureTest extends TestCase
         $this->assertSame('系统设置详情 - 后台壳样板', $showPage->title);
         $this->assertSame('配置分组', $service->buildTable($sections)['headers'][1]);
         $this->assertSame('当前条件下没有系统设置分组。', $service->buildTable($sections)['empty_title']);
+        $this->assertSame('邮件驱动', $items[0]['label']);
+    }
+
+    public function test_email_test_page_service_builds_table_and_detail_items()
+    {
+        $service = $this->app->make(AdminShellEmailTestPageService::class);
+        $this->assertInstanceOf(AdminShellPageServiceInterface::class, $service);
+
+        $records = $service->paginate(['keyword' => '配置']);
+        $header = $service->buildHeader($records);
+        $filters = $service->buildFilters(['keyword' => '配置']);
+        $showHeader = $service->buildShowHeader();
+        $record = $service->find(2);
+        $indexPage = $service->buildIndexPageData($records, ['keyword' => '配置']);
+        $showPage = $service->buildShowPageData($record);
+        $items = $service->detailItems($record);
+        $requestFilters = $service->extractFilters(Request::create('/admin/v2/email-test', 'GET', ['keyword' => '配置']));
+
+        $this->assertSame('邮件测试概览', $header['title']);
+        $this->assertSame('配置', $requestFilters['keyword']);
+        $this->assertSame('关键字', $filters['fields'][0]['label']);
+        $this->assertSame('邮件测试详情', $showHeader['title']);
+        $this->assertInstanceOf(AdminShellIndexPageData::class, $indexPage);
+        $this->assertInstanceOf(AdminShellShowPageData::class, $showPage);
+        $this->assertSame('邮件测试概览 - 后台壳样板', $indexPage->title);
+        $this->assertSame('邮件测试详情 - 后台壳样板', $showPage->title);
+        $this->assertSame('页面分组', $service->buildTable($records)['headers'][1]);
+        $this->assertSame('当前条件下没有邮件测试页面分组。', $service->buildTable($records)['empty_title']);
         $this->assertSame('邮件驱动', $items[0]['label']);
     }
 }

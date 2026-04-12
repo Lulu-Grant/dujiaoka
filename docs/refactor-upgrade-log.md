@@ -2755,3 +2755,25 @@
 下一步：
 
 - 继续推进邮件测试或系统设置编辑路径，让后台壳开始覆盖操作型配置页面。
+
+### 116. 落地第二批后台壳配置型样板页：邮件测试概览
+
+摘要：
+
+- 新增 [EmailTestShellController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/EmailTestShellController.php) 和 [AdminShellEmailTestPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellEmailTestPageService.php)，把邮件测试页作为配置型样板接入后台壳。
+- [AdminShellResourceRegistry.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellResourceRegistry.php) 已加入 `email-test` 资源定义，并将后台壳导航分组统一更新为 `Admin Shell`，以匹配当前已不止第一批样板页的现状。
+- 新增 [AdminShellEmailTestControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellEmailTestControllerTest.php)，并扩展 [AdminShellPageStructureTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellPageStructureTest.php) 与 [AdminShellResourceRegistryTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellResourceRegistryTest.php)，守住邮件测试概览页的展示合同。
+
+影响范围：
+
+- 第二批配置型页面的覆盖面
+- 后台壳导航元信息的语义一致性
+- 邮件测试页的后台壳接入路径
+
+验证：
+
+- 当前全量回归结果：`OK (159 tests, 522 assertions)`
+
+下一步：
+
+- 继续推进操作型配置页面，优先评估系统设置编辑入口或邮件测试发送动作的后台壳过渡方案。

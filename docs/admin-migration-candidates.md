@@ -135,6 +135,8 @@
 
 - 第二优先级第一张配置型样板页已落地：
   - `/admin/v2/system-setting`
+- 第二优先级第二张配置型样板页已落地：
+  - `/admin/v2/email-test`
 
 ---
 

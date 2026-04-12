@@ -55,11 +55,19 @@ class AdminShellResourceRegistryTest extends TestCase
         $this->assertFalse($resource['uses_scope']);
     }
 
+    public function test_registry_returns_email_test_resource_definition(): void
+    {
+        $resource = $this->app->make(AdminShellResourceRegistry::class)->get('email-test');
+
+        $this->assertSame(\App\Service\AdminShellEmailTestPageService::class, $resource['service']);
+        $this->assertFalse($resource['uses_scope']);
+    }
+
     public function test_registry_exposes_permission_except_patterns(): void
     {
         $patterns = AdminShellResourceRegistry::permissionExceptPatterns();
 
-        $this->assertSame(['v2/goods-group*', 'v2/emailtpl*', 'v2/pay*', 'v2/coupon*', 'v2/carmis*', 'v2/system-setting*'], $patterns);
+        $this->assertSame(['v2/goods-group*', 'v2/emailtpl*', 'v2/pay*', 'v2/coupon*', 'v2/carmis*', 'v2/system-setting*', 'v2/email-test*'], $patterns);
     }
 
     public function test_registry_exposes_navigation_items(): void
@@ -72,6 +80,7 @@ class AdminShellResourceRegistryTest extends TestCase
         $this->assertSame('优惠码管理', $items[3]['label']);
         $this->assertSame('卡密管理', $items[4]['label']);
         $this->assertSame('系统设置概览', $items[5]['label']);
+        $this->assertSame('邮件测试概览', $items[6]['label']);
     }
 
     public function test_registry_exposes_page_metadata(): void
@@ -80,6 +89,6 @@ class AdminShellResourceRegistryTest extends TestCase
 
         $this->assertSame('商品分类管理', $goodsGroup['index_title']);
         $this->assertSame('商品分类详情', $goodsGroup['show_title']);
-        $this->assertSame('First Batch', AdminShellResourceRegistry::navigationSectionLabel());
+        $this->assertSame('Admin Shell', AdminShellResourceRegistry::navigationSectionLabel());
     }
 }

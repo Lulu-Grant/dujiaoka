@@ -6,7 +6,7 @@ class AdminShellResourceRegistry
 {
     public static function navigationSectionLabel(): string
     {
-        return 'First Batch';
+        return 'Admin Shell';
     }
 
     public static function definitions(): array
@@ -76,6 +76,17 @@ class AdminShellResourceRegistry
                 'controller' => \App\Http\Controllers\AdminShell\SystemSettingShellController::class,
                 'service' => \App\Service\AdminShellSystemSettingPageService::class,
                 'uri' => 'v2/system-setting',
+                'uses_scope' => false,
+            ],
+            'email-test' => [
+                'nav_label' => '邮件测试概览',
+                'index_title' => '邮件测试概览',
+                'index_description' => '这是第二批后台迁移的第二张配置型页面样板。当前按表单合同和运行时配置展示邮件测试页面，不再依赖 Dcat Card 页面壳。',
+                'show_title' => '邮件测试详情',
+                'show_description' => '这张详情页用于固定邮件测试页的表单字段与发信配置合同，为后续迁移真实测试发送入口提供基础。',
+                'controller' => \App\Http\Controllers\AdminShell\EmailTestShellController::class,
+                'service' => \App\Service\AdminShellEmailTestPageService::class,
+                'uri' => 'v2/email-test',
                 'uses_scope' => false,
             ],
         ];
