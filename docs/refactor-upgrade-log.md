@@ -3184,3 +3184,25 @@
 下一步：
 
 - 继续沿着这条路线推进更多中复杂度后台壳动作页，或开始把后台首页上的更多旧卡片逻辑继续往普通 Laravel 页面壳迁移。
+
+### 135. 将后台默认首页切到后台壳总览
+
+摘要：
+
+- [HomeController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/HomeController.php) 已从旧 Dcat dashboard 构建逻辑切换为直接跳转到 `/admin/v2/dashboard`。
+- 新增对 `/admin` 默认入口的 Feature 护栏，确保后台登录后的默认落点已经稳定切到后台壳首页。
+- 这一步没有改变原有统计口径，只是把后台首页的默认承载层从旧 Dcat dashboard 切到了新的后台壳总览页。
+
+影响范围：
+
+- 后台默认首页落点
+- 旧 Dcat dashboard 的继续退场
+- 后台壳首页的真实使用优先级
+
+验证：
+
+- 当前全量回归结果：`OK (209 tests, 798 assertions)`
+
+下一步：
+
+- 继续沿着这条路线推进更多中复杂度后台壳动作页，或继续压缩旧 Dcat 在首页与高频页上的承载范围。

@@ -4,14 +4,12 @@ namespace App\Admin\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Service\AdminDashboardLayoutService;
-use Dcat\Admin\Layout\Content;
 
 class HomeController extends Controller
 {
-
-    public function index(Content $content)
+    public function index()
     {
-        return app(AdminDashboardLayoutService::class)->build($content);
+        return redirect(admin_url('v2/dashboard'));
     }
 
     public static function title()

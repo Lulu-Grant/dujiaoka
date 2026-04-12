@@ -30,6 +30,14 @@ class AdminShellDashboardControllerTest extends TestCase
         $response->assertSee('订单状态分布');
     }
 
+    public function test_admin_home_redirects_to_admin_shell_dashboard(): void
+    {
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin');
+
+        $response->assertRedirect('/admin/v2/dashboard');
+    }
+
     private function seedDashboardOrders(): void
     {
         $timestamp = now()->startOfDay()->addMinute();
