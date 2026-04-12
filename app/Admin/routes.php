@@ -16,6 +16,8 @@ Route::group([
     $router->post('v2/email-test/send', [\App\Http\Controllers\AdminShell\EmailTestActionController::class, 'store']);
     $router->get('v2/system-setting/base', [\App\Http\Controllers\AdminShell\SystemSettingActionController::class, 'editBase']);
     $router->post('v2/system-setting/base', [\App\Http\Controllers\AdminShell\SystemSettingActionController::class, 'updateBase']);
+    $router->get('v2/system-setting/mail', [\App\Http\Controllers\AdminShell\SystemSettingActionController::class, 'editMail']);
+    $router->post('v2/system-setting/mail', [\App\Http\Controllers\AdminShell\SystemSettingActionController::class, 'updateMail']);
     $router->resource('goods', 'GoodsController');
     $router->resource('goods-group', 'GoodsGroupController');
     $router->resource('carmis', 'CarmisController');

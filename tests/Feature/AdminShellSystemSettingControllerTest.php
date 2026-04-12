@@ -106,6 +106,49 @@ class AdminShellSystemSettingControllerTest extends TestCase
         $this->assertSame(30, $settings['order_expire_time']);
     }
 
+    public function test_mail_edit_page_renders_shell_action_form(): void
+    {
+        Cache::forever(SystemSettingService::CACHE_KEY, [
+            'driver' => 'smtp',
+            'host' => 'smtp.example.com',
+            'port' => 465,
+            'from_address' => 'mailer@example.com',
+            'from_name' => '独角数卡西瓜版',
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/system-setting/mail');
+
+        $response->assertOk();
+        $response->assertSee('编辑邮件配置');
+        $response->assertSee('smtp.example.com');
+    }
+
+    public function test_mail_edit_page_can_save_settings(): void
+    {
+        Cache::forget(SystemSettingService::CACHE_KEY);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/system-setting/mail', [
+                'driver' => 'smtp',
+                'host' => 'mail.example.com',
+                'port' => 2525,
+                'username' => 'mailer',
+                'password' => 'secret123',
+                'encryption' => 'tls',
+                'from_address' => 'mailer@example.com',
+                'from_name' => '邮件机器人',
+            ]);
+
+        $response->assertRedirect('/admin/v2/system-setting/mail');
+        $response->assertSessionHas('status', '邮件配置已保存');
+
+        $settings = app(SystemSettingService::class)->all();
+        $this->assertSame('mail.example.com', $settings['host']);
+        $this->assertSame(2525, $settings['port']);
+        $this->assertSame('邮件机器人', $settings['from_name']);
+    }
+
     private function makeAdmin(): Administrator
     {
         DB::table('admin_users')->updateOrInsert(

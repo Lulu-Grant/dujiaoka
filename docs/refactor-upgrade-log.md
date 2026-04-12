@@ -2843,3 +2843,47 @@
 下一步：
 
 - 继续沿着这条模式推进更多系统设置分组或其他低风险配置动作，让后台壳进一步替代旧 Dcat 配置中心。
+
+### 120. 落地系统设置邮件配置编辑入口样板
+
+摘要：
+
+- 在 [SystemSettingActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/SystemSettingActionController.php) 中新增 `editMail()` / `updateMail()`，把邮件配置编辑入口接入后台壳。
+- 新增 [edit-mail.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/system-setting/edit-mail.blade.php)，承接 SMTP 驱动、主机、端口、账号、协议与发件身份等字段保存。
+- [AdminShellSystemSettingPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellSystemSettingPageService.php) 已在系统设置概览页头补上“编辑邮件配置”入口，使概览页与第二个真实配置动作页直接连通。
+
+影响范围：
+
+- 系统设置邮件配置的后台壳承接深度
+- 后台壳对多分组配置动作的支持能力
+- 配置型页面过渡模式的可复制性
+
+验证：
+
+- 当前全量回归结果：`OK (165 tests, 562 assertions)`
+
+下一步：
+
+- 继续沿着系统设置分组推进低风险配置动作，或转向通知/推送配置编辑入口，进一步扩大后台壳承接范围。
+
+### 121. 固化长周期整改总纲并切换为按批次连续执行
+
+摘要：
+
+- 重写 [rectification-execution-plan.md](/Users/apple/Documents/dujiaoshuka/docs/rectification-execution-plan.md)，把整改路线升级成“六大阶段 + 当前执行批次”的长周期执行总纲。
+- 明确后台壳扩容、支付层收口、安装与配置现代化、安全治理、升级前清障之间的默认先后顺序。
+- 明确后续执行默认按批次连续推进，只在高风险分叉、不可逆操作或外部信息缺失时暂停。
+
+影响范围：
+
+- 整体执行节奏
+- 阶段优先级管理
+- 文档化治理与低打扰协作方式
+
+验证：
+
+- 当前全量回归结果：`OK (165 tests, 562 assertions)`
+
+下一步：
+
+- 按执行总纲继续推进后台壳扩容，优先补更多系统设置分组和低风险操作型页面。
