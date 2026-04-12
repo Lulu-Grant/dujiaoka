@@ -111,7 +111,7 @@ class AdminShellCouponControllerTest extends TestCase
         $this->seedGoodsOnlyFixture(94003, '测试商品 C');
 
         $response = $this->actingAs($this->makeAdmin(), 'admin')
-            ->post('/admin/v2/coupon/create?mode=batch', [
+            ->post('/admin/v2/coupon/create', [
                 'mode' => 'batch',
                 'goods_ids' => [94003],
                 'quantity' => 3,

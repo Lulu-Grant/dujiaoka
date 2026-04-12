@@ -3868,3 +3868,47 @@
 下一步：
 
 - 继续沿着后台壳扩容和旧 Dcat 降耦合主线推进，把剩余旧资源控制器进一步压缩为兼容跳转层。
+
+### 145. 六路并行后台壳动作页收口
+
+摘要：
+
+- 本轮按 6 条资源线并行推进，把后台壳从“基础 CRUD 和配置页”继续扩到了高频辅助动作与效率工具。
+- 优惠码线新增批量生成模式：
+  - [CouponActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/CouponActionController.php)
+  - [CouponActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/CouponActionService.php)
+  - [coupon/batch.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/coupon/batch.blade.php)
+- 商品线新增安全复制动作：
+  - [GoodsActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/GoodsActionService.php)
+  - [GoodsActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/GoodsActionController.php)
+- 订单线新增“重置查询密码”安全维护动作：
+  - [OrderActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/OrderActionService.php)
+  - [OrderActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/OrderActionController.php)
+- 卡密线新增导出能力，支持从后台壳直接导出未售出或筛选后的卡密：
+  - [CarmisShellController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/CarmisShellController.php)
+  - [AdminShellCarmisPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellCarmisPageService.php)
+- 支付通道线新增复制配置动作，用于低风险复制现有通道骨架：
+  - [PayActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PayActionService.php)
+  - [PayActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/PayActionController.php)
+- 邮件模板线新增预览能力，支持 `create/edit` 入口下的预览模式：
+  - [EmailTemplateActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/EmailTemplateActionService.php)
+  - [EmailTemplateActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/EmailTemplateActionController.php)
+  - [emailtpl/preview.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/emailtpl/preview.blade.php)
+- 并行集成阶段还顺手修正了两条基线脆弱点：
+  - [AdminDashboardMetricsServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminDashboardMetricsServiceTest.php) 的“today”时间边界断言
+  - [AdminShellCouponControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellCouponControllerTest.php) 的批量生成请求路径断言
+
+影响范围：
+
+- 后台壳现在不只是“能看、能编辑”，已经开始承接一组真实可用的效率动作页
+- 商品、订单、支付、优惠码、卡密、邮件模板这 6 个高频资源都新增了低风险辅助能力
+- 后续继续并行推进时，可以沿着“资源自有动作页 + 共享注册最小改动”的模式稳定提速
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (245 tests, 1169 assertions)`
+- `./scripts/smoke-admin-shell` 通过
+
+下一步：
+
+- 继续沿着后台壳扩容和旧 Dcat 降耦合主线推进，优先处理商品、订单、支付通道这几条资源的下一批低风险批量动作或运营动作。
