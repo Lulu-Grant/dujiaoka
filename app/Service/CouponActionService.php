@@ -3,9 +3,20 @@
 namespace App\Service;
 
 use App\Models\Coupon;
+use Illuminate\Support\Str;
 
 class CouponActionService
 {
+    public function couponCodePrefix(): string
+    {
+        return 'XIGUA-';
+    }
+
+    public function suggestCouponCode(): string
+    {
+        return $this->couponCodePrefix().Str::upper(Str::random(6));
+    }
+
     public function createDefaults(): array
     {
         return [

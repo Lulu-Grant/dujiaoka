@@ -160,6 +160,31 @@ class AdminShellCouponPageService extends AbstractAdminShellPageService
         );
     }
 
+    public function buildIndexViewData(LengthAwarePaginator $coupons, array $filters): array
+    {
+        return [
+            'maintenanceNote' => '优惠码壳页优先用于查找、复制、核对和进入编辑页。批量改动前建议先在详情页确认关联商品和启用状态。',
+            'summaryCards' => $this->buildIndexSummaryCards($coupons),
+            'quickTips' => [
+                '可以先按优惠码或商品 ID 定位，再进入详情页核对关联商品。',
+                '回收站模式适合检查已删除优惠码的历史状态。',
+            ],
+        ];
+    }
+
+    public function buildShowViewData(Coupon $coupon, ?string $scope = null): array
+    {
+        return [
+            'maintenanceNote' => '详情页已支持复制优惠码并快速进入编辑页，适合日常核对和低风险维护。',
+            'summaryCards' => $this->buildShowSummaryCards($coupon),
+            'couponCode' => $coupon->coupon,
+            'couponCopyLabel' => '复制优惠码',
+            'couponCopyHint' => '复制后可直接用于前台测试或订单核对。',
+            'couponEditUrl' => admin_url($this->resourceDefinition()['uri'].'/'.$coupon->id.'/edit'),
+            'couponScope' => $scope,
+        ];
+    }
+
     public function detailItems(Coupon $coupon): array
     {
         return [
@@ -216,6 +241,76 @@ class AdminShellCouponPageService extends AbstractAdminShellPageService
         }
 
         return $names->implode(' / ');
+    }
+
+    private function buildIndexSummaryCards(LengthAwarePaginator $coupons): array
+    {
+        $collection = $coupons->getCollection();
+
+        $activeCount = $collection->filter(function (Coupon $coupon) {
+            return (int) $coupon->is_open === Coupon::STATUS_OPEN;
+        })->count();
+        $usedCount = $collection->filter(function (Coupon $coupon) {
+            return (int) $coupon->is_use === Coupon::STATUS_USE;
+        })->count();
+        $linkedCount = $collection->filter(function (Coupon $coupon) {
+            return $coupon->relationLoaded('goods') && $coupon->goods->isNotEmpty();
+        })->count();
+
+        return [
+            [
+                'label' => '当前结果',
+                'value' => '<strong>'.$coupons->total().'</strong><span style="margin-left: 10px; color: #66756b;">条记录</span>',
+            ],
+            [
+                'label' => '当前页',
+                'value' => '<strong>'.$collection->count().'</strong><span style="margin-left: 10px; color: #66756b;">条记录</span>',
+            ],
+            [
+                'label' => '已启用',
+                'value' => '<strong>'.$activeCount.'</strong><span style="margin-left: 10px; color: #66756b;">条记录</span>',
+            ],
+            [
+                'label' => '已使用',
+                'value' => '<strong>'.$usedCount.'</strong><span style="margin-left: 10px; color: #66756b;">条记录</span>',
+            ],
+            [
+                'label' => '已关联商品',
+                'value' => '<strong>'.$linkedCount.'</strong><span style="margin-left: 10px; color: #66756b;">条记录</span>',
+            ],
+        ];
+    }
+
+    private function buildShowSummaryCards(Coupon $coupon): array
+    {
+        $linkedCount = $coupon->relationLoaded('goods') ? $coupon->goods->count() : 0;
+
+        return [
+            [
+                'label' => '优惠码',
+                'value' => '<strong>'.e($coupon->coupon).'</strong><span style="margin-left: 10px; color: #66756b;">可复制到前台或测试单</span>',
+            ],
+            [
+                'label' => '折扣金额',
+                'value' => '<strong>'.e((string) $coupon->discount).'</strong><span style="margin-left: 10px; color: #66756b;">元</span>',
+            ],
+            [
+                'label' => '使用状态',
+                'value' => e(strip_tags($this->statusPresenter->couponUsageLabel($coupon->is_use))),
+            ],
+            [
+                'label' => '启用状态',
+                'value' => e(strip_tags($this->statusPresenter->openStatusLabel($coupon->is_open))),
+            ],
+            [
+                'label' => '可用次数',
+                'value' => '<strong>'.e((string) $coupon->ret).'</strong><span style="margin-left: 10px; color: #66756b;">次</span>',
+            ],
+            [
+                'label' => '关联商品',
+                'value' => '<strong>'.$linkedCount.'</strong><span style="margin-left: 10px; color: #66756b;">个</span>',
+            ],
+        ];
     }
 
     private function renderActionLinks(array $actions): string

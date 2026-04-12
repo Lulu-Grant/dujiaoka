@@ -28,6 +28,8 @@ class AdminShellCouponControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('优惠码管理');
+        $response->assertSee('复制、核对和进入编辑页');
+        $response->assertSee('当前结果');
         $response->assertSee('XIGUA-5');
         $response->assertSee('测试商品 A');
     }
@@ -41,6 +43,8 @@ class AdminShellCouponControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('优惠码详情');
+        $response->assertSee('复制优惠码');
+        $response->assertSee('编辑优惠码');
         $response->assertSee('XIGUA-DETAIL');
         $response->assertSee('测试商品 B');
     }
@@ -54,6 +58,8 @@ class AdminShellCouponControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('新建优惠码');
+        $response->assertSee('生成建议码');
+        $response->assertSee('XIGUA-XXXXXX');
         $response->assertSee('测试商品 A');
     }
 
@@ -87,6 +93,8 @@ class AdminShellCouponControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('编辑优惠码');
+        $response->assertSee('复制优惠码');
+        $response->assertSee('当前优惠码');
         $response->assertSee('XIGUA-DETAIL');
         $response->assertSee('测试商品 B');
     }
