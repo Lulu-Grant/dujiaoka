@@ -211,6 +211,7 @@ return [
         // or specific method to path like: get:auth/users.
         'except' => [
             '/',
+            'v2/dashboard',
             'auth/login',
             'auth/logout',
             'auth/setting',

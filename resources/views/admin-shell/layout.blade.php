@@ -269,6 +269,7 @@
         </div>
         <div class="nav-label">{{ \App\Service\AdminShellResourceRegistry::navigationSectionLabel() }}</div>
         <nav class="nav-list">
+            <a class="nav-item{{ request()->is(config('admin.route.prefix').'/v2/dashboard') ? ' active' : '' }}" href="{{ admin_url('v2/dashboard') }}">后台总览</a>
             @foreach(\App\Service\AdminShellResourceRegistry::navigationItems() as $item)
                 <a class="nav-item{{ request()->is($item['active_pattern']) ? ' active' : '' }}" href="{{ $item['href'] }}">{{ $item['label'] }}</a>
             @endforeach

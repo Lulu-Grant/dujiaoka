@@ -3161,3 +3161,26 @@
 下一步：
 
 - 继续沿着这条路线推进更多中复杂度后台壳动作页，或回到主链业务页上补更低风险的可操作入口。
+
+### 134. 落地后台壳首页总览样板
+
+摘要：
+
+- 新增 [AdminShellDashboardPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellDashboardPageService.php) 与 [DashboardShellController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/DashboardShellController.php)，把后台首页总览接入后台壳。
+- 新增 [index.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/dashboard/index.blade.php)，将已有统计服务组合成新的后台壳 dashboard 页面。
+- [app/Admin/routes.php](/Users/apple/Documents/dujiaoshuka/app/Admin/routes.php) 已新增 `/admin/v2/dashboard` 路由，[config/admin.php](/Users/apple/Documents/dujiaoshuka/config/admin.php) 已补上对应权限白名单，后台壳首页可以直接访问。
+- [layout.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/layout.blade.php) 已新增“后台总览”导航入口，后台壳开始承接首页级页面而不只是 CRUD 与配置页。
+
+影响范围：
+
+- 后台壳对首页总览与统计型页面的承接能力
+- 旧 Dcat dashboard 继续降耦合
+- 后台壳导航与权限例外范围扩展到非资源型页面
+
+验证：
+
+- 当前全量回归结果：`OK (208 tests, 796 assertions)`
+
+下一步：
+
+- 继续沿着这条路线推进更多中复杂度后台壳动作页，或开始把后台首页上的更多旧卡片逻辑继续往普通 Laravel 页面壳迁移。

@@ -12,6 +12,7 @@ Route::group([
     'middleware' => config('admin.route.middleware'),
 ], function (Router $router) {
     $router->get('/', 'HomeController@index');
+    $router->get('v2/dashboard', [\App\Http\Controllers\AdminShell\DashboardShellController::class, 'index']);
     $router->get('v2/email-test/send', [\App\Http\Controllers\AdminShell\EmailTestActionController::class, 'create']);
     $router->post('v2/email-test/send', [\App\Http\Controllers\AdminShell\EmailTestActionController::class, 'store']);
     $router->get('v2/goods/create', [\App\Http\Controllers\AdminShell\GoodsActionController::class, 'create']);
