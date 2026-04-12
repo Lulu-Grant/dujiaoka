@@ -122,7 +122,7 @@ return [
     'auth' => [
         'enable' => true,
 
-        'controller' => App\Admin\Controllers\AuthController::class,
+        'controller' => App\Http\Controllers\AdminShell\AuthShellController::class,
 
         'guard' => 'admin',
 

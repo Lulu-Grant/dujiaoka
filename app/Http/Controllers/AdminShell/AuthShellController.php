@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Admin\Controllers;
+namespace App\Http\Controllers\AdminShell;
 
 use App\Service\AdminAccountSettingService;
-use Dcat\Admin\Models\Administrator;
-use Dcat\Admin\Layout\Content;
 use Dcat\Admin\Http\Controllers\AuthController as BaseAuthController;
+use Dcat\Admin\Layout\Content;
+use Dcat\Admin\Models\Administrator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
-class AuthController extends BaseAuthController
+class AuthShellController extends BaseAuthController
 {
     /**
      * @var \App\Service\AdminAccountSettingService

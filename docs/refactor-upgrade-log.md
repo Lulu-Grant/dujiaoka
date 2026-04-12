@@ -3649,3 +3649,28 @@
 下一步：
 
 - 继续沿着后台壳扩容和旧 Dcat 降耦合主线推进，优先处理剩余高频后台页和更复杂的操作型页面。
+
+### 143. 后台认证控制器迁出 app/Admin
+
+摘要：
+
+- 新增 [AuthShellController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/AuthShellController.php)，把后台登录、退出和账号设置入口彻底迁到普通 HTTP 控制器层。
+- [config/admin.php](/Users/apple/Documents/dujiaoshuka/config/admin.php) 的 `auth.controller` 已改为指向新的后台壳认证控制器。
+- 原 [app/Admin/Controllers/AuthController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/AuthController.php) 已删除，旧 Dcat 命名空间下不再承载后台认证主入口。
+
+影响范围：
+
+- `/admin/auth/login`
+- `/admin/auth/logout`
+- `/admin/auth/setting`
+- 后台认证入口与新后台壳的边界清晰度
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminAuthShellLoginTest.php` 通过
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminAuthShellSettingTest.php` 通过
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (230 tests, 1047 assertions)`
+
+下一步：
+
+- 继续沿着后台壳扩容和旧 Dcat 降耦合主线推进，把剩余旧资源控制器进一步压缩为兼容跳转层。
