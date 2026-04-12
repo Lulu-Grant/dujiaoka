@@ -3912,3 +3912,32 @@
 下一步：
 
 - 继续沿着后台壳扩容和旧 Dcat 降耦合主线推进，优先处理商品、订单、支付通道这几条资源的下一批低风险批量动作或运营动作。
+
+### 146. 修复 GitHub Actions 中的本机脚本路径耦合
+
+摘要：
+
+- GitHub Actions 最新失败定位到 `Prepare test database` 步骤，根因不是业务测试，而是 [scripts/php74](/Users/apple/Documents/dujiaoshuka/scripts/php74) 和 [scripts/composer74](/Users/apple/Documents/dujiaoshuka/scripts/composer74) 仍硬编码了本机 Homebrew PHP 7.4 路径。
+- 两个脚本现在都改成了多级回退策略：
+  - 优先 `PHP74_BIN` / `COMPOSER74_BIN` 环境变量
+  - 其次本机 `/opt/homebrew/...` 7.4 路径
+  - 再其次 PATH 上的 `php74` 或 `php` / `composer`
+- 这样本机继续优先跑遗留 7.4，GitHub runner 也能直接复用 `setup-php` 提供的 `php` 环境，不会再因为 macOS 路径耦合导致 `exit 127`。
+
+影响范围：
+
+- GitHub Actions `Prepare test database`
+- 本地与 CI 共用脚本的可移植性
+- 后续任何调用 `scripts/php74` / `scripts/composer74` 的自动化场景
+
+验证：
+
+- `./scripts/php74 -v` 通过
+- `./scripts/composer74 -V` 通过
+- `PHP74_BIN=$(command -v php) COMPOSER74_BIN=$(command -v composer) ./scripts/php74 -v` 通过
+- `PHP74_BIN=$(command -v php) COMPOSER74_BIN=$(command -v composer) ./scripts/composer74 -V` 通过
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/AdminDashboardMetricsServiceTest.php tests/Feature/AdminShellEmailTemplateControllerTest.php tests/Feature/AdminShellCouponControllerTest.php` 通过
+
+下一步：
+
+- 观察 GitHub Actions 新一轮 CI 是否转绿；如果还有残余失败，就继续顺着日志收口。

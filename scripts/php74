@@ -1,3 +1,16 @@
 #!/bin/sh
 
-exec /opt/homebrew/opt/php@7.4/bin/php "$@"
+if [ -n "${PHP74_BIN:-}" ] && [ -x "${PHP74_BIN}" ]; then
+    PHP_BIN="${PHP74_BIN}"
+elif [ -x "/opt/homebrew/opt/php@7.4/bin/php" ]; then
+    PHP_BIN="/opt/homebrew/opt/php@7.4/bin/php"
+elif command -v php74 >/dev/null 2>&1; then
+    PHP_BIN="$(command -v php74)"
+elif command -v php >/dev/null 2>&1; then
+    PHP_BIN="$(command -v php)"
+else
+    echo "Unable to locate a PHP binary for scripts/php74." >&2
+    exit 127
+fi
+
+exec "${PHP_BIN}" "$@"

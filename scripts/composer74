@@ -1,3 +1,27 @@
 #!/bin/sh
 
-exec /opt/homebrew/opt/php@7.4/bin/php /opt/homebrew/bin/composer "$@"
+if [ -n "${PHP74_BIN:-}" ] && [ -x "${PHP74_BIN}" ]; then
+    PHP_BIN="${PHP74_BIN}"
+elif [ -x "/opt/homebrew/opt/php@7.4/bin/php" ]; then
+    PHP_BIN="/opt/homebrew/opt/php@7.4/bin/php"
+elif command -v php74 >/dev/null 2>&1; then
+    PHP_BIN="$(command -v php74)"
+elif command -v php >/dev/null 2>&1; then
+    PHP_BIN="$(command -v php)"
+else
+    echo "Unable to locate a PHP binary for scripts/composer74." >&2
+    exit 127
+fi
+
+if [ -n "${COMPOSER74_BIN:-}" ] && [ -f "${COMPOSER74_BIN}" ]; then
+    COMPOSER_BIN="${COMPOSER74_BIN}"
+elif [ -f "/opt/homebrew/bin/composer" ]; then
+    COMPOSER_BIN="/opt/homebrew/bin/composer"
+elif command -v composer >/dev/null 2>&1; then
+    COMPOSER_BIN="$(command -v composer)"
+else
+    echo "Unable to locate a Composer binary for scripts/composer74." >&2
+    exit 127
+fi
+
+exec "${PHP_BIN}" "${COMPOSER_BIN}" "$@"
