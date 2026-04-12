@@ -118,6 +118,10 @@ class AdminShellGoodsPageService extends AbstractAdminShellPageService
                             'href' => admin_url($definition['uri'].'/'.$item->id.'/edit'),
                         ],
                         [
+                            'label' => '复制商品',
+                            'href' => admin_url($definition['uri'].'/create?clone='.$item->id),
+                        ],
+                        [
                             'label' => '查看详情',
                             'href' => admin_url($definition['uri'].'/'.$item->id.($scope ? '?scope='.$scope : '')),
                         ],
@@ -178,6 +182,11 @@ class AdminShellGoodsPageService extends AbstractAdminShellPageService
             $header['actions'][] = [
                 'label' => '编辑商品',
                 'href' => admin_url('v2/goods/'.$goods->id.'/edit'),
+                'variant' => 'secondary',
+            ];
+            $header['actions'][] = [
+                'label' => '复制商品',
+                'href' => admin_url('v2/goods/create?clone='.$goods->id),
                 'variant' => 'secondary',
             ];
         }

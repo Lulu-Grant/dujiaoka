@@ -31,6 +31,17 @@ class GoodsActionService
         ];
     }
 
+    public function cloneDefaults(Goods $goods): array
+    {
+        $defaults = $this->editDefaults($goods);
+        $defaults['gd_name'] = $this->cloneName($goods->gd_name);
+        $defaults['in_stock'] = 0;
+        $defaults['sales_volume'] = 0;
+        $defaults['is_open'] = Goods::STATUS_CLOSE;
+
+        return $defaults;
+    }
+
     public function formSections(array $defaults, array $groupOptions, array $couponOptions, array $typeOptions): array
     {
         return [
@@ -356,6 +367,15 @@ class GoodsActionService
     public function catalogTypeLabel(int $type): string
     {
         return Goods::getGoodsTypeMap()[$type] ?? '未知类型';
+    }
+
+    private function cloneName(string $name): string
+    {
+        if (preg_match('/（复制）$/u', $name)) {
+            return $name;
+        }
+
+        return mb_substr($name.'（复制）', 0, 255);
     }
 
     public function create(array $payload): Goods

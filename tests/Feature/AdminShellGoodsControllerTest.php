@@ -10,11 +10,15 @@ class AdminShellGoodsControllerTest extends TestCase
 {
     protected function tearDown(): void
     {
-        DB::table('coupons_goods')->whereIn('goods_id', [96001, 96002, 96003])->delete();
+        $goodsIds = DB::table('goods')
+            ->whereIn('gd_name', ['测试商品 Shell（复制）', '创建商品 Shell', '编辑商品 Shell'])
+            ->pluck('id')
+            ->all();
+
+        DB::table('coupons_goods')->whereIn('goods_id', array_merge([96001, 96002, 96003], $goodsIds))->delete();
         DB::table('coupons_goods')->whereIn('coupons_id', [96001, 96002, 96003])->delete();
         DB::table('coupons')->whereIn('id', [96001, 96002, 96003])->delete();
-        DB::table('goods')->whereIn('id', [96001, 96002, 96003])->delete();
-        DB::table('goods')->whereIn('gd_name', ['创建商品 Shell', '编辑商品 Shell'])->delete();
+        DB::table('goods')->whereIn('id', array_merge([96001, 96002, 96003], $goodsIds))->delete();
         DB::table('goods_group')->whereIn('id', [96001, 96002, 96003])->delete();
         DB::table('admin_users')->where('username', 'admin-shell-tester')->delete();
 
@@ -45,6 +49,7 @@ class AdminShellGoodsControllerTest extends TestCase
         $response->assertOk();
         $response->assertSee('商品详情');
         $response->assertSee('编辑商品');
+        $response->assertSee('复制商品');
         $response->assertSee('基础信息');
         $response->assertSee('价格与库存');
         $response->assertSee('测试商品 Shell');
@@ -64,6 +69,20 @@ class AdminShellGoodsControllerTest extends TestCase
         $response->assertSee('价格与库存');
         $response->assertSee('动作分类 Shell');
         $response->assertSee('动作优惠码 Shell');
+    }
+
+    public function test_create_page_with_clone_prefills_goods_data(): void
+    {
+        $this->seedGoodsFixture();
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/goods/create?clone=96001');
+
+        $response->assertOk();
+        $response->assertSee('复制商品');
+        $response->assertSee('测试商品 Shell（复制）');
+        $response->assertSee('测试分类 Shell');
+        $response->assertSee('测试优惠码 Shell');
     }
 
     public function test_create_page_can_store_goods(): void
@@ -102,6 +121,44 @@ class AdminShellGoodsControllerTest extends TestCase
         $this->assertSame(12, $record->in_stock);
         $this->assertSame(1, $record->is_open);
         $this->assertSame(1, DB::table('coupons_goods')->where('goods_id', $record->id)->where('coupons_id', 96002)->count());
+    }
+
+    public function test_clone_page_can_store_goods(): void
+    {
+        $this->seedGoodsFixture();
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/goods/create', [
+                'group_id' => 96001,
+                'coupon_ids' => [96001],
+                'gd_name' => '测试商品 Shell（复制）',
+                'gd_description' => '测试商品简介',
+                'gd_keywords' => '测试关键字',
+                'picture' => '',
+                'type' => 1,
+                'retail_price' => 99,
+                'actual_price' => 79,
+                'in_stock' => 0,
+                'sales_volume' => 0,
+                'buy_limit_num' => 1,
+                'buy_prompt' => '购买提示',
+                'description' => '商品说明',
+                'other_ipu_cnf' => "账号\n密码",
+                'wholesale_price_cnf' => "2,70\n5,60",
+                'api_hook' => 'https://example.com/hook',
+                'ord' => 2,
+                'is_open' => '0',
+            ]);
+
+        $record = DB::table('goods')->where('gd_name', '测试商品 Shell（复制）')->first();
+        $this->assertNotNull($record);
+        $response->assertRedirect('/admin/v2/goods/'.$record->id.'/edit');
+        $response->assertSessionHas('status', '商品已创建');
+        $this->assertSame(96001, $record->group_id);
+        $this->assertSame(0, $record->in_stock);
+        $this->assertSame(0, $record->sales_volume);
+        $this->assertSame(0, $record->is_open);
+        $this->assertSame(1, DB::table('coupons_goods')->where('goods_id', $record->id)->where('coupons_id', 96001)->count());
     }
 
     public function test_edit_page_renders_goods_action_form(): void

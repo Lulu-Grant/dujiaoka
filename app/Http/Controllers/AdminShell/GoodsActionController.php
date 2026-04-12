@@ -26,24 +26,43 @@ class GoodsActionController extends Controller
         $this->adminSelectOptionService = $adminSelectOptionService;
     }
 
-    public function create()
+    public function create(Request $request)
     {
+        $cloneSource = null;
+        if ($request->filled('clone') && ctype_digit((string) $request->query('clone'))) {
+            $cloneSource = Goods::query()->with(['group:id,gp_name', 'coupon:id,coupon'])->find((int) $request->query('clone'));
+        }
+
+        $defaults = $cloneSource
+            ? $this->goodsActionService->cloneDefaults($cloneSource)
+            : $this->goodsActionService->createDefaults();
+
+        $actions = [
+            ['label' => '返回商品概览', 'href' => admin_url('v2/goods')],
+        ];
+
+        if ($cloneSource) {
+            $actions[] = ['label' => '查看原商品', 'href' => admin_url('v2/goods/'.$cloneSource->id), 'variant' => 'secondary'];
+        }
+
         return view('admin-shell.goods.form', [
-            'title' => '新建商品 - 后台壳样板',
+            'title' => $cloneSource ? '复制商品 - 后台壳样板' : '新建商品 - 后台壳样板',
             'header' => [
                 'kicker' => 'Admin Shell Action',
-                'title' => '新建商品',
-                'description' => '这是后台壳中的商品新建样板页。当前先承接商品基础信息、价格、库存、关联优惠码和配置文本，验证后台壳承接复杂业务编辑页的能力。',
-                'meta' => '图片先按文本路径录入，暂不接入上传壳，优先保证商品创建与编辑主链稳定可用',
-                'actions' => [
-                    ['label' => '返回商品概览', 'href' => admin_url('v2/goods')],
-                ],
+                'title' => $cloneSource ? '复制商品' : '新建商品',
+                'description' => $cloneSource
+                    ? '这是后台壳中的商品复制样板页。当前复用现有商品作为蓝本，管理员可以快速创建相似商品，并在提交前调整库存、销量和启用状态。'
+                    : '这是后台壳中的商品新建样板页。当前先承接商品基础信息、价格、库存、关联优惠码和配置文本，验证后台壳承接复杂业务编辑页的能力。',
+                'meta' => $cloneSource
+                    ? '复制动作会保留分类、价格、优惠码和扩展配置，但会把库存、销量和启用状态重置成安全默认值。'
+                    : '图片先按文本路径录入，暂不接入上传壳，优先保证商品创建与编辑主链稳定可用',
+                'actions' => $actions,
             ],
             'formAction' => admin_url('v2/goods/create'),
-            'submitLabel' => '创建商品',
+            'submitLabel' => $cloneSource ? '复制商品' : '创建商品',
             'isCreate' => true,
             'sections' => $this->goodsActionService->formSections(
-                $this->goodsActionService->createDefaults(),
+                $defaults,
                 $this->adminSelectOptionService->goodsGroupOptions(),
                 $this->adminSelectOptionService->couponOptions(),
                 Goods::getGoodsTypeMap()
