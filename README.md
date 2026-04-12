@@ -10,10 +10,10 @@
 
 # 独角数卡西瓜版
 
-<img width="1516" height="824" alt="截圖 2026-04-12 23 04 59" src="https://github.com/user-attachments/assets/664d7870-8986-41c6-a27e-1ee917111a8f" />
+<img width="1516" height="824" alt="首页效果" src="https://github.com/user-attachments/assets/664d7870-8986-41c6-a27e-1ee917111a8f" />
 
-<img width="1647" height="833" alt="截圖 2026-04-12 23 05 16" src="https://github.com/user-attachments/assets/9f0fe4d5-94d7-4909-83b2-e9ea680e30c1" />
-<img width="1675" height="868" alt="截圖 2026-04-12 23 05 44" src="https://github.com/user-attachments/assets/f3083155-1697-41fb-a1a4-7225db8e5d10" />
+<img width="1647" height="833" alt="后台登录界面" src="https://github.com/user-attachments/assets/9f0fe4d5-94d7-4909-83b2-e9ea680e30c1" />
+<img width="1675" height="868" alt="后台UI" src="https://github.com/user-attachments/assets/f3083155-1697-41fb-a1a4-7225db8e5d10" />
 `Lulu-Grant/dujiaoka` 是基于原始 `assimon/dujiaoka` 停更项目继续维护的分叉版本，当前品牌名为“独角数卡西瓜版”。
 
 这个仓库现在已经不是“原样存档”，也不只是“能跑就行”的修补版，而是在保留原有业务能力前提下，持续推进现代化治理、后台替换和升级前清障的维护分支。
