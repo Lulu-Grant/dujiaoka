@@ -20,14 +20,21 @@ class AdminShellGoodsPageService extends AbstractAdminShellPageService
      */
     private $statusPresenter;
 
+    /**
+     * @var \App\Service\GoodsActionService
+     */
+    private $goodsActionService;
+
     public function __construct(
         AdminShellResourceRegistry $resourceRegistry,
         CatalogAdminPresenterService $catalogPresenter,
-        AdminStatusPresenterService $statusPresenter
+        AdminStatusPresenterService $statusPresenter,
+        GoodsActionService $goodsActionService
     ) {
         parent::__construct($resourceRegistry);
         $this->catalogPresenter = $catalogPresenter;
         $this->statusPresenter = $statusPresenter;
+        $this->goodsActionService = $goodsActionService;
     }
 
     public function paginate(array $filters): LengthAwarePaginator
@@ -163,9 +170,19 @@ class AdminShellGoodsPageService extends AbstractAdminShellPageService
         ];
     }
 
-    public function buildShowHeader(?string $scope = null): array
+    public function buildShowHeader(?string $scope = null, ?Goods $goods = null): array
     {
-        return $this->buildResourceShowHeader($scope);
+        $header = $this->buildResourceShowHeader($scope);
+
+        if ($goods) {
+            $header['actions'][] = [
+                'label' => '编辑商品',
+                'href' => admin_url('v2/goods/'.$goods->id.'/edit'),
+                'variant' => 'secondary',
+            ];
+        }
+
+        return $header;
     }
 
     public function buildIndexPageData(LengthAwarePaginator $goods, array $filters): AdminShellIndexPageData
@@ -185,6 +202,16 @@ class AdminShellGoodsPageService extends AbstractAdminShellPageService
             $this->buildShowHeader($scope),
             $this->detailItems($goods)
         );
+    }
+
+    public function buildShowViewData(Goods $goods, ?string $scope = null): array
+    {
+        return [
+            'title' => $this->buildDocumentTitle('show_title'),
+            'header' => $this->buildShowHeader($scope, $goods),
+            'summaryCards' => $this->goodsActionService->buildShowSummaryCards($goods),
+            'sections' => $this->goodsActionService->buildShowSections($goods),
+        ];
     }
 
     public function detailItems(Goods $goods): array

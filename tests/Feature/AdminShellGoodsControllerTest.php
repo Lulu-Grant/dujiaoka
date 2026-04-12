@@ -30,6 +30,7 @@ class AdminShellGoodsControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('商品管理');
+        $response->assertSee('商品壳页优先用于查找、核对和进入编辑页');
         $response->assertSee('测试商品 Shell');
         $response->assertSee('测试分类 Shell');
     }
@@ -43,6 +44,9 @@ class AdminShellGoodsControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('商品详情');
+        $response->assertSee('编辑商品');
+        $response->assertSee('基础信息');
+        $response->assertSee('价格与库存');
         $response->assertSee('测试商品 Shell');
         $response->assertSee('测试优惠码 Shell');
     }
@@ -56,6 +60,8 @@ class AdminShellGoodsControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('新建商品');
+        $response->assertSee('基础信息');
+        $response->assertSee('价格与库存');
         $response->assertSee('动作分类 Shell');
         $response->assertSee('动作优惠码 Shell');
     }
@@ -108,6 +114,7 @@ class AdminShellGoodsControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('编辑商品');
+        $response->assertSee('说明与扩展');
         $response->assertSee('测试商品 Shell');
         $response->assertSee('动作分类 Shell');
     }

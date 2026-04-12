@@ -42,10 +42,12 @@ class GoodsActionController extends Controller
             'formAction' => admin_url('v2/goods/create'),
             'submitLabel' => '创建商品',
             'isCreate' => true,
-            'defaults' => $this->goodsActionService->createDefaults(),
-            'groupOptions' => $this->adminSelectOptionService->goodsGroupOptions(),
-            'couponOptions' => $this->adminSelectOptionService->couponOptions(),
-            'typeOptions' => Goods::getGoodsTypeMap(),
+            'sections' => $this->goodsActionService->formSections(
+                $this->goodsActionService->createDefaults(),
+                $this->adminSelectOptionService->goodsGroupOptions(),
+                $this->adminSelectOptionService->couponOptions(),
+                Goods::getGoodsTypeMap()
+            ),
         ]);
     }
 
@@ -77,10 +79,12 @@ class GoodsActionController extends Controller
             'formAction' => admin_url('v2/goods/'.$goods->id.'/edit'),
             'submitLabel' => '保存商品',
             'isCreate' => false,
-            'defaults' => $this->goodsActionService->editDefaults($goods),
-            'groupOptions' => $this->adminSelectOptionService->goodsGroupOptions(),
-            'couponOptions' => $this->adminSelectOptionService->couponOptions(),
-            'typeOptions' => Goods::getGoodsTypeMap(),
+            'sections' => $this->goodsActionService->formSections(
+                $this->goodsActionService->editDefaults($goods),
+                $this->adminSelectOptionService->goodsGroupOptions(),
+                $this->adminSelectOptionService->couponOptions(),
+                Goods::getGoodsTypeMap()
+            ),
             'goods' => $goods,
         ]);
     }
