@@ -22,16 +22,39 @@ class OrderActionService
         return [
             'summaryTitle' => '当前订单概览',
             'summaryDescription' => '下面这些信息仅用于人工维护时快速确认上下文，不会在本页直接修改。',
-            'summaryItems' => [
-                ['label' => '订单号', 'value' => $order->order_sn],
-                ['label' => '订单状态', 'value' => $this->statusLabel($order->status)],
-                ['label' => '订单类型', 'value' => $this->typeLabel($order->type)],
-                ['label' => '关联商品', 'value' => optional($order->goods)->gd_name ?: '未关联商品'],
-                ['label' => '支付通道', 'value' => optional($order->pay)->pay_name ?: '未选择支付'],
-                ['label' => '实付金额', 'value' => (string) $order->actual_price],
-                ['label' => '交易号', 'value' => $order->trade_no ?: '未生成'],
-                ['label' => '创建时间', 'value' => (string) $order->created_at],
-                ['label' => '更新时间', 'value' => (string) $order->updated_at],
+            'summarySections' => [
+                [
+                    'title' => '基础信息',
+                    'description' => '先确认订单主体、联系邮箱和当前状态，避免误改对象。',
+                    'items' => [
+                        ['label' => '订单号', 'value' => $order->order_sn],
+                        ['label' => '订单标题', 'value' => $order->title],
+                        ['label' => '邮箱', 'value' => $order->email],
+                        ['label' => '订单状态', 'value' => $this->statusLabel($order->status)],
+                        ['label' => '订单类型', 'value' => $this->typeLabel($order->type)],
+                    ],
+                ],
+                [
+                    'title' => '交易与履约',
+                    'description' => '把商品、支付、金额和交易号放在一起，便于核对支付链上下文。',
+                    'items' => [
+                        ['label' => '关联商品', 'value' => optional($order->goods)->gd_name ?: '未关联商品'],
+                        ['label' => '支付通道', 'value' => optional($order->pay)->pay_name ?: '未选择支付'],
+                        ['label' => '实付金额', 'value' => (string) $order->actual_price],
+                        ['label' => '交易号', 'value' => $order->trade_no ?: '未生成'],
+                        ['label' => '查询密码', 'value' => $order->search_pwd ?: '未设置'],
+                    ],
+                ],
+                [
+                    'title' => '维护提醒',
+                    'description' => '下面这些是只读辅助信息，保存时不会触发支付完成或履约链动作。',
+                    'items' => [
+                        ['label' => '创建时间', 'value' => (string) $order->created_at],
+                        ['label' => '更新时间', 'value' => (string) $order->updated_at],
+                        ['label' => '当前维护字段', 'value' => '订单标题、订单附加信息、订单状态、查询密码、订单类型'],
+                        ['label' => '保存边界', 'value' => '仅更新人工维护字段，不触发履约、发货或支付回调。'],
+                    ],
+                ],
             ],
             'editableFields' => [
                 '订单标题',

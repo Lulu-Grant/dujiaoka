@@ -206,11 +206,9 @@ class AdminShellOrderPageService extends AbstractAdminShellPageService
     private function buildReadOnlyMeta(Order $order): string
     {
         return implode(' | ', [
-            '订单号：'.$order->order_sn,
-            '状态：'.$this->statusLabel($order->status),
-            '类型：'.$this->typeLabel($order->type),
-            '支付：'.(optional($order->pay)->pay_name ?: '未选择支付'),
-            '实付：'.(string) $order->actual_price,
+            '基础：'.$order->order_sn.' / '.$this->statusLabel($order->status).' / '.$this->typeLabel($order->type),
+            '交易：'.(optional($order->goods)->gd_name ?: '未关联商品').' / '.(optional($order->pay)->pay_name ?: '未选择支付'),
+            '金额：'.(string) $order->actual_price.' / 交易号 '.($order->trade_no ?: '未生成'),
         ]);
     }
 
@@ -236,33 +234,60 @@ class AdminShellOrderPageService extends AbstractAdminShellPageService
     public function detailItems(Order $order): array
     {
         return [
-            ['label' => 'ID', 'value' => $order->id],
-            ['label' => '订单号', 'value' => e($order->order_sn)],
-            ['label' => '订单标题', 'value' => e($order->title)],
-            ['label' => '订单类型', 'value' => e($this->typeLabel($order->type))],
-            ['label' => '订单状态', 'value' => e($this->statusLabel($order->status))],
-            ['label' => '邮箱', 'value' => e($order->email)],
-            ['label' => '关联商品', 'value' => e(optional($order->goods)->gd_name ?: '未关联商品')],
-            ['label' => '商品单价', 'value' => e((string) $order->goods_price)],
-            ['label' => '购买数量', 'value' => e((string) $order->buy_amount)],
-            ['label' => '总价', 'value' => e((string) $order->total_price)],
-            ['label' => '实付金额', 'value' => e((string) $order->actual_price)],
-            ['label' => '优惠码', 'value' => e(optional($order->coupon)->coupon ?: '未使用优惠码')],
-            ['label' => '优惠抵扣', 'value' => e((string) $order->coupon_discount_price)],
-            ['label' => '批发抵扣', 'value' => e((string) $order->wholesale_discount_price)],
-            ['label' => '支付通道', 'value' => e(optional($order->pay)->pay_name ?: '未选择支付')],
-            ['label' => '交易号', 'value' => e((string) $order->trade_no)],
-            ['label' => '查询密码', 'value' => e((string) $order->search_pwd)],
-            ['label' => '下单 IP', 'value' => e((string) $order->buy_ip)],
+            [
+                'label' => '基础信息',
+                'style' => 'grid-column: 1 / -1;',
+                'value_style' => 'white-space: pre-wrap; line-height: 1.75;',
+                'value' => e(implode("\n", [
+                    '订单号：'.$order->order_sn,
+                    '订单标题：'.$order->title,
+                    '邮箱：'.$order->email,
+                    '订单状态：'.$this->statusLabel($order->status),
+                    '订单类型：'.$this->typeLabel($order->type),
+                ])),
+            ],
+            [
+                'label' => '商品与支付',
+                'style' => 'grid-column: 1 / -1;',
+                'value_style' => 'white-space: pre-wrap; line-height: 1.75;',
+                'value' => e(implode("\n", [
+                    '关联商品：'.(optional($order->goods)->gd_name ?: '未关联商品'),
+                    '支付通道：'.(optional($order->pay)->pay_name ?: '未选择支付'),
+                    '商品单价：'.(string) $order->goods_price,
+                    '购买数量：'.(string) $order->buy_amount,
+                ])),
+            ],
+            [
+                'label' => '金额与履约',
+                'style' => 'grid-column: 1 / -1;',
+                'value_style' => 'white-space: pre-wrap; line-height: 1.75;',
+                'value' => e(implode("\n", [
+                    '总价：'.(string) $order->total_price,
+                    '实付金额：'.(string) $order->actual_price,
+                    '优惠码：'.(optional($order->coupon)->coupon ?: '未使用优惠码'),
+                    '优惠抵扣：'.(string) $order->coupon_discount_price,
+                    '批发抵扣：'.(string) $order->wholesale_discount_price,
+                ])),
+            ],
+            [
+                'label' => '维护信息',
+                'style' => 'grid-column: 1 / -1;',
+                'value_style' => 'white-space: pre-wrap; line-height: 1.75;',
+                'value' => e(implode("\n", [
+                    '交易号：'.(string) $order->trade_no,
+                    '查询密码：'.(string) $order->search_pwd,
+                    '下单 IP：'.(string) $order->buy_ip,
+                    '创建时间：'.(string) $order->created_at,
+                    '更新时间：'.(string) $order->updated_at,
+                    '删除状态：'.($order->deleted_at ? '已删除' : '正常'),
+                ])),
+            ],
             [
                 'label' => '订单附加信息',
-                'value' => e((string) $order->info),
                 'style' => 'grid-column: 1 / -1;',
                 'value_style' => 'white-space: pre-wrap;',
+                'value' => e((string) $order->info ?: '暂无附加信息'),
             ],
-            ['label' => '创建时间', 'value' => e((string) $order->created_at)],
-            ['label' => '更新时间', 'value' => e((string) $order->updated_at)],
-            ['label' => '删除状态', 'value' => $order->deleted_at ? '已删除' : '正常'],
         ];
     }
 
