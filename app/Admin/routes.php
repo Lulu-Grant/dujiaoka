@@ -18,6 +18,10 @@ Route::group([
     $router->post('v2/goods-group/create', [\App\Http\Controllers\AdminShell\GoodsGroupActionController::class, 'store']);
     $router->get('v2/goods-group/{id}/edit', [\App\Http\Controllers\AdminShell\GoodsGroupActionController::class, 'edit']);
     $router->post('v2/goods-group/{id}/edit', [\App\Http\Controllers\AdminShell\GoodsGroupActionController::class, 'update']);
+    $router->get('v2/pay/create', [\App\Http\Controllers\AdminShell\PayActionController::class, 'create']);
+    $router->post('v2/pay/create', [\App\Http\Controllers\AdminShell\PayActionController::class, 'store']);
+    $router->get('v2/pay/{id}/edit', [\App\Http\Controllers\AdminShell\PayActionController::class, 'edit']);
+    $router->post('v2/pay/{id}/edit', [\App\Http\Controllers\AdminShell\PayActionController::class, 'update']);
     $router->get('v2/emailtpl/create', [\App\Http\Controllers\AdminShell\EmailTemplateActionController::class, 'create']);
     $router->post('v2/emailtpl/create', [\App\Http\Controllers\AdminShell\EmailTemplateActionController::class, 'store']);
     $router->get('v2/emailtpl/{id}/edit', [\App\Http\Controllers\AdminShell\EmailTemplateActionController::class, 'edit']);

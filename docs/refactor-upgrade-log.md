@@ -3023,3 +3023,26 @@
 下一步：
 
 - 继续沿着这条路线推进更多标准业务编辑页，或挑一张中风险批量动作页继续扩大后台壳的实际承载范围。
+
+### 128. 落地支付通道新建与编辑动作页样板
+
+摘要：
+
+- 新增 [PayActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/PayActionController.php) 与 [form.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/pay/form.blade.php)，把支付通道新建和编辑动作接入后台壳。
+- 新增 [PayActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PayActionService.php)，将支付通道创建与更新写入边界收口到普通服务层。
+- [AdminShellPayPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellPayPageService.php) 已在支付通道概览页头补上“新建支付通道”入口，并在表格操作列补上“编辑通道”入口。
+- [app/Admin/routes.php](/Users/apple/Documents/dujiaoshuka/app/Admin/routes.php) 已新增 `/admin/v2/pay/create` 与 `/admin/v2/pay/{id}/edit` 的 GET/POST 路由，后台壳开始承接更接近中风险的业务编辑页。
+
+影响范围：
+
+- 后台壳对支付通道标准业务表单页的承接能力
+- 支付通道管理从只读概览页走向真实创建与编辑页
+- 支付配置写入逻辑向普通服务层迁移的模式验证
+
+验证：
+
+- 当前全量回归结果：`OK (188 tests, 675 assertions)`
+
+下一步：
+
+- 继续沿着这条路线推进更多真实业务页，或挑一张中风险批量动作页继续扩大后台壳的实际承载范围。

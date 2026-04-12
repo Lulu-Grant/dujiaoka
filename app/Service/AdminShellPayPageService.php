@@ -84,6 +84,10 @@ class AdminShellPayPageService extends AbstractAdminShellPageService
                     e((string) $pay->updated_at),
                     $this->renderActionLinks([
                         [
+                            'label' => '编辑通道',
+                            'href' => admin_url($definition['uri'].'/'.$pay->id.'/edit'),
+                        ],
+                        [
                             'label' => '查看详情',
                             'href' => admin_url($definition['uri'].'/'.$pay->id.($scope ? '?scope='.$scope : '')),
                         ],
@@ -98,7 +102,14 @@ class AdminShellPayPageService extends AbstractAdminShellPageService
 
     public function buildHeader(LengthAwarePaginator $pays): array
     {
-        return $this->buildResourceHeader('共 '.$pays->total().' 条通道');
+        $header = $this->buildResourceHeader('共 '.$pays->total().' 条通道');
+        $header['actions'][] = [
+            'label' => '新建支付通道',
+            'href' => admin_url('v2/pay/create'),
+            'variant' => 'primary',
+        ];
+
+        return $header;
     }
 
     public function buildFilters(array $filters): array
