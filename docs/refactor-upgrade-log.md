@@ -204,6 +204,30 @@
 
 - 继续沿着后台壳扩容和旧 Dcat 降耦合主线推进，优先处理剩余高频后台页和更复杂的操作型页面。
 
+### 144. 旧 app/Admin 目录正式退场
+
+摘要：
+
+- [config/admin.php](/Users/apple/Documents/dujiaoshuka/config/admin.php) 的 `directory` 已从历史的 `app/Admin` 切到新的兼容路由引导目录 `routes/admin`。
+- 新增 [routes/admin/routes.php](/Users/apple/Documents/dujiaoshuka/routes/admin/routes.php)，继续承接 Dcat 需要的后台路由引导，但运行时不再依赖旧 `App\Admin\Controllers` 命名空间。
+- 旧 [app/Admin/routes.php](/Users/apple/Documents/dujiaoshuka/app/Admin/routes.php) 已删除，`app/Admin` 目录中的最后一个生产文件正式退场，整个目录也随之清空移除。
+- [obsolete-file-audit.md](/Users/apple/Documents/dujiaoshuka/docs/obsolete-file-audit.md) 已同步记录这次第四批旧文件清理结论。
+
+影响范围：
+
+- Dcat 后台兼容路由引导路径
+- 旧后台目录清理完成度
+- 后续继续压缩 Dcat 依赖的基线清晰度
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit` 通过
+- `./scripts/smoke-admin-shell` 通过
+
+下一步：
+
+- 继续沿着后台壳扩容和旧 Dcat 降耦合主线推进，优先收缩剩余后台兼容配置与高频后台页承载面。
+
 ### 144. 卡密旧控制器退壳瘦身
 
 摘要：

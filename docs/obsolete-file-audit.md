@@ -123,6 +123,25 @@
 - 当前 CI 不再通过 `install.sql` 导入测试库
 - `install.sql` 已从仓库主路径移除，只剩文档层历史说明
 
+## 2026-04-12 第四批已执行清理
+
+### 已删除
+
+- `app/Admin/routes.php`
+- 空目录 `app/Admin`
+
+### 依据
+
+- 旧后台目录中的生产文件已经全部退场，`app/Admin/routes.php` 是最后一个残留入口壳
+- Dcat 仍需要一个 `admin_path('routes.php')` 兼容入口，因此后台路由引导已迁到 `routes/admin/routes.php`
+- 新路由引导文件已去掉对 `config('admin.route.namespace')` 的实际运行时依赖，旧 `App\\Admin\\Controllers` 命名空间只剩 Dcat 工具链兼容意义
+
+### 当前结论
+
+- 仓库已经不再保留 `app/Admin` 目录
+- 旧后台主承载层现在只剩 `config/admin.php` 和 `routes/admin/routes.php` 这组兼容配置
+- 后续如果继续压缩 Dcat 依赖，优先目标会是后台兼容配置本身，而不再是 `app/Admin` 文件清理
+
 ## 2026-04-12 第二批已执行清理
 
 ### 已删除

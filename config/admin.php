@@ -70,15 +70,15 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | dcat-admin install directory
+    | dcat-admin route bootstrap directory
     |--------------------------------------------------------------------------
     |
-    | The installation directory of the controller and routing configuration
-    | files of the administration page. The default is `app/Admin`, which must
-    | be set before running `artisan admin::install` to take effect.
+    | This fork no longer keeps controllers under `app/Admin`. Dcat still loads
+    | the admin route entry via `admin_path('routes.php')`, so we keep a small
+    | compatibility route bootstrap under `routes/admin`.
     |
     */
-    'directory' => app_path('Admin'),
+    'directory' => base_path('routes/admin'),
 
     /*
     |--------------------------------------------------------------------------
