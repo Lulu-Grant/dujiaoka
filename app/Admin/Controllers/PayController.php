@@ -8,15 +8,36 @@ use App\Admin\Repositories\Pay;
 use App\Service\AdminDetailFieldService;
 use App\Service\AdminFilterService;
 use App\Service\AdminGridRestoreActionService;
+use App\Service\LegacyAdminShellRedirectService;
 use App\Service\PayAdminPresenterService;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
+use Dcat\Admin\Layout\Content;
 use Dcat\Admin\Show;
 use Dcat\Admin\Http\Controllers\AdminController;
 use App\Models\Pay as PayModel;
 
 class PayController extends AdminController
 {
+    public function index(Content $content)
+    {
+        return app(LegacyAdminShellRedirectService::class)->toResourceIndex('pay');
+    }
+
+    public function create(Content $content)
+    {
+        return app(LegacyAdminShellRedirectService::class)->toResourceCreate('pay');
+    }
+
+    public function show($id, Content $content)
+    {
+        return app(LegacyAdminShellRedirectService::class)->toResourceShow('pay', $id);
+    }
+
+    public function edit($id, Content $content)
+    {
+        return app(LegacyAdminShellRedirectService::class)->toResourceEdit('pay', $id);
+    }
 
 
     /**

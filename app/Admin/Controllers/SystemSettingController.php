@@ -9,9 +9,7 @@
 
 namespace App\Admin\Controllers;
 
-
-use App\Admin\Forms\SystemSetting;
-use App\Service\AdminPageCardService;
+use App\Service\LegacyAdminShellRedirectService;
 use Dcat\Admin\Http\Controllers\AdminController;
 use Dcat\Admin\Layout\Content;
 
@@ -30,11 +28,7 @@ class SystemSettingController extends AdminController
      */
     public function systemSetting(Content $content)
     {
-        return app(AdminPageCardService::class)->attach(
-            $content,
-            admin_trans('menu.titles.system_setting'),
-            app(SystemSetting::class)
-        );
+        return app(LegacyAdminShellRedirectService::class)->toPath('v2/system-setting');
     }
 
 }

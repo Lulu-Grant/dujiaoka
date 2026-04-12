@@ -4,10 +4,9 @@ namespace App\Admin\Controllers;
 
 use App\Admin\Actions\Post\BatchRestore;
 use App\Admin\Actions\Post\Restore;
-use App\Admin\Forms\ImportCarmis;
 use App\Admin\Repositories\Carmis;
 use App\Service\AdminDetailFieldService;
-use App\Service\AdminPageCardService;
+use App\Service\LegacyAdminShellRedirectService;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Layout\Content;
@@ -21,6 +20,25 @@ use App\Service\CatalogAdminPresenterService;
 
 class CarmisController extends AdminController
 {
+    public function index(Content $content)
+    {
+        return app(LegacyAdminShellRedirectService::class)->toResourceIndex('carmis');
+    }
+
+    public function create(Content $content)
+    {
+        return app(LegacyAdminShellRedirectService::class)->toResourceCreate('carmis');
+    }
+
+    public function show($id, Content $content)
+    {
+        return app(LegacyAdminShellRedirectService::class)->toResourceShow('carmis', $id);
+    }
+
+    public function edit($id, Content $content)
+    {
+        return app(LegacyAdminShellRedirectService::class)->toResourceEdit('carmis', $id);
+    }
 
 
     /**
@@ -114,10 +132,6 @@ class CarmisController extends AdminController
      */
     public function importCarmis(Content $content)
     {
-        return app(AdminPageCardService::class)->attach(
-            $content,
-            admin_trans('carmis.fields.import_carmis'),
-            new ImportCarmis()
-        );
+        return app(LegacyAdminShellRedirectService::class)->toPath('v2/carmis/import');
     }
 }

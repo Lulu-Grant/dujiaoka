@@ -9,9 +9,7 @@
 
 namespace App\Admin\Controllers;
 
-
-use App\Admin\Forms\EmailTest;
-use App\Service\AdminPageCardService;
+use App\Service\LegacyAdminShellRedirectService;
 use Dcat\Admin\Http\Controllers\AdminController;
 use Dcat\Admin\Layout\Content;
 
@@ -30,11 +28,7 @@ class EmailTestController extends AdminController
      */
     public function emailTest(Content $content)
     {
-        return app(AdminPageCardService::class)->attach(
-            $content,
-            admin_trans('menu.titles.email_test'),
-            new EmailTest()
-        );
+        return app(LegacyAdminShellRedirectService::class)->toPath('v2/email-test');
     }
 
 }

@@ -8,14 +8,36 @@ use App\Admin\Repositories\Emailtpl;
 use App\Service\AdminDetailFieldService;
 use App\Service\AdminFormBehaviorService;
 use App\Service\AdminGridRestoreActionService;
+use App\Service\LegacyAdminShellRedirectService;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
+use Dcat\Admin\Layout\Content;
 use Dcat\Admin\Show;
 use Dcat\Admin\Http\Controllers\AdminController;
 use App\Models\Emailtpl as EmailTplModel;
 
 class EmailtplController extends AdminController
 {
+    public function index(Content $content)
+    {
+        return app(LegacyAdminShellRedirectService::class)->toResourceIndex('emailtpl');
+    }
+
+    public function create(Content $content)
+    {
+        return app(LegacyAdminShellRedirectService::class)->toResourceCreate('emailtpl');
+    }
+
+    public function show($id, Content $content)
+    {
+        return app(LegacyAdminShellRedirectService::class)->toResourceShow('emailtpl', $id);
+    }
+
+    public function edit($id, Content $content)
+    {
+        return app(LegacyAdminShellRedirectService::class)->toResourceEdit('emailtpl', $id);
+    }
+
     /**
      * Make a grid builder.
      *

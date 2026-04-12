@@ -10,14 +10,35 @@ use App\Service\AdminFilterService;
 use App\Service\AdminFormBehaviorService;
 use App\Service\AdminGridRestoreActionService;
 use App\Service\AdminStatusPresenterService;
+use App\Service\LegacyAdminShellRedirectService;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
+use Dcat\Admin\Layout\Content;
 use Dcat\Admin\Show;
 use Dcat\Admin\Http\Controllers\AdminController;
 use App\Models\GoodsGroup as GoodsGroupModel;
 
 class GoodsGroupController extends AdminController
 {
+    public function index(Content $content)
+    {
+        return app(LegacyAdminShellRedirectService::class)->toResourceIndex('goods-group');
+    }
+
+    public function create(Content $content)
+    {
+        return app(LegacyAdminShellRedirectService::class)->toResourceCreate('goods-group');
+    }
+
+    public function show($id, Content $content)
+    {
+        return app(LegacyAdminShellRedirectService::class)->toResourceShow('goods-group', $id);
+    }
+
+    public function edit($id, Content $content)
+    {
+        return app(LegacyAdminShellRedirectService::class)->toResourceEdit('goods-group', $id);
+    }
 
     /**
      * Make a grid builder.

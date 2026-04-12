@@ -3257,3 +3257,25 @@
 下一步：
 
 - 继续沿着当前总纲推进后台壳扩容、旧 Dcat 降耦合、支付层收口与升级前清障。
+
+### 138. 将旧后台高频入口切到后台壳
+
+摘要：
+
+- 新增 [LegacyAdminShellRedirectService.php](/Users/apple/Documents/dujiaoshuka/app/Service/LegacyAdminShellRedirectService.php)，集中承接旧 Dcat 后台入口到新后台壳的跳转逻辑，并保留列表页查询参数。
+- `GoodsGroup`、`Emailtpl`、`Pay`、`Coupon`、`Goods`、`Carmis`、`Order` 这些已具备后台壳浏览或编辑能力的旧控制器，现已把 `index/show/create/edit` 中的用户入口切到 `/admin/v2/*`。
+- `SystemSettingController` 和 `EmailTestController` 也已切到后台壳配置页入口，旧 Dcat 页面不再作为默认承载层。
+
+影响范围：
+
+- 旧后台高频浏览入口
+- 后台壳成为日常使用主路径的覆盖面
+- 旧 Dcat 继续从主承载层退化为兼容壳
+
+验证：
+
+- 新增 [LegacyAdminShellRedirectControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/LegacyAdminShellRedirectControllerTest.php) 覆盖旧地址到后台壳的跳转行为
+
+下一步：
+
+- 继续沿着这条路线推进更多后台壳动作页，并逐步缩小旧 Dcat 对高频 CRUD 的实际使用范围。

@@ -10,6 +10,7 @@ use App\Models\Coupon;
 use App\Models\GoodsGroup as GoodsGroupModel;
 use App\Service\AdminFilterService;
 use App\Service\AdminGridRestoreActionService;
+use App\Service\LegacyAdminShellRedirectService;
 use App\Service\AdminSelectOptionService;
 use App\Service\AdminStatusPresenterService;
 use App\Service\AdminTextareaPresenterService;
@@ -17,12 +18,32 @@ use App\Service\CatalogAdminPresenterService;
 use Dcat\Admin\Admin;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
+use Dcat\Admin\Layout\Content;
 use Dcat\Admin\Show;
 use Dcat\Admin\Http\Controllers\AdminController;
 use App\Models\Goods as GoodsModel;
 
 class GoodsController extends AdminController
 {
+    public function index(Content $content)
+    {
+        return app(LegacyAdminShellRedirectService::class)->toResourceIndex('goods');
+    }
+
+    public function create(Content $content)
+    {
+        return app(LegacyAdminShellRedirectService::class)->toResourceCreate('goods');
+    }
+
+    public function show($id, Content $content)
+    {
+        return app(LegacyAdminShellRedirectService::class)->toResourceShow('goods', $id);
+    }
+
+    public function edit($id, Content $content)
+    {
+        return app(LegacyAdminShellRedirectService::class)->toResourceEdit('goods', $id);
+    }
 
 
     /**
