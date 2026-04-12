@@ -16,7 +16,7 @@
 摘要：
 
 - [app/Admin/Controllers/CouponController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/CouponController.php) 进一步瘦身为仅保留 `index`、`create`、`show`、`edit` 四个兼容跳转入口，移除了已不再被使用的 Dcat `Grid`、`Show`、`Form` 旧实现和无效 import。
-- [tests/Feature/LegacyAdminShellRedirectControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/LegacyAdminShellRedirectControllerTest.php) 补齐了 coupon 旧入口的跳转断言，覆盖列表、创建、详情和编辑四个路径，确保兼容层仍只负责转发，不改变现有 URL 和跳转行为。
+- [tests/Feature/LegacyAdminShellRedirectControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/LegacyAdminShellRedirectControllerTest.php) 补齐了 coupon 旧入口的跳转断言，覆盖列表、创建、详情和编辑四个路径，并保留了列表页的查询串转发，确保兼容层仍只负责转发，不改变现有 URL 和跳转行为。
 - 这次收口没有改动任何 coupon 相关 URL，也没有改变新后台壳的落点，只是把旧 Dcat 控制器里的冗余实现清掉，继续缩小旧层体积。
 
 影响范围：

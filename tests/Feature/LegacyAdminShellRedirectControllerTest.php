@@ -46,6 +46,10 @@ class LegacyAdminShellRedirectControllerTest extends TestCase
             ->assertRedirect('/admin/v2/coupon');
 
         $this->actingAs($admin, 'admin')
+            ->get('/admin/coupon?scope=trashed')
+            ->assertRedirect('/admin/v2/coupon?scope=trashed');
+
+        $this->actingAs($admin, 'admin')
             ->get('/admin/coupon/create')
             ->assertRedirect('/admin/v2/coupon/create');
 
