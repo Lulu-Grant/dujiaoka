@@ -63,6 +63,44 @@ class EmailTemplateActionService
         ];
     }
 
+    public function buildPreviewPageData(?Emailtpl $template = null): array
+    {
+        $isCreatePreview = $template === null;
+        $defaults = $isCreatePreview ? $this->createDefaults() : $this->editDefaults($template);
+        $previewContext = $this->previewContext();
+
+        return [
+            'title' => $isCreatePreview ? '新建邮件模板预览 - 后台壳样板' : '邮件模板预览 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Action',
+                'title' => $isCreatePreview ? '新建邮件模板预览' : '邮件模板预览',
+                'description' => '这是后台壳中的邮件模板预览页样板。这里会展示模板标题、模板内容、变量提示和渲染后的 HTML 结果，方便在保存前先确认视觉和文案是否正确。',
+                'meta' => $isCreatePreview
+                    ? '预览页会使用一组示例上下文渲染模板内容；可以先看空白模板的占位提示，再返回创建页继续编辑。'
+                    : '预览页会使用一组示例上下文渲染当前模板内容；建议先确认模板标题和正文排版，再返回编辑页保存。',
+                'actions' => $isCreatePreview ? [
+                    ['label' => '返回创建页', 'href' => admin_url('v2/emailtpl/create'), 'variant' => 'secondary'],
+                    ['label' => '返回概览', 'href' => admin_url('v2/emailtpl'), 'variant' => 'secondary'],
+                ] : [
+                    ['label' => '返回编辑页', 'href' => admin_url('v2/emailtpl/'.$template->id.'/edit'), 'variant' => 'secondary'],
+                    ['label' => '查看详情', 'href' => admin_url('v2/emailtpl/'.$template->id), 'variant' => 'secondary'],
+                ],
+            ],
+            'defaults' => $defaults,
+            'template' => $template,
+            'previewHtml' => $this->renderPreview($defaults['tpl_content'], $previewContext),
+            'previewContext' => $previewContext,
+            'previewTokens' => $this->previewTokens(),
+            'usageGuide' => $this->usageGuide(),
+            'summary' => [
+                ['label' => '模板标题', 'value' => $defaults['tpl_name'] !== '' ? $defaults['tpl_name'] : '未填写'],
+                ['label' => '模板标识', 'value' => $defaults['tpl_token'] !== '' ? $defaults['tpl_token'] : '未填写'],
+                ['label' => '内容长度', 'value' => strlen($defaults['tpl_content'])],
+            ],
+            'rawContent' => $defaults['tpl_content'] === '' ? '当前模板内容为空。可以先返回创建/编辑页输入 HTML，再回来看渲染效果。' : $defaults['tpl_content'],
+        ];
+    }
+
     public function renderPreview(string $content, array $context = []): string
     {
         $content = trim($content);

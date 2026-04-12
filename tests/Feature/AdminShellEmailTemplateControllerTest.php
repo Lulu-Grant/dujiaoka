@@ -36,6 +36,7 @@ class AdminShellEmailTemplateControllerTest extends TestCase
         $response->assertSee('邮件模板管理');
         $response->assertSee('模板 A');
         $response->assertSee('占位符');
+        $response->assertSee('预览样例模板');
     }
 
     public function test_show_renders_email_template_detail_page(): void
@@ -60,6 +61,7 @@ class AdminShellEmailTemplateControllerTest extends TestCase
         $response->assertSee('使用说明');
         $response->assertSee('编辑建议');
         $response->assertSee('编辑模板');
+        $response->assertSee('预览模板');
     }
 
     public function test_create_page_renders_email_template_action_form(): void
@@ -73,6 +75,19 @@ class AdminShellEmailTemplateControllerTest extends TestCase
         $response->assertSee('邮件模板预览');
         $response->assertSee('使用说明');
         $response->assertSee('{webname}');
+    }
+
+    public function test_create_preview_page_renders_email_template_preview_page(): void
+    {
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/emailtpl/create?preview=1');
+
+        $response->assertOk();
+        $response->assertSee('新建邮件模板预览');
+        $response->assertSee('模板标题与内容预览');
+        $response->assertSee('邮件模板预览');
+        $response->assertSee('占位符参考');
+        $response->assertSee('返回创建页');
     }
 
     public function test_create_page_can_store_email_template(): void
@@ -112,6 +127,31 @@ class AdminShellEmailTemplateControllerTest extends TestCase
         $response->assertSee('邮件模板预览');
         $response->assertSee('XIGUA-20260412-0001');
         $response->assertSee('使用说明');
+        $response->assertSee('预览模板');
+    }
+
+    public function test_edit_preview_page_renders_email_template_preview_page(): void
+    {
+        DB::table('emailtpls')->insert([
+            'id' => 92003,
+            'tpl_name' => '模板 C',
+            'tpl_content' => '<p>订单号：{order_id}</p><p>站点：{webname}</p>',
+            'tpl_token' => 'shell-template-c',
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/emailtpl/92003/edit?preview=1');
+
+        $response->assertOk();
+        $response->assertSee('邮件模板预览');
+        $response->assertSee('模板标题与内容预览');
+        $response->assertSee('模板 C');
+        $response->assertSee('shell-template-c');
+        $response->assertSee('XIGUA-20260412-0001');
+        $response->assertSee('返回编辑页');
     }
 
     public function test_edit_page_can_update_email_template(): void

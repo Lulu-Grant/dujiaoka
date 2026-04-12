@@ -20,10 +20,14 @@ class EmailTemplateActionController extends Controller
         $this->emailTemplateActionService = $emailTemplateActionService;
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $defaults = $this->emailTemplateActionService->createDefaults();
         $previewContext = $this->emailTemplateActionService->previewContext();
+
+        if ($request->boolean('preview')) {
+            return view('admin-shell.emailtpl.preview', $this->emailTemplateActionService->buildPreviewPageData());
+        }
 
         return view('admin-shell.emailtpl.form', [
             'title' => '新建邮件模板 - 后台壳样板',
@@ -61,11 +65,15 @@ class EmailTemplateActionController extends Controller
             ->with('status', '邮件模板已创建');
     }
 
-    public function edit(int $id)
+    public function edit(int $id, Request $request)
     {
         $template = Emailtpl::query()->findOrFail($id);
         $defaults = $this->emailTemplateActionService->editDefaults($template);
         $previewContext = $this->emailTemplateActionService->previewContext();
+
+        if ($request->boolean('preview')) {
+            return view('admin-shell.emailtpl.preview', $this->emailTemplateActionService->buildPreviewPageData($template));
+        }
 
         return view('admin-shell.emailtpl.form', [
             'title' => '编辑邮件模板 - 后台壳样板',

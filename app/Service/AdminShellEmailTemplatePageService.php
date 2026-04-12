@@ -57,6 +57,7 @@ class AdminShellEmailTemplatePageService extends AbstractAdminShellPageService
                     e((string) $template->created_at),
                     e((string) $template->updated_at),
                     $this->renderActionLinks([
+                        ['label' => '预览模板', 'href' => admin_url($definition['uri'].'/'.$template->id.'/edit').'?preview=1'],
                         ['label' => '编辑模板', 'href' => admin_url($definition['uri'].'/'.$template->id.'/edit')],
                         ['label' => '查看详情', 'href' => admin_url($definition['uri'].'/'.$template->id)],
                     ]),
@@ -75,6 +76,11 @@ class AdminShellEmailTemplatePageService extends AbstractAdminShellPageService
             'label' => '新建邮件模板',
             'href' => admin_url('v2/emailtpl/create'),
             'variant' => 'primary',
+        ];
+        $header['actions'][] = [
+            'label' => '预览样例模板',
+            'href' => admin_url('v2/emailtpl/create').'?preview=1',
+            'variant' => 'secondary',
         ];
 
         return $header;
@@ -99,6 +105,11 @@ class AdminShellEmailTemplatePageService extends AbstractAdminShellPageService
         $header = $this->buildResourceShowHeader();
 
         if ($template) {
+            $header['actions'][] = [
+                'label' => '预览模板',
+                'href' => admin_url('v2/emailtpl/'.$template->id.'/edit').'?preview=1',
+                'variant' => 'secondary',
+            ];
             $header['actions'][] = [
                 'label' => '编辑模板',
                 'href' => admin_url('v2/emailtpl/'.$template->id.'/edit'),
