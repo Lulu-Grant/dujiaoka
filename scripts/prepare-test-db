@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+MYSQL_HOST="${MYSQL_HOST:-127.0.0.1}"
+MYSQL_PORT="${MYSQL_PORT:-3306}"
+MYSQL_ROOT_USERNAME="${MYSQL_ROOT_USERNAME:-root}"
+MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD:-root}"
+MYSQL_SOCKET="${MYSQL_SOCKET:-}"
+
+TEST_DB_DATABASE="${TEST_DB_DATABASE:-dujiaoka_test}"
+TEST_DB_USERNAME="${TEST_DB_USERNAME:-dujiaoka}"
+TEST_DB_PASSWORD="${TEST_DB_PASSWORD:-dujiaoka_local}"
+
+if [ -z "$MYSQL_SOCKET" ] && [ -S /private/tmp/mysql.sock ] && [ "${MYSQL_HOST}" = "127.0.0.1" ] && [ "${MYSQL_ROOT_USERNAME}" = "root" ] && [ "${MYSQL_ROOT_PASSWORD}" = "root" ]; then
+  MYSQL_SOCKET="/private/tmp/mysql.sock"
+  MYSQL_ROOT_USERNAME="$(id -un)"
+  MYSQL_ROOT_PASSWORD=""
+fi
+
+MYSQL_ARGS=()
+
+if [ -n "$MYSQL_SOCKET" ]; then
+  MYSQL_ARGS+=(--socket "$MYSQL_SOCKET")
+else
+  MYSQL_ARGS+=(-h "$MYSQL_HOST" -P "$MYSQL_PORT")
+fi
+
+MYSQL_ARGS+=(-u"$MYSQL_ROOT_USERNAME")
+
+if [ -n "$MYSQL_ROOT_PASSWORD" ]; then
+  MYSQL_ARGS+=(-p"$MYSQL_ROOT_PASSWORD")
+fi
+
+mysql "${MYSQL_ARGS[@]}" \
+  -e "CREATE DATABASE IF NOT EXISTS \`${TEST_DB_DATABASE}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+
+mysql "${MYSQL_ARGS[@]}" \
+  -e "CREATE USER IF NOT EXISTS '${TEST_DB_USERNAME}'@'%' IDENTIFIED BY '${TEST_DB_PASSWORD}';"
+
+mysql "${MYSQL_ARGS[@]}" \
+  -e "GRANT ALL PRIVILEGES ON \`${TEST_DB_DATABASE}\`.* TO '${TEST_DB_USERNAME}'@'%'; FLUSH PRIVILEGES;"
+
+"$ROOT_DIR/scripts/php74" artisan migrate:fresh --seed --force --env=testing

@@ -50,10 +50,8 @@ jobs:
 
       - name: Prepare test database
         run: |
-          mysql -h 127.0.0.1 -uroot -proot -e "CREATE DATABASE IF NOT EXISTS dujiaoka_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-          mysql -h 127.0.0.1 -uroot -proot -e "CREATE USER IF NOT EXISTS 'dujiaoka'@'%' IDENTIFIED BY 'dujiaoka_local';"
-          mysql -h 127.0.0.1 -uroot -proot -e "GRANT ALL PRIVILEGES ON dujiaoka_test.* TO 'dujiaoka'@'%'; FLUSH PRIVILEGES;"
-          mysql -h 127.0.0.1 -udujiaoka -pdujiaoka_local dujiaoka_test < database/sql/install.sql
+          chmod +x scripts/prepare-test-db
+          ./scripts/prepare-test-db
 
       - name: Run PHPUnit
         env:

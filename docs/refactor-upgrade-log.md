@@ -99,6 +99,29 @@
 
 - 继续审计 `app/Admin/routes.php` 与 `database/sql/install.sql` 这类最后几处历史兼容面
 
+### 151. CI 测试库准备退出 install.sql
+
+摘要：
+
+- 新增了 [scripts/prepare-test-db](/Users/apple/Documents/dujiaoshuka/scripts/prepare-test-db)，统一负责测试库创建、用户授权以及 `migrate:fresh --seed --env=testing`。
+- 更新了 [ci.yml](/Users/apple/Documents/dujiaoshuka/.github/workflows/ci.yml)，GitHub Actions 不再通过 `database/sql/install.sql` 导入测试库，而是直接走 migration/seed 驱动路径。
+- 同步更新了 [obsolete-file-audit.md](/Users/apple/Documents/dujiaoshuka/docs/obsolete-file-audit.md)，把 `install.sql` 的剩余职责进一步收敛成历史参考。
+
+影响范围：
+
+- CI 测试链不再依赖整包历史 SQL
+- 测试库准备与安装现代化主路径进一步对齐
+- `install.sql` 从“历史参考 + CI 依赖”继续退化成纯历史参考
+
+验证：
+
+- `./scripts/php74 artisan migrate:fresh --seed --force --env=testing` 通过
+- 全量 PHPUnit 与后台壳烟雾检查通过
+
+下一步：
+
+- 继续评估 `database/sql/install.sql` 的最终退场时机与仓库保留策略
+
 ### 147. 第一批废弃文件审计与清理
 
 摘要：

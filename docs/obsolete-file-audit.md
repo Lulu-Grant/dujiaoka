@@ -113,9 +113,15 @@
 ## 下一批建议目标
 
 1. 把 `SystemSettingController`、`EmailTestController` 这类兼容跳转控制器进一步收口
-2. 让 CI 测试库准备脱离 `install.sql`
+2. 让 CI 测试库准备脱离 `install.sql` 旧路径
 3. 评估旧 dashboard 图表壳和 `avatar/readme.md` 是否一并移除
 4. 评估 `app/Admin/Actions/Post/*`、`app/Service/AdminGridRestoreActionService.php`、`app/Admin/bootstrap.php` 这批只剩测试或样板意义的旧文件
+
+## 2026-04-12 基线回归补充
+
+- GitHub Actions 的测试库准备已切到 `scripts/prepare-test-db`
+- 当前 CI 不再通过 `database/sql/install.sql` 导入测试库
+- `install.sql` 仍保留为历史参考文件，但已经进一步退出运行时与测试主路径
 
 ## 2026-04-12 第二批已执行清理
 
