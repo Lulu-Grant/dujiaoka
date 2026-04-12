@@ -34,11 +34,15 @@ class AdminShellSystemSettingControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('系统设置概览');
+        $response->assertSee('配置导航面板');
+        $response->assertSee('品牌与展示配置');
         $response->assertSee('基础站点配置');
         $response->assertSee('订单行为配置');
         $response->assertSee('邮件发送配置');
         $response->assertSee('通知推送配置');
         $response->assertSee('站点体验配置');
+        $response->assertSee('进入品牌配置');
+        $response->assertSee('进入基础配置');
         $response->assertDontSee('进入旧版功能页');
         $response->assertDontSee('/admin/system-setting');
     }
@@ -106,6 +110,30 @@ class AdminShellSystemSettingControllerTest extends TestCase
         $response->assertSee('独角西瓜');
         $response->assertSee('品牌标识');
         $response->assertSee('主题与语言');
+    }
+
+    public function test_index_shows_all_navigation_sections(): void
+    {
+        Cache::forever(SystemSettingService::CACHE_KEY, [
+            'title' => '独角数卡西瓜版',
+            'text_logo' => '独角数卡西瓜版',
+            'img_logo' => '/logo/xigua.png',
+            'template' => 'avatar',
+            'language' => 'zh_CN',
+            'manage_email' => 'admin@example.com',
+            'order_expire_time' => 15,
+            'driver' => 'smtp',
+            'host' => 'smtp.example.com',
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/system-setting');
+
+        $response->assertOk();
+        $response->assertSee('共 6 个配置分组');
+        $response->assertSee('进入订单配置');
+        $response->assertSee('进入通知配置');
+        $response->assertSee('进入体验配置');
     }
 
     public function test_branding_edit_page_can_save_settings(): void

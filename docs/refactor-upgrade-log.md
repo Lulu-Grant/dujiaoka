@@ -3518,6 +3518,7 @@
 - [AdminShellSystemSettingPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellSystemSettingPageService.php) 重新整理了系统设置概览的分组结构，新增 `品牌与展示配置` 分组，并把索引页的定位从“只读列表”改成“配置导航面板”。
 - 概览页的每个分组都增加了明确的入口动作，行内现在可以直接进入对应配置页，避免用户在详情页和编辑页之间多绕一层。
 - [tests/Feature/AdminShellSystemSettingControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellSystemSettingControllerTest.php) 新增对品牌分组、导航面板标题和直达入口文案的护栏，确保概览页不会回退成普通列表视图。
+- [AdminShellResourceRegistry.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellResourceRegistry.php) 同步修正了系统设置和全量后台壳动作路由的控制器接线，避免 shell controller 误接 create/edit/update 请求导致 500。
 
 影响范围：
 
@@ -3527,8 +3528,8 @@
 
 验证：
 
-- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellSystemSettingControllerTest.php` 通过
-- `./scripts/php74 vendor/bin/phpunit` 通过，结果待本轮完整回归确认
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellSystemSettingControllerTest.php tests/Feature/AdminShellEmailTestControllerTest.php` 通过
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (230 tests, 1029 assertions)`
 
 下一步：
 

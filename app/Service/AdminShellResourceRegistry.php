@@ -22,6 +22,12 @@ class AdminShellResourceRegistry
                 'service' => \App\Service\AdminShellGoodsGroupPageService::class,
                 'uri' => 'v2/goods-group',
                 'uses_scope' => true,
+                'actions' => [
+                    ['method' => 'get', 'uri' => 'create', 'action' => 'create', 'name' => 'create', 'controller' => \App\Http\Controllers\AdminShell\GoodsGroupActionController::class],
+                    ['method' => 'post', 'uri' => 'create', 'action' => 'store', 'name' => 'store', 'controller' => \App\Http\Controllers\AdminShell\GoodsGroupActionController::class],
+                    ['method' => 'get', 'uri' => '{id}/edit', 'action' => 'edit', 'name' => 'edit', 'controller' => \App\Http\Controllers\AdminShell\GoodsGroupActionController::class],
+                    ['method' => 'post', 'uri' => '{id}/edit', 'action' => 'update', 'name' => 'update', 'controller' => \App\Http\Controllers\AdminShell\GoodsGroupActionController::class],
+                ],
             ],
             'goods' => [
                 'nav_label' => '商品管理',
@@ -33,6 +39,12 @@ class AdminShellResourceRegistry
                 'service' => \App\Service\AdminShellGoodsPageService::class,
                 'uri' => 'v2/goods',
                 'uses_scope' => true,
+                'actions' => [
+                    ['method' => 'get', 'uri' => 'create', 'action' => 'create', 'name' => 'create', 'controller' => \App\Http\Controllers\AdminShell\GoodsActionController::class],
+                    ['method' => 'post', 'uri' => 'create', 'action' => 'store', 'name' => 'store', 'controller' => \App\Http\Controllers\AdminShell\GoodsActionController::class],
+                    ['method' => 'get', 'uri' => '{id}/edit', 'action' => 'edit', 'name' => 'edit', 'controller' => \App\Http\Controllers\AdminShell\GoodsActionController::class],
+                    ['method' => 'post', 'uri' => '{id}/edit', 'action' => 'update', 'name' => 'update', 'controller' => \App\Http\Controllers\AdminShell\GoodsActionController::class],
+                ],
             ],
             'order' => [
                 'nav_label' => '订单管理',
@@ -44,6 +56,10 @@ class AdminShellResourceRegistry
                 'service' => \App\Service\AdminShellOrderPageService::class,
                 'uri' => 'v2/order',
                 'uses_scope' => true,
+                'actions' => [
+                    ['method' => 'get', 'uri' => '{id}/edit', 'action' => 'edit', 'name' => 'edit', 'controller' => \App\Http\Controllers\AdminShell\OrderActionController::class],
+                    ['method' => 'post', 'uri' => '{id}/edit', 'action' => 'update', 'name' => 'update', 'controller' => \App\Http\Controllers\AdminShell\OrderActionController::class],
+                ],
             ],
             'emailtpl' => [
                 'nav_label' => '邮件模板管理',
@@ -55,6 +71,12 @@ class AdminShellResourceRegistry
                 'service' => \App\Service\AdminShellEmailTemplatePageService::class,
                 'uri' => 'v2/emailtpl',
                 'uses_scope' => false,
+                'actions' => [
+                    ['method' => 'get', 'uri' => 'create', 'action' => 'create', 'name' => 'create', 'controller' => \App\Http\Controllers\AdminShell\EmailTemplateActionController::class],
+                    ['method' => 'post', 'uri' => 'create', 'action' => 'store', 'name' => 'store', 'controller' => \App\Http\Controllers\AdminShell\EmailTemplateActionController::class],
+                    ['method' => 'get', 'uri' => '{id}/edit', 'action' => 'edit', 'name' => 'edit', 'controller' => \App\Http\Controllers\AdminShell\EmailTemplateActionController::class],
+                    ['method' => 'post', 'uri' => '{id}/edit', 'action' => 'update', 'name' => 'update', 'controller' => \App\Http\Controllers\AdminShell\EmailTemplateActionController::class],
+                ],
             ],
             'pay' => [
                 'nav_label' => '支付通道管理',
@@ -66,6 +88,12 @@ class AdminShellResourceRegistry
                 'service' => \App\Service\AdminShellPayPageService::class,
                 'uri' => 'v2/pay',
                 'uses_scope' => true,
+                'actions' => [
+                    ['method' => 'get', 'uri' => 'create', 'action' => 'create', 'name' => 'create', 'controller' => \App\Http\Controllers\AdminShell\PayActionController::class],
+                    ['method' => 'post', 'uri' => 'create', 'action' => 'store', 'name' => 'store', 'controller' => \App\Http\Controllers\AdminShell\PayActionController::class],
+                    ['method' => 'get', 'uri' => '{id}/edit', 'action' => 'edit', 'name' => 'edit', 'controller' => \App\Http\Controllers\AdminShell\PayActionController::class],
+                    ['method' => 'post', 'uri' => '{id}/edit', 'action' => 'update', 'name' => 'update', 'controller' => \App\Http\Controllers\AdminShell\PayActionController::class],
+                ],
             ],
             'coupon' => [
                 'nav_label' => '优惠码管理',
@@ -77,6 +105,12 @@ class AdminShellResourceRegistry
                 'service' => \App\Service\AdminShellCouponPageService::class,
                 'uri' => 'v2/coupon',
                 'uses_scope' => true,
+                'actions' => [
+                    ['method' => 'get', 'uri' => 'create', 'action' => 'create', 'name' => 'create', 'controller' => \App\Http\Controllers\AdminShell\CouponActionController::class],
+                    ['method' => 'post', 'uri' => 'create', 'action' => 'store', 'name' => 'store', 'controller' => \App\Http\Controllers\AdminShell\CouponActionController::class],
+                    ['method' => 'get', 'uri' => '{id}/edit', 'action' => 'edit', 'name' => 'edit', 'controller' => \App\Http\Controllers\AdminShell\CouponActionController::class],
+                    ['method' => 'post', 'uri' => '{id}/edit', 'action' => 'update', 'name' => 'update', 'controller' => \App\Http\Controllers\AdminShell\CouponActionController::class],
+                ],
             ],
             'carmis' => [
                 'nav_label' => '卡密管理',
@@ -88,6 +122,14 @@ class AdminShellResourceRegistry
                 'service' => \App\Service\AdminShellCarmisPageService::class,
                 'uri' => 'v2/carmis',
                 'uses_scope' => true,
+                'actions' => [
+                    ['method' => 'get', 'uri' => 'create', 'action' => 'create', 'name' => 'create', 'controller' => \App\Http\Controllers\AdminShell\CarmiActionController::class],
+                    ['method' => 'post', 'uri' => 'create', 'action' => 'store', 'name' => 'store', 'controller' => \App\Http\Controllers\AdminShell\CarmiActionController::class],
+                    ['method' => 'get', 'uri' => '{id}/edit', 'action' => 'edit', 'name' => 'edit', 'controller' => \App\Http\Controllers\AdminShell\CarmiActionController::class],
+                    ['method' => 'post', 'uri' => '{id}/edit', 'action' => 'update', 'name' => 'update', 'controller' => \App\Http\Controllers\AdminShell\CarmiActionController::class],
+                    ['method' => 'get', 'uri' => 'import', 'action' => 'create', 'name' => 'import', 'controller' => \App\Http\Controllers\AdminShell\CarmiImportActionController::class],
+                    ['method' => 'post', 'uri' => 'import', 'action' => 'store', 'name' => 'import.store', 'controller' => \App\Http\Controllers\AdminShell\CarmiImportActionController::class],
+                ],
             ],
             'system-setting' => [
                 'nav_label' => '系统设置概览',
@@ -99,6 +141,20 @@ class AdminShellResourceRegistry
                 'service' => \App\Service\AdminShellSystemSettingPageService::class,
                 'uri' => 'v2/system-setting',
                 'uses_scope' => false,
+                'actions' => [
+                    ['method' => 'get', 'uri' => 'base', 'action' => 'editBase', 'name' => 'base', 'controller' => \App\Http\Controllers\AdminShell\SystemSettingActionController::class],
+                    ['method' => 'post', 'uri' => 'base', 'action' => 'updateBase', 'name' => 'base.update', 'controller' => \App\Http\Controllers\AdminShell\SystemSettingActionController::class],
+                    ['method' => 'get', 'uri' => 'branding', 'action' => 'editBranding', 'name' => 'branding', 'controller' => \App\Http\Controllers\AdminShell\SystemSettingActionController::class],
+                    ['method' => 'post', 'uri' => 'branding', 'action' => 'updateBranding', 'name' => 'branding.update', 'controller' => \App\Http\Controllers\AdminShell\SystemSettingActionController::class],
+                    ['method' => 'get', 'uri' => 'mail', 'action' => 'editMail', 'name' => 'mail', 'controller' => \App\Http\Controllers\AdminShell\SystemSettingActionController::class],
+                    ['method' => 'post', 'uri' => 'mail', 'action' => 'updateMail', 'name' => 'mail.update', 'controller' => \App\Http\Controllers\AdminShell\SystemSettingActionController::class],
+                    ['method' => 'get', 'uri' => 'order', 'action' => 'editOrder', 'name' => 'order', 'controller' => \App\Http\Controllers\AdminShell\SystemSettingActionController::class],
+                    ['method' => 'post', 'uri' => 'order', 'action' => 'updateOrder', 'name' => 'order.update', 'controller' => \App\Http\Controllers\AdminShell\SystemSettingActionController::class],
+                    ['method' => 'get', 'uri' => 'push', 'action' => 'editPush', 'name' => 'push', 'controller' => \App\Http\Controllers\AdminShell\SystemSettingActionController::class],
+                    ['method' => 'post', 'uri' => 'push', 'action' => 'updatePush', 'name' => 'push.update', 'controller' => \App\Http\Controllers\AdminShell\SystemSettingActionController::class],
+                    ['method' => 'get', 'uri' => 'experience', 'action' => 'editExperience', 'name' => 'experience', 'controller' => \App\Http\Controllers\AdminShell\SystemSettingActionController::class],
+                    ['method' => 'post', 'uri' => 'experience', 'action' => 'updateExperience', 'name' => 'experience.update', 'controller' => \App\Http\Controllers\AdminShell\SystemSettingActionController::class],
+                ],
             ],
             'email-test' => [
                 'nav_label' => '邮件测试概览',
@@ -110,6 +166,10 @@ class AdminShellResourceRegistry
                 'service' => \App\Service\AdminShellEmailTestPageService::class,
                 'uri' => 'v2/email-test',
                 'uses_scope' => false,
+                'actions' => [
+                    ['method' => 'get', 'uri' => 'send', 'action' => 'create', 'name' => 'send', 'controller' => \App\Http\Controllers\AdminShell\EmailTestActionController::class],
+                    ['method' => 'post', 'uri' => 'send', 'action' => 'store', 'name' => 'send.store', 'controller' => \App\Http\Controllers\AdminShell\EmailTestActionController::class],
+                ],
             ],
         ];
     }

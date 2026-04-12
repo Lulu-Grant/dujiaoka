@@ -44,7 +44,7 @@ class AdminShellSystemSettingPageService extends AbstractAdminShellPageService
         if (!empty($filters['section'])) {
             $keyword = $filters['section'];
             $sections = $sections->filter(function (array $section) use ($keyword) {
-                return mb_stripos($section['title'], $keyword) !== false;
+                return mb_stripos($section['title'].' '.$section['summary'], $keyword) !== false;
             })->values();
         }
 
@@ -73,19 +73,19 @@ class AdminShellSystemSettingPageService extends AbstractAdminShellPageService
         $definition = $this->resourceDefinition();
 
         return [
-            'headers' => ['ID', '配置分组', '说明', '配置项数', '操作'],
+            'headers' => ['ID', '配置分组', '说明', '配置项数', '入口'],
             'rows' => collect($sections->items())->map(function (array $section) use ($definition) {
                 return [
                     $section['id'],
                     e($section['title']),
                     e($section['summary']),
                     $section['item_count'],
-                    $this->renderActionLinks([
+                    $this->renderActionLinks(array_merge([
                         [
                             'label' => '查看详情',
                             'href' => admin_url($definition['uri'].'/'.$section['id']),
                         ],
-                    ]),
+                    ], $this->entryAction($section))),
                 ];
             })->all(),
             'empty_title' => '当前条件下没有系统设置分组。',
@@ -96,11 +96,11 @@ class AdminShellSystemSettingPageService extends AbstractAdminShellPageService
 
     public function buildHeader(LengthAwarePaginator $sections): array
     {
-        $header = $this->buildResourceHeader('共 '.$sections->total().' 个配置分组 · 基础 / 通知 / 行为 / 邮件 / 体验');
+        $header = $this->buildResourceHeader('共 '.$sections->total().' 个配置分组 · 配置导航面板');
         $header['actions'][] = [
             'label' => '编辑品牌与 Logo 配置',
             'href' => admin_url('v2/system-setting/branding'),
-            'variant' => 'secondary',
+            'variant' => 'primary',
         ];
         $header['actions'][] = [
             'label' => '编辑基础站点配置',
@@ -197,16 +197,24 @@ class AdminShellSystemSettingPageService extends AbstractAdminShellPageService
 
         return [
             [
-                'id' => 1,
-                'title' => '基础站点配置',
-                'summary' => '品牌、模板、语言、管理邮箱与 SEO 信息',
-                'item_count' => 9,
+                'id' => 6,
+                'title' => '品牌与展示配置',
+                'summary' => '站点标题、Logo、主题模板与语言',
+                'item_count' => 5,
                 'items' => [
                     ['label' => '站点标题', 'value' => $settings['title'] ?? ''],
                     ['label' => '图片 Logo', 'value' => $settings['img_logo'] ?? ''],
                     ['label' => '文字 Logo', 'value' => $settings['text_logo'] ?? ''],
                     ['label' => '主题模板', 'value' => $settings['template'] ?? ''],
                     ['label' => '默认语言', 'value' => $settings['language'] ?? ''],
+                ],
+            ],
+            [
+                'id' => 1,
+                'title' => '基础站点配置',
+                'summary' => '管理邮箱、SEO 与站点公告',
+                'item_count' => 4,
+                'items' => [
                     ['label' => '管理邮箱', 'value' => $settings['manage_email'] ?? ''],
                     ['label' => '站点关键字', 'value' => $settings['keywords'] ?? ''],
                     ['label' => '站点描述', 'value' => $settings['description'] ?? ''],
@@ -276,6 +284,50 @@ class AdminShellSystemSettingPageService extends AbstractAdminShellPageService
     private function statusText($value): string
     {
         return (int) $value === 1 ? '开启' : '关闭';
+    }
+
+    private function entryAction(array $section): array
+    {
+        $actions = [
+            6 => [
+                [
+                    'label' => '进入品牌配置',
+                    'href' => admin_url('v2/system-setting/branding'),
+                ],
+            ],
+            1 => [
+                [
+                    'label' => '进入基础配置',
+                    'href' => admin_url('v2/system-setting/base'),
+                ],
+            ],
+            4 => [
+                [
+                    'label' => '进入邮件配置',
+                    'href' => admin_url('v2/system-setting/mail'),
+                ],
+            ],
+            3 => [
+                [
+                    'label' => '进入订单配置',
+                    'href' => admin_url('v2/system-setting/order'),
+                ],
+            ],
+            2 => [
+                [
+                    'label' => '进入通知配置',
+                    'href' => admin_url('v2/system-setting/push'),
+                ],
+            ],
+            5 => [
+                [
+                    'label' => '进入体验配置',
+                    'href' => admin_url('v2/system-setting/experience'),
+                ],
+            ],
+        ];
+
+        return $actions[$section['id']] ?? [];
     }
 
     private function renderActionLinks(array $actions): string
