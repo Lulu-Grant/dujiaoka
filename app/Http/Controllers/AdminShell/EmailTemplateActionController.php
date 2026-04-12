@@ -31,7 +31,6 @@ class EmailTemplateActionController extends Controller
                 'meta' => '模板标识在创建后将作为稳定引用键，建议使用语义明确且长期稳定的命名',
                 'actions' => [
                     ['label' => '返回邮件模板概览', 'href' => admin_url('v2/emailtpl')],
-                    ['label' => '进入旧版功能页', 'href' => admin_url('emailtpl'), 'variant' => 'primary'],
                 ],
             ],
             'formAction' => admin_url('v2/emailtpl/create'),

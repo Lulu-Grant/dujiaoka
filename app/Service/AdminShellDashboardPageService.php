@@ -30,7 +30,6 @@ class AdminShellDashboardPageService
                 'meta' => '数据口径暂时与旧后台保持一致，优先验证后台壳对首页统计页的承载能力',
                 'actions' => [
                     ['label' => '查看订单管理', 'href' => admin_url('v2/order')],
-                    ['label' => '进入旧版首页', 'href' => admin_url('/'), 'variant' => 'primary'],
                 ],
             ],
             'hero' => [

@@ -37,7 +37,6 @@ class CouponActionController extends Controller
                 'meta' => '优惠码创建后可继续在详情页和列表页中查看状态、关联商品和可用次数',
                 'actions' => [
                     ['label' => '返回优惠码概览', 'href' => admin_url('v2/coupon')],
-                    ['label' => '进入旧版功能页', 'href' => admin_url('coupon'), 'variant' => 'primary'],
                 ],
             ],
             'formAction' => admin_url('v2/coupon/create'),

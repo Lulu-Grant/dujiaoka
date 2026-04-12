@@ -32,7 +32,6 @@ class SystemSettingActionController extends Controller
                 'meta' => '当前为过渡样板，后续可继续扩展通知配置与邮件配置编辑',
                 'actions' => [
                     ['label' => '返回系统设置概览', 'href' => admin_url('v2/system-setting')],
-                    ['label' => '进入旧版功能页', 'href' => admin_url('system-setting'), 'variant' => 'primary'],
                 ],
             ],
             'formAction' => admin_url('v2/system-setting/base'),
@@ -64,7 +63,6 @@ class SystemSettingActionController extends Controller
                 'meta' => '当前先使用文本路径方式维护图片 Logo，后续若需要可再接入专门的媒体上传壳',
                 'actions' => [
                     ['label' => '返回系统设置概览', 'href' => admin_url('v2/system-setting')],
-                    ['label' => '进入旧版功能页', 'href' => admin_url('system-setting'), 'variant' => 'primary'],
                 ],
             ],
             'formAction' => admin_url('v2/system-setting/branding'),
@@ -128,7 +126,6 @@ class SystemSettingActionController extends Controller
                 'meta' => '当前为过渡样板，后续可继续扩展通知与推送配置编辑',
                 'actions' => [
                     ['label' => '返回系统设置概览', 'href' => admin_url('v2/system-setting')],
-                    ['label' => '进入旧版功能页', 'href' => admin_url('system-setting'), 'variant' => 'primary'],
                 ],
             ],
             'formAction' => admin_url('v2/system-setting/mail'),
@@ -177,7 +174,6 @@ class SystemSettingActionController extends Controller
                 'meta' => '当前为过渡样板，后续可继续补更细的通知分组和运行时诊断入口',
                 'actions' => [
                     ['label' => '返回系统设置概览', 'href' => admin_url('v2/system-setting')],
-                    ['label' => '进入旧版功能页', 'href' => admin_url('system-setting'), 'variant' => 'primary'],
                 ],
             ],
             'formAction' => admin_url('v2/system-setting/push'),
@@ -235,7 +231,6 @@ class SystemSettingActionController extends Controller
                 'meta' => '当前为过渡样板，后续可继续扩展公告、SEO 和模板资源等更多展示型配置',
                 'actions' => [
                     ['label' => '返回系统设置概览', 'href' => admin_url('v2/system-setting')],
-                    ['label' => '进入旧版功能页', 'href' => admin_url('system-setting'), 'variant' => 'primary'],
                 ],
             ],
             'formAction' => admin_url('v2/system-setting/experience'),

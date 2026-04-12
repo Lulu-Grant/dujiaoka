@@ -30,7 +30,6 @@ class GoodsGroupActionController extends Controller
                 'meta' => '商品分类是后台最基础的管理对象之一，适合作为标准 CRUD 样板继续扩展',
                 'actions' => [
                     ['label' => '返回商品分类概览', 'href' => admin_url('v2/goods-group')],
-                    ['label' => '进入旧版功能页', 'href' => admin_url('goods-group'), 'variant' => 'primary'],
                 ],
             ],
             'formAction' => admin_url('v2/goods-group/create'),

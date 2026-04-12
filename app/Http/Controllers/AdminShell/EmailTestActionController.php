@@ -29,7 +29,6 @@ class EmailTestActionController extends Controller
                 'meta' => '推荐先确认运行时邮件配置，再执行测试发送',
                 'actions' => [
                     ['label' => '返回邮件测试概览', 'href' => admin_url('v2/email-test')],
-                    ['label' => '进入旧版功能页', 'href' => admin_url('email-test'), 'variant' => 'primary'],
                 ],
             ],
             'formAction' => admin_url('v2/email-test/send'),

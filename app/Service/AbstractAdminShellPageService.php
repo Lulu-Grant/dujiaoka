@@ -69,28 +69,6 @@ abstract class AbstractAdminShellPageService implements AdminShellPageServiceInt
 
     protected function defaultHeaderActions(): array
     {
-        $actions = [$this->migrationContractAction()];
-        $legacyAction = $this->legacyAction();
-
-        if ($legacyAction) {
-            $actions[] = $legacyAction;
-        }
-
-        return $actions;
-    }
-
-    protected function legacyAction(): ?array
-    {
-        $definition = $this->resourceDefinition();
-
-        if (empty($definition['legacy_uri'])) {
-            return null;
-        }
-
-        return [
-            'label' => '进入旧版功能页',
-            'href' => admin_url($definition['legacy_uri']),
-            'variant' => 'primary',
-        ];
+        return [$this->migrationContractAction()];
     }
 }

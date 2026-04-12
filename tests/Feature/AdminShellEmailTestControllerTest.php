@@ -35,8 +35,8 @@ class AdminShellEmailTestControllerTest extends TestCase
         $response->assertSee('邮件测试概览');
         $response->assertSee('测试邮件表单合同');
         $response->assertSee('当前邮件运行时配置');
-        $response->assertSee('进入旧版功能页');
-        $response->assertSee('/admin/email-test');
+        $response->assertDontSee('进入旧版功能页');
+        $response->assertDontSee('/admin/email-test');
     }
 
     public function test_show_renders_email_test_detail_page(): void

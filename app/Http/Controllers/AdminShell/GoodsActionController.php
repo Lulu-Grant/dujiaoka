@@ -37,7 +37,6 @@ class GoodsActionController extends Controller
                 'meta' => '图片先按文本路径录入，暂不接入上传壳，优先保证商品创建与编辑主链稳定可用',
                 'actions' => [
                     ['label' => '返回商品概览', 'href' => admin_url('v2/goods')],
-                    ['label' => '进入旧版功能页', 'href' => admin_url('goods'), 'variant' => 'primary'],
                 ],
             ],
             'formAction' => admin_url('v2/goods/create'),

@@ -31,7 +31,6 @@ class PayActionController extends Controller
                 'meta' => '新版本已退役的通道不会自动重新进入前台主路径，但后台壳仍保持对配置数据的可控编辑能力',
                 'actions' => [
                     ['label' => '返回支付通道概览', 'href' => admin_url('v2/pay')],
-                    ['label' => '进入旧版功能页', 'href' => admin_url('pay'), 'variant' => 'primary'],
                 ],
             ],
             'formAction' => admin_url('v2/pay/create'),

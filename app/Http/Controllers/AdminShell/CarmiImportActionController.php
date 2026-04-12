@@ -37,7 +37,6 @@ class CarmiImportActionController extends Controller
                 'meta' => '支持手动粘贴卡密列表或上传 txt 文件，导入前可选择去重',
                 'actions' => [
                     ['label' => '返回卡密概览', 'href' => admin_url('v2/carmis')],
-                    ['label' => '进入旧版功能页', 'href' => admin_url('import-carmis'), 'variant' => 'primary'],
                 ],
             ],
             'formAction' => admin_url('v2/carmis/import'),

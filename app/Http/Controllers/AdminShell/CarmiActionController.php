@@ -37,7 +37,6 @@ class CarmiActionController extends Controller
                 'meta' => '这张页与导入页互补，适合补录单条卡密或修复异常库存数据',
                 'actions' => [
                     ['label' => '返回卡密概览', 'href' => admin_url('v2/carmis')],
-                    ['label' => '进入旧版功能页', 'href' => admin_url('carmis'), 'variant' => 'primary'],
                 ],
             ],
             'formAction' => admin_url('v2/carmis/create'),
