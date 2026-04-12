@@ -28,7 +28,7 @@
             <div class="empty">
                 <div>{{ $empty_title ?? ($empty ?? '当前条件下没有记录。') }}</div>
                 @if(!empty($empty_description))
-                    <div class="meta" style="margin-top: 8px;">{{ $empty_description }}</div>
+                    <div class="meta" style="margin-top: 10px;">{{ $empty_description }}</div>
                 @endif
             </div>
         @endif

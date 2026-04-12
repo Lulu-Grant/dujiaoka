@@ -1,6 +1,6 @@
 <header class="page-header">
-    <div>
-        <div class="page-kicker">{{ $kicker ?? 'Admin Shell Sample' }}</div>
+    <div class="page-header__copy">
+        <div class="page-kicker">{{ $kicker ?? 'Admin Shell' }}</div>
         <h1 class="page-title">{{ $title }}</h1>
         @if(!empty($description))
             <p class="page-description">{{ $description }}</p>
@@ -8,13 +8,13 @@
     </div>
 
     @if(!empty($meta) || !empty($actions))
-        <div>
+        <div class="page-header__aside">
             @if(!empty($meta))
-                <div class="meta">{{ $meta }}</div>
+                <div class="page-meta">{{ $meta }}</div>
             @endif
 
             @if(!empty($actions))
-                <div class="button-row" style="{{ !empty($meta) ? 'margin-top: 10px;' : '' }}">
+                <div class="page-actions">
                     @foreach($actions as $action)
                         <a class="button {{ $action['variant'] ?? 'secondary' }}" href="{{ $action['href'] }}">
                             {{ $action['label'] }}

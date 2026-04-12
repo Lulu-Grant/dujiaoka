@@ -3,7 +3,7 @@
         <form method="get" class="filters">
             @foreach($fields as $field)
                 <label>
-                    {{ $field['label'] }}
+                    <span>{{ $field['label'] }}</span>
                     @if(($field['type'] ?? 'text') === 'select')
                         <select name="{{ $field['name'] }}">
                             @foreach($field['options'] as $value => $optionLabel)

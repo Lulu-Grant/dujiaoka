@@ -3280,6 +3280,28 @@
 
 - 继续沿着这条路线推进更多后台壳动作页，并逐步缩小旧 Dcat 对高频 CRUD 的实际使用范围。
 
+### 139. 打磨后台壳共享视觉层
+
+摘要：
+
+- [layout.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/layout.blade.php) 已改成加载独立静态样式，不再把整套后台壳视觉规则内嵌在模板里。
+- 新增 [admin-shell.css](/Users/apple/Documents/dujiaoshuka/public/assets/avatar/css/admin-shell.css)，统一承载侧边栏、页头、卡片、筛选区、表格、按钮和移动端响应式样式。
+- [page-header.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/partials/page-header.blade.php)、[filter-panel.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/partials/filter-panel.blade.php)、[data-table.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/partials/data-table.blade.php) 也已同步微调，使共享壳层在不同后台壳页面上的表现更统一。
+
+影响范围：
+
+- 后台壳共享视觉底座
+- 不同资源页之间的视觉一致性
+- 后续继续迁移后台页时的 UI 维护成本
+
+验证：
+
+- 当前主线完整回归结果：`OK (217 tests, 853 assertions)`
+
+下一步：
+
+- 继续沿着后台壳扩容主线推进更多真实页面，同时保持共享壳层的统一视觉语言。
+
 ### 139. 新增订单行为配置页
 
 摘要：
