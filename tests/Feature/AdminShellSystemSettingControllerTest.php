@@ -37,6 +37,8 @@ class AdminShellSystemSettingControllerTest extends TestCase
         $response->assertSee('基础站点配置');
         $response->assertSee('订单行为配置');
         $response->assertSee('邮件发送配置');
+        $response->assertSee('通知推送配置');
+        $response->assertSee('站点体验配置');
         $response->assertDontSee('进入旧版功能页');
         $response->assertDontSee('/admin/system-setting');
     }
@@ -61,6 +63,7 @@ class AdminShellSystemSettingControllerTest extends TestCase
         $response->assertSee('系统设置详情');
         $response->assertSee('邮件驱动');
         $response->assertSee('smtp.example.com');
+        $response->assertSee('7 个配置项');
     }
 
     public function test_base_edit_page_renders_shell_action_form(): void
@@ -79,7 +82,9 @@ class AdminShellSystemSettingControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('编辑基础站点配置');
-        $response->assertSee('独角数卡西瓜版');
+        $response->assertSee('品牌与展示');
+        $response->assertSee('运营与收录');
+        $response->assertSee('订单节奏');
     }
 
     public function test_branding_edit_page_renders_shell_action_form(): void
@@ -99,6 +104,8 @@ class AdminShellSystemSettingControllerTest extends TestCase
         $response->assertSee('编辑品牌与 Logo 配置');
         $response->assertSee('/logo/xigua.png');
         $response->assertSee('独角西瓜');
+        $response->assertSee('品牌标识');
+        $response->assertSee('主题与语言');
     }
 
     public function test_branding_edit_page_can_save_settings(): void
@@ -164,6 +171,8 @@ class AdminShellSystemSettingControllerTest extends TestCase
         $response->assertOk();
         $response->assertSee('编辑邮件配置');
         $response->assertSee('smtp.example.com');
+        $response->assertSee('SMTP 连接');
+        $response->assertSee('发件身份');
     }
 
     public function test_mail_edit_page_can_save_settings(): void
@@ -224,6 +233,7 @@ class AdminShellSystemSettingControllerTest extends TestCase
         $response->assertOk();
         $response->assertSee('编辑订单行为配置');
         $response->assertSee('12');
+        $response->assertSee('订单行为');
     }
 
     public function test_order_edit_page_can_save_settings(): void
@@ -263,6 +273,10 @@ class AdminShellSystemSettingControllerTest extends TestCase
         $response->assertSee('编辑通知推送配置');
         $response->assertSee('server-token');
         $response->assertSee('bot-token');
+        $response->assertSee('Server 酱');
+        $response->assertSee('Telegram');
+        $response->assertSee('Bark');
+        $response->assertSee('企业微信机器人');
     }
 
     public function test_push_edit_page_can_save_settings(): void
@@ -311,6 +325,8 @@ class AdminShellSystemSettingControllerTest extends TestCase
         $response->assertSee('编辑站点体验配置');
         $response->assertSee('站点公告内容');
         $response->assertSee('&lt;p&gt;footer&lt;/p&gt;', false);
+        $response->assertSee('访问风控');
+        $response->assertSee('文案与页脚');
     }
 
     public function test_experience_edit_page_can_save_settings(): void
