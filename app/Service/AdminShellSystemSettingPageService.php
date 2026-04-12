@@ -98,6 +98,11 @@ class AdminShellSystemSettingPageService extends AbstractAdminShellPageService
     {
         $header = $this->buildResourceHeader('共 '.$sections->total().' 个配置分组');
         $header['actions'][] = [
+            'label' => '编辑品牌与 Logo 配置',
+            'href' => admin_url('v2/system-setting/branding'),
+            'variant' => 'secondary',
+        ];
+        $header['actions'][] = [
             'label' => '编辑基础站点配置',
             'href' => admin_url('v2/system-setting/base'),
             'variant' => 'primary',
@@ -187,6 +192,7 @@ class AdminShellSystemSettingPageService extends AbstractAdminShellPageService
                 'item_count' => 8,
                 'items' => [
                     ['label' => '站点标题', 'value' => $settings['title'] ?? ''],
+                    ['label' => '图片 Logo', 'value' => $settings['img_logo'] ?? ''],
                     ['label' => '文字 Logo', 'value' => $settings['text_logo'] ?? ''],
                     ['label' => '主题模板', 'value' => $settings['template'] ?? ''],
                     ['label' => '默认语言', 'value' => $settings['language'] ?? ''],

@@ -51,6 +51,35 @@ class SystemSettingActionController extends Controller
         ]);
     }
 
+    public function editBranding()
+    {
+        $settings = $this->systemSettingService->all();
+
+        return view('admin-shell.system-setting.edit-branding', [
+            'title' => '编辑品牌与 Logo 配置 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Action',
+                'title' => '编辑品牌与 Logo 配置',
+                'description' => '这是后台壳中的品牌配置样板页。当前独立承接站点标题、文字 Logo 与图片 Logo 路径配置，便于后续继续扩展媒体资源管理。',
+                'meta' => '当前先使用文本路径方式维护图片 Logo，后续若需要可再接入专门的媒体上传壳',
+                'actions' => [
+                    ['label' => '返回系统设置概览', 'href' => admin_url('v2/system-setting')],
+                    ['label' => '进入旧版功能页', 'href' => admin_url('system-setting'), 'variant' => 'primary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/system-setting/branding'),
+            'defaults' => [
+                'title' => $settings['title'] ?? '',
+                'text_logo' => $settings['text_logo'] ?? '',
+                'img_logo' => $settings['img_logo'] ?? '',
+                'template' => $settings['template'] ?? 'avatar',
+                'language' => $settings['language'] ?? 'zh_CN',
+            ],
+            'templateOptions' => config('dujiaoka.templates', []),
+            'languageOptions' => config('dujiaoka.language', []),
+        ]);
+    }
+
     public function updateBase(Request $request)
     {
         $payload = $request->validate([
@@ -68,6 +97,22 @@ class SystemSettingActionController extends Controller
 
         return redirect(admin_url('v2/system-setting/base'))
             ->with('status', '基础站点配置已保存');
+    }
+
+    public function updateBranding(Request $request)
+    {
+        $payload = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'text_logo' => ['nullable', 'string', 'max:255'],
+            'img_logo' => ['nullable', 'string', 'max:1000'],
+            'template' => ['required', 'string'],
+            'language' => ['required', 'string'],
+        ]);
+
+        $this->systemSettingService->save($payload);
+
+        return redirect(admin_url('v2/system-setting/branding'))
+            ->with('status', '品牌与 Logo 配置已保存');
     }
 
     public function editMail()

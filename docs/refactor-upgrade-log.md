@@ -3138,3 +3138,26 @@
 下一步：
 
 - 继续沿着这条路线推进更多中复杂度后台壳动作页，逐步扩大后台壳对真实业务页的实际承载范围。
+
+### 133. 落地品牌与 Logo 配置后台壳动作页
+
+摘要：
+
+- 新增 [edit-branding.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/system-setting/edit-branding.blade.php)，把品牌与 Logo 配置接入后台壳。
+- [SystemSettingActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/SystemSettingActionController.php) 已新增 `editBranding/updateBranding`，承接站点标题、文字 Logo、图片 Logo 路径、默认主题与默认语言的保存逻辑。
+- [AdminShellSystemSettingPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellSystemSettingPageService.php) 已在系统设置概览页头补上“编辑品牌与 Logo 配置”入口，并在概览详情中增加图片 Logo 字段展示。
+- [app/Admin/routes.php](/Users/apple/Documents/dujiaoshuka/app/Admin/routes.php) 已新增 `/admin/v2/system-setting/branding` 的 GET/POST 路由，后台壳继续扩大对真实配置动作页的承载范围。
+
+影响范围：
+
+- 后台壳对品牌与展示类配置动作页的承接能力
+- 系统设置从基础站点/邮件/推送/体验继续扩展到品牌媒体配置
+- 低风险展示配置向普通 Laravel 配置保存链路迁移的模式验证
+
+验证：
+
+- 当前全量回归结果：`OK (206 tests, 786 assertions)`
+
+下一步：
+
+- 继续沿着这条路线推进更多中复杂度后台壳动作页，或回到主链业务页上补更低风险的可操作入口。

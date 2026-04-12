@@ -81,6 +81,47 @@ class AdminShellSystemSettingControllerTest extends TestCase
         $response->assertSee('独角数卡西瓜版');
     }
 
+    public function test_branding_edit_page_renders_shell_action_form(): void
+    {
+        Cache::forever(SystemSettingService::CACHE_KEY, [
+            'title' => '独角数卡西瓜版',
+            'text_logo' => '独角西瓜',
+            'img_logo' => '/logo/xigua.png',
+            'template' => 'avatar',
+            'language' => 'zh_CN',
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/system-setting/branding');
+
+        $response->assertOk();
+        $response->assertSee('编辑品牌与 Logo 配置');
+        $response->assertSee('/logo/xigua.png');
+        $response->assertSee('独角西瓜');
+    }
+
+    public function test_branding_edit_page_can_save_settings(): void
+    {
+        Cache::forget(SystemSettingService::CACHE_KEY);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/system-setting/branding', [
+                'title' => '西瓜品牌标题',
+                'text_logo' => '西瓜文字 Logo',
+                'img_logo' => '/assets/xigua/logo.png',
+                'template' => 'avatar',
+                'language' => 'zh_CN',
+            ]);
+
+        $response->assertRedirect('/admin/v2/system-setting/branding');
+        $response->assertSessionHas('status', '品牌与 Logo 配置已保存');
+
+        $settings = app(SystemSettingService::class)->all();
+        $this->assertSame('西瓜品牌标题', $settings['title']);
+        $this->assertSame('西瓜文字 Logo', $settings['text_logo']);
+        $this->assertSame('/assets/xigua/logo.png', $settings['img_logo']);
+    }
+
     public function test_base_edit_page_can_save_settings(): void
     {
         Cache::forget(SystemSettingService::CACHE_KEY);
