@@ -3279,3 +3279,26 @@
 下一步：
 
 - 继续沿着这条路线推进更多后台壳动作页，并逐步缩小旧 Dcat 对高频 CRUD 的实际使用范围。
+
+### 139. 新增订单行为配置页
+
+摘要：
+
+- 在 [SystemSettingActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/SystemSettingActionController.php) 中新增订单行为配置动作页，使用现有 `order_expire_time`、`is_open_img_code` 和 `is_open_search_pwd` 作为页面承接字段。
+- 在 [AdminShellSystemSettingPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellSystemSettingPageService.php) 的系统设置概览中新增订单行为分组，并为概览页补充“编辑订单行为配置”入口。
+- 新增 [resources/views/admin-shell/system-setting/edit-order.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/system-setting/edit-order.blade.php)，将订单过期时间和订单查询相关开关从配置概览中拆出，作为独立动作页管理。
+
+影响范围：
+
+- 系统设置概览页
+- 订单过期时间与查询行为配置
+- 后台壳对低风险订单行为配置页的承载能力
+
+验证：
+
+- 新增 Feature 测试覆盖订单行为配置页的展示与保存
+- 当前主线完整回归结果：`OK (216 tests, 849 assertions)`
+
+下一步：
+
+- 继续沿着后台壳扩容和旧 Dcat 降耦合两条线往下推，优先处理更多中低风险配置页与高频管理页。

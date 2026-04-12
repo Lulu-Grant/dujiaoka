@@ -35,6 +35,7 @@ class AdminShellSystemSettingControllerTest extends TestCase
         $response->assertOk();
         $response->assertSee('系统设置概览');
         $response->assertSee('基础站点配置');
+        $response->assertSee('订单行为配置');
         $response->assertSee('邮件发送配置');
         $response->assertDontSee('进入旧版功能页');
         $response->assertDontSee('/admin/system-setting');
@@ -54,7 +55,7 @@ class AdminShellSystemSettingControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->makeAdmin(), 'admin')
-            ->get('/admin/v2/system-setting/3');
+            ->get('/admin/v2/system-setting/4');
 
         $response->assertOk();
         $response->assertSee('系统设置详情');
@@ -188,6 +189,61 @@ class AdminShellSystemSettingControllerTest extends TestCase
         $this->assertSame('mail.example.com', $settings['host']);
         $this->assertSame(2525, $settings['port']);
         $this->assertSame('邮件机器人', $settings['from_name']);
+    }
+
+    public function test_order_renders_system_setting_detail_page(): void
+    {
+        Cache::forever(SystemSettingService::CACHE_KEY, [
+            'order_expire_time' => 15,
+            'is_open_img_code' => 1,
+            'is_open_search_pwd' => 0,
+            'driver' => 'smtp',
+            'host' => 'smtp.example.com',
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/system-setting/3');
+
+        $response->assertOk();
+        $response->assertSee('系统设置详情');
+        $response->assertSee('订单过期时间');
+        $response->assertSee('15');
+    }
+
+    public function test_order_edit_page_renders_shell_action_form(): void
+    {
+        Cache::forever(SystemSettingService::CACHE_KEY, [
+            'order_expire_time' => 12,
+            'is_open_img_code' => 1,
+            'is_open_search_pwd' => 0,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/system-setting/order');
+
+        $response->assertOk();
+        $response->assertSee('编辑订单行为配置');
+        $response->assertSee('12');
+    }
+
+    public function test_order_edit_page_can_save_settings(): void
+    {
+        Cache::forget(SystemSettingService::CACHE_KEY);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/system-setting/order', [
+                'order_expire_time' => 20,
+                'is_open_img_code' => '1',
+                'is_open_search_pwd' => '1',
+            ]);
+
+        $response->assertRedirect('/admin/v2/system-setting/order');
+        $response->assertSessionHas('status', '订单行为配置已保存');
+
+        $settings = app(SystemSettingService::class)->all();
+        $this->assertSame(20, $settings['order_expire_time']);
+        $this->assertSame(1, $settings['is_open_img_code']);
+        $this->assertSame(1, $settings['is_open_search_pwd']);
     }
 
     public function test_push_edit_page_renders_shell_action_form(): void

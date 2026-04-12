@@ -113,6 +113,11 @@ class AdminShellSystemSettingPageService extends AbstractAdminShellPageService
             'variant' => 'secondary',
         ];
         $header['actions'][] = [
+            'label' => '编辑订单行为配置',
+            'href' => admin_url('v2/system-setting/order'),
+            'variant' => 'secondary',
+        ];
+        $header['actions'][] = [
             'label' => '编辑通知推送配置',
             'href' => admin_url('v2/system-setting/push'),
             'variant' => 'secondary',
@@ -222,6 +227,17 @@ class AdminShellSystemSettingPageService extends AbstractAdminShellPageService
             ],
             [
                 'id' => 3,
+                'title' => '订单行为配置',
+                'summary' => '订单过期、图形验证码与订单查询密码',
+                'item_count' => 3,
+                'items' => [
+                    ['label' => '订单过期时间', 'value' => (string) ($settings['order_expire_time'] ?? '')],
+                    ['label' => '图片验证码', 'value' => $this->statusText($settings['is_open_img_code'] ?? 0)],
+                    ['label' => '订单查询密码', 'value' => $this->statusText($settings['is_open_search_pwd'] ?? 0)],
+                ],
+            ],
+            [
+                'id' => 4,
                 'title' => '邮件发送配置',
                 'summary' => 'SMTP 驱动、端口、发信身份与连接方式',
                 'item_count' => 7,

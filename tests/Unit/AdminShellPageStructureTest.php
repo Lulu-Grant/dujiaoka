@@ -392,13 +392,14 @@ class AdminShellPageStructureTest extends TestCase
         $header = $service->buildHeader($sections);
         $filters = $service->buildFilters(['section' => '邮件']);
         $showHeader = $service->buildShowHeader();
-        $section = $service->find(3);
+        $section = $service->find(4);
         $indexPage = $service->buildIndexPageData($sections, ['section' => '邮件']);
         $showPage = $service->buildShowPageData($section);
         $items = $service->detailItems($section);
         $requestFilters = $service->extractFilters(Request::create('/admin/v2/system-setting', 'GET', ['section' => '邮件']));
 
         $this->assertSame('系统设置概览', $header['title']);
+        $this->assertSame('编辑订单行为配置', $header['actions'][4]['label']);
         $this->assertSame('邮件', $requestFilters['section']);
         $this->assertSame('分组关键字', $filters['fields'][0]['label']);
         $this->assertSame('系统设置详情', $showHeader['title']);

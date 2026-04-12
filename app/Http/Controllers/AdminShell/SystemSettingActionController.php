@@ -142,6 +142,30 @@ class SystemSettingActionController extends Controller
         ]);
     }
 
+    public function editOrder()
+    {
+        $settings = $this->systemSettingService->all();
+
+        return view('admin-shell.system-setting.edit-order', [
+            'title' => '编辑订单行为配置 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Action',
+                'title' => '编辑订单行为配置',
+                'description' => '这是后台壳中的订单行为配置样板页。当前先承接订单过期、订单查询密码和图形验证码等订单链路相关配置，验证后台壳对业务行为配置保存的能力。',
+                'meta' => '当前为过渡样板，后续可继续扩展更多订单风控和结算行为配置',
+                'actions' => [
+                    ['label' => '返回系统设置概览', 'href' => admin_url('v2/system-setting')],
+                ],
+            ],
+            'formAction' => admin_url('v2/system-setting/order'),
+            'defaults' => [
+                'order_expire_time' => $settings['order_expire_time'] ?? 5,
+                'is_open_img_code' => (int) ($settings['is_open_img_code'] ?? BaseModel::STATUS_CLOSE),
+                'is_open_search_pwd' => (int) ($settings['is_open_search_pwd'] ?? BaseModel::STATUS_CLOSE),
+            ],
+        ]);
+    }
+
     public function updateMail(Request $request)
     {
         $payload = $request->validate([
@@ -159,6 +183,23 @@ class SystemSettingActionController extends Controller
 
         return redirect(admin_url('v2/system-setting/mail'))
             ->with('status', '邮件配置已保存');
+    }
+
+    public function updateOrder(Request $request)
+    {
+        $payload = $request->validate([
+            'order_expire_time' => ['required', 'integer', 'min:1', 'max:1440'],
+        ]);
+
+        $payload = array_merge($payload, [
+            'is_open_img_code' => $request->boolean('is_open_img_code') ? BaseModel::STATUS_OPEN : BaseModel::STATUS_CLOSE,
+            'is_open_search_pwd' => $request->boolean('is_open_search_pwd') ? BaseModel::STATUS_OPEN : BaseModel::STATUS_CLOSE,
+        ]);
+
+        $this->systemSettingService->save($payload);
+
+        return redirect(admin_url('v2/system-setting/order'))
+            ->with('status', '订单行为配置已保存');
     }
 
     public function editPush()
