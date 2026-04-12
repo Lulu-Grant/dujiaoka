@@ -3941,3 +3941,36 @@
 下一步：
 
 - 观察 GitHub Actions 新一轮 CI 是否转绿；如果还有残余失败，就继续顺着日志收口。
+
+### 147. 修复 CI 测试库准备阶段未注入 testing 数据库变量
+
+摘要：
+
+- 在最新的 GitHub Actions 失败日志中，`Prepare test database` 已经不再报找不到 `php`，新的根因变成了 Laravel 在 `migrate:fresh --env=testing` 里仍然使用默认的 `forge` 连接参数。
+- [scripts/prepare-test-db](/Users/apple/Documents/dujiaoshuka/scripts/prepare-test-db) 现在会在执行 artisan 前显式注入：
+  - `APP_ENV=testing`
+  - `DB_CONNECTION=mysql`
+  - `DB_HOST`
+  - `DB_PORT`
+  - `DB_DATABASE`
+  - `DB_USERNAME`
+  - `DB_PASSWORD`
+- 这样 `prepare-test-db` 不再依赖 PHPUnit 才会注入的 `phpunit.xml` 变量，单独运行时也能稳定建立测试库结构。
+
+影响范围：
+
+- GitHub Actions `Prepare test database`
+- 所有单独调用 `scripts/prepare-test-db` 的自动化场景
+
+验证：
+
+- `MYSQL_SOCKET=/private/tmp/mysql.sock MYSQL_ROOT_USERNAME=$(id -un) MYSQL_ROOT_PASSWORD='' ./scripts/prepare-test-db` 通过
+- 准备完成后确认 `dujiaoka_test` 中存在：
+  - `orders`
+  - `admin_users`
+  - `admin_menu`
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/AdminDashboardMetricsServiceTest.php tests/Feature/AdminShellEmailTemplateControllerTest.php tests/Feature/AdminShellCouponControllerTest.php` 通过
+
+下一步：
+
+- 观察 GitHub Actions 新一轮 CI 是否转绿；如果仍有失败，就继续按最新 run 的日志逐项收口。

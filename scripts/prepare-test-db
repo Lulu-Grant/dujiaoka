@@ -43,4 +43,11 @@ mysql "${MYSQL_ARGS[@]}" \
 mysql "${MYSQL_ARGS[@]}" \
   -e "GRANT ALL PRIVILEGES ON \`${TEST_DB_DATABASE}\`.* TO '${TEST_DB_USERNAME}'@'%'; FLUSH PRIVILEGES;"
 
+APP_ENV=testing \
+DB_CONNECTION=mysql \
+DB_HOST="${MYSQL_HOST}" \
+DB_PORT="${MYSQL_PORT}" \
+DB_DATABASE="${TEST_DB_DATABASE}" \
+DB_USERNAME="${TEST_DB_USERNAME}" \
+DB_PASSWORD="${TEST_DB_PASSWORD}" \
 "$ROOT_DIR/scripts/php74" artisan migrate:fresh --seed --force --env=testing
