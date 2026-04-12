@@ -29,12 +29,39 @@ html {
 
 body.admin-shell {
     margin: 0;
+    min-height: 100vh;
     color: var(--shell-ink);
     font-family: "PingFang SC", "Hiragino Sans GB", "Source Han Sans SC", "Noto Sans SC", sans-serif;
     background:
         radial-gradient(circle at top right, rgba(255, 200, 87, 0.18), transparent 23%),
         radial-gradient(circle at 18% 10%, rgba(69, 154, 103, 0.2), transparent 25%),
         linear-gradient(180deg, #f8fbf7 0%, #eef4ec 100%);
+}
+
+body.admin-shell::before,
+body.admin-shell::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+
+body.admin-shell::before {
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.36), rgba(255, 255, 255, 0)),
+        radial-gradient(circle at 82% 12%, rgba(255, 214, 118, 0.18), transparent 24%),
+        radial-gradient(circle at 14% 18%, rgba(79, 164, 108, 0.14), transparent 26%);
+    mix-blend-mode: screen;
+}
+
+body.admin-shell::after {
+    opacity: 0.28;
+    background-image:
+        linear-gradient(rgba(31, 50, 39, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(31, 50, 39, 0.03) 1px, transparent 1px);
+    background-size: 36px 36px;
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.42), rgba(0, 0, 0, 0));
 }
 
 body.admin-shell a {
@@ -47,31 +74,40 @@ body.admin-shell img {
     display: block;
 }
 
-.shell {
+.shell-frame {
+    position: relative;
+    z-index: 1;
     min-height: 100vh;
+    padding: 18px;
+}
+
+.shell {
+    min-height: calc(100vh - 36px);
     display: grid;
-    grid-template-columns: 288px minmax(0, 1fr);
+    grid-template-columns: 292px minmax(0, 1fr);
+    gap: 18px;
 }
 
 .sidebar {
     position: sticky;
-    top: 0;
-    min-height: 100vh;
-    padding: 22px 18px;
+    top: 18px;
+    min-height: calc(100vh - 36px);
+    padding: 0;
     background:
         linear-gradient(180deg, rgba(23, 38, 28, 0.98) 0%, rgba(33, 55, 39, 0.98) 100%);
     color: #f5fff7;
-    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--shell-radius-xl);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 24px 58px rgba(22, 35, 26, 0.18);
+    overflow: hidden;
 }
 
 .sidebar-surface {
-    min-height: calc(100vh - 44px);
+    min-height: calc(100vh - 36px);
     padding: 22px;
-    border-radius: 28px;
     background:
         radial-gradient(circle at top left, rgba(255, 255, 255, 0.07), transparent 34%),
         linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
     backdrop-filter: blur(10px);
 }
 
@@ -85,9 +121,13 @@ body.admin-shell img {
 }
 
 .brand img {
-    width: 52px;
-    height: 52px;
+    width: 56px;
+    height: 56px;
+    padding: 6px;
     object-fit: contain;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.14));
 }
 
@@ -158,7 +198,7 @@ body.admin-shell img {
     align-items: center;
     gap: 12px;
     min-height: 46px;
-    padding: 11px 14px;
+    padding: 11px 14px 11px 12px;
     border-radius: 16px;
     border: 1px solid transparent;
     background: rgba(255, 255, 255, 0.06);
@@ -181,6 +221,7 @@ body.admin-shell img {
         linear-gradient(90deg, rgba(47, 143, 89, 0.95) 0%, rgba(43, 122, 76, 0.88) 100%);
     border-color: rgba(255, 255, 255, 0.08);
     box-shadow: 0 14px 28px rgba(16, 91, 49, 0.26);
+    transform: none;
 }
 
 .nav-item__marker {
@@ -218,6 +259,7 @@ body.admin-shell img {
 .content-shell {
     width: min(100%, 1440px);
     margin: 0 auto;
+    padding-bottom: 8px;
 }
 
 .page-header {
@@ -228,6 +270,18 @@ body.admin-shell img {
     padding: 0 0 18px;
     margin-bottom: 22px;
     border-bottom: 1px solid var(--shell-line);
+    position: relative;
+}
+
+.page-header::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    width: 160px;
+    height: 2px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--shell-accent), rgba(211, 154, 45, 0.65));
 }
 
 .page-header__copy {
@@ -294,7 +348,22 @@ body.admin-shell img {
         linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(250, 252, 248, 0.96) 100%);
     border: 1px solid rgba(77, 106, 87, 0.14);
     border-radius: var(--shell-radius-xl);
-    box-shadow: var(--shell-shadow);
+    box-shadow:
+        0 18px 44px rgba(31, 50, 39, 0.09),
+        inset 0 3px 0 rgba(47, 143, 89, 0.74);
+    position: relative;
+    transition: box-shadow 180ms ease, transform 180ms ease, border-color 180ms ease;
+}
+
+.panel:hover {
+    border-color: rgba(77, 106, 87, 0.18);
+    box-shadow:
+        0 22px 52px rgba(31, 50, 39, 0.12),
+        inset 0 3px 0 rgba(47, 143, 89, 0.88);
+}
+
+.panel > * {
+    position: relative;
 }
 
 .panel + .panel {
@@ -316,7 +385,16 @@ label {
     display: grid;
     gap: 8px;
     font-size: 13px;
+    font-weight: 600;
     color: var(--shell-muted);
+}
+
+label > span {
+    color: var(--shell-ink);
+}
+
+label small {
+    display: block;
 }
 
 input,
@@ -328,7 +406,17 @@ textarea {
     border: 1px solid var(--shell-line-strong);
     background: rgba(255, 255, 255, 0.9);
     color: var(--shell-ink);
+    line-height: 1.45;
     transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease, background 160ms ease;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+    width: 18px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0;
+    accent-color: var(--shell-accent);
 }
 
 input::placeholder,
@@ -349,6 +437,20 @@ textarea {
     resize: vertical;
     min-height: 180px;
     font-family: inherit;
+}
+
+input:disabled,
+select:disabled,
+textarea:disabled {
+    cursor: not-allowed;
+    background: rgba(242, 245, 240, 0.9);
+    color: #7b877e;
+    border-style: dashed;
+    box-shadow: none;
+}
+
+select[multiple] {
+    min-height: 180px;
 }
 
 .form-stack {
@@ -400,10 +502,12 @@ textarea {
 
 .table-wrap {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 table {
     width: 100%;
+    min-width: 100%;
     border-collapse: separate;
     border-spacing: 0;
 }
@@ -414,6 +518,7 @@ td {
     padding: 15px 14px;
     border-bottom: 1px solid rgba(77, 106, 87, 0.12);
     vertical-align: middle;
+    font-variant-numeric: tabular-nums;
 }
 
 th {
@@ -426,6 +531,10 @@ th {
 
 tbody tr {
     transition: background 140ms ease;
+}
+
+tbody tr:nth-child(2n) {
+    background: rgba(247, 250, 246, 0.62);
 }
 
 tbody tr:hover {
@@ -469,7 +578,9 @@ tbody tr:hover {
     background:
         linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(248, 251, 247, 0.96) 100%);
     border: 1px solid rgba(77, 106, 87, 0.12);
-    box-shadow: 0 10px 24px rgba(31, 50, 39, 0.05);
+    box-shadow:
+        0 10px 24px rgba(31, 50, 39, 0.05),
+        inset 0 2px 0 rgba(47, 143, 89, 0.42);
 }
 
 .detail-label {
@@ -541,6 +652,26 @@ tbody tr:hover {
     position: sticky;
     top: 0;
     z-index: 1;
+    backdrop-filter: blur(10px);
+    box-shadow: inset 0 -1px 0 rgba(77, 106, 87, 0.08);
+}
+
+.table-wrap::-webkit-scrollbar {
+    height: 10px;
+}
+
+.table-wrap::-webkit-scrollbar-track {
+    background: rgba(77, 106, 87, 0.08);
+    border-radius: 999px;
+}
+
+.table-wrap::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: rgba(47, 143, 89, 0.34);
+}
+
+.table-wrap::-webkit-scrollbar-thumb:hover {
+    background: rgba(47, 143, 89, 0.48);
 }
 
 @media (max-width: 1200px) {
@@ -550,14 +681,19 @@ tbody tr:hover {
 }
 
 @media (max-width: 1024px) {
+    .shell-frame {
+        padding: 12px;
+    }
+
     .shell {
         grid-template-columns: 1fr;
+        gap: 12px;
     }
 
     .sidebar {
         position: relative;
         min-height: auto;
-        padding-bottom: 0;
+        top: 0;
     }
 
     .sidebar-surface {
@@ -565,18 +701,21 @@ tbody tr:hover {
     }
 
     .content {
-        padding: 22px;
+        padding: 18px;
     }
 }
 
 @media (max-width: 720px) {
+    .shell-frame {
+        padding: 0;
+    }
+
     .sidebar {
-        padding: 14px;
+        border-radius: 0;
     }
 
     .sidebar-surface {
-        padding: 18px;
-        border-radius: 24px;
+        padding: 16px;
     }
 
     .nav-list {
@@ -590,6 +729,7 @@ tbody tr:hover {
 
     .page-header {
         flex-direction: column;
+        gap: 16px;
     }
 
     .page-header__aside {
@@ -613,6 +753,11 @@ tbody tr:hover {
 
     .filters {
         grid-template-columns: 1fr;
+    }
+
+    .button,
+    .button.secondary {
+        min-width: 0;
     }
 
     .detail-grid {
