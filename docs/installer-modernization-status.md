@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-当前安装主路径已经不再依赖 `database/sql/install.sql` 整包导入。
+当前安装主路径已经不再依赖 `install.sql` 整包导入。
 
 现在安装流程使用的是：
 
@@ -18,13 +18,13 @@
 
 ## 仍然保留的旧内容
 
-`database/sql/install.sql` 目前还保留在仓库里，但已经降级为：
+`install.sql` 原本在仓库里保留的意义是：
 
 - 历史结构快照
 - 数据迁移盘点参考
 - 审计对照依据
 
-它不再是推荐安装入口，也不应再被新的部署文档作为主流程使用。
+它不再是推荐安装入口，也不应再被新的部署文档作为主流程使用。当前文件已经从仓库主路径移除。
 
 当前覆盖盘点可参考：
 
@@ -59,6 +59,6 @@
 ## 下一步
 
 - 本阶段安装现代化工作已完成，可转入观察与维护阶段
-- 后续在框架升级或后台替换阶段，再评估是否彻底移除 `install.sql`
+- `install.sql` 退场工作已完成，后续只维护迁移与 seed 路径
 - 当前阶段结项说明可参考：
   - [installation-modernization-closure.md](/Users/apple/Documents/dujiaoshuka/docs/installation-modernization-closure.md)

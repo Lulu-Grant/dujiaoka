@@ -2,7 +2,7 @@
 
 ## 目标
 
-把当前 `database/sql/install.sql` 中混杂的默认数据，明确拆成三类：
+把原始 `install.sql` 中混杂的默认数据，明确拆成三类：
 
 - `bootstrap`
   安装后立即可用、且不携带高风险默认凭据的数据

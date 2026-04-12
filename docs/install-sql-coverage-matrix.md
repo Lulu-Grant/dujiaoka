@@ -4,7 +4,7 @@
 
 这份矩阵用于回答两个问题：
 
-1. `database/sql/install.sql` 里的哪些结构已经被 migration 接管
+1. 原始 `install.sql` 里的哪些结构已经被 migration 接管
 2. 哪些默认数据已经被 bootstrap / sample / forbidden 策略接管，哪些还只是历史快照
 
 ## 表级覆盖
@@ -56,7 +56,7 @@
 
 ## 建议的移除条件
 
-当下面条件全部满足时，可以评估彻底移除 `database/sql/install.sql`：
+下面这些条件满足后，`install.sql` 已具备从仓库主路径移除的条件：
 
 - 安装与部署文档全部统一到 migrations + seeders
 - 本地/测试/生产 bootstrap 都不再依赖 `install.sql`
@@ -66,4 +66,4 @@
 ## 当前判断
 
 从功能上说，`install.sql` 已经退出安装主路径。  
-从仓库治理上说，它已经达到“可进入短期保留、后续择机删除”的状态。
+从仓库治理上说，它也已经完成退场，并从仓库主路径移除。

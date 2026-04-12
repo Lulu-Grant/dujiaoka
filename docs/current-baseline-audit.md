@@ -32,7 +32,7 @@
 - 固定 `scripts/php74` / `scripts/composer74`
 - 本地快速拉站路径可复用
 - GitHub Actions `CI` 已建立并在主线使用
-- PHPUnit 主线回归已扩展到 `OK (209 tests, 798 assertions)`
+- PHPUnit 主线回归已扩展到 `OK (221 tests, 1031 assertions)`
 
 影响：
 
@@ -72,7 +72,7 @@
 已完成：
 
 - 主安装路径切到 `migrate + bootstrap seed + 显式管理员创建`
-- `install.sql` 已退出安装主路径，降级为历史参考文件
+- `install.sql` 已退出安装主路径，并已从仓库主路径移除
 - migration / seed 分层已建立
 - bootstrap / sample / forbidden 默认数据策略已形成
 

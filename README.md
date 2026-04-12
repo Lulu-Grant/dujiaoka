@@ -59,7 +59,7 @@
 - 更新 Docker / Debian / compose 部署说明
 - 将创建订单改造成明确的 DTO 输入模型
 - 将安装主路径切换为 `migrate + bootstrap seed + 显式创建首个管理员`
-- 将 `install.sql` 降级为历史兼容参考文件
+- 将 `install.sql` 完整移出仓库主路径
 - 补齐 GitHub Actions `CI` 工作流
 - 补齐本地快速拉站模板与准备脚本
 - 将后台高频 CRUD 页中的配置、选项源、状态映射、展示逻辑持续迁出 `app/Admin`
@@ -128,7 +128,7 @@
 当前主线测试结果基线：
 
 ```bash
-OK (230 tests, 1049 assertions)
+OK (221 tests, 1031 assertions)
 ```
 
 当前仓库也已经补上 GitHub Actions 基线工作流：

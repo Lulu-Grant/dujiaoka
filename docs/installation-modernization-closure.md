@@ -6,7 +6,7 @@
 
 当前主线已经满足：
 
-- 新安装不再依赖 `database/sql/install.sql`
+- 新安装不再依赖 `install.sql`
 - 数据库结构由 migrations 驱动
 - 默认安装数据由 bootstrap seed 驱动
 - 样例数据由 sample seed 驱动
@@ -35,7 +35,7 @@
 
 ## install.sql 的当前定位
 
-`database/sql/install.sql` 现在保留的意义只有三项：
+`install.sql` 在移出仓库主路径前，保留的意义只有三项：
 
 - 历史结构快照
 - 审计与迁移对照
@@ -49,8 +49,8 @@
 
 ## 后续建议
 
-- 短期内保留 `install.sql`，作为过渡期参考文件
-- 后续在框架升级或后台替换进入下一阶段时，再评估是否彻底删除它
+- 当前 `install.sql` 已完成退场并从仓库主路径移除
+- 后续如果需要历史对照，以现有迁移拆解文档为准
 - 如果要删，优先保留当前文档链路：
   - `install-sql-coverage-matrix.md`
   - `installer-modernization-status.md`

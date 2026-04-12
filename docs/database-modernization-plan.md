@@ -2,7 +2,7 @@
 
 ## 目标
 
-将当前仓库从“依赖 `database/sql/install.sql` 整包导入”的安装方式，逐步迁移为：
+将当前仓库从“依赖整包 SQL 导入”的安装方式，逐步迁移为：
 
 - schema 由 Laravel migrations 驱动
 - 默认数据由 seeders 驱动
@@ -10,11 +10,11 @@
 
 ## 当前现状
 
-当前仓库：
+项目原始状态：
 
 - 没有 `database/migrations`
-- 只有 [install.sql](/Users/apple/Documents/dujiaoshuka/database/sql/install.sql)
-- `install.sql` 同时承担：
+- 曾经只有 `install.sql`
+- 原始 `install.sql` 同时承担：
   - 建表
   - 默认后台数据
   - 默认邮件模板
@@ -117,4 +117,4 @@
 1. 安装现代化阶段已经完成，转入观察与维护
 2. 后续重点转向更高层的框架升级与后台替换前清障
 3. 继续校对 migration 与当前模型 / 测试依赖的一致性
-4. 在进入下一阶段时评估是否彻底移除 `install.sql`
+4. 安装现代化完成后，将 `install.sql` 从仓库主路径移除

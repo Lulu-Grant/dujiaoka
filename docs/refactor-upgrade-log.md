@@ -120,7 +120,31 @@
 
 下一步：
 
-- 继续评估 `database/sql/install.sql` 的最终退场时机与仓库保留策略
+- 继续推进 `install.sql` 的最终退场与仓库收口
+
+### 152. install.sql 正式退场
+
+摘要：
+
+- 删除了 `install.sql`，这份历史 SQL 引导文件不再保留在仓库主路径。
+- 更新了 [README.md](/Users/apple/Documents/dujiaoshuka/README.md)、[database-modernization-plan.md](/Users/apple/Documents/dujiaoshuka/docs/database-modernization-plan.md)、[installer-modernization-status.md](/Users/apple/Documents/dujiaoshuka/docs/installer-modernization-status.md)、[installation-modernization-closure.md](/Users/apple/Documents/dujiaoshuka/docs/installation-modernization-closure.md)、[install-sql-coverage-matrix.md](/Users/apple/Documents/dujiaoshuka/docs/install-sql-coverage-matrix.md)、[current-baseline-audit.md](/Users/apple/Documents/dujiaoshuka/docs/current-baseline-audit.md) 等文档，把口径统一到“迁移与 seed 是唯一当前路径”。
+- 这一步意味着安装现代化链在仓库层面也完成了收口，`install.sql` 不再作为代码、测试、CI 或仓库参考文件存在。
+
+影响范围：
+
+- 仓库不再携带历史 SQL 启导文件
+- 迁移与 seed 成为唯一保留的数据库初始化路径
+- 安装现代化相关文档口径完成统一
+
+验证：
+
+- `./scripts/prepare-test-db` 通过
+- `./scripts/php74 vendor/bin/phpunit` 通过
+- `./scripts/smoke-admin-shell` 通过
+
+下一步：
+
+- 回到后台壳扩容和升级前清障主线，继续清理剩余历史兼容面
 
 ### 147. 第一批废弃文件审计与清理
 
@@ -1341,7 +1365,7 @@
 
 摘要：
 
-- 给 [install.sql](/Users/apple/Documents/dujiaoshuka/database/sql/install.sql) 增加了明确的废弃说明，声明它仅作为历史结构/数据快照保留，不再作为新安装主入口。
+- 给 `install.sql` 增加了明确的废弃说明，声明它仅作为历史结构/数据快照保留，不再作为新安装主入口。
 - 新增了 [installer-modernization-status.md](/Users/apple/Documents/dujiaoshuka/docs/installer-modernization-status.md)，把当前安装主路径、新旧职责对比、已完成项和后续退场条件集中整理出来。
 - 这一步的目标不是立刻删除 `install.sql`，而是先从代码和文档层面彻底去掉“它仍然是主安装方式”的暗示。
 

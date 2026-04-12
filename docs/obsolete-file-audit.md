@@ -120,8 +120,8 @@
 ## 2026-04-12 基线回归补充
 
 - GitHub Actions 的测试库准备已切到 `scripts/prepare-test-db`
-- 当前 CI 不再通过 `database/sql/install.sql` 导入测试库
-- `install.sql` 仍保留为历史参考文件，但已经进一步退出运行时与测试主路径
+- 当前 CI 不再通过 `install.sql` 导入测试库
+- `install.sql` 已从仓库主路径移除，只剩文档层历史说明
 
 ## 2026-04-12 第二批已执行清理
 
