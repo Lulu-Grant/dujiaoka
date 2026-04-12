@@ -11,6 +11,29 @@
 
 ## 2026-04-12 阶段日志
 
+### 146. CouponController 退壳瘦身
+
+摘要：
+
+- [app/Admin/Controllers/CouponController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/CouponController.php) 进一步瘦身为仅保留 `index`、`create`、`show`、`edit` 四个兼容跳转入口，移除了已不再被使用的 Dcat `Grid`、`Show`、`Form` 旧实现和无效 import。
+- [tests/Feature/LegacyAdminShellRedirectControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/LegacyAdminShellRedirectControllerTest.php) 补齐了 coupon 旧入口的跳转断言，覆盖列表、创建、详情和编辑四个路径，确保兼容层仍只负责转发，不改变现有 URL 和跳转行为。
+- 这次收口没有改动任何 coupon 相关 URL，也没有改变新后台壳的落点，只是把旧 Dcat 控制器里的冗余实现清掉，继续缩小旧层体积。
+
+影响范围：
+
+- `app/Admin/Controllers/CouponController.php` 的旧 Dcat 承载面
+- coupon 旧入口兼容跳转行为
+- 后台壳继续作为优惠码管理的主承载层
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/LegacyAdminShellRedirectControllerTest.php` 通过，覆盖 coupon 旧入口跳转断言
+- `./scripts/php74 vendor/bin/phpunit` 后续再做一次完整回归确认
+
+下一步：
+
+- 继续沿着后台壳扩容和旧 Dcat 降耦合主线推进，优先处理剩余高频后台页和更复杂的操作型页面。
+
 ### 13. 继续压缩旧后台订单控制器
 
 摘要：
@@ -28,6 +51,27 @@
 验证：
 
 - 订单旧路由的跳转断言已补充，后续可通过全量 PHPUnit 再次确认。
+
+下一步：
+
+- 继续沿着后台壳扩容和旧 Dcat 降耦合主线推进，优先处理剩余高频后台页和更复杂的操作型页面。
+
+### 145. EmailtplController 退壳瘦身
+
+摘要：
+
+- [EmailtplController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/EmailtplController.php) 继续收口为兼容跳转层，仅保留 `index`、`create`、`show`、`edit` 四个入口，删除了旧 Dcat 的 `Grid`、`Show`、`Form` 旧实现以及相关无效 import。
+- [LegacyAdminShellRedirectControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/LegacyAdminShellRedirectControllerTest.php) 补充了邮件模板的创建、详情和编辑旧入口跳转断言，确保 `/admin/emailtpl/*` 仍稳定进入新后台壳，不改变既有 URL 和跳转行为。
+
+影响范围：
+
+- 旧后台邮件模板资源控制器的承载面继续收缩
+- 旧 `admin/emailtpl` 路由仍保留，但只承担兼容跳转
+- 邮件模板后台逻辑进一步向新壳集中
+
+验证：
+
+- 邮件模板旧路由跳转断言已补充，后续可通过全量 PHPUnit 再次确认。
 
 下一步：
 
@@ -51,6 +95,28 @@
 
 - `./scripts/php74 vendor/bin/phpunit tests/Feature/LegacyAdminShellRedirectControllerTest.php` 通过
 - `./scripts/php74 vendor/bin/phpunit` 通过，结果待本轮完整回归确认
+
+下一步：
+
+- 继续沿着后台壳扩容和旧 Dcat 降耦合主线推进，优先处理剩余高频后台页和更复杂的操作型页面。
+
+### 145. GoodsGroupController 退壳瘦身
+
+摘要：
+
+- 将 [app/Admin/Controllers/GoodsGroupController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/GoodsGroupController.php) 进一步瘦身为兼容跳转层，仅保留 `index`、`create`、`show`、`edit` 四个入口。
+- 删除了旧 `GoodsGroupController` 中已不再使用的 Dcat `Grid`、`Show`、`Form` 旧实现以及对应的多余 import，避免旧资源控制器继续承载重复渲染逻辑。
+- 旧路由保持不变，仍通过 [tests/Feature/LegacyAdminShellRedirectControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/LegacyAdminShellRedirectControllerTest.php) 约束 `goods-group` 的兼容跳转行为。
+
+影响范围：
+
+- 旧后台商品分类资源控制器的承载面继续收缩
+- 旧 `admin/goods-group` 路由仍保留，但只承担兼容跳转
+- 商品分类后台逻辑进一步向新壳集中
+
+验证：
+
+- 仅删除已不使用的旧 Dcat 构建实现，不改变既有 URL 和跳转行为。
 
 下一步：
 
