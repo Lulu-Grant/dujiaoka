@@ -2821,3 +2821,25 @@
 下一步：
 
 - 继续沿着这条模式推进系统设置编辑入口或其他低风险操作型页面，让后台壳逐步替代旧配置中心。
+
+### 119. 落地系统设置基础配置编辑入口样板
+
+摘要：
+
+- 新增 [SystemSettingActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/SystemSettingActionController.php) 与 [edit-base.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/system-setting/edit-base.blade.php)，把基础站点配置编辑入口接入后台壳。
+- [app/Admin/routes.php](/Users/apple/Documents/dujiaoshuka/app/Admin/routes.php) 已新增 `/admin/v2/system-setting/base` 的 GET/POST 路由，后台壳现在不仅能展示系统设置概览，也能直接保存一组真实配置。
+- [AdminShellSystemSettingPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellSystemSettingPageService.php) 已在概览页头补上“编辑基础站点配置”入口，把概览页和操作页直接接起来。
+
+影响范围：
+
+- 系统设置页的后台壳承接深度
+- 配置型页面从只读概览到真实保存动作的过渡质量
+- 后台壳对低风险操作型页面的支持能力
+
+验证：
+
+- 当前全量回归结果：`OK (165 tests, 553 assertions)`
+
+下一步：
+
+- 继续沿着这条模式推进更多系统设置分组或其他低风险配置动作，让后台壳进一步替代旧 Dcat 配置中心。

@@ -62,6 +62,50 @@ class AdminShellSystemSettingControllerTest extends TestCase
         $response->assertSee('smtp.example.com');
     }
 
+    public function test_base_edit_page_renders_shell_action_form(): void
+    {
+        Cache::forever(SystemSettingService::CACHE_KEY, [
+            'title' => '独角数卡西瓜版',
+            'text_logo' => '独角数卡西瓜版',
+            'template' => 'avatar',
+            'language' => 'zh_CN',
+            'manage_email' => 'admin@example.com',
+            'order_expire_time' => 15,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/system-setting/base');
+
+        $response->assertOk();
+        $response->assertSee('编辑基础站点配置');
+        $response->assertSee('独角数卡西瓜版');
+    }
+
+    public function test_base_edit_page_can_save_settings(): void
+    {
+        Cache::forget(SystemSettingService::CACHE_KEY);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/system-setting/base', [
+                'title' => '新的站点标题',
+                'text_logo' => '新的文字 Logo',
+                'template' => 'avatar',
+                'language' => 'zh_CN',
+                'manage_email' => 'owner@example.com',
+                'order_expire_time' => 30,
+                'keywords' => 'kw',
+                'description' => 'desc',
+            ]);
+
+        $response->assertRedirect('/admin/v2/system-setting/base');
+        $response->assertSessionHas('status', '基础站点配置已保存');
+
+        $settings = app(SystemSettingService::class)->all();
+        $this->assertSame('新的站点标题', $settings['title']);
+        $this->assertSame('owner@example.com', $settings['manage_email']);
+        $this->assertSame(30, $settings['order_expire_time']);
+    }
+
     private function makeAdmin(): Administrator
     {
         DB::table('admin_users')->updateOrInsert(

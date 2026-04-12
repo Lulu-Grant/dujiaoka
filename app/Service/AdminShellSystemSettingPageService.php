@@ -96,7 +96,14 @@ class AdminShellSystemSettingPageService extends AbstractAdminShellPageService
 
     public function buildHeader(LengthAwarePaginator $sections): array
     {
-        return $this->buildResourceHeader('共 '.$sections->total().' 个配置分组');
+        $header = $this->buildResourceHeader('共 '.$sections->total().' 个配置分组');
+        $header['actions'][] = [
+            'label' => '编辑基础站点配置',
+            'href' => admin_url('v2/system-setting/base'),
+            'variant' => 'primary',
+        ];
+
+        return $header;
     }
 
     public function buildFilters(array $filters): array
