@@ -3235,3 +3235,25 @@
 - 新增 [OrderActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/OrderActionController.php)、[OrderActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/OrderActionService.php) 和 [order/form.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/order/form.blade.php)，把订单编辑页正式接进后台壳。
 - [AdminShellOrderPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellOrderPageService.php) 已为订单列表与详情页补上“编辑订单”动作入口，后台壳里的订单资源从只读样板推进为低风险可操作页面。
 - [AdminShellOrderControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellOrderControllerTest.php) 与 [AdminShellPageStructureTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellPageStructureTest.php) 已补上订单编辑页护栏，当前只承接旧后台原本就允许修改的低风险字段。
+
+### 137. 创建首个预发布版本基线说明
+
+摘要：
+
+- 新增 [v3.0.0-alpha.1.md](/Users/apple/Documents/dujiaoshuka/docs/releases/v3.0.0-alpha.1.md)，正式整理首个现代化重构预发布版本的范围、定位、已完成成果与未完成项。
+- 该版本明确标记为 `alpha`，用于集中验证当前主线的安装链、后台壳、支付层收口与测试基线，不作为稳定正式版。
+- 这一步的目的不是新增功能，而是给当前阶段一个可对外引用、可回看、可继续迭代的版本锚点。
+
+影响范围：
+
+- 版本管理与阶段性对外沟通
+- 后续 `beta` / 正式版的比较基线
+- GitHub Release 与仓库文档的一致性
+
+验证：
+
+- 当前主线完整回归结果：`OK (211 tests, 812 assertions)`
+
+下一步：
+
+- 继续沿着当前总纲推进后台壳扩容、旧 Dcat 降耦合、支付层收口与升级前清障。
