@@ -96,7 +96,14 @@ class AdminShellCarmisPageService extends AbstractAdminShellPageService
 
     public function buildHeader(LengthAwarePaginator $carmis): array
     {
-        return $this->buildResourceHeader('共 '.$carmis->total().' 条卡密');
+        $header = $this->buildResourceHeader('共 '.$carmis->total().' 条卡密');
+        $header['actions'][] = [
+            'label' => '导入卡密',
+            'href' => admin_url('v2/carmis/import'),
+            'variant' => 'primary',
+        ];
+
+        return $header;
     }
 
     public function buildFilters(array $filters): array

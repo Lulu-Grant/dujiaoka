@@ -14,6 +14,8 @@ Route::group([
     $router->get('/', 'HomeController@index');
     $router->get('v2/email-test/send', [\App\Http\Controllers\AdminShell\EmailTestActionController::class, 'create']);
     $router->post('v2/email-test/send', [\App\Http\Controllers\AdminShell\EmailTestActionController::class, 'store']);
+    $router->get('v2/carmis/import', [\App\Http\Controllers\AdminShell\CarmiImportActionController::class, 'create']);
+    $router->post('v2/carmis/import', [\App\Http\Controllers\AdminShell\CarmiImportActionController::class, 'store']);
     $router->get('v2/system-setting/base', [\App\Http\Controllers\AdminShell\SystemSettingActionController::class, 'editBase']);
     $router->post('v2/system-setting/base', [\App\Http\Controllers\AdminShell\SystemSettingActionController::class, 'updateBase']);
     $router->get('v2/system-setting/mail', [\App\Http\Controllers\AdminShell\SystemSettingActionController::class, 'editMail']);

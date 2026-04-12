@@ -2909,3 +2909,26 @@
 下一步：
 
 - 继续沿着系统设置分组推进低风险配置动作，或转向更复杂的配置型/导入型后台壳页面，进一步扩大后台壳承接范围。
+
+### 123. 落地首个后台壳导入型动作页：卡密导入
+
+摘要：
+
+- 新增 [CarmiImportActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/CarmiImportActionController.php) 与 [import.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/carmis/import.blade.php)，把卡密导入接入后台壳。
+- [app/Admin/routes.php](/Users/apple/Documents/dujiaoshuka/app/Admin/routes.php) 已新增 `/admin/v2/carmis/import` 的 GET/POST 路由，后台壳现在不只支持配置动作页，也开始承接导入型业务动作。
+- [AdminShellCarmisPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellCarmisPageService.php) 已在卡密概览页头补上“导入卡密”入口，使卡密列表与导入动作页直接连通。
+- 新动作页复用了 [CarmiImportService.php](/Users/apple/Documents/dujiaoshuka/app/Service/CarmiImportService.php) 这条既有服务边界，避免把导入逻辑重新写回控制器。
+
+影响范围：
+
+- 后台壳对导入型页面的承接能力
+- 卡密管理页与批量导入动作之间的过渡路径
+- 旧 Dcat 导入页到新后台壳导入页的迁移可行性
+
+验证：
+
+- 当前全量回归结果：`OK (170 tests, 585 assertions)`
+
+下一步：
+
+- 继续推进后台壳中的中风险动作页，优先考虑更复杂的配置动作或导入/批量操作型页面。

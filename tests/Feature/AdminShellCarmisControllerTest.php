@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Dcat\Admin\Models\Administrator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 
 class AdminShellCarmisControllerTest extends TestCase
@@ -41,6 +42,53 @@ class AdminShellCarmisControllerTest extends TestCase
         $response->assertSee('卡密详情');
         $response->assertSee('测试商品卡密 B');
         $response->assertSee('CARD-BBB-002');
+    }
+
+    public function test_import_page_renders_shell_action_form(): void
+    {
+        $this->seedCarmiFixture(95001, '测试商品卡密 A', 'CARD-AAA-001');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/carmis/import');
+
+        $response->assertOk();
+        $response->assertSee('导入卡密');
+        $response->assertSee('测试商品卡密 A');
+    }
+
+    public function test_import_page_can_import_carmis_from_text(): void
+    {
+        $this->seedCarmiFixture(95001, '测试商品卡密 A', 'CARD-AAA-001');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/carmis/import', [
+                'goods_id' => 95001,
+                'carmis_list' => "CARD-NEW-001\nCARD-NEW-002\nCARD-NEW-001\n",
+                'remove_duplication' => '1',
+            ]);
+
+        $response->assertRedirect('/admin/v2/carmis/import');
+        $response->assertSessionHas('status', '卡密导入完成，本次共导入 2 条记录');
+
+        $this->assertSame(2, DB::table('carmis')->where('goods_id', 95001)->whereIn('carmi', ['CARD-NEW-001', 'CARD-NEW-002'])->count());
+    }
+
+    public function test_import_page_can_import_carmis_from_uploaded_file(): void
+    {
+        $this->seedCarmiFixture(95001, '测试商品卡密 A', 'CARD-AAA-001');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/carmis/import', [
+                'goods_id' => 95001,
+                'carmis_list' => '',
+                'remove_duplication' => '0',
+                'carmis_txt' => UploadedFile::fake()->createWithContent('upload.txt', "CARD-UP-001\nCARD-UP-002\n"),
+            ]);
+
+        $response->assertRedirect('/admin/v2/carmis/import');
+        $response->assertSessionHas('status', '卡密导入完成，本次共导入 2 条记录');
+
+        $this->assertSame(2, DB::table('carmis')->where('goods_id', 95001)->whereIn('carmi', ['CARD-UP-001', 'CARD-UP-002'])->count());
     }
 
     private function seedCarmiFixture(int $id, string $goodsName, string $carmi): void
