@@ -4,11 +4,15 @@
     @include('admin-shell.partials.page-header', $header)
 
     <style>
+        .dashboard-frame {
+            display: grid;
+            gap: 18px;
+        }
         .dashboard-hero {
             position: relative;
             overflow: hidden;
-            padding: 28px;
-            border-radius: 26px;
+            padding: 32px;
+            border-radius: 28px;
             background:
                 radial-gradient(circle at top right, rgba(255, 208, 86, 0.26), transparent 24%),
                 radial-gradient(circle at bottom left, rgba(75, 185, 125, 0.22), transparent 28%),
@@ -19,18 +23,18 @@
         .dashboard-hero::after {
             content: "";
             position: absolute;
-            inset: 18px;
+            inset: 16px;
             border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 22px;
+            border-radius: 24px;
             pointer-events: none;
         }
         .dashboard-hero-grid {
             position: relative;
             z-index: 1;
             display: grid;
-            grid-template-columns: 1.4fr 1fr;
-            gap: 18px;
-            align-items: center;
+            grid-template-columns: minmax(0, 1.35fr) minmax(340px, 0.85fr);
+            gap: 20px;
+            align-items: stretch;
         }
         .dashboard-kicker {
             font-size: 12px;
@@ -41,25 +45,37 @@
         }
         .dashboard-headline {
             margin: 0;
-            font-size: 42px;
+            font-size: 40px;
             line-height: 1.05;
         }
         .dashboard-subline {
-            margin: 12px 0 0;
+            margin: 14px 0 0;
             max-width: 620px;
             color: rgba(245,255,247,0.78);
+            font-size: 16px;
+            line-height: 1.7;
         }
-        .dashboard-hero-stats {
+        .dashboard-hero-meta {
+            margin-top: 18px;
             display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 12px;
         }
-        .dashboard-hero-pill {
+        .dashboard-hero-pill,
+        .dashboard-health,
+        .dashboard-quick-panel,
+        .dashboard-operations,
+        .dashboard-segment {
             display: grid;
-            gap: 6px;
-            padding: 16px 18px;
+            gap: 12px;
+            padding: 18px;
             border-radius: 20px;
-            background: rgba(255,255,255,0.09);
-            backdrop-filter: blur(8px);
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.10);
+        }
+        .dashboard-hero-pill {
+            gap: 5px;
         }
         .dashboard-hero-pill label {
             color: rgba(245,255,247,0.66);
@@ -69,6 +85,165 @@
         }
         .dashboard-hero-pill strong {
             font-size: 24px;
+        }
+        .dashboard-hero-panel {
+            display: grid;
+            gap: 14px;
+        }
+        .dashboard-hero-strip {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 14px;
+            align-items: center;
+            padding: 18px 20px;
+            border-radius: 24px;
+            background: rgba(0, 0, 0, 0.14);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .dashboard-health-ring {
+            width: 76px;
+            height: 76px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background:
+                radial-gradient(circle at center, rgba(32,56,39,0.25) 0 52%, transparent 53%),
+                conic-gradient(from 180deg, rgba(255,255,255,0.92) 0 calc(var(--score) * 1%), rgba(255,255,255,0.14) 0);
+            box-shadow: 0 12px 22px rgba(0, 0, 0, 0.18);
+        }
+        .dashboard-health-ring span {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: rgba(27, 44, 31, 0.92);
+            font-size: 18px;
+            font-weight: 800;
+        }
+        .dashboard-health-copy {
+            display: grid;
+            gap: 4px;
+        }
+        .dashboard-health-copy small {
+            color: rgba(245,255,247,0.65);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .dashboard-health-copy strong {
+            font-size: 20px;
+        }
+        .dashboard-health-copy p {
+            margin: 0;
+            color: rgba(245,255,247,0.76);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .dashboard-health-badge {
+            display: inline-flex;
+            align-items: center;
+            width: fit-content;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+        }
+        .dashboard-health-badge::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: currentColor;
+            box-shadow: 0 0 0 4px rgba(255,255,255,0.10);
+        }
+        .dashboard-health-badge.good {
+            color: #7dff9e;
+            background: rgba(71, 158, 93, 0.18);
+        }
+        .dashboard-health-badge.warning {
+            color: #ffe07a;
+            background: rgba(224, 171, 52, 0.18);
+        }
+        .dashboard-health-badge.danger {
+            color: #ff9ca9;
+            background: rgba(199, 92, 111, 0.18);
+        }
+        .dashboard-quick-panel {
+            background: rgba(255,255,255,0.07);
+        }
+        .dashboard-quick-panel h3,
+        .dashboard-operations h3,
+        .dashboard-segment-header {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 800;
+        }
+        .dashboard-quick-list {
+            display: grid;
+            gap: 10px;
+        }
+        .dashboard-quick-link {
+            display: grid;
+            gap: 4px;
+            padding: 12px 14px;
+            border-radius: 16px;
+            color: inherit;
+            text-decoration: none;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
+        }
+        .dashboard-quick-link:hover {
+            transform: translateY(-1px);
+            background: rgba(255,255,255,0.11);
+            border-color: rgba(255,255,255,0.16);
+        }
+        .dashboard-quick-link strong {
+            font-size: 14px;
+        }
+        .dashboard-quick-link span {
+            color: rgba(245,255,247,0.72);
+            font-size: 13px;
+            line-height: 1.55;
+        }
+        .dashboard-panel-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+        }
+        .dashboard-health,
+        .dashboard-operations {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            box-shadow: 0 14px 40px rgba(32, 51, 38, 0.06);
+        }
+        .dashboard-health__list,
+        .dashboard-operations__list {
+            display: grid;
+            gap: 10px;
+        }
+        .dashboard-health__item,
+        .dashboard-operations__item {
+            display: grid;
+            gap: 4px;
+            padding: 12px 0;
+            border-bottom: 1px dashed rgba(34,49,39,0.08);
+        }
+        .dashboard-health__item:last-child,
+        .dashboard-operations__item:last-child {
+            border-bottom: 0;
+            padding-bottom: 0;
+        }
+        .dashboard-health__item span,
+        .dashboard-operations__item span {
+            color: var(--muted);
+            font-size: 13px;
+        }
+        .dashboard-health__item strong,
+        .dashboard-operations__item strong {
+            font-size: 18px;
         }
         .dashboard-card-grid {
             margin-top: 18px;
@@ -111,27 +286,29 @@
             margin: 12px 0 0;
             color: var(--muted);
         }
+        .dashboard-section-title {
+            margin: 8px 0 0;
+            font-size: 18px;
+            font-weight: 800;
+        }
+        .dashboard-section-copy {
+            margin: 6px 0 0;
+            color: var(--muted);
+            line-height: 1.65;
+        }
         .dashboard-segment-grid {
-            margin-top: 18px;
+            margin-top: 6px;
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 16px;
         }
-        .dashboard-segment {
-            background: var(--panel);
-            border: 1px solid var(--line);
-            border-radius: 22px;
-            box-shadow: 0 14px 40px rgba(32, 51, 38, 0.06);
-            overflow: hidden;
-        }
         .dashboard-segment-header {
-            padding: 18px 20px 12px;
+            padding: 0;
             border-bottom: 1px solid var(--line);
-            font-size: 15px;
-            font-weight: 700;
+            padding-bottom: 12px;
         }
         .dashboard-segment-list {
-            padding: 14px 20px 18px;
+            padding: 6px 0 0;
             display: grid;
             gap: 10px;
         }
@@ -163,28 +340,115 @@
             .dashboard-headline {
                 font-size: 34px;
             }
+            .dashboard-panel-grid {
+                grid-template-columns: 1fr;
+            }
+            .dashboard-hero-meta {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 
+    <div class="dashboard-frame">
     <section class="dashboard-hero">
         <div class="dashboard-hero-grid">
             <div>
                 <div class="dashboard-kicker">Xigua Control Surface</div>
-                <h2 class="dashboard-headline">今天的运营脉搏一眼就能看到。</h2>
-                <p class="dashboard-subline">我们先用后台壳承接首页统计，把成功率、销售额、订单完成数和支付分布从旧 Dcat 卡片平移到普通 Laravel 页面里，后面再继续把更多后台高频页接进来。</p>
+                <h2 class="dashboard-headline">首页先变成指挥台，再慢慢替代旧后台。</h2>
+                <p class="dashboard-subline">这里不只是统计页，而是后台壳的运行面板。健康状态、快捷入口、运营视图和关键指标会按层次摆开，让巡检、处理和跳转都更直接。</p>
+                <div class="dashboard-hero-meta">
+                    <div class="dashboard-hero-pill">
+                        <label>今日成功率</label>
+                        <strong>{{ $hero['success_rate'] }}%</strong>
+                    </div>
+                    <div class="dashboard-hero-pill">
+                        <label>今日订单数</label>
+                        <strong>{{ $hero['order_count'] }}</strong>
+                    </div>
+                    <div class="dashboard-hero-pill">
+                        <label>今日销售额</label>
+                        <strong>{{ $hero['sales_total'] }}</strong>
+                    </div>
+                    <div class="dashboard-hero-pill">
+                        <label>已完成订单</label>
+                        <strong>{{ $hero['completed_count'] }}</strong>
+                    </div>
+                </div>
             </div>
-            <div class="dashboard-hero-stats">
-                <div class="dashboard-hero-pill">
-                    <label>今日成功率</label>
-                    <strong>{{ $hero['success_rate'] }}%</strong>
+            <div class="dashboard-hero-panel">
+                <div class="dashboard-hero-strip">
+                    <div class="dashboard-health-ring" style="--score: {{ $health['score'] }}">
+                        <span>{{ $health['score'] }}</span>
+                    </div>
+                    <div class="dashboard-health-copy">
+                        <small>系统健康状态</small>
+                        <strong class="dashboard-health-badge {{ $health['tone'] }}">{{ $health['label'] }}</strong>
+                        <p>{{ $health['note'] }}</p>
+                    </div>
                 </div>
-                <div class="dashboard-hero-pill">
-                    <label>今日订单数</label>
-                    <strong>{{ $hero['order_count'] }}</strong>
+                <div class="dashboard-quick-panel">
+                    <h3>快捷入口</h3>
+                    <div class="dashboard-quick-list">
+                        @foreach($quick_links as $link)
+                            <a class="dashboard-quick-link" href="{{ $link['href'] }}">
+                                <strong>{{ $link['label'] }}</strong>
+                                <span>{{ $link['description'] }}</span>
+                            </a>
+                        @endforeach
+                    </div>
                 </div>
-                <div class="dashboard-hero-pill">
-                    <label>今日销售额</label>
-                    <strong>{{ $hero['sales_total'] }}</strong>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h3 class="dashboard-section-title">运营视图</h3>
+        <p class="dashboard-section-copy">先把今天最需要处理的信号放在最前面，方便快速巡检和分派处理。</p>
+        <div class="dashboard-panel-grid">
+            <div class="dashboard-health">
+                <h3>健康状态</h3>
+                <div class="dashboard-health__list">
+                    <div class="dashboard-health__item">
+                        <span>健康评分</span>
+                        <strong>{{ $health['score'] }}/100</strong>
+                    </div>
+                    <div class="dashboard-health__item">
+                        <span>状态判定</span>
+                        <strong>{{ $health['label'] }}</strong>
+                    </div>
+                    <div class="dashboard-health__item">
+                        <span>今日成功率</span>
+                        <strong>{{ $hero['success_rate'] }}%</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="dashboard-operations">
+                <h3>重点信号</h3>
+                <div class="dashboard-operations__list">
+                    @foreach($operations as $operation)
+                        <div class="dashboard-operations__item">
+                            <span>{{ $operation['label'] }}</span>
+                            <strong>{{ $operation['value'] }}</strong>
+                            <span>{{ $operation['note'] }}</span>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+            <div class="dashboard-health">
+                <h3>运营建议</h3>
+                <div class="dashboard-health__list">
+                    <div class="dashboard-health__item">
+                        <span>优先顺序</span>
+                        <strong>订单 / 支付 / 商品</strong>
+                    </div>
+                    <div class="dashboard-health__item">
+                        <span>巡检重点</span>
+                        <strong>异常订单与待支付</strong>
+                    </div>
+                    <div class="dashboard-health__item">
+                        <span>首页目标</span>
+                        <strong>让处理动作比找页面更快</strong>
+                    </div>
                 </div>
             </div>
         </div>
@@ -216,4 +480,5 @@
             </div>
         @endforeach
     </section>
+    </div>
 @endsection

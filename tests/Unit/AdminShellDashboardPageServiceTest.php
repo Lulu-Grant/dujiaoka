@@ -37,6 +37,10 @@ class AdminShellDashboardPageServiceTest extends TestCase
         $this->assertSame('后台总览', $page['header']['title']);
         $this->assertCount(4, $page['cards']);
         $this->assertCount(2, $page['segments']);
+        $this->assertCount(7, $page['quick_links']);
+        $this->assertCount(3, $page['operations']);
+        $this->assertSame('健康', $page['health']['label']);
+        $this->assertSame('good', $page['health']['tone']);
         $this->assertSame(3, $page['hero']['order_count']);
     }
 
