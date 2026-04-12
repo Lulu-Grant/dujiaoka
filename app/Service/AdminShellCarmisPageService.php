@@ -100,7 +100,7 @@ class AdminShellCarmisPageService extends AbstractAdminShellPageService
 
     public function buildHeader(LengthAwarePaginator $carmis): array
     {
-        $header = $this->buildResourceHeader('共 '.$carmis->total().' 条卡密');
+        $header = $this->buildResourceHeader('共 '.$carmis->total().' 条卡密 · 支持单条补录、批量导入和异常库存修复');
         $header['actions'][] = [
             'label' => '新建卡密',
             'href' => admin_url('v2/carmis/create'),
@@ -142,9 +142,19 @@ class AdminShellCarmisPageService extends AbstractAdminShellPageService
         ];
     }
 
-    public function buildShowHeader(?string $scope = null): array
+    public function buildShowHeader(?string $scope = null, ?Carmis $carmi = null): array
     {
-        return $this->buildResourceShowHeader($scope);
+        $header = $this->buildResourceShowHeader($scope);
+
+        if ($carmi) {
+            $header['actions'][] = [
+                'label' => '编辑卡密',
+                'href' => admin_url('v2/carmis/'.$carmi->id.'/edit'),
+                'variant' => 'secondary',
+            ];
+        }
+
+        return $header;
     }
 
     public function buildIndexPageData(LengthAwarePaginator $carmis, array $filters): AdminShellIndexPageData
@@ -161,7 +171,7 @@ class AdminShellCarmisPageService extends AbstractAdminShellPageService
     {
         return new AdminShellShowPageData(
             $this->buildDocumentTitle('show_title'),
-            $this->buildShowHeader($scope),
+            $this->buildShowHeader($scope, $carmi),
             $this->detailItems($carmi)
         );
     }
@@ -182,6 +192,20 @@ class AdminShellCarmisPageService extends AbstractAdminShellPageService
             ['label' => '创建时间', 'value' => e((string) $carmi->created_at)],
             ['label' => '更新时间', 'value' => e((string) $carmi->updated_at)],
             ['label' => '删除状态', 'value' => $carmi->deleted_at ? '已删除' : '正常'],
+            [
+                'label' => '维护建议',
+                'value' => '详情页适合核对卡密归属、修复单条数据和确认循环使用状态；批量新增请优先走导入页。',
+                'style' => 'grid-column: 1 / -1;',
+                'value_style' => 'white-space: pre-wrap; font-size: 14px; line-height: 1.7;',
+            ],
+            [
+                'label' => '批量入口',
+                'value' => sprintf(
+                    '<a href="%s">前往导入卡密</a>',
+                    e(admin_url('v2/carmis/import'))
+                ),
+                'style' => 'grid-column: 1 / -1;',
+            ],
         ];
     }
 

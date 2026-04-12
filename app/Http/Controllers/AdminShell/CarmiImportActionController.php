@@ -34,7 +34,7 @@ class CarmiImportActionController extends Controller
                 'kicker' => 'Admin Shell Action',
                 'title' => '导入卡密',
                 'description' => '这是后台壳中的第一张导入型动作页样板。当前复用独立的卡密导入服务，验证后台壳承接批量导入动作的能力。',
-                'meta' => '支持手动粘贴卡密列表或上传 txt 文件，导入前可选择去重',
+                'meta' => '支持手动粘贴或上传 txt；卡密数量较多时建议直接用文件导入，并先确认目标商品。',
                 'actions' => [
                     ['label' => '返回卡密概览', 'href' => admin_url('v2/carmis')],
                 ],

@@ -43,6 +43,8 @@ class AdminShellCarmisControllerTest extends TestCase
         $response->assertSee('卡密详情');
         $response->assertSee('测试商品卡密 B');
         $response->assertSee('CARD-BBB-002');
+        $response->assertSee('编辑卡密');
+        $response->assertSee('批量入口');
     }
 
     public function test_import_page_renders_shell_action_form(): void
@@ -55,6 +57,8 @@ class AdminShellCarmisControllerTest extends TestCase
         $response->assertOk();
         $response->assertSee('导入卡密');
         $response->assertSee('测试商品卡密 A');
+        $response->assertSee('批量入口提示');
+        $response->assertSee('导入前去重');
     }
 
     public function test_create_page_renders_carmi_action_form(): void
@@ -67,6 +71,8 @@ class AdminShellCarmisControllerTest extends TestCase
         $response->assertOk();
         $response->assertSee('新建卡密');
         $response->assertSee('测试商品卡密 A');
+        $response->assertSee('维护提示');
+        $response->assertSee('批量卡密请优先使用导入页处理');
     }
 
     public function test_create_page_can_store_carmi(): void
@@ -98,6 +104,7 @@ class AdminShellCarmisControllerTest extends TestCase
         $response->assertOk();
         $response->assertSee('编辑卡密');
         $response->assertSee('CARD-BBB-002');
+        $response->assertSee('卡密编辑优先用于修复库存与履约数据');
     }
 
     public function test_edit_page_can_update_carmi(): void

@@ -21,6 +21,15 @@
 
     <div class="panel">
         <div class="panel-body">
+            <div class="notice success">
+                <strong>维护提示：</strong>
+                这里适合补录单条卡密、修复异常库存或调整循环使用标记；如果需要批量新增，请直接去导入卡密页。
+            </div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-body">
             <form method="post" action="{{ $formAction }}" class="form-stack">
                 @csrf
 
@@ -51,6 +60,10 @@
                     <span>卡密内容</span>
                     <textarea name="carmi" rows="10" required>{{ old('carmi', $defaults['carmi']) }}</textarea>
                 </label>
+
+                <div class="meta" style="margin-top: 10px;">
+                    建议每次只维护一条卡密内容，便于后续核对与回滚；批量卡密请优先使用导入页处理。
+                </div>
 
                 <div class="button-row" style="margin-top: 16px;">
                     <button class="button" type="submit">{{ $submitLabel }}</button>

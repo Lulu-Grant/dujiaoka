@@ -21,6 +21,15 @@
 
     <div class="panel">
         <div class="panel-body">
+            <div class="notice success">
+                <strong>批量入口提示：</strong>
+                如果你手里有一批卡密，直接粘贴文本最快；如果来源是文件，上传 txt 就行。导入前先确认目标商品，必要时勾选去重。
+            </div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-body">
             <form method="post" action="{{ $formAction }}" class="form-stack" enctype="multipart/form-data">
                 @csrf
 
@@ -48,7 +57,9 @@
                     <textarea name="carmis_list" rows="14" placeholder="每行一条卡密，支持直接粘贴多行文本">{{ old('carmis_list', $defaults['carmis_list']) }}</textarea>
                 </label>
 
-                <div class="meta">优先使用手动粘贴内容；如果未填写卡密列表，则会读取上传的 txt 文件。</div>
+                <div class="meta">
+                    优先使用手动粘贴内容；如果未填写卡密列表，则会读取上传的 txt 文件。重复卡密可通过“导入前去重”减少重复入库。
+                </div>
 
                 <div class="button-row" style="margin-top: 16px;">
                     <button class="button" type="submit">开始导入卡密</button>

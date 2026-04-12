@@ -34,7 +34,7 @@ class CarmiActionController extends Controller
                 'kicker' => 'Admin Shell Action',
                 'title' => '新建卡密',
                 'description' => '这是后台壳中的卡密新建样板页。当前先承接关联自动发货商品、销售状态、循环使用标记和卡密内容。',
-                'meta' => '这张页与导入页互补，适合补录单条卡密或修复异常库存数据',
+                'meta' => '适合单条补录和异常库存修复；批量整理请优先使用导入页。',
                 'actions' => [
                     ['label' => '返回卡密概览', 'href' => admin_url('v2/carmis')],
                 ],
@@ -67,7 +67,7 @@ class CarmiActionController extends Controller
                 'kicker' => 'Admin Shell Action',
                 'title' => '编辑卡密',
                 'description' => '这是后台壳中的卡密编辑样板页。当前复用普通 Laravel 控制器和服务处理卡密内容、状态与循环使用标记更新。',
-                'meta' => '卡密编辑优先用于修复库存与履约数据，不直接触发订单主链动作',
+                'meta' => '卡密编辑优先用于修复库存与履约数据，不直接触发订单主链动作。',
                 'actions' => [
                     ['label' => '返回卡密概览', 'href' => admin_url('v2/carmis')],
                     ['label' => '查看详情', 'href' => admin_url('v2/carmis/'.$carmi->id), 'variant' => 'secondary'],
