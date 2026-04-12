@@ -8,6 +8,7 @@ use App\Models\Goods;
 use App\Models\Coupon;
 use App\Models\Carmis;
 use App\Models\Pay;
+use App\Models\Order;
 use App\Service\AbstractAdminShellPageService;
 use App\Service\AdminShellCarmisPageService;
 use App\Service\AdminShellCouponPageService;
@@ -19,6 +20,7 @@ use App\Service\DataTransferObjects\AdminShellShowPageData;
 use App\Service\AdminShellEmailTemplatePageService;
 use App\Service\AdminShellGoodsPageService;
 use App\Service\AdminShellGoodsGroupPageService;
+use App\Service\AdminShellOrderPageService;
 use App\Service\AdminShellPayPageService;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -219,10 +221,67 @@ class AdminShellPageStructureTest extends TestCase
         $this->assertSame('Stripe', $items[1]['value']);
     }
 
+    public function test_order_page_service_builds_table_and_detail_items()
+    {
+        $order = new Order();
+        $order->forceFill([
+            'id' => 350,
+            'order_sn' => 'XIGUA-ORDER-350',
+            'title' => '订单标题',
+            'type' => Order::AUTOMATIC_DELIVERY,
+            'email' => 'xigua@example.com',
+            'goods_price' => 79,
+            'buy_amount' => 1,
+            'total_price' => 79,
+            'coupon_discount_price' => 10,
+            'wholesale_discount_price' => 0,
+            'actual_price' => 69,
+            'buy_ip' => '127.0.0.1',
+            'search_pwd' => 'search-me',
+            'trade_no' => 'trade-350',
+            'status' => Order::STATUS_COMPLETED,
+            'info' => "账号: demo\n密码: 123456",
+            'created_at' => Carbon::parse('2026-04-10 14:00:00'),
+            'updated_at' => Carbon::parse('2026-04-10 15:00:00'),
+        ]);
+        $order->setRelation('goods', (object) ['gd_name' => '订单商品']);
+        $order->setRelation('coupon', (object) ['coupon' => 'XIGUA-350']);
+        $order->setRelation('pay', (object) ['pay_name' => 'Stripe']);
+
+        $service = $this->app->make(AdminShellOrderPageService::class);
+        $table = $service->buildTable(
+            new LengthAwarePaginator(collect([$order]), 1, 15),
+            ['scope' => '']
+        );
+        $header = $service->buildHeader(new LengthAwarePaginator(collect([$order]), 1, 15));
+        $filters = $service->buildFilters(['order_sn' => 'XIGUA', 'status' => Order::STATUS_COMPLETED, 'scope' => 'trashed']);
+        $showHeader = $service->buildShowHeader('trashed');
+        $indexPage = $service->buildIndexPageData(new LengthAwarePaginator(collect([$order]), 1, 15), ['order_sn' => 'XIGUA', 'scope' => '']);
+        $showPage = $service->buildShowPageData($order, 'trashed');
+        $items = $service->detailItems($order);
+        $requestFilters = $service->extractFilters(Request::create('/admin/v2/order?order_sn=XIGUA&status=4&scope=trashed', 'GET'));
+
+        $this->assertSame('订单管理', $header['title']);
+        $this->assertSame('XIGUA', $requestFilters['order_sn']);
+        $this->assertSame('订单状态', $filters['fields'][2]['label']);
+        $this->assertSame('订单详情', $showHeader['title']);
+        $this->assertInstanceOf(AdminShellIndexPageData::class, $indexPage);
+        $this->assertInstanceOf(AdminShellShowPageData::class, $showPage);
+        $this->assertSame('订单管理 - 后台壳样板', $indexPage->title);
+        $this->assertSame('订单详情 - 后台壳样板', $showPage->title);
+        $this->assertStringContainsString('?scope=trashed', $showHeader['actions'][0]['href']);
+        $this->assertSame('订单号', $table['headers'][1]);
+        $this->assertStringContainsString('XIGUA-ORDER-350', $table['rows'][0][1]);
+        $this->assertSame('当前条件下没有订单记录。', $table['empty_title']);
+        $this->assertSame('支付通道', $items[14]['label']);
+        $this->assertSame('Stripe', $items[14]['value']);
+    }
+
     public function test_admin_shell_page_services_share_common_base_class()
     {
         $this->assertInstanceOf(AbstractAdminShellPageService::class, $this->app->make(AdminShellGoodsGroupPageService::class));
         $this->assertInstanceOf(AbstractAdminShellPageService::class, $this->app->make(AdminShellGoodsPageService::class));
+        $this->assertInstanceOf(AbstractAdminShellPageService::class, $this->app->make(AdminShellOrderPageService::class));
         $this->assertInstanceOf(AbstractAdminShellPageService::class, $this->app->make(AdminShellEmailTemplatePageService::class));
         $this->assertInstanceOf(AbstractAdminShellPageService::class, $this->app->make(AdminShellPayPageService::class));
         $this->assertInstanceOf(AbstractAdminShellPageService::class, $this->app->make(AdminShellCouponPageService::class));

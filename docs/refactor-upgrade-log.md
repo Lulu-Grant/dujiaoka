@@ -3092,3 +3092,26 @@
 下一步：
 
 - 继续沿着这条路线推进更复杂的商品动作或批量场景，逐步扩大后台壳对复杂业务资源的实际承载范围。
+
+### 131. 落地订单管理后台壳列表与详情样板页
+
+摘要：
+
+- 新增 [AdminShellOrderPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellOrderPageService.php) 与 [OrderShellController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/OrderShellController.php)，将订单管理接入后台壳。
+- [AdminShellResourceRegistry.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellResourceRegistry.php) 已新增 `order` 资源定义，因此路由、权限白名单与侧边导航会自动带上 `/admin/v2/order`。
+- 新页面承接了订单列表、筛选和详情展示合同，覆盖订单号、标题、类型、状态、商品、优惠码、支付通道、价格结构和附加信息等关键字段。
+- 新增 [AdminShellOrderControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellOrderControllerTest.php)，并扩充资源注册与页面结构测试，保证订单管理这张高上下文业务页纳入后台壳基础设施。
+
+影响范围：
+
+- 后台壳对高上下文业务资源列表页和详情页的承接能力
+- 资源注册表、导航、权限白名单与页面结构测试覆盖范围
+- 订单管理迁移从“高风险待评估”推进到“已落地只读样板”
+
+验证：
+
+- 当前全量回归结果：`OK (200 tests, 759 assertions)`
+
+下一步：
+
+- 继续沿着这条路线推进订单管理的低风险动作或更多中复杂度后台壳页面，逐步扩大后台壳对主链业务页的承载范围。

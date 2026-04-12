@@ -34,6 +34,17 @@ class AdminShellResourceRegistry
                 'uri' => 'v2/goods',
                 'uses_scope' => true,
             ],
+            'order' => [
+                'nav_label' => '订单管理',
+                'index_title' => '订单管理',
+                'index_description' => '这是后台壳中的高上下文业务资源样板页。当前先承接订单列表、筛选和详情展示合同，验证后台壳对订单查询面的承载能力。',
+                'show_title' => '订单详情',
+                'show_description' => '这张详情页固定了订单状态、价格、优惠抵扣、支付信息和附加内容展示合同，为后续迁移订单动作页提供稳定底座。',
+                'controller' => \App\Http\Controllers\AdminShell\OrderShellController::class,
+                'service' => \App\Service\AdminShellOrderPageService::class,
+                'uri' => 'v2/order',
+                'uses_scope' => true,
+            ],
             'emailtpl' => [
                 'nav_label' => '邮件模板管理',
                 'index_title' => '邮件模板管理',
