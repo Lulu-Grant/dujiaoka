@@ -19,6 +19,17 @@
         </div>
     @endif
 
+    @if(!empty($sourcePay))
+        <div class="panel">
+            <div class="panel-body">
+                <div class="notice info">
+                    正在复制支付通道 <strong>{{ $sourcePay->pay_name }}</strong>（{{ $sourcePay->pay_check }}）。
+                    支付名称、商户 ID、支付方式、支付场景、回调路由和启用状态会被预填，支付标识、商户 KEY 和商户 PEM 需要重新确认。
+                </div>
+            </div>
+        </div>
+    @endif
+
     <div class="panel">
         <div class="panel-body">
             <div class="page-kicker">维护摘要</div>

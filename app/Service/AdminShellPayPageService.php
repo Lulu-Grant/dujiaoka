@@ -83,15 +83,19 @@ class AdminShellPayPageService extends AbstractAdminShellPageService
                     $this->renderStatusCell($pay),
                     e((string) $pay->updated_at),
                     $this->renderActionLinks([
-                        [
-                            'label' => '编辑通道',
-                            'href' => admin_url($definition['uri'].'/'.$pay->id.'/edit'),
-                        ],
-                        [
-                            'label' => '查看详情',
-                            'href' => admin_url($definition['uri'].'/'.$pay->id.($scope ? '?scope='.$scope : '')),
-                        ],
-                    ]),
+                    [
+                        'label' => '编辑通道',
+                        'href' => admin_url($definition['uri'].'/'.$pay->id.'/edit'),
+                    ],
+                    [
+                        'label' => '复制通道',
+                        'href' => admin_url($definition['uri'].'/create?copy='.$pay->id),
+                    ],
+                    [
+                        'label' => '查看详情',
+                        'href' => admin_url($definition['uri'].'/'.$pay->id.($scope ? '?scope='.$scope : '')),
+                    ],
+                ]),
                 ];
             })->all(),
             'empty_title' => '当前条件下没有支付通道记录。',
@@ -145,6 +149,11 @@ class AdminShellPayPageService extends AbstractAdminShellPageService
                 'label' => '编辑通道',
                 'href' => admin_url($this->resourceDefinition()['uri'].'/'.$pay->id.'/edit'),
                 'variant' => 'primary',
+            ];
+            $header['actions'][] = [
+                'label' => '复制通道',
+                'href' => admin_url($this->resourceDefinition()['uri'].'/create?copy='.$pay->id),
+                'variant' => 'secondary',
             ];
         }
 

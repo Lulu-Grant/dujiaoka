@@ -20,15 +20,21 @@ class PayActionController extends Controller
         $this->payActionService = $payActionService;
     }
 
-    public function create()
+    public function create(Request $request)
     {
+        $sourcePay = $this->resolveCopySource($request);
+
         return view('admin-shell.pay.form', [
-            'title' => '新建支付通道 - 后台壳样板',
+            'title' => $sourcePay ? '复制支付通道 - 后台壳样板' : '新建支付通道 - 后台壳样板',
             'header' => [
                 'kicker' => 'Admin Shell Action',
-                'title' => '新建支付通道',
-                'description' => '这是后台壳中的支付通道新建样板页。当前先承接支付标识、商户配置、支付场景和回调路由等核心字段。',
-                'meta' => '新版本已退役的通道不会自动重新进入前台主路径，但后台壳仍保持对配置数据的可控编辑能力',
+                'title' => $sourcePay ? '复制支付通道' : '新建支付通道',
+                'description' => $sourcePay
+                    ? '这是后台壳中的支付通道复制样板页。当前会预填原通道的非敏感配置，敏感字段需要重新确认后再保存。'
+                    : '这是后台壳中的支付通道新建样板页。当前先承接支付标识、商户配置、支付场景和回调路由等核心字段。',
+                'meta' => $sourcePay
+                    ? '复制动作只会带入非敏感配置，商户 KEY 与商户 PEM 需要重新填写。'
+                    : '新版本已退役的通道不会自动重新进入前台主路径，但后台壳仍保持对配置数据的可控编辑能力',
                 'actions' => [
                     ['label' => '返回支付通道概览', 'href' => admin_url('v2/pay')],
                 ],
@@ -36,8 +42,9 @@ class PayActionController extends Controller
             'formAction' => admin_url('v2/pay/create'),
             'submitLabel' => '创建支付通道',
             'isCreate' => true,
-            'context' => $this->payActionService->createContext(),
-            'sections' => $this->payActionService->createSections(),
+            'sourcePay' => $sourcePay,
+            'context' => $this->payActionService->createContext($sourcePay),
+            'sections' => $this->payActionService->createSections($sourcePay),
         ]);
     }
 
@@ -112,5 +119,16 @@ class PayActionController extends Controller
             'merchant_pem' => $payload['merchant_pem'] ?? '',
             'is_open' => $request->boolean('is_open') ? Pay::STATUS_OPEN : Pay::STATUS_CLOSE,
         ]);
+    }
+
+    private function resolveCopySource(Request $request): ?Pay
+    {
+        $copyId = $request->query('copy');
+
+        if (blank($copyId)) {
+            return null;
+        }
+
+        return Pay::query()->withTrashed()->findOrFail((int) $copyId);
     }
 }

@@ -10,7 +10,7 @@ class AdminShellPayControllerTest extends TestCase
 {
     protected function tearDown(): void
     {
-        DB::table('pays')->whereIn('id', [93001, 93002, 93003, 93004])->delete();
+        DB::table('pays')->whereIn('id', [93001, 93002, 93003, 93004, 93005, 93006])->delete();
         DB::table('pays')->whereIn('pay_check', ['stripe', 'paypal', 'wechat-shell', 'alipay-shell'])->delete();
         DB::table('admin_users')->where('username', 'admin-shell-tester')->delete();
 
@@ -81,6 +81,82 @@ class AdminShellPayControllerTest extends TestCase
         $response->assertSee('商户与密钥');
     }
 
+    public function test_create_page_can_copy_existing_pay_channel(): void
+    {
+        DB::table('pays')->insert([
+            'id' => 93005,
+            'pay_name' => '复制样板',
+            'merchant_id' => 'copy-merchant',
+            'merchant_key' => 'copy-key',
+            'merchant_pem' => 'copy-pem',
+            'pay_check' => 'copy-shell',
+            'pay_client' => 2,
+            'pay_handleroute' => '/pay/copy-shell',
+            'pay_method' => 1,
+            'is_open' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/pay/create?copy=93005');
+
+        $response->assertOk();
+        $response->assertSee('复制支付通道');
+        $response->assertSee('正在复制支付通道');
+        $response->assertSee('复制样板（副本）');
+        $response->assertSee('copy-merchant');
+        $response->assertSee('/pay/copy-shell');
+        $response->assertDontSee('copy-key');
+        $response->assertDontSee('copy-pem');
+    }
+
+    public function test_copied_pay_channel_can_be_saved_as_new_record(): void
+    {
+        DB::table('pays')->insert([
+            'id' => 93005,
+            'pay_name' => '复制样板',
+            'merchant_id' => 'copy-merchant',
+            'merchant_key' => 'copy-key',
+            'merchant_pem' => 'copy-pem',
+            'pay_check' => 'copy-shell',
+            'pay_client' => 2,
+            'pay_handleroute' => '/pay/copy-shell',
+            'pay_method' => 1,
+            'is_open' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/pay/create?copy=93005', [
+                'pay_name' => '复制样板（副本）',
+                'merchant_id' => 'copy-merchant',
+                'merchant_key' => 'new-copy-key',
+                'merchant_pem' => 'new-copy-pem',
+                'pay_check' => 'copy-shell-clone',
+                'pay_client' => 2,
+                'pay_method' => 1,
+                'pay_handleroute' => '/pay/copy-shell-clone',
+                'is_open' => '1',
+            ]);
+
+        $record = DB::table('pays')->where('pay_check', 'copy-shell-clone')->first();
+        $this->assertNotNull($record);
+        $response->assertRedirect('/admin/v2/pay/'.$record->id.'/edit');
+        $response->assertSessionHas('status', '支付通道已创建');
+        $this->assertSame('复制样板（副本）', $record->pay_name);
+        $this->assertSame('copy-merchant', $record->merchant_id);
+        $this->assertSame('new-copy-key', $record->merchant_key);
+        $this->assertSame('new-copy-pem', $record->merchant_pem);
+        $this->assertSame('/pay/copy-shell-clone', $record->pay_handleroute);
+        $this->assertSame(2, $record->pay_client);
+        $this->assertSame(1, $record->pay_method);
+        $this->assertSame(1, $record->is_open);
+    }
+
     public function test_create_page_can_store_pay_channel(): void
     {
         $response = $this->actingAs($this->makeAdmin(), 'admin')
@@ -129,6 +205,35 @@ class AdminShellPayControllerTest extends TestCase
         $response->assertSee('商户与密钥');
         $response->assertDontSee('ali-key');
         $response->assertDontSee('ali-pem');
+    }
+
+    public function test_index_and_show_pages_include_copy_action(): void
+    {
+        DB::table('pays')->insert([
+            'id' => 93006,
+            'pay_name' => '复制入口样板',
+            'merchant_id' => 'copy-entry-id',
+            'merchant_key' => 'copy-entry-key',
+            'merchant_pem' => 'copy-entry-pem',
+            'pay_check' => 'copy-entry',
+            'pay_client' => 1,
+            'pay_handleroute' => '/pay/copy-entry',
+            'pay_method' => 2,
+            'is_open' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/pay');
+        $response->assertOk();
+        $response->assertSee('复制通道');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/pay/93006');
+        $response->assertOk();
+        $response->assertSee('复制通道');
     }
 
     public function test_edit_page_can_update_pay_channel(): void

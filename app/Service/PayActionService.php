@@ -6,8 +6,22 @@ use App\Models\Pay;
 
 class PayActionService
 {
-    public function createContext(): array
+    public function createContext(?Pay $sourcePay = null): array
     {
+        if ($sourcePay) {
+            return [
+                'summaryTitle' => '复制支付通道：'.$sourcePay->pay_name,
+                'summaryDescription' => '先把原通道的非敏感配置复制到新记录，再补齐支付标识与敏感密钥。',
+                'summaryItems' => [
+                    ['label' => '复制来源', 'value' => e($sourcePay->pay_name.' · '.$sourcePay->pay_check)],
+                    ['label' => '预填内容', 'value' => e('支付名称、商户 ID、支付方式、支付场景、回调路由、启用状态')],
+                    ['label' => '安全提示', 'value' => e('商户 KEY 和商户 PEM 不会被自动复制，需要重新填写后再保存。')],
+                ],
+                'editableFields' => ['支付名称', '支付标识', '商户 ID', '商户 KEY', '商户 PEM', '支付方式', '支付场景', '支付回调路由', '启用状态'],
+                'notice' => '复制动作只保留非敏感配置，商户 KEY 和商户 PEM 不会被自动复制，需要人工确认后再保存。',
+            ];
+        }
+
         return [
             'summaryTitle' => '新建支付通道',
             'summaryDescription' => '先把支付名称、商户信息和回调路由配置完整，再选择支付方式与支付场景。',
@@ -39,8 +53,22 @@ class PayActionService
         ];
     }
 
-    public function createDefaults(): array
+    public function createDefaults(?Pay $sourcePay = null): array
     {
+        if ($sourcePay) {
+            return [
+                'pay_name' => $sourcePay->pay_name.'（副本）',
+                'merchant_id' => $sourcePay->merchant_id,
+                'merchant_key' => '',
+                'merchant_pem' => '',
+                'pay_check' => '',
+                'pay_client' => $sourcePay->pay_client,
+                'pay_method' => $sourcePay->pay_method,
+                'pay_handleroute' => $sourcePay->pay_handleroute,
+                'is_open' => $sourcePay->is_open,
+            ];
+        }
+
         return [
             'pay_name' => '',
             'merchant_id' => '',
@@ -69,9 +97,9 @@ class PayActionService
         ];
     }
 
-    public function createSections(): array
+    public function createSections(?Pay $sourcePay = null): array
     {
-        return $this->buildSections(null, true);
+        return $this->buildSections($sourcePay, true);
     }
 
     public function editSections(Pay $pay): array
@@ -122,7 +150,7 @@ class PayActionService
                     [
                         'label' => '支付名称',
                         'name' => 'pay_name',
-                        'value' => $pay ? $pay->pay_name : '',
+                        'value' => $pay ? $pay->pay_name.'（副本）' : '',
                         'required' => true,
                         'placeholder' => '例如：Stripe 通道',
                         'hint' => '这是后台显示名称，便于维护人员快速识别。',
@@ -130,11 +158,13 @@ class PayActionService
                     [
                         'label' => '支付标识',
                         'name' => 'pay_check',
-                        'value' => $pay ? $pay->pay_check : '',
+                        'value' => $pay ? '' : '',
                         'required' => true,
                         'placeholder' => '例如：stripe',
                         'readonly' => ! $isCreate,
-                        'hint' => $isCreate ? '创建后应尽量保持稳定，避免影响已有回调和订单识别。' : '编辑时保持只读，避免影响已有回调和订单识别。',
+                        'hint' => $isCreate
+                            ? ($pay ? '复制时需要重新填写唯一支付标识，避免与源通道冲突。' : '创建后应尽量保持稳定，避免影响已有回调和订单识别。')
+                            : '编辑时保持只读，避免影响已有回调和订单识别。',
                     ],
                     [
                         'label' => '启用状态',
@@ -168,7 +198,7 @@ class PayActionService
                         'value' => '',
                         'sensitive' => true,
                         'placeholder' => '编辑时留空保持现有值',
-                        'hint' => '仅在需要更新时重新填写；留空会保留当前密钥。',
+                        'hint' => $isCreate && $pay ? '复制时需要重新填写商户 KEY，不会自动带入原值。' : '仅在需要更新时重新填写；留空会保留当前密钥。',
                         'wide' => true,
                     ],
                     [
@@ -180,7 +210,9 @@ class PayActionService
                         'sensitive' => true,
                         'required' => $isCreate,
                         'placeholder' => '编辑时留空保持现有值',
-                        'hint' => $isCreate ? '创建时必填，用于验签与通道初始化。' : '编辑时留空会保留当前 PEM，不会在页面中回显。',
+                        'hint' => $isCreate
+                            ? ($pay ? '复制时需要重新填写商户 PEM，不会自动带入原值。' : '创建时必填，用于验签与通道初始化。')
+                            : '编辑时留空会保留当前 PEM，不会在页面中回显。',
                         'wide' => true,
                     ],
                 ],
