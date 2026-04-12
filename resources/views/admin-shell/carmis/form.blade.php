@@ -1,0 +1,62 @@
+@extends('admin-shell.layout', ['title' => $title])
+
+@section('content')
+    @include('admin-shell.partials.page-header', $header)
+
+    @if(session('status'))
+        <div class="panel">
+            <div class="panel-body">
+                <div class="notice success">{{ session('status') }}</div>
+            </div>
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="panel">
+            <div class="panel-body">
+                <div class="notice error">{{ $errors->first() }}</div>
+            </div>
+        </div>
+    @endif
+
+    <div class="panel">
+        <div class="panel-body">
+            <form method="post" action="{{ $formAction }}" class="form-stack">
+                @csrf
+
+                <div class="filters">
+                    <label>
+                        <span>关联商品</span>
+                        <select name="goods_id" required>
+                            <option value="">请选择自动发货商品</option>
+                            @foreach($goodsOptions as $value => $label)
+                                <option value="{{ $value }}" @if((string) old('goods_id', $defaults['goods_id']) === (string) $value) selected @endif>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </label>
+                    <label>
+                        <span>状态</span>
+                        <select name="status" required>
+                            @foreach($statusOptions as $value => $label)
+                                <option value="{{ $value }}" @if((string) old('status', $defaults['status']) === (string) $value) selected @endif>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </label>
+                    <label>
+                        <span><input type="checkbox" name="is_loop" value="1" @if(old('is_loop', $defaults['is_loop'])) checked @endif> 循环使用</span>
+                    </label>
+                </div>
+
+                <label>
+                    <span>卡密内容</span>
+                    <textarea name="carmi" rows="10" required>{{ old('carmi', $defaults['carmi']) }}</textarea>
+                </label>
+
+                <div class="button-row" style="margin-top: 16px;">
+                    <button class="button" type="submit">{{ $submitLabel }}</button>
+                    <a class="button secondary" href="{{ admin_url('v2/carmis') }}">返回概览</a>
+                </div>
+            </form>
+        </div>
+    </div>
+@endsection

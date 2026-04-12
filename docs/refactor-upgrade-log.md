@@ -3115,3 +3115,26 @@
 下一步：
 
 - 继续沿着这条路线推进订单管理的低风险动作或更多中复杂度后台壳页面，逐步扩大后台壳对主链业务页的承载范围。
+
+### 132. 落地卡密管理新建与编辑动作页样板
+
+摘要：
+
+- 新增 [CarmiActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/CarmiActionController.php) 与 [form.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/carmis/form.blade.php)，把卡密新建和编辑动作接入后台壳。
+- 新增 [CarmiActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/CarmiActionService.php)，将卡密的关联商品、销售状态、循环使用标记和卡密内容写入边界收口到普通服务层。
+- [AdminShellCarmisPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellCarmisPageService.php) 已在卡密概览页头补上“新建卡密”入口，并在表格操作列补上“编辑卡密”入口；导入页与编辑页可并存工作。
+- [app/Admin/routes.php](/Users/apple/Documents/dujiaoshuka/app/Admin/routes.php) 已新增 `/admin/v2/carmis/create` 与 `/admin/v2/carmis/{id}/edit` 的 GET/POST 路由，后台壳开始承接卡密这类中风险业务编辑页。
+
+影响范围：
+
+- 后台壳对库存履约侧标准业务编辑页的承接能力
+- 卡密管理从只读概览页和导入页走向真实创建与编辑页
+- 卡密写入逻辑向普通服务层迁移的模式验证
+
+验证：
+
+- 当前全量回归结果：`OK (204 tests, 776 assertions)`
+
+下一步：
+
+- 继续沿着这条路线推进更多中复杂度后台壳动作页，逐步扩大后台壳对真实业务页的实际承载范围。

@@ -34,6 +34,10 @@ Route::group([
     $router->post('v2/coupon/create', [\App\Http\Controllers\AdminShell\CouponActionController::class, 'store']);
     $router->get('v2/coupon/{id}/edit', [\App\Http\Controllers\AdminShell\CouponActionController::class, 'edit']);
     $router->post('v2/coupon/{id}/edit', [\App\Http\Controllers\AdminShell\CouponActionController::class, 'update']);
+    $router->get('v2/carmis/create', [\App\Http\Controllers\AdminShell\CarmiActionController::class, 'create']);
+    $router->post('v2/carmis/create', [\App\Http\Controllers\AdminShell\CarmiActionController::class, 'store']);
+    $router->get('v2/carmis/{id}/edit', [\App\Http\Controllers\AdminShell\CarmiActionController::class, 'edit']);
+    $router->post('v2/carmis/{id}/edit', [\App\Http\Controllers\AdminShell\CarmiActionController::class, 'update']);
     $router->get('v2/carmis/import', [\App\Http\Controllers\AdminShell\CarmiImportActionController::class, 'create']);
     $router->post('v2/carmis/import', [\App\Http\Controllers\AdminShell\CarmiImportActionController::class, 'store']);
     $router->get('v2/system-setting/base', [\App\Http\Controllers\AdminShell\SystemSettingActionController::class, 'editBase']);

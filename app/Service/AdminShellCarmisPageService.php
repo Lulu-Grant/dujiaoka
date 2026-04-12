@@ -82,6 +82,10 @@ class AdminShellCarmisPageService extends AbstractAdminShellPageService
                     e((string) $carmi->updated_at),
                     $this->renderActionLinks([
                         [
+                            'label' => '编辑卡密',
+                            'href' => admin_url($definition['uri'].'/'.$carmi->id.'/edit'),
+                        ],
+                        [
                             'label' => '查看详情',
                             'href' => admin_url($definition['uri'].'/'.$carmi->id.($scope ? '?scope='.$scope : '')),
                         ],
@@ -97,6 +101,11 @@ class AdminShellCarmisPageService extends AbstractAdminShellPageService
     public function buildHeader(LengthAwarePaginator $carmis): array
     {
         $header = $this->buildResourceHeader('共 '.$carmis->total().' 条卡密');
+        $header['actions'][] = [
+            'label' => '新建卡密',
+            'href' => admin_url('v2/carmis/create'),
+            'variant' => 'secondary',
+        ];
         $header['actions'][] = [
             'label' => '导入卡密',
             'href' => admin_url('v2/carmis/import'),
