@@ -3046,3 +3046,26 @@
 下一步：
 
 - 继续沿着这条路线推进更多真实业务页，或挑一张中风险批量动作页继续扩大后台壳的实际承载范围。
+
+### 129. 落地商品管理后台壳复杂资源样板页
+
+摘要：
+
+- 新增 [AdminShellGoodsPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellGoodsPageService.php) 与 [GoodsShellController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/GoodsShellController.php)，将商品管理接入后台壳。
+- [AdminShellResourceRegistry.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellResourceRegistry.php) 已新增 `goods` 资源定义，因此路由、权限白名单和侧边导航会自动带上 `/admin/v2/goods`。
+- 新页面承接了商品列表、筛选和详情展示合同，覆盖分类、商品类型、价格、库存、销量、关联优惠码以及多组配置文本字段，为后续迁移编辑和批量动作打下基础。
+- 新增 [AdminShellGoodsControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellGoodsControllerTest.php)，并扩充了资源注册与页面结构测试，保证商品管理这张复杂资源页纳入后台壳基础设施。
+
+影响范围：
+
+- 后台壳对复杂资源列表页和详情页的承接能力
+- 资源注册表、导航、权限白名单与页面结构测试覆盖范围
+- 商品管理迁移从“待评估”推进到“已落地样板”
+
+验证：
+
+- 当前全量回归结果：`OK (192 tests, 701 assertions)`
+
+下一步：
+
+- 继续沿着这条路线推进商品管理的编辑页或批量动作页，逐步把复杂资源从只读样板推进到真实可操作页面。

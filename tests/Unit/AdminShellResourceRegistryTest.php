@@ -23,6 +23,14 @@ class AdminShellResourceRegistryTest extends TestCase
         $this->assertFalse($resource['uses_scope']);
     }
 
+    public function test_registry_returns_goods_resource_definition(): void
+    {
+        $resource = $this->app->make(AdminShellResourceRegistry::class)->get('goods');
+
+        $this->assertSame(\App\Service\AdminShellGoodsPageService::class, $resource['service']);
+        $this->assertTrue($resource['uses_scope']);
+    }
+
     public function test_registry_returns_pay_resource_definition(): void
     {
         $resource = $this->app->make(AdminShellResourceRegistry::class)->get('pay');
@@ -69,7 +77,7 @@ class AdminShellResourceRegistryTest extends TestCase
     {
         $patterns = AdminShellResourceRegistry::permissionExceptPatterns();
 
-        $this->assertSame(['v2/goods-group*', 'v2/emailtpl*', 'v2/pay*', 'v2/coupon*', 'v2/carmis*', 'v2/system-setting*', 'v2/email-test*'], $patterns);
+        $this->assertSame(['v2/goods-group*', 'v2/goods*', 'v2/emailtpl*', 'v2/pay*', 'v2/coupon*', 'v2/carmis*', 'v2/system-setting*', 'v2/email-test*'], $patterns);
     }
 
     public function test_registry_exposes_navigation_items(): void
@@ -78,11 +86,12 @@ class AdminShellResourceRegistryTest extends TestCase
 
         $this->assertSame('商品分类管理', $items[0]['label']);
         $this->assertStringEndsWith('v2/goods-group', $items[0]['href']);
-        $this->assertSame('admin/v2/pay*', $items[2]['active_pattern']);
-        $this->assertSame('优惠码管理', $items[3]['label']);
-        $this->assertSame('卡密管理', $items[4]['label']);
-        $this->assertSame('系统设置概览', $items[5]['label']);
-        $this->assertSame('邮件测试概览', $items[6]['label']);
+        $this->assertSame('商品管理', $items[1]['label']);
+        $this->assertSame('admin/v2/pay*', $items[3]['active_pattern']);
+        $this->assertSame('优惠码管理', $items[4]['label']);
+        $this->assertSame('卡密管理', $items[5]['label']);
+        $this->assertSame('系统设置概览', $items[6]['label']);
+        $this->assertSame('邮件测试概览', $items[7]['label']);
     }
 
     public function test_registry_exposes_page_metadata(): void

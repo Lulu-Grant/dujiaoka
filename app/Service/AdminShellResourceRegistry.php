@@ -23,6 +23,17 @@ class AdminShellResourceRegistry
                 'uri' => 'v2/goods-group',
                 'uses_scope' => true,
             ],
+            'goods' => [
+                'nav_label' => '商品管理',
+                'index_title' => '商品管理',
+                'index_description' => '这是后台壳中的复杂资源样板页。当前先承接商品列表、筛选和详情展示合同，为后续迁移编辑与批量动作铺路。',
+                'show_title' => '商品详情',
+                'show_description' => '这张详情页固定了商品分类、价格、库存、配置文本和关联优惠码等展示合同，后续可以继续扩展编辑能力。',
+                'controller' => \App\Http\Controllers\AdminShell\GoodsShellController::class,
+                'service' => \App\Service\AdminShellGoodsPageService::class,
+                'uri' => 'v2/goods',
+                'uses_scope' => true,
+            ],
             'emailtpl' => [
                 'nav_label' => '邮件模板管理',
                 'index_title' => '邮件模板管理',

@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Models\Emailtpl;
 use App\Models\GoodsGroup;
+use App\Models\Goods;
 use App\Models\Coupon;
 use App\Models\Carmis;
 use App\Models\Pay;
@@ -16,6 +17,7 @@ use App\Service\Contracts\AdminShellPageServiceInterface;
 use App\Service\DataTransferObjects\AdminShellIndexPageData;
 use App\Service\DataTransferObjects\AdminShellShowPageData;
 use App\Service\AdminShellEmailTemplatePageService;
+use App\Service\AdminShellGoodsPageService;
 use App\Service\AdminShellGoodsGroupPageService;
 use App\Service\AdminShellPayPageService;
 use Carbon\Carbon;
@@ -68,6 +70,64 @@ class AdminShellPageStructureTest extends TestCase
         $this->assertSame('当前条件下没有商品分类记录。', $table['empty_title']);
         $this->assertSame('分类名称', $items[1]['label']);
         $this->assertSame('默认分类', $items[1]['value']);
+    }
+
+    public function test_goods_page_service_builds_table_and_detail_items()
+    {
+        $goods = new Goods();
+        $goods->forceFill([
+            'id' => 150,
+            'group_id' => 12,
+            'gd_name' => '测试商品',
+            'gd_description' => '商品简介',
+            'gd_keywords' => '关键字',
+            'retail_price' => 99,
+            'actual_price' => 79,
+            'in_stock' => 20,
+            'sales_volume' => 5,
+            'ord' => 2,
+            'buy_limit_num' => 1,
+            'buy_prompt' => '提示',
+            'description' => '说明',
+            'type' => Goods::AUTOMATIC_DELIVERY,
+            'wholesale_price_cnf' => '2,70',
+            'other_ipu_cnf' => '账号',
+            'api_hook' => 'https://example.com/hook',
+            'is_open' => 1,
+            'created_at' => Carbon::parse('2026-04-10 09:00:00'),
+            'updated_at' => Carbon::parse('2026-04-10 10:00:00'),
+        ]);
+        $goods->carmis_count = 20;
+        $goods->setRelation('group', (object) ['gp_name' => '默认分类']);
+        $goods->setRelation('coupon', collect([(object) ['coupon' => 'XIGUA-150']]));
+
+        $service = $this->app->make(AdminShellGoodsPageService::class);
+        $table = $service->buildTable(
+            new LengthAwarePaginator(collect([$goods]), 1, 15),
+            ['scope' => '']
+        );
+        $header = $service->buildHeader(new LengthAwarePaginator(collect([$goods]), 1, 15));
+        $filters = $service->buildFilters(['gd_name' => '测试', 'type' => Goods::AUTOMATIC_DELIVERY, 'scope' => 'trashed']);
+        $showHeader = $service->buildShowHeader('trashed');
+        $indexPage = $service->buildIndexPageData(new LengthAwarePaginator(collect([$goods]), 1, 15), ['gd_name' => '测试', 'scope' => '']);
+        $showPage = $service->buildShowPageData($goods, 'trashed');
+        $items = $service->detailItems($goods);
+        $requestFilters = $service->extractFilters(Request::create('/admin/v2/goods?gd_name=test&type=1&scope=trashed', 'GET'));
+
+        $this->assertSame('商品管理', $header['title']);
+        $this->assertSame('test', $requestFilters['gd_name']);
+        $this->assertSame('商品类型', $filters['fields'][2]['label']);
+        $this->assertSame('商品详情', $showHeader['title']);
+        $this->assertInstanceOf(AdminShellIndexPageData::class, $indexPage);
+        $this->assertInstanceOf(AdminShellShowPageData::class, $showPage);
+        $this->assertSame('商品管理 - 后台壳样板', $indexPage->title);
+        $this->assertSame('商品详情 - 后台壳样板', $showPage->title);
+        $this->assertStringContainsString('?scope=trashed', $showHeader['actions'][0]['href']);
+        $this->assertSame('商品名称', $table['headers'][1]);
+        $this->assertStringContainsString('测试商品', $table['rows'][0][1]);
+        $this->assertSame('当前条件下没有商品记录。', $table['empty_title']);
+        $this->assertSame('所属分类', $items[4]['label']);
+        $this->assertSame('默认分类', $items[4]['value']);
     }
 
     public function test_email_template_page_service_builds_table_and_detail_items()
@@ -162,6 +222,7 @@ class AdminShellPageStructureTest extends TestCase
     public function test_admin_shell_page_services_share_common_base_class()
     {
         $this->assertInstanceOf(AbstractAdminShellPageService::class, $this->app->make(AdminShellGoodsGroupPageService::class));
+        $this->assertInstanceOf(AbstractAdminShellPageService::class, $this->app->make(AdminShellGoodsPageService::class));
         $this->assertInstanceOf(AbstractAdminShellPageService::class, $this->app->make(AdminShellEmailTemplatePageService::class));
         $this->assertInstanceOf(AbstractAdminShellPageService::class, $this->app->make(AdminShellPayPageService::class));
         $this->assertInstanceOf(AbstractAdminShellPageService::class, $this->app->make(AdminShellCouponPageService::class));
