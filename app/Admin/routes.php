@@ -18,6 +18,8 @@ Route::group([
     $router->post('v2/system-setting/base', [\App\Http\Controllers\AdminShell\SystemSettingActionController::class, 'updateBase']);
     $router->get('v2/system-setting/mail', [\App\Http\Controllers\AdminShell\SystemSettingActionController::class, 'editMail']);
     $router->post('v2/system-setting/mail', [\App\Http\Controllers\AdminShell\SystemSettingActionController::class, 'updateMail']);
+    $router->get('v2/system-setting/push', [\App\Http\Controllers\AdminShell\SystemSettingActionController::class, 'editPush']);
+    $router->post('v2/system-setting/push', [\App\Http\Controllers\AdminShell\SystemSettingActionController::class, 'updatePush']);
     $router->resource('goods', 'GoodsController');
     $router->resource('goods-group', 'GoodsGroupController');
     $router->resource('carmis', 'CarmisController');

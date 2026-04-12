@@ -2887,3 +2887,25 @@
 下一步：
 
 - 按执行总纲继续推进后台壳扩容，优先补更多系统设置分组和低风险操作型页面。
+
+### 122. 落地系统设置通知推送配置编辑入口样板
+
+摘要：
+
+- 在 [SystemSettingActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/SystemSettingActionController.php) 中新增 `editPush()` / `updatePush()`，把通知推送配置编辑入口接入后台壳。
+- 新增 [edit-push.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/system-setting/edit-push.blade.php)，承接 Server 酱、Telegram、Bark 与企业微信机器人推送相关字段保存。
+- [AdminShellSystemSettingPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellSystemSettingPageService.php) 已在系统设置概览页头补上“编辑通知推送配置”入口，使概览页与第三个真实配置动作页直接连通。
+
+影响范围：
+
+- 系统设置通知推送分组的后台壳承接深度
+- 后台壳对多分组配置动作的覆盖能力
+- 配置型页面过渡模式的可复制性
+
+验证：
+
+- 当前全量回归结果：`OK (167 tests, 574 assertions)`
+
+下一步：
+
+- 继续沿着系统设置分组推进低风险配置动作，或转向更复杂的配置型/导入型后台壳页面，进一步扩大后台壳承接范围。

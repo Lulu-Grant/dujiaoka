@@ -107,6 +107,11 @@ class AdminShellSystemSettingPageService extends AbstractAdminShellPageService
             'href' => admin_url('v2/system-setting/mail'),
             'variant' => 'secondary',
         ];
+        $header['actions'][] = [
+            'label' => '编辑通知推送配置',
+            'href' => admin_url('v2/system-setting/push'),
+            'variant' => 'secondary',
+        ];
 
         return $header;
     }
