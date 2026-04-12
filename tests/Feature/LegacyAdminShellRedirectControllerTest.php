@@ -46,6 +46,14 @@ class LegacyAdminShellRedirectControllerTest extends TestCase
             ->assertRedirect('/admin/v2/emailtpl');
 
         $this->actingAs($admin, 'admin')
+            ->get('/admin/goods')
+            ->assertRedirect('/admin/v2/goods');
+
+        $this->actingAs($admin, 'admin')
+            ->get('/admin/goods/create')
+            ->assertRedirect('/admin/v2/goods/create');
+
+        $this->actingAs($admin, 'admin')
             ->get('/admin/pay/create')
             ->assertRedirect('/admin/v2/pay/create');
 
@@ -58,12 +66,20 @@ class LegacyAdminShellRedirectControllerTest extends TestCase
             ->assertRedirect('/admin/v2/goods/789');
 
         $this->actingAs($admin, 'admin')
+            ->get('/admin/goods/789/edit')
+            ->assertRedirect('/admin/v2/goods/789/edit');
+
+        $this->actingAs($admin, 'admin')
             ->get('/admin/carmis/import')
             ->assertRedirect('/admin/v2/carmis/import');
 
         $this->actingAs($admin, 'admin')
             ->get('/admin/order?status=4')
             ->assertRedirect('/admin/v2/order?status=4');
+
+        $this->actingAs($admin, 'admin')
+            ->get('/admin/order/321')
+            ->assertRedirect('/admin/v2/order/321');
 
         $this->actingAs($admin, 'admin')
             ->get('/admin/order/321/edit')
@@ -81,6 +97,15 @@ class LegacyAdminShellRedirectControllerTest extends TestCase
         $this->actingAs($admin, 'admin')
             ->get('/admin/email-test')
             ->assertRedirect('/admin/v2/email-test');
+    }
+
+    public function test_import_carmis_legacy_route_redirects_to_shell_import_page(): void
+    {
+        $admin = $this->makeAdmin();
+
+        $this->actingAs($admin, 'admin')
+            ->get('/admin/import-carmis')
+            ->assertRedirect('/admin/v2/carmis/import');
     }
 
     public function test_configuration_legacy_routes_preserve_query_strings(): void

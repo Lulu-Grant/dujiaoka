@@ -103,7 +103,7 @@
 
 摘要：
 
-- 将 [tests/Browser/admin-shell-smoke.sh](/Users/apple/Documents/dujiaoshuka/tests/Browser/admin-shell-smoke.sh) 扩展为登录后关键路径巡检，新增 `auth/setting`、`system-setting/base`、`goods/create` 等页面检查。
+- 将 [tests/Browser/admin-shell-smoke.sh](/Users/apple/Documents/dujiaoshuka/tests/Browser/admin-shell-smoke.sh) 扩展为登录后关键路径巡检，新增 `auth/setting`、`goods/create`、`emailtpl/create` 等页面检查。
 - 同步更新 [README.md](/Users/apple/Documents/dujiaoshuka/README.md) 与 [docs/local-dev-quickstart.md](/Users/apple/Documents/dujiaoshuka/docs/local-dev-quickstart.md)，让本地快速拉站说明与 smoke 覆盖范围保持一致。
 - 保持脚本仍然是轻量 `curl` 路线，没有引入额外依赖，方便在当前本地流程中直接使用。
 
