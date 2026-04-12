@@ -2,220 +2,228 @@
 
 ## 背景
 
-截至当前阶段，`app/Admin` 已完成多轮薄壳化处理：
+截至当前阶段，旧后台已经不再以 `app/Admin` 目录存在，兼容层只剩：
 
-- 业务逻辑持续下沉到 `app/Service`
-- 高重复筛选、恢复、字段挂载、页面壳装配已集中收口
-- 后台控制器中不再保留明显依赖 Dcat 行上下文的业务展示闭包
+- [config/admin.php](/Users/apple/Documents/dujiaoshuka/config/admin.php)
+- [routes/admin/routes.php](/Users/apple/Documents/dujiaoshuka/routes/admin/routes.php)
 
-这意味着后台替换已经可以从“概念评估”进入“迁移优先级排序”。
+这意味着后台替换已经从“评估阶段”真正进入了“资源与动作页滚动迁移阶段”。
+
+现在讨论优先级时，重点不再是“哪张页能不能迁”，而是：
+
+- 哪张页应该继续补动作
+- 哪组页可以进一步替掉旧兼容入口
+- 哪些复杂页要留到更靠后阶段
 
 ---
 
 ## 评估维度
 
-每个后台页面按下面几个维度判断迁移优先级：
+每个后台页面按下面几个维度判断后续优先级：
 
-- 业务风险：迁移后是否容易引起订单、库存、支付等主链回归
-- Dcat 绑定度：是否高度依赖 Grid / Form / Widget 特性
-- 服务化完成度：是否已经具备清晰的普通服务边界
-- 验证成本：是否已有测试护栏或容易补验证
+- 业务风险：是否容易引起订单、库存、支付等主链回归
+- 复杂度：是否带复杂表单、批量动作、导入导出、富文本或配置分组
+- 新壳成熟度：当前后台壳是否已承接列表、详情、编辑或动作页
+- 验证成本：是否已有 Feature / Unit 护栏、是否容易补验证
 
 ---
 
-## 第一优先级
+## 已基本成型的资源
 
-这些页面已经最接近“新壳直接接服务”的状态，适合作为第一批迁移对象。
-
-第一批迁移合同见：
-
-- [admin-first-batch-migration-contracts.md](/Users/apple/Documents/dujiaoshuka/docs/admin-first-batch-migration-contracts.md)
+这些资源已经不再只是“样板页”，而是具备真实承载能力，后续重点是补批量动作和继续压旧兼容层。
 
 ### 1. 商品分类管理
 
-对应文件：
+当前状态：
 
-- [GoodsGroupController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/GoodsGroupController.php)
-- [GoodsGroupShellController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/GoodsGroupShellController.php)
+- 资源页：`/admin/v2/goods-group`
+- 动作页：`create / edit`
 
-原因：
+判断：
 
-- 标准 CRUD
-- 状态、筛选、恢复、字段挂载都已服务化
-- 风险低，适合做新后台壳样板
-- 当前已落地第一版只读样板页：`/admin/v2/goods-group`
+- 低风险标准 CRUD
+- 已接近可长期承载
+- 后续更多是微调和统一体验，不是大改
 
 ### 2. 邮件模板管理
 
-对应文件：
+当前状态：
 
-- [EmailtplController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/EmailtplController.php)
+- 资源页：`/admin/v2/emailtpl`
+- 动作页：`create / edit / preview`
 
-原因：
+判断：
 
 - 结构清晰
-- token 字段策略、表单行为、恢复动作都已下沉
-- 可作为“表单页 + 列表页”迁移样板
+- 预览能力已接进后台壳
+- 已具备较完整的新壳承载能力
 
 ### 3. 支付通道管理
 
-对应文件：
+当前状态：
 
-- [PayController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/PayController.php)
-- [PayShellController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/PayShellController.php)
+- 资源页：`/admin/v2/pay`
+- 动作页：`create / edit / copy`
 
-原因：
+判断：
 
-- 展示格式化、生命周期文案、恢复动作、筛选都已收口
-- 当前剩余主要是普通字段编辑
-- 适合作为“状态文案 + 配置表单”迁移样板
-
-当前样板状态：
-
-- 第一优先级三张只读样板页已全部落地：
-  - `/admin/v2/goods-group`
-  - `/admin/v2/emailtpl`
-  - `/admin/v2/pay`
-
----
-
-## 第二优先级
-
-这些页面已经有较好边界，但仍带有一些中等复杂度业务或数据装配。
+- 已经进入中风险资源承载
+- 后续值得继续补批量启停或筛选增强
 
 ### 4. 优惠码管理
 
-对应文件：
+当前状态：
 
-- [CouponController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/CouponController.php)
+- 资源页：`/admin/v2/coupon`
+- 动作页：`create / edit / batch generate`
 
-原因：
+判断：
 
-- 主体已经服务化
-- 仍带有商品多选与格式化行为
-- 迁移难度可控，但比第一优先级稍高
-
-当前样板状态：
-
-- 第二优先级第一张只读样板页已落地：
-  - `/admin/v2/coupon`
+- 已经不是简单 CRUD
+- 批量生成已接进后台壳
+- 后续可以继续向批量启停或批量删除扩展
 
 ### 5. 卡密管理
 
-对应文件：
+当前状态：
 
-- [CarmisController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/CarmisController.php)
-- [ImportCarmis.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Forms/ImportCarmis.php)
+- 资源页：`/admin/v2/carmis`
+- 动作页：`create / edit / import / export`
 
-原因：
+判断：
 
-- 列表与详情展示已经较薄
-- 导入仍然是这组页面的核心复杂点
-- 适合作为第二批“带批量导入能力”的迁移对象
-
-当前样板状态：
-
-- 第二优先级第二张只读样板页已落地：
-  - `/admin/v2/carmis`
+- 已承接最关键的导入导出链路
+- 这条线已经从中等复杂度跨到高频可用级别
 
 ### 6. 系统设置 / 邮件测试
 
-对应文件：
+当前状态：
 
-- [SystemSettingController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/SystemSettingController.php)
-- [EmailTestController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/EmailTestController.php)
+- `/admin/v2/system-setting`
+- `/admin/v2/email-test`
 
-原因：
+系统设置已落地分组：
 
-- 页面壳和配置读写已抽离
-- 但表单字段较多，验证项也多
-- 迁移时更像“配置中心”而不是简单 CRUD
+- `base`
+- `branding`
+- `mail`
+- `order`
+- `push`
+- `experience`
 
-当前样板状态：
+邮件测试已落地动作：
 
-- 第二优先级第一张配置型样板页已落地：
-  - `/admin/v2/system-setting`
-- 第二优先级第二张配置型样板页已落地：
-  - `/admin/v2/email-test`
+- `send`
+
+判断：
+
+- 新后台壳已经能承接配置中心类页面
+- 后续重点是继续补中风险配置动作，而不是回退旧壳
 
 ---
 
-## 第三优先级
+## 当前最值得继续扩容的资源
 
-这些页面虽然已经有明显进展，但仍然和业务链路、统计口径或复杂表单紧密相关。
+这些资源已经接上了基础动作，但还处在“能用”和“真正主承载”之间，最值得继续投入。
 
 ### 7. 商品管理
 
-对应文件：
+当前状态：
 
-- [GoodsController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/GoodsController.php)
+- 资源页：`/admin/v2/goods`
+- 动作页：`create / edit / clone`
 
 原因：
 
-- 目前已很薄，库存展示也已切到模型 accessor + 查询预载
-- 但字段多、配置多、输入输出复杂
-- 更适合作为第一优先级页面迁移完成后的第二阶段目标
+- 高使用频率
+- 字段复杂、配置多、库存和优惠码关联多
+- 如果这条线继续成熟，后台壳就真正逼近主承载
+
+建议下一步：
+
+- 批量启停
+- 批量删除 / 恢复替代方案
+- 更清晰的库存操作入口
 
 ### 8. 订单管理
 
-对应文件：
+当前状态：
 
-- [OrderController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/OrderController.php)
-
-原因：
-
-- 已有较多服务化工作
-- 但和订单状态、支付结果、履约链天然更近
-- 验证成本高于普通 CRUD
-
-当前样板状态：
-
-- 第三优先级第一张高上下文业务样板页已落地：
-  - `/admin/v2/order`
-
-### 9. 后台首页看板
-
-对应文件：
-
-- [HomeController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/HomeController.php)
-- [AdminDashboardLayoutService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminDashboardLayoutService.php)
-- [AdminDashboardMetricsService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminDashboardMetricsService.php)
+- 资源页：`/admin/v2/order`
+- 动作页：`edit / reset search password`
 
 原因：
 
-- 布局已经抽离
-- 但图表壳仍强依赖 Dcat Metrics
-- 更适合在 CRUD 迁移稳定后再处理
+- 高上下文业务资源
+- 已经承接了低风险人工维护字段
+- 但还缺更完整的低风险操作面
 
-当前样板状态：
+建议下一步：
 
-- 后台壳首页总览样板已落地：
-  - `/admin/v2/dashboard`
+- 低风险批量动作
+- 订单筛选与异常巡检增强
+- 和 dashboard 的运营入口联动更紧一些
+
+### 9. Dashboard
+
+当前状态：
+
+- `/admin/v2/dashboard`
+- `/admin` 默认落点已切到后台壳 dashboard
+
+原因：
+
+- 已经从“统计页”变成“后台指挥台”
+- 现在更值得做的是继续补运营快捷入口和巡检建议，而不是回头补旧 Dcat dashboard
 
 ---
 
-## 推荐迁移顺序
+## 当前仍应后置的部分
 
-建议下一阶段默认按这个顺序推进：
+这些方向不是不能做，而是现在收益不如继续扩高频后台壳资源。
 
-1. 商品分类管理
-2. 邮件模板管理
-3. 支付通道管理
-4. 优惠码管理
-5. 卡密管理
-6. 系统设置 / 邮件测试
-7. 商品管理
-8. 订单管理
-9. 后台首页看板
+### 10. 彻底移除 Dcat 兼容层
+
+现状：
+
+- 兼容层已经压到很薄
+- 但 `config/admin.php` 和 `routes/admin/routes.php` 仍然存在
+
+判断：
+
+- 这一步要等后台壳再吃掉更多高频操作后再做
+
+### 11. 高风险订单 / 支付后台动作
+
+现状：
+
+- 订单编辑目前只开放低风险字段
+- 支付通道页已可编辑，但高风险动作还不适合一口气迁完
+
+判断：
+
+- 应继续遵循“低风险先迁、主链慎动”的节奏
+
+---
+
+## 推荐推进顺序
+
+建议后续默认按这个顺序继续：
+
+1. 商品管理的下一批动作
+2. 订单管理的下一批低风险动作
+3. 支付通道与优惠码的批量动作
+4. 系统设置更多中风险配置动作
+5. 继续压缩 Dcat 最小兼容层
 
 ---
 
 ## 当前结论
 
-后台替换这件事已经不再是“是否能做”的问题，而是“按什么顺序做更稳”。
+后台替换这件事已经不再是“要不要开始”，而是“继续把哪些资源从能用推进到主承载”。
 
 当前最合理的策略是：
 
-- 先迁低风险、高服务化页面
-- 再迁中复杂度的批量与配置页面
-- 最后处理订单与仪表盘这类高验证成本页面
+- 继续补高频资源的动作能力
+- 继续压缩旧兼容层
+- 暂不急着做彻底一刀切

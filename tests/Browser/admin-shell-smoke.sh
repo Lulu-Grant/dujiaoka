@@ -36,7 +36,7 @@ login_headers="$(cat "$tmpdir/login-headers.txt")"
 login_response="$(cat "$tmpdir/login-body.txt")"
 
 case "$login_headers$login_response" in
-  *'"status":true'*'/admin'*|*"Location: $APP_URL/admin"*|*"location.href = '$APP_URL/admin'"*|*"url='$APP_URL/admin'"*)
+  *'"status":true'*'"url":"'"$APP_URL"'/admin"'*|*"Location: $APP_URL/admin"$'\r'*|*"Location: $APP_URL/admin/"$'\r'*|*"location.href = '$APP_URL/admin'"*|*"url='$APP_URL/admin'"*)
     ;;
   *)
     echo "Admin login did not return the expected redirect or success payload."

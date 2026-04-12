@@ -62,9 +62,10 @@
 - 将 `install.sql` 完整移出仓库主路径
 - 补齐 GitHub Actions `CI` 工作流
 - 补齐本地快速拉站模板与准备脚本
-- 将后台高频 CRUD 页中的配置、选项源、状态映射、展示逻辑持续迁出 `app/Admin`
+- 将后台高频 CRUD 页中的配置、选项源、状态映射、展示逻辑持续迁出旧 Dcat 承载层
 - 将前台、后台、安装页和默认通知品牌统一为“独角数卡西瓜版”
 - 将后台壳首页、商品分类、商品、订单、邮件模板、支付通道、优惠码、卡密、系统设置、邮件测试等页面逐步接入新后台壳
+- 将 `app/Admin` 目录正式退场，旧后台兼容层收敛为 `config/admin.php` + `routes/admin/routes.php`
 
 ## 当前重点进度
 
@@ -76,6 +77,8 @@
 
 当前已落地后台壳资源：
 
+- `/admin/auth/login`
+- `/admin/auth/setting`
 - `/admin/v2/dashboard`
 - `/admin/v2/goods-group`
 - `/admin/v2/goods`
@@ -90,13 +93,14 @@
 当前后台壳已落地动作页包括：
 
 - 商品分类 `create / edit`
-- 商品 `create / edit`
-- 优惠码 `create / edit`
-- 支付通道 `create / edit`
-- 卡密 `create / edit / import`
-- 邮件模板 `create / edit`
+- 商品 `create / edit / clone`
+- 订单 `edit / reset search password`
+- 优惠码 `create / edit / batch generate`
+- 支付通道 `create / edit / copy`
+- 卡密 `create / edit / import / export`
+- 邮件模板 `create / edit / preview`
 - 邮件测试发送
-- 系统设置 `base / branding / mail / push / experience`
+- 系统设置 `base / branding / mail / order / push / experience`
 
 ### 后台 UI
 
@@ -115,7 +119,7 @@
 - 仓库定位：遗留单体的持续维护分支
 - 当前目标：稳定运行、逐步重构、为后续大版本升级做准备
 - 默认前台主题：`avatar`
-- 当前后台状态：保留 `Dcat Admin` 过渡，但持续向“薄展示层”收缩
+- 当前后台状态：保留 `Dcat Admin` 最小兼容层，但后台主入口、主 dashboard 和多组高频资源已经转入后台壳
 
 ## 运行与验证
 
@@ -128,7 +132,7 @@
 当前主线测试结果基线：
 
 ```bash
-OK (221 tests, 1031 assertions)
+OK (245 tests, 1169 assertions)
 ```
 
 当前仓库也已经补上 GitHub Actions 基线工作流：
@@ -157,6 +161,7 @@ OK (221 tests, 1031 assertions)
 - `.env` 不会进入版本控制
 - 当前这条本地启动路径已经完成真实 HTTP 验证，首页可返回 `200 OK`
 - 烟雾脚本会登录后台并巡检 `dashboard`、`auth/setting`、`goods/create`、`emailtpl/create`、`goods`、`order`
+- 烟雾脚本依赖有效后台账号，可通过 `ADMIN_USERNAME` / `ADMIN_PASSWORD` 覆盖默认登录凭据
 
 更多环境说明请查看：
 
@@ -192,4 +197,5 @@ OK (221 tests, 1031 assertions)
 - 当前仓库仍是 Laravel 6 遗留系统的渐进式改造阶段，不是最终现代化完成态。
 - 当前 `master` 已具备：本地快速拉站、GitHub Actions 自动回归、安装现代化主路径，以及持续推进中的后台壳并行迁移基础。
 - 当前 `/admin` 默认已经落到新的后台壳首页。
+- 当前后台登录、退出和账号设置也已经切到后台壳入口。
 - 后续每一个重要节点都会持续记录到 [重构升级日志](docs/refactor-upgrade-log.md)。

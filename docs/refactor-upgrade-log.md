@@ -3974,3 +3974,51 @@
 下一步：
 
 - 观察 GitHub Actions 新一轮 CI 是否转绿；如果仍有失败，就继续按最新 run 的日志逐项收口。
+
+## 2026-04-13 阶段日志
+
+### 148. 基线文档与后台迁移状态重对齐
+
+摘要：
+
+- 更新了 [README.md](/Users/apple/Documents/dujiaoshuka/README.md)，把仓库首页口径对齐到当前真实状态，包括：
+  - PHPUnit 基线更新到 `OK (245 tests, 1169 assertions)`
+  - 后台壳资源与动作页清单更新到当前并行迁移结果
+  - 明确 `app/Admin` 已退场、后台认证入口已进入后台壳
+- 重写了 [current-baseline-audit.md](/Users/apple/Documents/dujiaoshuka/docs/current-baseline-audit.md)，把当前阶段重新描述为“结构化治理后期，后台替换中后期，升级前清障前期”。
+- 重写了 [admin-migration-candidates.md](/Users/apple/Documents/dujiaoshuka/docs/admin-migration-candidates.md)，移除了对已删除 `app/Admin/*` 控制器的历史引用，把重点切到“哪些资源继续补动作、哪些兼容层继续压缩”。
+- 更新了 [rectification-execution-plan.md](/Users/apple/Documents/dujiaoshuka/docs/rectification-execution-plan.md) 的当前基线与执行批次，让总纲重新贴合现在的后台壳与兼容层现实。
+
+影响范围：
+
+- 仓库首页、审计文档、后台迁移路线和执行总纲重新对齐当前代码现实
+- 后续继续推进时，不再需要一边改代码一边倒推文档口径
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (245 tests, 1169 assertions)`
+
+下一步：
+
+- 继续沿着后台壳扩容与旧 Dcat 兼容层收缩主线推进
+- 让批量动作和中复杂度后台页成为下一阶段重点
+
+### 149. 后台烟雾脚本登录成功判断收严
+
+摘要：
+
+- 更新了 [tests/Browser/admin-shell-smoke.sh](/Users/apple/Documents/dujiaoshuka/tests/Browser/admin-shell-smoke.sh) 的登录成功判断，避免把 `Location: /admin/auth/login` 这种失败回跳误识别成登录成功。
+- 现在脚本只接受真正落到 `/admin` 的成功跳转或等价成功响应，不再因为字符串过宽匹配而产生假阳性。
+
+影响范围：
+
+- 本地后台壳烟雾验证结果更可信
+- 后续排查认证、会话或默认管理员问题时，不会再被脚本误导
+
+验证：
+
+- 使用有效后台账号执行烟雾脚本，确认脚本会在真实成功登录后继续巡检页面
+
+下一步：
+
+- 保持烟雾脚本和当前后台壳入口同步
