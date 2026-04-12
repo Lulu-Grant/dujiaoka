@@ -107,3 +107,30 @@
 2. 让 CI 测试库准备脱离 `install.sql`
 3. 评估旧 dashboard 图表壳和 `avatar/readme.md` 是否一并移除
 4. 评估 `app/Admin/Actions/Post/*`、`app/Service/AdminGridRestoreActionService.php`、`app/Admin/bootstrap.php` 这批只剩测试或样板意义的旧文件
+
+## 2026-04-12 第二批已执行清理
+
+### 已删除
+
+- `app/Admin/Actions/Post/Restore.php`
+- `app/Admin/Actions/Post/BatchRestore.php`
+- `app/Admin/bootstrap.php`
+- `app/Admin/Charts/DashBoard.php`
+- `app/Admin/Charts/PayoutRateCard.php`
+- `app/Admin/Charts/SalesCard.php`
+- `app/Admin/Charts/SuccessOrderCard.php`
+- `app/Service/AdminDashboardLayoutService.php`
+- `app/Service/AdminGridRestoreActionService.php`
+- `app/Service/AdminPageCardService.php`
+- `app/Service/SoftDeleteRestoreService.php`
+- `resources/views/admin/dashboard/title.blade.php`
+- `tests/Unit/AdminDashboardLayoutServiceTest.php`
+- `tests/Unit/AdminGridRestoreActionServiceTest.php`
+- `tests/Unit/AdminPageCardServiceTest.php`
+- `tests/Unit/SoftDeleteRestoreServiceTest.php`
+
+### 依据
+
+- 上述文件在删除前只剩测试引用或互相弱引用，没有生产控制器、路由、页面服务继续调用
+- `/admin` 已经直接重定向到 `/admin/v2/dashboard`，旧 Dcat dashboard 不再承担主入口职责
+- 恢复动作链已不再被任何生产 Grid 控制器挂载

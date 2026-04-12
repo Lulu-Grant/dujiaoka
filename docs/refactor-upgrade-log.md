@@ -11,6 +11,41 @@
 
 ## 2026-04-12 阶段日志
 
+### 148. 第二批旧 Dcat 壳文件清理
+
+摘要：
+
+- 删除了只剩测试或历史兼容意义的旧 Dcat 恢复动作链：
+  - [app/Admin/Actions/Post/Restore.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Actions/Post/Restore.php)
+  - [app/Admin/Actions/Post/BatchRestore.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Actions/Post/BatchRestore.php)
+  - [app/Service/AdminGridRestoreActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminGridRestoreActionService.php)
+  - [app/Service/SoftDeleteRestoreService.php](/Users/apple/Documents/dujiaoshuka/app/Service/SoftDeleteRestoreService.php)
+- 删除了旧 Dcat dashboard 兼容壳：
+  - [app/Admin/Charts/DashBoard.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Charts/DashBoard.php)
+  - [app/Admin/Charts/PayoutRateCard.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Charts/PayoutRateCard.php)
+  - [app/Admin/Charts/SalesCard.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Charts/SalesCard.php)
+  - [app/Admin/Charts/SuccessOrderCard.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Charts/SuccessOrderCard.php)
+  - [app/Service/AdminDashboardLayoutService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminDashboardLayoutService.php)
+  - [resources/views/admin/dashboard/title.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin/dashboard/title.blade.php)
+- 删除了已无运行时意义的 Dcat 样板文件：
+  - [app/Admin/bootstrap.php](/Users/apple/Documents/dujiaoshuka/app/Admin/bootstrap.php)
+  - [app/Service/AdminPageCardService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminPageCardService.php)
+- 同步删除了与上述旧壳绑定的单元测试，并把 [HomeController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/HomeController.php) 中不再需要的 `title()` 兼容方法去掉，仅保留 `/admin -> /admin/v2/dashboard` 的跳转职责。
+
+影响范围：
+
+- 旧 Dcat dashboard 与恢复动作残留文件继续减少
+- `app/Admin` 下的样板和空壳进一步收缩
+- 后台壳已经足够承接首页和高频入口，不再依赖旧 dashboard 兼容视图
+
+验证：
+
+- 删除后继续执行全量 PHPUnit 与后台壳烟雾检查
+
+下一步：
+
+- 继续审计剩余旧兼容控制器与历史文档，清理第三批废弃文件
+
 ### 147. 第一批废弃文件审计与清理
 
 摘要：
