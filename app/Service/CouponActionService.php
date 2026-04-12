@@ -3,6 +3,8 @@
 namespace App\Service;
 
 use App\Models\Coupon;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class CouponActionService
@@ -29,6 +31,20 @@ class CouponActionService
         ];
     }
 
+    public function batchCreateDefaults(): array
+    {
+        return [
+            'goods_ids' => [],
+            'discount' => 0,
+            'quantity' => 10,
+            'prefix' => $this->couponCodePrefix(),
+            'length' => 6,
+            'ret' => 1,
+            'is_use' => Coupon::STATUS_UNUSED,
+            'is_open' => Coupon::STATUS_OPEN,
+        ];
+    }
+
     public function editDefaults(Coupon $coupon): array
     {
         return [
@@ -41,6 +57,32 @@ class CouponActionService
             'is_use' => $coupon->is_use,
             'is_open' => $coupon->is_open,
         ];
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection<int, \App\Models\Coupon>
+     */
+    public function createBatch(array $payload): Collection
+    {
+        return DB::transaction(function () use ($payload) {
+            $coupons = collect();
+            $prefix = $this->normalizePrefix($payload['prefix'] ?? null);
+            $length = max(4, (int) ($payload['length'] ?? 6));
+            $quantity = max(1, (int) ($payload['quantity'] ?? 1));
+
+            for ($index = 0; $index < $quantity; $index++) {
+                $coupons->push($this->create([
+                    'goods_ids' => $payload['goods_ids'] ?? [],
+                    'discount' => $payload['discount'] ?? 0,
+                    'coupon' => $this->buildUniqueCouponCode($prefix, $length),
+                    'ret' => $payload['ret'] ?? 1,
+                    'is_use' => $payload['is_use'] ?? Coupon::STATUS_UNUSED,
+                    'is_open' => $payload['is_open'] ?? Coupon::STATUS_OPEN,
+                ]));
+            }
+
+            return $coupons;
+        });
     }
 
     public function create(array $payload): Coupon
@@ -68,5 +110,28 @@ class CouponActionService
         $coupon->goods()->sync($payload['goods_ids']);
 
         return $coupon->fresh('goods');
+    }
+
+    private function normalizePrefix(?string $prefix): string
+    {
+        $prefix = trim((string) $prefix);
+
+        return $prefix === '' ? $this->couponCodePrefix() : Str::upper($prefix);
+    }
+
+    private function buildUniqueCouponCode(string $prefix, int $length): string
+    {
+        $attempts = 0;
+        $length = max(4, $length);
+
+        do {
+            $attempts++;
+            $code = $prefix.Str::upper(Str::random($length));
+            if (!Coupon::query()->where('coupon', $code)->exists()) {
+                return $code;
+            }
+        } while ($attempts < 20);
+
+        throw new \RuntimeException('无法生成唯一优惠码');
     }
 }

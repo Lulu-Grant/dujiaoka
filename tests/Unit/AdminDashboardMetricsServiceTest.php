@@ -25,9 +25,11 @@ class AdminDashboardMetricsServiceTest extends TestCase
 
     public function test_success_rate_summary_groups_statuses_and_rate(): void
     {
-        $this->seedOrder('DASH-001', Order::STATUS_COMPLETED, 12.5, now()->subHour());
-        $this->seedOrder('DASH-002', Order::STATUS_PENDING, 0, now()->subHour());
-        $this->seedOrder('DASH-003', Order::STATUS_FAILURE, 0, now()->subHour());
+        $createdAt = now()->startOfDay()->addMinute();
+
+        $this->seedOrder('DASH-001', Order::STATUS_COMPLETED, 12.5, $createdAt);
+        $this->seedOrder('DASH-002', Order::STATUS_PENDING, 0, $createdAt);
+        $this->seedOrder('DASH-003', Order::STATUS_FAILURE, 0, $createdAt);
 
         $summary = app(AdminDashboardMetricsService::class)->successRateSummary('today');
 

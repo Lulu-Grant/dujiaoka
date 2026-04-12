@@ -10,6 +10,11 @@ class AdminShellCouponControllerTest extends TestCase
 {
     protected function tearDown(): void
     {
+        $batchIds = DB::table('coupons')->where('coupon', 'like', 'XIGUA-BATCH-%')->pluck('id')->all();
+        if (!empty($batchIds)) {
+            DB::table('coupons_goods')->whereIn('coupons_id', $batchIds)->delete();
+        }
+        DB::table('coupons')->where('coupon', 'like', 'XIGUA-BATCH-%')->delete();
         DB::table('coupons_goods')->whereIn('coupons_id', [94001, 94002, 94003])->delete();
         DB::table('coupons')->whereIn('id', [94001, 94002, 94003])->delete();
         DB::table('coupons')->whereIn('coupon', ['XIGUA-5', 'XIGUA-DETAIL', 'XIGUA-CREATE', 'XIGUA-EDIT'])->delete();
@@ -28,6 +33,7 @@ class AdminShellCouponControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('优惠码管理');
+        $response->assertSee('批量生成优惠码');
         $response->assertSee('复制、核对和进入编辑页');
         $response->assertSee('当前结果');
         $response->assertSee('XIGUA-5');
@@ -63,6 +69,22 @@ class AdminShellCouponControllerTest extends TestCase
         $response->assertSee('测试商品 A');
     }
 
+    public function test_batch_create_page_renders_coupon_batch_form(): void
+    {
+        $this->seedCouponFixture(94001, 'XIGUA-5', '测试商品 A');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/coupon/create?mode=batch');
+
+        $response->assertOk();
+        $response->assertSee('批量生成优惠码');
+        $response->assertSee('批量数量');
+        $response->assertSee('随机后缀长度');
+        $response->assertSee('前缀 + 随机后缀');
+        $response->assertSee('XIGUA-');
+        $response->assertSee('测试商品 A');
+    }
+
     public function test_create_page_can_store_coupon(): void
     {
         $this->seedGoodsOnlyFixture(94003, '测试商品 C');
@@ -82,6 +104,38 @@ class AdminShellCouponControllerTest extends TestCase
         $response->assertRedirect('/admin/v2/coupon/'.$record->id.'/edit');
         $response->assertSessionHas('status', '优惠码已创建');
         $this->assertSame(1, DB::table('coupons_goods')->where('coupons_id', $record->id)->where('goods_id', 94003)->count());
+    }
+
+    public function test_batch_create_page_can_store_multiple_coupons(): void
+    {
+        $this->seedGoodsOnlyFixture(94003, '测试商品 C');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/coupon/create?mode=batch', [
+                'mode' => 'batch',
+                'goods_ids' => [94003],
+                'quantity' => 3,
+                'prefix' => 'XIGUA-BATCH-',
+                'length' => 4,
+                'discount' => 8.8,
+                'ret' => 2,
+                'is_use' => 1,
+                'is_open' => '1',
+            ]);
+
+        $response->assertRedirect('/admin/v2/coupon');
+        $response->assertSessionHas('status', '已批量生成 3 个优惠码');
+
+        $records = DB::table('coupons')
+            ->where('coupon', 'like', 'XIGUA-BATCH-%')
+            ->orderBy('id')
+            ->get();
+
+        $this->assertCount(3, $records);
+        $this->assertSame(3, DB::table('coupons_goods')->whereIn('coupons_id', $records->pluck('id'))->where('goods_id', 94003)->count());
+        $this->assertSame(3, $records->filter(function ($record) {
+            return strpos($record->coupon, 'XIGUA-BATCH-') === 0;
+        })->count());
     }
 
     public function test_edit_page_renders_coupon_action_form(): void

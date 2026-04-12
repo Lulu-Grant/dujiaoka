@@ -107,6 +107,11 @@ class AdminShellCouponPageService extends AbstractAdminShellPageService
     {
         $header = $this->buildResourceHeader('共 '.$coupons->total().' 条优惠码');
         $header['actions'][] = [
+            'label' => '批量生成优惠码',
+            'href' => admin_url('v2/coupon/create?mode=batch'),
+            'variant' => 'secondary',
+        ];
+        $header['actions'][] = [
             'label' => '新建优惠码',
             'href' => admin_url('v2/coupon/create'),
             'variant' => 'primary',

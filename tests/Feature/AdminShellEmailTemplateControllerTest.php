@@ -127,7 +127,7 @@ class AdminShellEmailTemplateControllerTest extends TestCase
         $response->assertSee('邮件模板预览');
         $response->assertSee('XIGUA-20260412-0001');
         $response->assertSee('使用说明');
-        $response->assertSee('预览模板');
+        $response->assertSee('占位符参考');
     }
 
     public function test_edit_preview_page_renders_email_template_preview_page(): void
