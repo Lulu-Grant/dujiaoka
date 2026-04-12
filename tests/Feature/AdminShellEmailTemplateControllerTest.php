@@ -35,6 +35,7 @@ class AdminShellEmailTemplateControllerTest extends TestCase
         $response->assertOk();
         $response->assertSee('邮件模板管理');
         $response->assertSee('模板 A');
+        $response->assertSee('占位符');
     }
 
     public function test_show_renders_email_template_detail_page(): void
@@ -56,6 +57,9 @@ class AdminShellEmailTemplateControllerTest extends TestCase
         $response->assertSee('邮件模板详情');
         $response->assertSee('模板 B');
         $response->assertSee('shell-template-b');
+        $response->assertSee('使用说明');
+        $response->assertSee('编辑建议');
+        $response->assertSee('编辑模板');
     }
 
     public function test_create_page_renders_email_template_action_form(): void
@@ -66,6 +70,9 @@ class AdminShellEmailTemplateControllerTest extends TestCase
         $response->assertOk();
         $response->assertSee('新建邮件模板');
         $response->assertSee('模板标识');
+        $response->assertSee('邮件模板预览');
+        $response->assertSee('使用说明');
+        $response->assertSee('{webname}');
     }
 
     public function test_create_page_can_store_email_template(): void
@@ -89,7 +96,7 @@ class AdminShellEmailTemplateControllerTest extends TestCase
         DB::table('emailtpls')->insert([
             'id' => 92003,
             'tpl_name' => '模板 C',
-            'tpl_content' => '这是一段模板内容 C',
+            'tpl_content' => '<p>订单号：{order_id}</p><p>站点：{webname}</p>',
             'tpl_token' => 'shell-template-c',
             'created_at' => now(),
             'updated_at' => now(),
@@ -102,7 +109,9 @@ class AdminShellEmailTemplateControllerTest extends TestCase
         $response->assertOk();
         $response->assertSee('编辑邮件模板');
         $response->assertSee('shell-template-c');
-        $response->assertSee('这是一段模板内容 C');
+        $response->assertSee('邮件模板预览');
+        $response->assertSee('XIGUA-20260412-0001');
+        $response->assertSee('使用说明');
     }
 
     public function test_edit_page_can_update_email_template(): void
@@ -110,7 +119,7 @@ class AdminShellEmailTemplateControllerTest extends TestCase
         DB::table('emailtpls')->insert([
             'id' => 92003,
             'tpl_name' => '模板 C',
-            'tpl_content' => '这是一段模板内容 C',
+            'tpl_content' => '<p>订单号：{order_id}</p><p>站点：{webname}</p>',
             'tpl_token' => 'shell-template-c',
             'created_at' => now(),
             'updated_at' => now(),

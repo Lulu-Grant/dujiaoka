@@ -70,7 +70,7 @@ class AdminShellEmailTemplatePageService extends AbstractAdminShellPageService
 
     public function buildHeader(LengthAwarePaginator $templates): array
     {
-        $header = $this->buildResourceHeader('共 '.$templates->total().' 条模板');
+        $header = $this->buildResourceHeader('共 '.$templates->total().' 条模板 · 模板内容支持 {webname}、{order_id} 等占位符');
         $header['actions'][] = [
             'label' => '新建邮件模板',
             'href' => admin_url('v2/emailtpl/create'),
@@ -94,9 +94,19 @@ class AdminShellEmailTemplatePageService extends AbstractAdminShellPageService
         ];
     }
 
-    public function buildShowHeader(): array
+    public function buildShowHeader(?Emailtpl $template = null): array
     {
-        return $this->buildResourceShowHeader();
+        $header = $this->buildResourceShowHeader();
+
+        if ($template) {
+            $header['actions'][] = [
+                'label' => '编辑模板',
+                'href' => admin_url('v2/emailtpl/'.$template->id.'/edit'),
+                'variant' => 'secondary',
+            ];
+        }
+
+        return $header;
     }
 
     public function buildIndexPageData(LengthAwarePaginator $templates, array $filters): AdminShellIndexPageData
@@ -113,7 +123,7 @@ class AdminShellEmailTemplatePageService extends AbstractAdminShellPageService
     {
         return new AdminShellShowPageData(
             $this->buildDocumentTitle('show_title'),
-            $this->buildShowHeader(),
+            $this->buildShowHeader($template),
             $this->detailItems($template)
         );
     }
@@ -127,6 +137,18 @@ class AdminShellEmailTemplatePageService extends AbstractAdminShellPageService
             [
                 'label' => '邮件内容',
                 'value' => e($template->tpl_content),
+                'style' => 'grid-column: 1 / -1;',
+                'value_style' => 'white-space: pre-wrap; font-size: 14px; font-weight: 500;',
+            ],
+            [
+                'label' => '使用说明',
+                'value' => '模板内容支持 {webname}、{order_id}、{ord_info} 等占位符；编辑页右侧会展示实时预览。',
+                'style' => 'grid-column: 1 / -1;',
+                'value_style' => 'white-space: pre-wrap; font-size: 14px; font-weight: 500;',
+            ],
+            [
+                'label' => '编辑建议',
+                'value' => '模板标识创建后建议保持稳定；内容支持 HTML，可直接粘贴并在预览区确认排版。',
                 'style' => 'grid-column: 1 / -1;',
                 'value_style' => 'white-space: pre-wrap; font-size: 14px; font-weight: 500;',
             ],
