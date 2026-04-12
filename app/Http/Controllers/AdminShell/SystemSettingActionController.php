@@ -176,4 +176,52 @@ class SystemSettingActionController extends Controller
         return redirect(admin_url('v2/system-setting/push'))
             ->with('status', '通知推送配置已保存');
     }
+
+    public function editExperience()
+    {
+        $settings = $this->systemSettingService->all();
+
+        return view('admin-shell.system-setting.edit-experience', [
+            'title' => '编辑站点体验配置 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Action',
+                'title' => '编辑站点体验配置',
+                'description' => '这是后台壳中的站点体验配置样板页。当前先承接前台搜索密码、验证码、翻译、防红、公告和页脚等低风险字段。',
+                'meta' => '当前为过渡样板，后续可继续扩展公告、SEO 和模板资源等更多展示型配置',
+                'actions' => [
+                    ['label' => '返回系统设置概览', 'href' => admin_url('v2/system-setting')],
+                    ['label' => '进入旧版功能页', 'href' => admin_url('system-setting'), 'variant' => 'primary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/system-setting/experience'),
+            'defaults' => [
+                'is_open_anti_red' => (int) ($settings['is_open_anti_red'] ?? BaseModel::STATUS_CLOSE),
+                'is_open_img_code' => (int) ($settings['is_open_img_code'] ?? BaseModel::STATUS_CLOSE),
+                'is_open_search_pwd' => (int) ($settings['is_open_search_pwd'] ?? BaseModel::STATUS_CLOSE),
+                'is_open_google_translate' => (int) ($settings['is_open_google_translate'] ?? BaseModel::STATUS_CLOSE),
+                'notice' => $settings['notice'] ?? '',
+                'footer' => $settings['footer'] ?? '',
+            ],
+        ]);
+    }
+
+    public function updateExperience(Request $request)
+    {
+        $payload = $request->validate([
+            'notice' => ['nullable', 'string', 'max:20000'],
+            'footer' => ['nullable', 'string', 'max:20000'],
+        ]);
+
+        $payload = array_merge($payload, [
+            'is_open_anti_red' => $request->boolean('is_open_anti_red') ? BaseModel::STATUS_OPEN : BaseModel::STATUS_CLOSE,
+            'is_open_img_code' => $request->boolean('is_open_img_code') ? BaseModel::STATUS_OPEN : BaseModel::STATUS_CLOSE,
+            'is_open_search_pwd' => $request->boolean('is_open_search_pwd') ? BaseModel::STATUS_OPEN : BaseModel::STATUS_CLOSE,
+            'is_open_google_translate' => $request->boolean('is_open_google_translate') ? BaseModel::STATUS_OPEN : BaseModel::STATUS_CLOSE,
+        ]);
+
+        $this->systemSettingService->save($payload);
+
+        return redirect(admin_url('v2/system-setting/experience'))
+            ->with('status', '站点体验配置已保存');
+    }
 }

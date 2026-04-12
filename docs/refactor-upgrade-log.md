@@ -2932,3 +2932,25 @@
 下一步：
 
 - 继续推进后台壳中的中风险动作页，优先考虑更复杂的配置动作或导入/批量操作型页面。
+
+### 124. 落地系统设置站点体验配置编辑入口样板
+
+摘要：
+
+- 在 [SystemSettingActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/SystemSettingActionController.php) 中新增 `editExperience()` / `updateExperience()`，把站点体验配置编辑入口接入后台壳。
+- 新增 [edit-experience.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/system-setting/edit-experience.blade.php)，承接前台搜索密码、图形验证码、Google 翻译、防红、站点公告和页脚代码等低风险字段保存。
+- [AdminShellSystemSettingPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellSystemSettingPageService.php) 已在系统设置概览页头补上“编辑站点体验配置”入口，使系统设置概览与第四个真实配置动作页直接连通。
+
+影响范围：
+
+- 系统设置前台行为分组的后台壳承接深度
+- 后台壳对低风险展示型配置的覆盖能力
+- 系统设置多分组迁移模式的完整度
+
+验证：
+
+- 当前全量回归结果：`OK (172 tests, 598 assertions)`
+
+下一步：
+
+- 继续沿着后台壳动作页路线推进更复杂一点的配置型或批量型页面，逐步扩大新后台壳的实际承载范围。

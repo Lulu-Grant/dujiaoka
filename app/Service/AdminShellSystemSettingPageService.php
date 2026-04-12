@@ -112,6 +112,11 @@ class AdminShellSystemSettingPageService extends AbstractAdminShellPageService
             'href' => admin_url('v2/system-setting/push'),
             'variant' => 'secondary',
         ];
+        $header['actions'][] = [
+            'label' => '编辑站点体验配置',
+            'href' => admin_url('v2/system-setting/experience'),
+            'variant' => 'secondary',
+        ];
 
         return $header;
     }

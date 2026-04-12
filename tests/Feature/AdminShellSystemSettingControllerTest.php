@@ -198,6 +198,50 @@ class AdminShellSystemSettingControllerTest extends TestCase
         $this->assertSame('qywx-key', $settings['qywxbot_key']);
     }
 
+    public function test_experience_edit_page_renders_shell_action_form(): void
+    {
+        Cache::forever(SystemSettingService::CACHE_KEY, [
+            'is_open_anti_red' => 1,
+            'is_open_img_code' => 1,
+            'notice' => '站点公告内容',
+            'footer' => '<p>footer</p>',
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/system-setting/experience');
+
+        $response->assertOk();
+        $response->assertSee('编辑站点体验配置');
+        $response->assertSee('站点公告内容');
+        $response->assertSee('&lt;p&gt;footer&lt;/p&gt;', false);
+    }
+
+    public function test_experience_edit_page_can_save_settings(): void
+    {
+        Cache::forget(SystemSettingService::CACHE_KEY);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/system-setting/experience', [
+                'is_open_anti_red' => '1',
+                'is_open_img_code' => '1',
+                'is_open_search_pwd' => '1',
+                'is_open_google_translate' => '0',
+                'notice' => '新的站点公告',
+                'footer' => '<p>新的页脚</p>',
+            ]);
+
+        $response->assertRedirect('/admin/v2/system-setting/experience');
+        $response->assertSessionHas('status', '站点体验配置已保存');
+
+        $settings = app(SystemSettingService::class)->all();
+        $this->assertSame(1, $settings['is_open_anti_red']);
+        $this->assertSame(1, $settings['is_open_img_code']);
+        $this->assertSame(1, $settings['is_open_search_pwd']);
+        $this->assertSame(0, $settings['is_open_google_translate']);
+        $this->assertSame('新的站点公告', $settings['notice']);
+        $this->assertSame('<p>新的页脚</p>', $settings['footer']);
+    }
+
     private function makeAdmin(): Administrator
     {
         DB::table('admin_users')->updateOrInsert(
