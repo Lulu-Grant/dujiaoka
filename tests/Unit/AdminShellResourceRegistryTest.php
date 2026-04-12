@@ -53,6 +53,7 @@ class AdminShellResourceRegistryTest extends TestCase
 
         $this->assertSame(\App\Service\AdminShellSystemSettingPageService::class, $resource['service']);
         $this->assertFalse($resource['uses_scope']);
+        $this->assertSame('system-setting', $resource['legacy_uri']);
     }
 
     public function test_registry_returns_email_test_resource_definition(): void
@@ -61,6 +62,7 @@ class AdminShellResourceRegistryTest extends TestCase
 
         $this->assertSame(\App\Service\AdminShellEmailTestPageService::class, $resource['service']);
         $this->assertFalse($resource['uses_scope']);
+        $this->assertSame('email-test', $resource['legacy_uri']);
     }
 
     public function test_registry_exposes_permission_except_patterns(): void

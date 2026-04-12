@@ -7,15 +7,21 @@
         @endif
     </div>
 
-    @if(!empty($meta))
-        <div class="meta">{{ $meta }}</div>
-    @elseif(!empty($actions))
-        <div class="button-row">
-            @foreach($actions as $action)
-                <a class="button {{ $action['variant'] ?? 'secondary' }}" href="{{ $action['href'] }}">
-                    {{ $action['label'] }}
-                </a>
-            @endforeach
+    @if(!empty($meta) || !empty($actions))
+        <div>
+            @if(!empty($meta))
+                <div class="meta">{{ $meta }}</div>
+            @endif
+
+            @if(!empty($actions))
+                <div class="button-row" style="{{ !empty($meta) ? 'margin-top: 10px;' : '' }}">
+                    @foreach($actions as $action)
+                        <a class="button {{ $action['variant'] ?? 'secondary' }}" href="{{ $action['href'] }}">
+                            {{ $action['label'] }}
+                        </a>
+                    @endforeach
+                </div>
+            @endif
         </div>
     @endif
 </header>

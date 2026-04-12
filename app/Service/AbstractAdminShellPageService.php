@@ -31,7 +31,7 @@ abstract class AbstractAdminShellPageService implements AdminShellPageServiceInt
             'title' => $definition['index_title'],
             'description' => $definition['index_description'],
             'meta' => $meta,
-            'actions' => [$this->migrationContractAction()],
+            'actions' => $this->defaultHeaderActions(),
         ];
     }
 
@@ -64,6 +64,33 @@ abstract class AbstractAdminShellPageService implements AdminShellPageServiceInt
             'label' => '迁移合同',
             'href' => 'https://github.com/Lulu-Grant/dujiaoka/blob/master/docs/admin-first-batch-migration-contracts.md',
             'variant' => 'secondary',
+        ];
+    }
+
+    protected function defaultHeaderActions(): array
+    {
+        $actions = [$this->migrationContractAction()];
+        $legacyAction = $this->legacyAction();
+
+        if ($legacyAction) {
+            $actions[] = $legacyAction;
+        }
+
+        return $actions;
+    }
+
+    protected function legacyAction(): ?array
+    {
+        $definition = $this->resourceDefinition();
+
+        if (empty($definition['legacy_uri'])) {
+            return null;
+        }
+
+        return [
+            'label' => '进入旧版功能页',
+            'href' => admin_url($definition['legacy_uri']),
+            'variant' => 'primary',
         ];
     }
 }

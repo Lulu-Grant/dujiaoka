@@ -36,6 +36,8 @@ class AdminShellSystemSettingControllerTest extends TestCase
         $response->assertSee('系统设置概览');
         $response->assertSee('基础站点配置');
         $response->assertSee('邮件发送配置');
+        $response->assertSee('进入旧版功能页');
+        $response->assertSee('/admin/system-setting');
     }
 
     public function test_show_renders_system_setting_detail_page(): void

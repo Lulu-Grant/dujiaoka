@@ -2777,3 +2777,25 @@
 下一步：
 
 - 继续推进操作型配置页面，优先评估系统设置编辑入口或邮件测试发送动作的后台壳过渡方案。
+
+### 117. 建立配置型页面的后台壳过渡操作入口
+
+摘要：
+
+- [AbstractAdminShellPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AbstractAdminShellPageService.php) 现在支持从资源注册表派生默认页头动作，并在配置型页面上自动追加“进入旧版功能页”入口。
+- [AdminShellResourceRegistry.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellResourceRegistry.php) 已为 `system-setting` 与 `email-test` 增加 `legacy_uri`，用于把后台壳样板页和旧 Dcat 操作页安全接起来。
+- [page-header.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/partials/page-header.blade.php) 已调整为可同时显示元信息和操作按钮，使后台壳页可以一边展示概览，一边提供过渡入口。
+
+影响范围：
+
+- 配置型后台壳页面的可操作性
+- 新后台壳与旧后台功能页之间的过渡路径
+- 后台壳页头组件的通用能力
+
+验证：
+
+- 当前全量回归结果：`OK (159 tests, 532 assertions)`
+
+下一步：
+
+- 继续把“只读概览 -> 旧版操作入口”沉淀成更明确的过渡模式，再择机把首个操作型配置页面接入后台壳。
