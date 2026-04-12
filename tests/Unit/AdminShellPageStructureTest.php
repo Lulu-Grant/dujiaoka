@@ -380,7 +380,7 @@ class AdminShellPageStructureTest extends TestCase
             new LengthAwarePaginator(collect([$carmi]), 1, 15),
             ['scope' => '']
         );
-        $header = $service->buildHeader(new LengthAwarePaginator(collect([$carmi]), 1, 15));
+        $header = $service->buildHeader(new LengthAwarePaginator(collect([$carmi]), 1, 15), ['status' => Carmis::STATUS_UNSOLD]);
         $filters = $service->buildFilters(['goods_id' => 505, 'status' => Carmis::STATUS_UNSOLD, 'scope' => 'trashed']);
         $showHeader = $service->buildShowHeader('trashed');
         $indexPage = $service->buildIndexPageData(new LengthAwarePaginator(collect([$carmi]), 1, 15), ['goods_id' => 505, 'scope' => '']);

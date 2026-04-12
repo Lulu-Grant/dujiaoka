@@ -11,8 +11,8 @@ class AdminShellCarmisControllerTest extends TestCase
 {
     protected function tearDown(): void
     {
-        DB::table('carmis')->whereIn('id', [95001, 95002, 95003])->delete();
-        DB::table('carmis')->whereIn('carmi', ['CARD-CREATE-001', 'CARD-EDIT-002', 'CARD-NEW-001', 'CARD-NEW-002', 'CARD-UP-001', 'CARD-UP-002'])->delete();
+        DB::table('carmis')->whereIn('id', [95001, 95002, 95003, 95004])->delete();
+        DB::table('carmis')->whereIn('carmi', ['CARD-AAA-001', 'CARD-BBB-002', 'CARD-CREATE-001', 'CARD-EDIT-002', 'CARD-NEW-001', 'CARD-NEW-002', 'CARD-UP-001', 'CARD-UP-002', 'CARD-SOLD-003', 'CARD-EXPORT-001', 'CARD-EXPORT-002'])->delete();
         DB::table('goods')->whereIn('id', [95001, 95002, 95003])->delete();
         DB::table('admin_users')->where('username', 'admin-shell-tester')->delete();
 
@@ -22,6 +22,7 @@ class AdminShellCarmisControllerTest extends TestCase
     public function test_index_renders_plain_admin_shell_carmis_page(): void
     {
         $this->seedCarmiFixture(95001, '测试商品卡密 A', 'CARD-AAA-001');
+        $this->seedCarmiFixture(95003, '测试商品卡密 C', 'CARD-SOLD-003', 2);
 
         $response = $this->actingAs($this->makeAdmin(), 'admin')
             ->get('/admin/v2/carmis');
@@ -29,7 +30,37 @@ class AdminShellCarmisControllerTest extends TestCase
         $response->assertOk();
         $response->assertSee('卡密管理');
         $response->assertSee('测试商品卡密 A');
+        $response->assertSee('CARD-SOLD-003');
         $response->assertSee('CARD-AAA-001');
+        $response->assertSee('导出未售出卡密');
+    }
+
+    public function test_index_can_export_unsold_carmis_text(): void
+    {
+        $this->seedCarmiFixture(95001, '测试商品卡密 A', 'CARD-AAA-001');
+        $this->seedCarmiFixture(95003, '测试商品卡密 C', 'CARD-SOLD-003', 2);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/carmis?export=1');
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'text/plain; charset=UTF-8');
+        $response->assertSee('CARD-AAA-001');
+        $response->assertDontSee('CARD-SOLD-003');
+    }
+
+    public function test_index_can_export_current_filtered_carmis_text(): void
+    {
+        $this->seedCarmiFixture(95001, '测试商品卡密 A', 'CARD-EXPORT-001');
+        $this->seedCarmiFixture(95004, '测试商品卡密 D', 'CARD-EXPORT-002');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/carmis?goods_id=95004&export=1');
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'text/plain; charset=UTF-8');
+        $response->assertSee('CARD-EXPORT-002');
+        $response->assertDontSee('CARD-EXPORT-001');
     }
 
     public function test_show_renders_carmis_detail_page(): void
@@ -163,9 +194,9 @@ class AdminShellCarmisControllerTest extends TestCase
         $this->assertSame(2, DB::table('carmis')->where('goods_id', 95001)->whereIn('carmi', ['CARD-UP-001', 'CARD-UP-002'])->count());
     }
 
-    private function seedCarmiFixture(int $id, string $goodsName, string $carmi): void
+    private function seedCarmiFixture(int $id, string $goodsName, string $carmi, int $status = 1): void
     {
-        DB::table('goods')->insert([
+        DB::table('goods')->updateOrInsert(['id' => $id], [
             'id' => $id,
             'group_id' => 1,
             'gd_name' => $goodsName,
@@ -189,10 +220,10 @@ class AdminShellCarmisControllerTest extends TestCase
             'updated_at' => now(),
         ]);
 
-        DB::table('carmis')->insert([
+        DB::table('carmis')->updateOrInsert(['id' => $id], [
             'id' => $id,
             'goods_id' => $id,
-            'status' => 1,
+            'status' => $status,
             'is_loop' => 0,
             'carmi' => $carmi,
             'created_at' => now(),

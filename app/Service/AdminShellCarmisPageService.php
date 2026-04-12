@@ -33,23 +33,7 @@ class AdminShellCarmisPageService extends AbstractAdminShellPageService
 
     public function paginate(array $filters): LengthAwarePaginator
     {
-        $query = Carmis::query()->with('goods:id,gd_name')->orderByDesc('id');
-
-        if (($filters['scope'] ?? null) === 'trashed') {
-            $query->onlyTrashed();
-        }
-
-        if (!empty($filters['id'])) {
-            $query->where('id', (int) $filters['id']);
-        }
-
-        if (!empty($filters['goods_id'])) {
-            $query->where('goods_id', (int) $filters['goods_id']);
-        }
-
-        if (!empty($filters['status'])) {
-            $query->where('status', (int) $filters['status']);
-        }
+        $query = $this->buildQuery($filters);
 
         return $query->paginate(15)->appends($filters);
     }
@@ -63,6 +47,17 @@ class AdminShellCarmisPageService extends AbstractAdminShellPageService
         }
 
         return $query->findOrFail($id);
+    }
+
+    public function exportText(array $filters): string
+    {
+        $lines = $this->buildQuery($this->normalizeExportFilters($filters))
+            ->pluck('carmi')
+            ->filter()
+            ->values()
+            ->all();
+
+        return implode(PHP_EOL, $lines);
     }
 
     public function buildTable(LengthAwarePaginator $carmis, array $filters): array
@@ -98,7 +93,7 @@ class AdminShellCarmisPageService extends AbstractAdminShellPageService
         ];
     }
 
-    public function buildHeader(LengthAwarePaginator $carmis): array
+    public function buildHeader(LengthAwarePaginator $carmis, array $filters): array
     {
         $header = $this->buildResourceHeader('共 '.$carmis->total().' 条卡密 · 支持单条补录、批量导入和异常库存修复');
         $header['actions'][] = [
@@ -110,6 +105,11 @@ class AdminShellCarmisPageService extends AbstractAdminShellPageService
             'label' => '导入卡密',
             'href' => admin_url('v2/carmis/import'),
             'variant' => 'primary',
+        ];
+        $header['actions'][] = [
+            'label' => $this->isDefaultExportFilters($filters) ? '导出未售出卡密' : '导出当前筛选',
+            'href' => $this->exportUrl($filters),
+            'variant' => 'secondary',
         ];
 
         return $header;
@@ -161,7 +161,7 @@ class AdminShellCarmisPageService extends AbstractAdminShellPageService
     {
         return new AdminShellIndexPageData(
             $this->buildDocumentTitle('index_title'),
-            $this->buildHeader($carmis),
+            $this->buildHeader($carmis, $filters),
             $this->buildFilters($filters),
             $this->buildTable($carmis, $filters)
         );
@@ -212,6 +212,54 @@ class AdminShellCarmisPageService extends AbstractAdminShellPageService
     protected function resourceKey(): string
     {
         return 'carmis';
+    }
+
+    public function normalizeExportFilters(array $filters): array
+    {
+        $normalized = array_filter($filters, static function ($value) {
+            return $value !== null && $value !== '';
+        });
+
+        if (empty($normalized)) {
+            $normalized['status'] = Carmis::STATUS_UNSOLD;
+        }
+
+        return $normalized;
+    }
+
+    public function exportUrl(array $filters): string
+    {
+        return admin_url('v2/carmis?'.http_build_query($this->normalizeExportFilters($filters) + ['export' => 1]));
+    }
+
+    private function buildQuery(array $filters)
+    {
+        $query = Carmis::query()->with('goods:id,gd_name')->orderByDesc('id');
+
+        if (($filters['scope'] ?? null) === 'trashed') {
+            $query->onlyTrashed();
+        }
+
+        if (!empty($filters['id'])) {
+            $query->where('id', (int) $filters['id']);
+        }
+
+        if (!empty($filters['goods_id'])) {
+            $query->where('goods_id', (int) $filters['goods_id']);
+        }
+
+        if (!empty($filters['status'])) {
+            $query->where('status', (int) $filters['status']);
+        }
+
+        return $query;
+    }
+
+    private function isDefaultExportFilters(array $filters): bool
+    {
+        return empty(array_filter($filters, static function ($value) {
+            return $value !== null && $value !== '';
+        }));
     }
 
     private function renderStatusCell(Carmis $carmi): string
