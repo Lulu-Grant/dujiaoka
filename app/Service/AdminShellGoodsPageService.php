@@ -107,6 +107,10 @@ class AdminShellGoodsPageService extends AbstractAdminShellPageService
                     e((string) $item->updated_at),
                     $this->renderActionLinks([
                         [
+                            'label' => '编辑商品',
+                            'href' => admin_url($definition['uri'].'/'.$item->id.'/edit'),
+                        ],
+                        [
                             'label' => '查看详情',
                             'href' => admin_url($definition['uri'].'/'.$item->id.($scope ? '?scope='.$scope : '')),
                         ],
@@ -121,7 +125,14 @@ class AdminShellGoodsPageService extends AbstractAdminShellPageService
 
     public function buildHeader(LengthAwarePaginator $goods): array
     {
-        return $this->buildResourceHeader('共 '.$goods->total().' 条商品');
+        $header = $this->buildResourceHeader('共 '.$goods->total().' 条商品');
+        $header['actions'][] = [
+            'label' => '新建商品',
+            'href' => admin_url('v2/goods/create'),
+            'variant' => 'primary',
+        ];
+
+        return $header;
     }
 
     public function buildFilters(array $filters): array

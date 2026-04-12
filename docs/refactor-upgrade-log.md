@@ -3069,3 +3069,26 @@
 下一步：
 
 - 继续沿着这条路线推进商品管理的编辑页或批量动作页，逐步把复杂资源从只读样板推进到真实可操作页面。
+
+### 130. 落地商品管理新建与编辑动作页样板
+
+摘要：
+
+- 新增 [GoodsActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/GoodsActionController.php) 与 [form.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/goods/form.blade.php)，把商品新建和编辑动作接入后台壳。
+- 新增 [GoodsActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/GoodsActionService.php)，将商品基础信息、价格、库存、文本配置和关联优惠码写入边界收口到普通服务层。
+- [AdminShellGoodsPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellGoodsPageService.php) 已在商品概览页头补上“新建商品”入口，并在表格操作列补上“编辑商品”入口。
+- [app/Admin/routes.php](/Users/apple/Documents/dujiaoshuka/app/Admin/routes.php) 已新增 `/admin/v2/goods/create` 与 `/admin/v2/goods/{id}/edit` 的 GET/POST 路由，后台壳开始承接复杂资源的真实编辑动作。
+
+影响范围：
+
+- 后台壳对复杂资源标准业务编辑页的承接能力
+- 商品管理从只读概览页走向真实创建与编辑页
+- 商品基础写入逻辑向普通服务层迁移的模式验证
+
+验证：
+
+- 当前全量回归结果：`OK (196 tests, 731 assertions)`
+
+下一步：
+
+- 继续沿着这条路线推进更复杂的商品动作或批量场景，逐步扩大后台壳对复杂业务资源的实际承载范围。
