@@ -57,6 +57,7 @@ class AdminShellEmailTemplatePageService extends AbstractAdminShellPageService
                     e((string) $template->created_at),
                     e((string) $template->updated_at),
                     $this->renderActionLinks([
+                        ['label' => '编辑模板', 'href' => admin_url($definition['uri'].'/'.$template->id.'/edit')],
                         ['label' => '查看详情', 'href' => admin_url($definition['uri'].'/'.$template->id)],
                     ]),
                 ];
@@ -69,7 +70,14 @@ class AdminShellEmailTemplatePageService extends AbstractAdminShellPageService
 
     public function buildHeader(LengthAwarePaginator $templates): array
     {
-        return $this->buildResourceHeader('共 '.$templates->total().' 条模板');
+        $header = $this->buildResourceHeader('共 '.$templates->total().' 条模板');
+        $header['actions'][] = [
+            'label' => '新建邮件模板',
+            'href' => admin_url('v2/emailtpl/create'),
+            'variant' => 'primary',
+        ];
+
+        return $header;
     }
 
     public function buildFilters(array $filters): array

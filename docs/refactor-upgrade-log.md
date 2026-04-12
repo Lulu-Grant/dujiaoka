@@ -2954,3 +2954,26 @@
 下一步：
 
 - 继续沿着后台壳动作页路线推进更复杂一点的配置型或批量型页面，逐步扩大新后台壳的实际承载范围。
+
+### 125. 落地邮件模板新建与编辑动作页样板
+
+摘要：
+
+- 新增 [EmailTemplateActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/EmailTemplateActionController.php) 与 [form.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/emailtpl/form.blade.php)，把邮件模板新建和编辑动作接入后台壳。
+- 新增 [EmailTemplateActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/EmailTemplateActionService.php)，将模板创建与更新写入边界收口到普通服务层，而不是继续依赖旧 Dcat 表单壳。
+- [AdminShellEmailTemplatePageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellEmailTemplatePageService.php) 已在模板概览页头补上“新建邮件模板”入口，并在表格操作列补上“编辑模板”入口。
+- [app/Admin/routes.php](/Users/apple/Documents/dujiaoshuka/app/Admin/routes.php) 已新增 `/admin/v2/emailtpl/create` 与 `/admin/v2/emailtpl/{id}/edit` 的 GET/POST 路由，后台壳开始承接标准业务表单页面。
+
+影响范围：
+
+- 后台壳对标准 CRUD 编辑页的承接能力
+- 邮件模板管理从只读概览页走向真实业务编辑页
+- 旧后台表单逻辑向普通服务层迁移的模式验证
+
+验证：
+
+- 当前全量回归结果：`OK (176 tests, 615 assertions)`
+
+下一步：
+
+- 继续沿着这条路径推进更多标准业务编辑页，或挑一张中风险批量动作页继续扩大后台壳的实际承载范围。

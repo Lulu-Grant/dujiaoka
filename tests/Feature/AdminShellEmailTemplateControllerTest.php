@@ -10,7 +10,8 @@ class AdminShellEmailTemplateControllerTest extends TestCase
 {
     protected function tearDown(): void
     {
-        DB::table('emailtpls')->whereIn('id', [92001, 92002])->delete();
+        DB::table('emailtpls')->whereIn('id', [92001, 92002, 92003])->delete();
+        DB::table('emailtpls')->whereIn('tpl_token', ['shell-template-a', 'shell-template-b', 'shell-template-c', 'shell-created-template'])->delete();
         DB::table('admin_users')->where('username', 'admin-shell-tester')->delete();
 
         parent::tearDown();
@@ -55,6 +56,80 @@ class AdminShellEmailTemplateControllerTest extends TestCase
         $response->assertSee('邮件模板详情');
         $response->assertSee('模板 B');
         $response->assertSee('shell-template-b');
+    }
+
+    public function test_create_page_renders_email_template_action_form(): void
+    {
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/emailtpl/create');
+
+        $response->assertOk();
+        $response->assertSee('新建邮件模板');
+        $response->assertSee('模板标识');
+    }
+
+    public function test_create_page_can_store_email_template(): void
+    {
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/emailtpl/create', [
+                'tpl_name' => '模板 C',
+                'tpl_token' => 'shell-created-template',
+                'tpl_content' => '模板内容 C',
+            ]);
+
+        $template = DB::table('emailtpls')->where('tpl_token', 'shell-created-template')->first();
+
+        $this->assertNotNull($template);
+        $response->assertRedirect('/admin/v2/emailtpl/'.$template->id.'/edit');
+        $response->assertSessionHas('status', '邮件模板已创建');
+    }
+
+    public function test_edit_page_renders_email_template_action_form(): void
+    {
+        DB::table('emailtpls')->insert([
+            'id' => 92003,
+            'tpl_name' => '模板 C',
+            'tpl_content' => '这是一段模板内容 C',
+            'tpl_token' => 'shell-template-c',
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/emailtpl/92003/edit');
+
+        $response->assertOk();
+        $response->assertSee('编辑邮件模板');
+        $response->assertSee('shell-template-c');
+        $response->assertSee('这是一段模板内容 C');
+    }
+
+    public function test_edit_page_can_update_email_template(): void
+    {
+        DB::table('emailtpls')->insert([
+            'id' => 92003,
+            'tpl_name' => '模板 C',
+            'tpl_content' => '这是一段模板内容 C',
+            'tpl_token' => 'shell-template-c',
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/emailtpl/92003/edit', [
+                'tpl_name' => '模板 C 已更新',
+                'tpl_content' => '更新后的模板内容',
+            ]);
+
+        $response->assertRedirect('/admin/v2/emailtpl/92003/edit');
+        $response->assertSessionHas('status', '邮件模板已保存');
+
+        $record = DB::table('emailtpls')->where('id', 92003)->first();
+        $this->assertSame('模板 C 已更新', $record->tpl_name);
+        $this->assertSame('更新后的模板内容', $record->tpl_content);
+        $this->assertSame('shell-template-c', $record->tpl_token);
     }
 
     private function makeAdmin(): Administrator
