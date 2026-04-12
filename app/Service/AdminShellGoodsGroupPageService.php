@@ -67,8 +67,8 @@ class AdminShellGoodsGroupPageService extends AbstractAdminShellPageService
                     $group->id,
                     e($group->gp_name),
                     $this->renderStatusCell($group),
-                    $group->ord,
-                    $group->goods_count,
+                    $this->renderSortCell($group),
+                    $this->renderGoodsCountCell($group),
                     e((string) $group->created_at),
                     e((string) $group->updated_at),
                     $this->renderActionLinks([
@@ -120,9 +120,19 @@ class AdminShellGoodsGroupPageService extends AbstractAdminShellPageService
         ];
     }
 
-    public function buildShowHeader(?string $scope = null): array
+    public function buildShowHeader(?string $scope = null, ?GoodsGroup $group = null): array
     {
-        return $this->buildResourceShowHeader($scope);
+        $header = $this->buildResourceShowHeader($scope);
+
+        if ($group && !$group->deleted_at) {
+            $header['actions'][] = [
+                'label' => '编辑分类',
+                'href' => admin_url('v2/goods-group/'.$group->id.'/edit'),
+                'variant' => 'secondary',
+            ];
+        }
+
+        return $header;
     }
 
     public function buildIndexPageData(LengthAwarePaginator $groups, array $filters): AdminShellIndexPageData
@@ -139,35 +149,85 @@ class AdminShellGoodsGroupPageService extends AbstractAdminShellPageService
     {
         return new AdminShellShowPageData(
             $this->buildDocumentTitle('show_title'),
-            $this->buildShowHeader($scope),
+            $this->buildShowHeader($scope, $group),
             $this->detailItems($group)
         );
     }
 
     public function detailItems(GoodsGroup $group): array
     {
+        $statusLabel = strip_tags($this->statusPresenter->openStatusLabel($group->is_open));
+        $statusHint = (int) $group->is_open ? '前台可选' : '前台隐藏';
+        $goodsCount = (int) $group->goods_count;
+
         return [
             ['label' => 'ID', 'value' => $group->id],
             ['label' => '分类名称', 'value' => e($group->gp_name)],
-            ['label' => '状态', 'value' => strip_tags($this->statusPresenter->openStatusLabel($group->is_open))],
-            ['label' => '排序', 'value' => $group->ord],
-            ['label' => '商品数', 'value' => $group->goods_count],
+            [
+                'label' => '状态',
+                'value' => sprintf(
+                    '<span class="pill %s">%s</span><span style="margin-left: 10px; color: #66756b;">%s</span>',
+                    (int) $group->is_open ? 'open' : 'closed',
+                    e($statusLabel),
+                    e($statusHint)
+                ),
+            ],
+            [
+                'label' => '排序',
+                'value' => sprintf(
+                    '<strong>%d</strong><span style="margin-left: 10px; color: #66756b;">数字越小越靠前</span>',
+                    (int) $group->ord
+                ),
+            ],
+            [
+                'label' => '商品数',
+                'value' => sprintf(
+                    '<strong>%d</strong><span style="margin-left: 10px; color: #66756b;">%s</span>',
+                    $goodsCount,
+                    e($goodsCount > 0 ? '已有商品挂载' : '当前未关联商品')
+                ),
+            ],
             ['label' => '创建时间', 'value' => e((string) $group->created_at)],
             ['label' => '更新时间', 'value' => e((string) $group->updated_at)],
-            ['label' => '删除状态', 'value' => $group->deleted_at ? '已删除' : '正常'],
+            [
+                'label' => '删除状态',
+                'value' => $group->deleted_at
+                    ? '<span class="pill trashed">已删除</span><span style="margin-left: 10px; color: #66756b;">仅回收站可见</span>'
+                    : '<span class="pill open">正常</span><span style="margin-left: 10px; color: #66756b;">可继续维护</span>',
+            ],
         ];
     }
 
     private function renderStatusCell(GoodsGroup $group): string
     {
         if ($group->deleted_at) {
-            return '<span class="pill trashed">回收站</span>';
+            return '<span class="pill trashed">回收站</span><span style="margin-left: 10px; color: #66756b;">不可在前台使用</span>';
         }
 
         return sprintf(
-            '<span class="pill %s">%s</span>',
+            '<span class="pill %s">%s</span><span style="margin-left: 10px; color: #66756b;">%s</span>',
             (int) $group->is_open ? 'open' : 'closed',
-            e(strip_tags($this->statusPresenter->openStatusLabel($group->is_open)))
+            e(strip_tags($this->statusPresenter->openStatusLabel($group->is_open))),
+            e((int) $group->is_open ? '前台可选' : '前台隐藏')
+        );
+    }
+
+    private function renderSortCell(GoodsGroup $group): string
+    {
+        return sprintf(
+            '<strong>%d</strong><span style="margin-left: 10px; color: #66756b;">越小越靠前</span>',
+            (int) $group->ord
+        );
+    }
+
+    private function renderGoodsCountCell(GoodsGroup $group): string
+    {
+        $goodsCount = (int) $group->goods_count;
+
+        return sprintf(
+            '<strong>%d</strong><span style="margin-left: 10px; color: #66756b;">%s</span>',
+            $goodsCount,
+            e($goodsCount > 0 ? '已有商品挂载' : '当前未关联商品')
         );
     }
 

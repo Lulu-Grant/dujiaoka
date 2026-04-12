@@ -49,7 +49,7 @@ class GoodsGroupActionController extends Controller
 
     public function edit(int $id)
     {
-        $group = GoodsGroup::query()->findOrFail($id);
+        $group = GoodsGroup::query()->withCount('goods')->findOrFail($id);
 
         return view('admin-shell.goods-group.form', [
             'title' => '编辑商品分类 - 后台壳样板',
@@ -85,6 +85,7 @@ class GoodsGroupActionController extends Controller
         $payload = $request->validate([
             'gp_name' => ['required', 'string', 'max:255'],
             'ord' => ['required', 'integer', 'min:0', 'max:999999'],
+            'is_open' => ['required', 'boolean'],
         ]);
 
         return array_merge($payload, [

@@ -56,6 +56,9 @@ class AdminShellGoodsGroupControllerTest extends TestCase
         $response->assertOk();
         $response->assertSee('商品分类详情');
         $response->assertSee('详情分类');
+        $response->assertSee('编辑分类');
+        $response->assertSee('前台隐藏');
+        $response->assertSee('数字越小越靠前');
     }
 
     public function test_create_page_renders_goods_group_action_form(): void
@@ -103,6 +106,10 @@ class AdminShellGoodsGroupControllerTest extends TestCase
         $response->assertOk();
         $response->assertSee('编辑商品分类');
         $response->assertSee('可编辑分类');
+        $response->assertSee('当前状态');
+        $response->assertSee('当前未关联商品');
+        $response->assertSee('启用');
+        $response->assertSee('停用');
     }
 
     public function test_edit_page_can_update_goods_group(): void
