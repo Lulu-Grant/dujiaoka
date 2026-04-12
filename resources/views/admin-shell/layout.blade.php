@@ -133,13 +133,22 @@
             font-size: 13px;
             color: var(--muted);
         }
-        input, select {
+        input, select, textarea {
             width: 100%;
             padding: 11px 12px;
             border-radius: 12px;
             border: 1px solid var(--line);
             background: #fbfdf9;
             color: var(--ink);
+        }
+        textarea {
+            resize: vertical;
+            min-height: 180px;
+            font-family: inherit;
+        }
+        .form-stack {
+            display: grid;
+            gap: 12px;
         }
         .button-row {
             display: flex;
@@ -218,6 +227,19 @@
         .meta {
             color: var(--muted);
             font-size: 13px;
+        }
+        .notice {
+            border-radius: 14px;
+            padding: 14px 16px;
+            font-weight: 600;
+        }
+        .notice.success {
+            background: #e7f6eb;
+            color: #1d7c49;
+        }
+        .notice.error {
+            background: #fce8e8;
+            color: #b63e3e;
         }
         .empty {
             padding: 28px;

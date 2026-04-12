@@ -6,6 +6,7 @@ use App\Service\SystemSettingService;
 use Dcat\Admin\Models\Administrator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class AdminShellEmailTestControllerTest extends TestCase
@@ -55,6 +56,48 @@ class AdminShellEmailTestControllerTest extends TestCase
         $response->assertSee('邮件测试详情');
         $response->assertSee('邮件驱动');
         $response->assertSee('smtp.example.com');
+    }
+
+    public function test_send_page_renders_shell_action_form(): void
+    {
+        Cache::forever(SystemSettingService::CACHE_KEY, [
+            'driver' => 'log',
+            'from_address' => 'bot@example.com',
+            'from_name' => '独角数卡西瓜版',
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/email-test/send');
+
+        $response->assertOk();
+        $response->assertSee('发送测试邮件');
+        $response->assertSee('Runtime Mail Config');
+    }
+
+    public function test_send_page_can_submit_test_email(): void
+    {
+        Mail::fake();
+
+        Cache::forever(SystemSettingService::CACHE_KEY, [
+            'driver' => 'smtp',
+            'host' => 'smtp.example.com',
+            'port' => 587,
+            'username' => 'bot@example.com',
+            'password' => 'secret',
+            'encryption' => 'tls',
+            'from_address' => 'bot@example.com',
+            'from_name' => '独角数卡西瓜版',
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/email-test/send', [
+                'to' => 'receiver@example.com',
+                'title' => '测试邮件标题',
+                'body' => '<b>测试正文</b>',
+            ]);
+
+        $response->assertRedirect('/admin/v2/email-test/send');
+        $response->assertSessionHas('status', '发送成功');
     }
 
     private function makeAdmin(): Administrator

@@ -2799,3 +2799,25 @@
 下一步：
 
 - 继续把“只读概览 -> 旧版操作入口”沉淀成更明确的过渡模式，再择机把首个操作型配置页面接入后台壳。
+
+### 118. 落地首个后台壳操作型配置页面：发送测试邮件
+
+摘要：
+
+- 新增 [EmailTestSendService.php](/Users/apple/Documents/dujiaoshuka/app/Service/EmailTestSendService.php)，把邮件测试发送逻辑从 Dcat Widget 里抽成普通 Laravel 服务，并让旧版 [EmailTest.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Forms/EmailTest.php) 也开始复用这层服务。
+- 新增 [EmailTestActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/EmailTestActionController.php) 与 [send.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/email-test/send.blade.php)，落地 `/admin/v2/email-test/send` 作为后台壳中的首个真实操作型配置页面。
+- [app/Admin/routes.php](/Users/apple/Documents/dujiaoshuka/app/Admin/routes.php) 已接入新的 GET/POST 路由，后台壳现在不只是展示概览，还能直接承接测试邮件发送动作。
+
+影响范围：
+
+- 邮件测试发送逻辑的复用边界
+- 后台壳从只读概览页走向可执行操作页
+- 旧 Dcat 页面与新后台壳之间的过渡质量
+
+验证：
+
+- 当前全量回归结果：`OK (161 tests, 544 assertions)`
+
+下一步：
+
+- 继续沿着这条模式推进系统设置编辑入口或其他低风险操作型页面，让后台壳逐步替代旧配置中心。

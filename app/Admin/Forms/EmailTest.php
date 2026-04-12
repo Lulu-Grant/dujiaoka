@@ -9,10 +9,9 @@
 
 namespace App\Admin\Forms;
 
-use App\Service\MailConfigService;
+use App\Exceptions\AppException;
+use App\Service\EmailTestSendService;
 use Dcat\Admin\Widgets\Form;
-use Illuminate\Mail\MailServiceProvider;
-use Illuminate\Support\Facades\Mail;
 
 class EmailTest extends Form
 {
@@ -25,28 +24,13 @@ class EmailTest extends Form
      */
     public function handle(array $input)
     {
-      $to = $input['to'];
-      $title = $input['title'];
-      $body = $input['body'];
-      $mailConfig = app(MailConfigService::class)->runtimeConfig();
-      //  覆盖 mail 配置
-      config([
-          'mail'  =>  array_merge(config('mail'), $mailConfig)
-      ]);
-      // 重新注册驱动
-      (new MailServiceProvider(app()))->register();
-	  try
-	  {
-		  Mail::send(['html' => 'email.mail'], ['body' => $body], function ($message) use ($to, $title){
-			  $message->to($to)->subject($title);
-		  });
-	  }
-	  catch(\Exception $e)
-	  {
-		  return $this
-					->response()
-					->error($e->getMessage());
-	  }
+      try {
+          app(EmailTestSendService::class)->send($input);
+      } catch (AppException $exception) {
+          return $this
+                    ->response()
+                    ->error($exception->getMessage());
+      }
       return $this
 				->response()
 				->success(admin_trans('email-test.labels.success'));
@@ -66,7 +50,7 @@ class EmailTest extends Form
 
     public function default()
     {
-      
+      return app(EmailTestSendService::class)->defaultPayload();
     }
 
 }
