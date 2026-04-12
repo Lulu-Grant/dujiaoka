@@ -28,7 +28,7 @@ class EmailTestController extends AdminController
      */
     public function emailTest(Content $content)
     {
-        return app(LegacyAdminShellRedirectService::class)->toPath('v2/email-test');
+        return app(LegacyAdminShellRedirectService::class)->toEmailTest();
     }
 
 }

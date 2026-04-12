@@ -6,6 +6,21 @@ use Illuminate\Http\RedirectResponse;
 
 class LegacyAdminShellRedirectService
 {
+    public function toDashboard(): RedirectResponse
+    {
+        return $this->toPath('v2/dashboard');
+    }
+
+    public function toSystemSetting(): RedirectResponse
+    {
+        return $this->toPath('v2/system-setting');
+    }
+
+    public function toEmailTest(): RedirectResponse
+    {
+        return $this->toPath('v2/email-test');
+    }
+
     public function toResourceIndex(string $resource): RedirectResponse
     {
         return $this->toPath('v2/'.$resource);

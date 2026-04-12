@@ -83,6 +83,28 @@ class LegacyAdminShellRedirectControllerTest extends TestCase
             ->assertRedirect('/admin/v2/email-test');
     }
 
+    public function test_configuration_legacy_routes_preserve_query_strings(): void
+    {
+        $admin = $this->makeAdmin();
+
+        $this->actingAs($admin, 'admin')
+            ->get('/admin/system-setting?section=mail')
+            ->assertRedirect('/admin/v2/system-setting?section=mail');
+
+        $this->actingAs($admin, 'admin')
+            ->get('/admin/email-test?keyword=config')
+            ->assertRedirect('/admin/v2/email-test?keyword=config');
+    }
+
+    public function test_admin_root_redirects_to_admin_shell_dashboard(): void
+    {
+        $admin = $this->makeAdmin();
+
+        $this->actingAs($admin, 'admin')
+            ->get('/admin')
+            ->assertRedirect('/admin/v2/dashboard');
+    }
+
     private function makeAdmin(): Administrator
     {
         DB::table('admin_users')->updateOrInsert(

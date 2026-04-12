@@ -28,7 +28,7 @@ class SystemSettingController extends AdminController
      */
     public function systemSetting(Content $content)
     {
-        return app(LegacyAdminShellRedirectService::class)->toPath('v2/system-setting');
+        return app(LegacyAdminShellRedirectService::class)->toSystemSetting();
     }
 
 }

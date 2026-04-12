@@ -3,13 +3,14 @@
 namespace App\Admin\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Service\LegacyAdminShellRedirectService;
 use App\Service\AdminDashboardLayoutService;
 
 class HomeController extends Controller
 {
     public function index()
     {
-        return redirect(admin_url('v2/dashboard'));
+        return app(LegacyAdminShellRedirectService::class)->toDashboard();
     }
 
     public static function title()

@@ -3347,3 +3347,25 @@
 下一步：
 
 - 继续沿着后台壳扩容和旧 Dcat 降耦合两条线往下推，优先处理更多中低风险配置页与高频管理页。
+
+### 140. 压缩旧入口重定向
+
+摘要：
+
+- [HomeController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/HomeController.php) 现在通过 [LegacyAdminShellRedirectService.php](/Users/apple/Documents/dujiaoshuka/app/Service/LegacyAdminShellRedirectService.php) 显式跳转到后台壳首页，`/admin` 不再保留旧 Dcat 主页承载语义。
+- [SystemSettingController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/SystemSettingController.php) 与 [EmailTestController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/EmailTestController.php) 也切换到语义化的重定向入口方法，减少旧后台控制器里的路径散落。
+- [tests/Feature/LegacyAdminShellRedirectControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/LegacyAdminShellRedirectControllerTest.php) 新增对 `/admin` 以及系统设置、邮件测试旧入口查询串保留的兼容护栏，确保旧入口只承担跳转，不再承担业务展示。
+
+影响范围：
+
+- 旧 Dcat 后台首页与配置页入口压缩
+- 兼容重定向语义集中到单一服务
+- 后台壳作为唯一实际承载面的倾向进一步加强
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (219 tests, 900 assertions)`
+
+下一步：
+
+- 继续沿着后台壳扩容和旧 Dcat 降耦合两条线往下推，优先处理更多中低风险配置页与高频管理页。
