@@ -13,7 +13,7 @@ class AdminShellOrderControllerTest extends TestCase
 {
     protected function tearDown(): void
     {
-        DB::table('orders')->whereIn('id', [97001, 97002, 97003, 97004])->delete();
+        DB::table('orders')->whereIn('id', [97001, 97002, 97003, 97004, 97005, 97006])->delete();
         DB::table('admin_users')->where('username', 'admin-shell-tester')->delete();
 
         parent::tearDown();
@@ -96,6 +96,41 @@ class AdminShellOrderControllerTest extends TestCase
         $this->assertSame(2, $record->status);
         $this->assertSame('updated-pwd', $record->search_pwd);
         $this->assertSame(2, $record->type);
+    }
+
+    public function test_edit_can_reset_order_query_password(): void
+    {
+        $id = 97005;
+        $this->seedOrderFixture($id);
+
+        /** @var \App\Http\Controllers\AdminShell\OrderActionController $controller */
+        $controller = $this->app->make(OrderActionController::class);
+        $response = $controller->update($id, Request::create('/admin/v2/order/'.$id.'/edit', 'POST', [
+            'reset_search_pwd' => 1,
+        ]));
+
+        $this->assertStringEndsWith('/admin/v2/order/'.$id.'/edit', $response->getTargetUrl());
+
+        $record = Order::query()->findOrFail($id);
+        $record->refresh();
+
+        $this->assertNotSame('search-me', $record->search_pwd);
+        $this->assertStringStartsWith('XG-', $record->search_pwd);
+        $this->assertSame('测试订单 Shell '.$id, $record->title);
+        $this->assertSame(4, $record->status);
+        $this->assertSame(1, $record->type);
+    }
+
+    public function test_edit_page_exposes_reset_query_password_button(): void
+    {
+        $id = 97006;
+        $this->seedOrderFixture($id);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/order/'.$id.'/edit');
+
+        $response->assertOk();
+        $response->assertSee('重置查询密码');
     }
 
     private function seedOrderFixture(int $id): void

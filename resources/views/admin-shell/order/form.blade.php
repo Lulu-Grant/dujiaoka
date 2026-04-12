@@ -138,6 +138,9 @@
                 <div class="meta" style="margin-top: 10px;">
                     当前订单状态：{{ $currentStatus }}。{{ $maintenanceSummary['description'] ?? '仅在确认需要人工修正时再保存。' }}
                 </div>
+                <div class="meta" style="margin-top: 8px;">
+                    安全维护：如果只想刷新查询密码，可以直接点击“重置查询密码”，系统会生成新的随机口令，不会保存其他字段。
+                </div>
 
                 <label>
                     <span>订单附加信息</span>
@@ -146,6 +149,16 @@
 
                 <div class="button-row" style="margin-top: 16px;">
                     <button class="button" type="submit">{{ $submitLabel }}</button>
+                    <button
+                        class="button secondary"
+                        type="submit"
+                        name="reset_search_pwd"
+                        value="1"
+                        formnovalidate
+                        onclick="return confirm('确定要重置该订单的查询密码吗？');"
+                    >
+                        重置查询密码
+                    </button>
                     <a class="button secondary" href="{{ admin_url('v2/order') }}">返回概览</a>
                 </div>
             </form>

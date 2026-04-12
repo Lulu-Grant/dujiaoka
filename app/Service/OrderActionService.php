@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Models\Order;
+use Illuminate\Support\Str;
 
 class OrderActionService
 {
@@ -51,6 +52,7 @@ class OrderActionService
                     'items' => [
                         ['label' => '创建时间', 'value' => (string) $order->created_at],
                         ['label' => '更新时间', 'value' => (string) $order->updated_at],
+                        ['label' => '安全动作', 'value' => '重置查询密码'],
                         ['label' => '当前维护字段', 'value' => '订单标题、订单附加信息、订单状态、查询密码、订单类型'],
                         ['label' => '保存边界', 'value' => '仅更新人工维护字段，不触发履约、发货或支付回调。'],
                     ],
@@ -67,6 +69,18 @@ class OrderActionService
         ];
     }
 
+    public function resetSearchPassword(Order $order): string
+    {
+        $newPassword = $this->generateSearchPassword();
+        $order->search_pwd = $newPassword;
+
+        Order::withoutEvents(function () use ($order) {
+            $order->save();
+        });
+
+        return $newPassword;
+    }
+
     /**
      * @param array<string, mixed> $payload
      */
@@ -81,6 +95,11 @@ class OrderActionService
         Order::withoutEvents(function () use ($order) {
             $order->save();
         });
+    }
+
+    private function generateSearchPassword(): string
+    {
+        return 'XG-'.Str::upper(Str::random(8));
     }
 
     private function statusLabel(int $status): string

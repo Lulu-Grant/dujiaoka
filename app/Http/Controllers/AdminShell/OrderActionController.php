@@ -28,8 +28,8 @@ class OrderActionController extends Controller
             'header' => [
                 'kicker' => 'Admin Shell Action',
                 'title' => '编辑订单',
-                'description' => '这是后台壳中的订单编辑样板页。页面已按基础信息、交易与履约、维护提醒分组，当前仅允许修改标题、附加信息、状态、查询密码和订单类型，不直接触碰支付完成与履约链动作。',
-                'meta' => '低风险人工维护入口已迁入后台壳，分组上下文方便快速确认订单背景，再决定是否保存。',
+                'description' => '这是后台壳中的订单编辑样板页。页面已按基础信息、交易与履约、维护提醒分组，当前仅允许修改标题、附加信息、状态、查询密码和订单类型，并提供重置查询密码的安全维护动作。',
+                'meta' => '低风险人工维护入口已迁入后台壳，分组上下文方便快速确认订单背景，再决定是否保存或重置查询密码。',
                 'actions' => [
                     ['label' => '返回订单概览', 'href' => admin_url('v2/order')],
                     ['label' => '查看详情', 'href' => admin_url('v2/order/'.$order->id), 'variant' => 'secondary'],
@@ -48,6 +48,14 @@ class OrderActionController extends Controller
     public function update(int $id, Request $request)
     {
         $order = Order::query()->findOrFail($id);
+
+        if ($request->boolean('reset_search_pwd')) {
+            $newPassword = $this->orderActionService->resetSearchPassword($order);
+
+            return redirect(admin_url('v2/order/'.$order->id.'/edit'))
+                ->with('status', '订单查询密码已重置为 '.$newPassword);
+        }
+
         $payload = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'info' => ['nullable', 'string'],
