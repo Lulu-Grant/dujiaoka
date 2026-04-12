@@ -11,8 +11,10 @@
 
 
 `Lulu-Grant/dujiaoka` 是基于原始 `assimon/dujiaoka` 停更项目继续维护的分叉版本，当前品牌名为“独角数卡西瓜版”。
-我们的初衷是，基于原有的理念和功能，让程序的使用和部署更现代化。我们不仅限于升级现代化UI，框架，内核，以及收敛和整合环境依赖。让系统更方便更安全也更高效，同时让功能性更加突出。
-当前仓库的目标不是做“原样存档”，而是在保留原有业务能力的前提下，把它整理成一个更适合继续维护、继续升级、继续运营的版本：
+
+这个仓库现在已经不是“原样存档”，也不只是“能跑就行”的修补版，而是在保留原有业务能力前提下，持续推进现代化治理、后台替换和升级前清障的维护分支。
+
+当前主目标：
 
 - 恢复遗留运行时基线
 - 建立核心业务测试护栏
@@ -26,9 +28,13 @@
 ## 当前状态
 
 - 原项目已停止维护，本仓库仍在持续推进现代化改造。
-- 当前主线默认品牌已统一为“独角数卡西瓜版”或者“独角数卡3.0”。
-- 当前已完成第一轮架构评估、测试护栏建设、订单与支付主链第一轮服务化、去守护进程改造、安装流程现代化切换，以及后台第一轮降耦合。
-- 当前主线以“遗留基线可运行 + 渐进式重构”为原则推进。
+- 当前主线默认品牌已统一为“独角数卡西瓜版”。
+- 当前主线已经完成：遗留运行时基线恢复、测试护栏建设、订单与支付主链第一轮服务化、去守护进程改造、安装流程现代化切换，以及后台壳并行迁移。
+- 当前主线以“遗留基线可运行 + 渐进式重构 + 后台并行替换”为原则推进。
+
+如果只用一句话描述现在的位置：
+
+- 我们已经从“停更遗留项目”推进到了“可持续重构中的遗留系统”阶段。
 
 如果你想了解截至目前的改造记录，请先看：
 
@@ -52,6 +58,42 @@
 - 补齐本地快速拉站模板与准备脚本
 - 将后台高频 CRUD 页中的配置、选项源、状态映射、展示逻辑持续迁出 `app/Admin`
 - 将前台、后台、安装页和默认通知品牌统一为“独角数卡西瓜版”
+- 将后台壳首页、商品分类、商品、订单、邮件模板、支付通道、优惠码、卡密、系统设置、邮件测试等页面逐步接入新后台壳
+
+## 当前重点进度
+
+### 后台壳
+
+当前已落地后台壳资源：
+
+- `/admin/v2/dashboard`
+- `/admin/v2/goods-group`
+- `/admin/v2/goods`
+- `/admin/v2/order`
+- `/admin/v2/emailtpl`
+- `/admin/v2/pay`
+- `/admin/v2/coupon`
+- `/admin/v2/carmis`
+- `/admin/v2/system-setting`
+- `/admin/v2/email-test`
+
+当前后台壳已落地动作页包括：
+
+- 商品分类 `create / edit`
+- 商品 `create / edit`
+- 优惠码 `create / edit`
+- 支付通道 `create / edit`
+- 卡密 `create / edit / import`
+- 邮件模板 `create / edit`
+- 邮件测试发送
+- 系统设置 `base / branding / mail / push / experience`
+
+### 当前仍在推进的重点
+
+- 持续扩大后台壳对中复杂度后台页面的承载范围
+- 持续压缩旧 `Dcat Admin` 在高频后台页上的业务承载
+- 继续收口支付层保留通道
+- 为后续 PHP / Laravel 升级继续清障
 
 ## 当前品牌与定位
 
@@ -72,7 +114,7 @@
 当前主线测试结果基线：
 
 ```bash
-OK (115 tests, 323 assertions)
+OK (209 tests, 798 assertions)
 ```
 
 当前仓库也已经补上 GitHub Actions 基线工作流：
@@ -105,6 +147,14 @@ OK (115 tests, 323 assertions)
 - [运行时兼容阻塞点](docs/runtime-compatibility-blockers.md)
 - [本地快速拉站](docs/local-dev-quickstart.md)
 
+## 当前审计
+
+如果你想快速看清“已经做到哪里、还剩多少工作”，建议先看：
+
+- [当前基线审计](docs/current-baseline-audit.md)
+- [重构升级日志](docs/refactor-upgrade-log.md)
+- [大整改执行方案](docs/rectification-execution-plan.md)
+
 ## 文档索引
 
 - [重构升级日志](docs/refactor-upgrade-log.md)
@@ -119,9 +169,11 @@ OK (115 tests, 323 assertions)
 - [升级前清障清单](docs/upgrade-readiness-checklist.md)
 - [支付迁移计划](docs/paypal-stripe-transition-plan.md)
 - [本地快速拉站](docs/local-dev-quickstart.md)
+- [当前基线审计](docs/current-baseline-audit.md)
 
 ## 说明
 
 - 当前仓库仍是 Laravel 6 遗留系统的渐进式改造阶段，不是最终现代化完成态。
-- 当前 `master` 已具备：本地快速拉站、GitHub Actions 自动回归、以及持续推进中的后台薄壳化基础。
+- 当前 `master` 已具备：本地快速拉站、GitHub Actions 自动回归、安装现代化主路径，以及持续推进中的后台壳并行迁移基础。
+- 当前 `/admin` 默认已经落到新的后台壳首页。
 - 后续每一个重要节点都会持续记录到 [重构升级日志](docs/refactor-upgrade-log.md)。
