@@ -11,6 +11,41 @@
 
 ## 2026-04-12 阶段日志
 
+### 147. 第一批废弃文件审计与清理
+
+摘要：
+
+- 新增了 [docs/obsolete-file-audit.md](/Users/apple/Documents/dujiaoshuka/docs/obsolete-file-audit.md)，把当前仓库里的废弃候选文件分成“可立即删除 / 暂时保留 / 下一批目标”三类，先把旧后台、旧安装、静态资源的边界理清。
+- 删除了 3 个已经没有任何运行时入口的旧 Dcat 表单壳：
+  - [app/Admin/Forms/EmailTest.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Forms/EmailTest.php)
+  - [app/Admin/Forms/ImportCarmis.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Forms/ImportCarmis.php)
+  - [app/Admin/Forms/SystemSetting.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Forms/SystemSetting.php)
+- 删除了 7 个已经没有任何代码引用的旧 Dcat Repository 壳：
+  - [app/Admin/Repositories/Carmis.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Repositories/Carmis.php)
+  - [app/Admin/Repositories/Coupon.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Repositories/Coupon.php)
+  - [app/Admin/Repositories/Emailtpl.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Repositories/Emailtpl.php)
+  - [app/Admin/Repositories/Goods.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Repositories/Goods.php)
+  - [app/Admin/Repositories/GoodsGroup.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Repositories/GoodsGroup.php)
+  - [app/Admin/Repositories/Order.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Repositories/Order.php)
+  - [app/Admin/Repositories/Pay.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Repositories/Pay.php)
+- 删除了 18 个零引用的 `avatar` 主题静态资源，包括未使用的 `favicon.ico`、4 张旧图片和一批未被任何前台或后台页面使用的字体文件。
+
+影响范围：
+
+- 旧 Dcat 后台遗留文件体积继续缩小
+- 仓库中的死文件和零引用静态资源减少
+- 后续清理 `app/Admin/Actions/Post/*`、`app/Admin/bootstrap.php`、旧 dashboard 兼容壳时有了更明确的审计边界
+
+验证：
+
+- 删除后再次检查 `App\\Admin\\Forms\\*`、`App\\Admin\\Repositories\\*` 的引用，结果为空
+- 全量 PHPUnit 回归待本轮执行
+
+下一步：
+
+- 继续清理只剩测试或样板意义的旧 Dcat 文件
+- 逐步让 CI 测试库准备过程脱离 `install.sql`
+
 ### 146. CouponController 退壳瘦身
 
 摘要：
