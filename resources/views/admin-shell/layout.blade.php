@@ -42,6 +42,10 @@
 
                 <div class="sidebar-footer">
                     <span>Switching to a cleaner admin layer.</span>
+                    <div class="sidebar-footer__links">
+                        <a href="{{ admin_url('auth/setting') }}">账号设置</a>
+                        <a href="{{ admin_url('auth/logout') }}">退出登录</a>
+                    </div>
                 </div>
             </div>
         </aside>

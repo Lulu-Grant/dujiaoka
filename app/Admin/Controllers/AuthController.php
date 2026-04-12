@@ -2,13 +2,26 @@
 
 namespace App\Admin\Controllers;
 
+use App\Service\AdminAccountSettingService;
+use Dcat\Admin\Models\Administrator;
 use Dcat\Admin\Layout\Content;
 use Dcat\Admin\Http\Controllers\AuthController as BaseAuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends BaseAuthController
 {
+    /**
+     * @var \App\Service\AdminAccountSettingService
+     */
+    private $accountSettingService;
+
+    public function __construct(AdminAccountSettingService $accountSettingService)
+    {
+        $this->accountSettingService = $accountSettingService;
+    }
+
     public function getLogin(Content $content)
     {
         if ($this->guard()->check()) {
@@ -54,5 +67,51 @@ class AuthController extends BaseAuthController
         $request->session()->regenerateToken();
 
         return redirect(admin_url('auth/login'));
+    }
+
+    public function getSetting(Content $content)
+    {
+        /** @var Administrator $user */
+        $user = $this->guard()->user();
+
+        return response()->view('admin-shell.auth.setting', [
+            'title' => '账号设置 - 独角数卡西瓜版后台壳',
+            'header' => [
+                'kicker' => 'Admin Shell Account',
+                'title' => '账号设置',
+                'description' => '后台账号的昵称、头像和密码维护现在也留在新后台壳里，不再回退到旧 Dcat 表单页。',
+                'meta' => '这是后台高频个人维护入口，优先保证在新壳里完整可用。',
+                'actions' => [
+                    ['label' => '返回后台总览', 'href' => admin_url('v2/dashboard')],
+                ],
+            ],
+            'defaults' => $this->accountSettingService->defaults($user),
+            'context' => $this->accountSettingService->context($user),
+        ]);
+    }
+
+    public function putSetting()
+    {
+        /** @var Administrator $user */
+        $user = $this->guard()->user();
+        $request = request();
+
+        $payload = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'avatar' => ['nullable', 'file', 'image', 'max:2048'],
+            'old_password' => ['nullable', 'string'],
+            'password' => ['nullable', 'string', 'min:5', 'max:20', 'confirmed'],
+        ]);
+
+        try {
+            $this->accountSettingService->update($user, $payload);
+        } catch (ValidationException $e) {
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput($request->except(['old_password', 'password', 'password_confirmation']));
+        }
+
+        return redirect(admin_url('auth/setting'))
+            ->with('status', '账号设置已保存');
     }
 }

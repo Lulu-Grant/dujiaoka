@@ -3396,3 +3396,30 @@
 下一步：
 
 - 继续沿着后台壳扩容和旧 Dcat 降耦合主线推进，优先处理剩余高频后台页和更复杂的操作型页面。
+
+### 142. 后台账号设置页退壳
+
+摘要：
+
+- [AuthController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/AuthController.php) 继续接管 `auth/setting`，把个人资料维护从旧 Dcat 表单页迁到后台壳。
+- 新增 [AdminAccountSettingService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminAccountSettingService.php)，统一处理管理员昵称、头像上传与密码修改，并保留旧密码校验约束。
+- 新增 [resources/views/admin-shell/auth/setting.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/auth/setting.blade.php)，后台账号设置页现在已经纳入后台壳视觉与交互体系。
+- [layout.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/layout.blade.php) 和 [admin-shell.css](/Users/apple/Documents/dujiaoshuka/public/assets/avatar/css/admin-shell.css) 新增账号设置与退出登录入口，让后台高频个人操作留在新壳内完成。
+- 新增 [AdminAuthShellSettingTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminAuthShellSettingTest.php)，覆盖设置页展示、昵称与头像更新、密码修改成功与旧密码错误拦截。
+
+影响范围：
+
+- `/admin/auth/setting` 个人维护入口
+- 后台壳登录后的高频个人操作闭环
+- 旧 Dcat 默认个人设置页承载面的进一步收缩
+- 后台壳侧边栏尾部导航
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminAuthShellLoginTest.php` 通过
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminAuthShellSettingTest.php` 通过
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (227 tests, 991 assertions)`
+
+下一步：
+
+- 继续沿着后台壳扩容和旧 Dcat 降耦合主线推进，优先处理剩余高频后台页和更复杂的操作型页面。
