@@ -16,7 +16,7 @@
 - `./scripts/php74 artisan route:list`：路由注册成功
 - `./scripts/php74 artisan migrate:status --no-ansi`：数据库连接成功
 - `curl -I http://127.0.0.1:8030/`：返回 `HTTP/1.1 200 OK`
-- `./scripts/smoke-admin-shell`：登录后依次巡检 `dashboard`、`system-setting`、`goods`、`order`
+- `./scripts/smoke-admin-shell`：登录后依次巡检 `dashboard`、`auth/setting`、`goods/create`、`emailtpl/create`、`goods`、`order`
 
 ## 推荐步骤
 

@@ -142,7 +142,7 @@ OK (209 tests, 798 assertions)
 - 如果检测到 Homebrew MariaDB 的 `/private/tmp/mysql.sock`，准备脚本会自动切到 socket 模式并使用当前系统用户
 - `.env` 不会进入版本控制
 - 当前这条本地启动路径已经完成真实 HTTP 验证，首页可返回 `200 OK`
-- 烟雾脚本会登录后台并巡检 `dashboard`、`system-setting`、`goods`、`order`
+- 烟雾脚本会登录后台并巡检 `dashboard`、`auth/setting`、`goods/create`、`emailtpl/create`、`goods`、`order`
 
 更多环境说明请查看：
 
