@@ -3369,3 +3369,30 @@
 下一步：
 
 - 继续沿着后台壳扩容和旧 Dcat 降耦合两条线往下推，优先处理更多中低风险配置页与高频管理页。
+
+### 141. 后台登录入口退壳
+
+摘要：
+
+- [AuthController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/AuthController.php) 不再直接使用 Dcat 默认登录页，而是接管 `auth/login` 与 `auth/logout`，改成普通 Laravel 表单登录流和标准重定向流程。
+- 新增 [resources/views/admin-shell/auth/login.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/auth/login.blade.php)，把后台登录入口切到后台壳视觉体系，登录后默认继续进入新后台壳首页。
+- [admin-shell.css](/Users/apple/Documents/dujiaoshuka/public/assets/avatar/css/admin-shell.css) 增加登录页专用样式，统一品牌、壳层视觉和移动端表现。
+- [tests/Browser/admin-shell-smoke.sh](/Users/apple/Documents/dujiaoshuka/tests/Browser/admin-shell-smoke.sh) 兼容新的重定向式登录结果，不再假定旧 Dcat 风格的 JSON 成功载荷。
+- 新增 [AdminAuthShellLoginTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminAuthShellLoginTest.php) 保护登录页展示、成功登录和失败登录路径。
+
+影响范围：
+
+- `/admin/auth/login` 与 `/admin/auth/logout` 主入口
+- 后台壳与后台登录体验的一致性
+- 旧 Dcat 默认登录页实际承载面的进一步收缩
+- 本地后台烟雾检查脚本
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminAuthShellLoginTest.php` 通过
+- `./scripts/smoke-admin-shell` 通过
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (223 tests, 973 assertions)`
+
+下一步：
+
+- 继续沿着后台壳扩容和旧 Dcat 降耦合主线推进，优先处理剩余高频后台页和更复杂的操作型页面。

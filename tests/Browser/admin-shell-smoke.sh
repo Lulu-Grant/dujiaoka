@@ -23,16 +23,24 @@ if [[ -z "$token" ]]; then
   exit 1
 fi
 
-login_response="$("$CURLOPT_CURL" -sS -b "$tmpdir/cookies.txt" -c "$tmpdir/cookies.txt" -X POST "$APP_URL/admin/auth/login" \
+"$CURLOPT_CURL" -sS -b "$tmpdir/cookies.txt" -c "$tmpdir/cookies.txt" \
+  -D "$tmpdir/login-headers.txt" \
+  -o "$tmpdir/login-body.txt" \
+  -X POST "$APP_URL/admin/auth/login" \
   --data-urlencode "_token=$token" \
   --data-urlencode "username=$ADMIN_USERNAME" \
   --data-urlencode "password=$ADMIN_PASSWORD" \
-  --data-urlencode "remember=1")"
+  --data-urlencode "remember=1"
 
-case "$login_response" in
-  *'"status":true'*'/admin'*) ;;
+login_headers="$(cat "$tmpdir/login-headers.txt")"
+login_response="$(cat "$tmpdir/login-body.txt")"
+
+case "$login_headers$login_response" in
+  *'"status":true'*'/admin'*|*"Location: $APP_URL/admin"*|*"location.href = '$APP_URL/admin'"*|*"url='$APP_URL/admin'"*)
+    ;;
   *)
-    echo "Admin login did not return the expected success payload."
+    echo "Admin login did not return the expected redirect or success payload."
+    echo "$login_headers"
     echo "$login_response"
     exit 1
     ;;
