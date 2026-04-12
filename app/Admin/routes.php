@@ -14,6 +14,10 @@ Route::group([
     $router->get('/', 'HomeController@index');
     $router->get('v2/email-test/send', [\App\Http\Controllers\AdminShell\EmailTestActionController::class, 'create']);
     $router->post('v2/email-test/send', [\App\Http\Controllers\AdminShell\EmailTestActionController::class, 'store']);
+    $router->get('v2/goods-group/create', [\App\Http\Controllers\AdminShell\GoodsGroupActionController::class, 'create']);
+    $router->post('v2/goods-group/create', [\App\Http\Controllers\AdminShell\GoodsGroupActionController::class, 'store']);
+    $router->get('v2/goods-group/{id}/edit', [\App\Http\Controllers\AdminShell\GoodsGroupActionController::class, 'edit']);
+    $router->post('v2/goods-group/{id}/edit', [\App\Http\Controllers\AdminShell\GoodsGroupActionController::class, 'update']);
     $router->get('v2/emailtpl/create', [\App\Http\Controllers\AdminShell\EmailTemplateActionController::class, 'create']);
     $router->post('v2/emailtpl/create', [\App\Http\Controllers\AdminShell\EmailTemplateActionController::class, 'store']);
     $router->get('v2/emailtpl/{id}/edit', [\App\Http\Controllers\AdminShell\EmailTemplateActionController::class, 'edit']);

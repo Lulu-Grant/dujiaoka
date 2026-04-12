@@ -3000,3 +3000,26 @@
 下一步：
 
 - 继续沿着这条路线推进更多标准业务编辑页，或挑一张中风险批量动作页继续扩大后台壳的实际承载范围。
+
+### 127. 落地商品分类新建与编辑动作页样板
+
+摘要：
+
+- 新增 [GoodsGroupActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/GoodsGroupActionController.php) 与 [form.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/goods-group/form.blade.php)，把商品分类新建和编辑动作接入后台壳。
+- 新增 [GoodsGroupActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/GoodsGroupActionService.php)，将分类创建与更新写入边界收口到普通服务层。
+- [AdminShellGoodsGroupPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellGoodsGroupPageService.php) 已在分类概览页头补上“新建商品分类”入口，并在表格操作列补上“编辑分类”入口。
+- [app/Admin/routes.php](/Users/apple/Documents/dujiaoshuka/app/Admin/routes.php) 已新增 `/admin/v2/goods-group/create` 与 `/admin/v2/goods-group/{id}/edit` 的 GET/POST 路由，后台壳开始承接更基础的标准 CRUD 页面。
+
+影响范围：
+
+- 后台壳对基础 CRUD 编辑页的承接能力
+- 商品分类管理从只读概览页走向真实创建与编辑页
+- 低风险管理对象迁移到普通服务层的模式验证
+
+验证：
+
+- 当前全量回归结果：`OK (184 tests, 654 assertions)`
+
+下一步：
+
+- 继续沿着这条路线推进更多标准业务编辑页，或挑一张中风险批量动作页继续扩大后台壳的实际承载范围。

@@ -73,6 +73,10 @@ class AdminShellGoodsGroupPageService extends AbstractAdminShellPageService
                     e((string) $group->updated_at),
                     $this->renderActionLinks([
                         [
+                            'label' => '编辑分类',
+                            'href' => admin_url($definition['uri'].'/'.$group->id.'/edit'),
+                        ],
+                        [
                             'label' => '查看详情',
                             'href' => admin_url($definition['uri'].'/'.$group->id.($scope ? '?scope='.$scope : '')),
                         ],
@@ -87,7 +91,14 @@ class AdminShellGoodsGroupPageService extends AbstractAdminShellPageService
 
     public function buildHeader(LengthAwarePaginator $groups): array
     {
-        return $this->buildResourceHeader('共 '.$groups->total().' 条记录');
+        $header = $this->buildResourceHeader('共 '.$groups->total().' 条记录');
+        $header['actions'][] = [
+            'label' => '新建商品分类',
+            'href' => admin_url('v2/goods-group/create'),
+            'variant' => 'primary',
+        ];
+
+        return $header;
     }
 
     public function buildFilters(array $filters): array
