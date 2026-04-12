@@ -15,14 +15,37 @@ class AdminShellRouteRegistrarTest extends TestCase
 
         $registrar->register($router);
 
-        $uris = collect($router->getRoutes()->getRoutes())
+        $routes = collect($router->getRoutes()->getRoutes())
             ->map(function ($route) {
-                return $route->uri();
+                return [
+                    'uri' => $route->uri(),
+                    'methods' => $route->methods(),
+                    'name' => $route->getName(),
+                ];
             })
             ->all();
 
-        $this->assertContains('v2/goods-group', $uris);
-        $this->assertContains('v2/emailtpl', $uris);
-        $this->assertContains('v2/pay/{id}', $uris);
+        $this->assertRouteExists($routes, 'v2/goods-group', 'GET', 'admin-shell.goods-group.index');
+        $this->assertRouteExists($routes, 'v2/goods-group/create', 'GET', 'admin-shell.goods-group.create');
+        $this->assertRouteExists($routes, 'v2/emailtpl/{id}/edit', 'POST', 'admin-shell.emailtpl.update');
+        $this->assertRouteExists($routes, 'v2/pay/{id}/edit', 'POST', 'admin-shell.pay.update');
+        $this->assertRouteExists($routes, 'v2/carmis/import', 'GET', 'admin-shell.carmis.import');
+        $this->assertRouteExists($routes, 'v2/system-setting/base', 'POST', 'admin-shell.system-setting.base.update');
+        $this->assertRouteExists($routes, 'v2/email-test/send', 'POST', 'admin-shell.email-test.send.store');
+    }
+
+    /**
+     * @param array<int, array{uri:string,methods:array<int, string>,name:?string}> $routes
+     */
+    private function assertRouteExists(array $routes, string $uri, string $method, string $name): void
+    {
+        $this->assertTrue(
+            collect($routes)->contains(function (array $route) use ($uri, $method, $name) {
+                return $route['uri'] === $uri
+                    && in_array($method, $route['methods'], true)
+                    && $route['name'] === $name;
+            }),
+            sprintf('Route %s [%s] with name %s was not registered.', $uri, $method, $name)
+        );
     }
 }
