@@ -36,9 +36,8 @@ class PayActionController extends Controller
             'formAction' => admin_url('v2/pay/create'),
             'submitLabel' => '创建支付通道',
             'isCreate' => true,
-            'defaults' => $this->payActionService->createDefaults(),
-            'methodOptions' => Pay::getMethodMap(),
-            'clientOptions' => Pay::getClientMap(),
+            'context' => $this->payActionService->createContext(),
+            'sections' => $this->payActionService->createSections(),
         ]);
     }
 
@@ -70,10 +69,8 @@ class PayActionController extends Controller
             'formAction' => admin_url('v2/pay/'.$pay->id.'/edit'),
             'submitLabel' => '保存支付通道',
             'isCreate' => false,
-            'defaults' => $this->payActionService->editDefaults($pay),
-            'methodOptions' => Pay::getMethodMap(),
-            'clientOptions' => Pay::getClientMap(),
-            'payModel' => $pay,
+            'context' => $this->payActionService->editContext($pay),
+            'sections' => $this->payActionService->editSections($pay),
         ]);
     }
 
@@ -101,7 +98,7 @@ class PayActionController extends Controller
             'pay_name' => ['required', 'string', 'max:255'],
             'merchant_id' => ['required', 'string', 'max:255'],
             'merchant_key' => ['nullable', 'string'],
-            'merchant_pem' => ['required', 'string'],
+            'merchant_pem' => $isCreate ? ['required', 'string'] : ['nullable', 'string'],
             'pay_check' => $payCheckRules,
             'pay_client' => ['required', 'integer'],
             'pay_method' => ['required', 'integer'],
@@ -111,6 +108,8 @@ class PayActionController extends Controller
         return array_merge($payload, [
             'pay_client' => (int) $payload['pay_client'],
             'pay_method' => (int) $payload['pay_method'],
+            'merchant_key' => $payload['merchant_key'] ?? '',
+            'merchant_pem' => $payload['merchant_pem'] ?? '',
             'is_open' => $request->boolean('is_open') ? Pay::STATUS_OPEN : Pay::STATUS_CLOSE,
         ]);
     }

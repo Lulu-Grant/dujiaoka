@@ -10,7 +10,7 @@ class AdminShellPayControllerTest extends TestCase
 {
     protected function tearDown(): void
     {
-        DB::table('pays')->whereIn('id', [93001, 93002, 93003])->delete();
+        DB::table('pays')->whereIn('id', [93001, 93002, 93003, 93004])->delete();
         DB::table('pays')->whereIn('pay_check', ['stripe', 'paypal', 'wechat-shell', 'alipay-shell'])->delete();
         DB::table('admin_users')->where('username', 'admin-shell-tester')->delete();
 
@@ -77,7 +77,8 @@ class AdminShellPayControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('新建支付通道');
-        $response->assertSee('支付标识');
+        $response->assertSee('支付配置分组');
+        $response->assertSee('商户与密钥');
     }
 
     public function test_create_page_can_store_pay_channel(): void
@@ -124,7 +125,10 @@ class AdminShellPayControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('编辑支付通道');
-        $response->assertSee('alipay-shell');
+        $response->assertSee('留空保持现有值');
+        $response->assertSee('商户与密钥');
+        $response->assertDontSee('ali-key');
+        $response->assertDontSee('ali-pem');
     }
 
     public function test_edit_page_can_update_pay_channel(): void
@@ -169,6 +173,51 @@ class AdminShellPayControllerTest extends TestCase
         $this->assertSame('/pay/alipay-shell-updated', $record->pay_handleroute);
         $this->assertSame(2, $record->pay_client);
         $this->assertSame(2, $record->pay_method);
+        $this->assertSame(0, $record->is_open);
+    }
+
+    public function test_edit_page_keeps_existing_secrets_when_left_blank(): void
+    {
+        DB::table('pays')->insert([
+            'id' => 93004,
+            'pay_name' => '微信样板',
+            'merchant_id' => 'wechat-id',
+            'merchant_key' => 'wechat-key',
+            'merchant_pem' => 'wechat-pem',
+            'pay_check' => 'wechat-shell-blank',
+            'pay_client' => 1,
+            'pay_handleroute' => '/pay/wechat-shell',
+            'pay_method' => 2,
+            'is_open' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/pay/93004/edit', [
+                'pay_name' => '微信样板已更新',
+                'merchant_id' => 'wechat-id-updated',
+                'merchant_key' => '',
+                'merchant_pem' => '',
+                'pay_check' => 'wechat-shell-blank',
+                'pay_client' => 2,
+                'pay_method' => 1,
+                'pay_handleroute' => '/pay/wechat-shell-updated',
+                'is_open' => '0',
+            ]);
+
+        $response->assertRedirect('/admin/v2/pay/93004/edit');
+        $response->assertSessionHas('status', '支付通道已保存');
+
+        $record = DB::table('pays')->where('id', 93004)->first();
+        $this->assertSame('微信样板已更新', $record->pay_name);
+        $this->assertSame('wechat-id-updated', $record->merchant_id);
+        $this->assertSame('wechat-key', $record->merchant_key);
+        $this->assertSame('wechat-pem', $record->merchant_pem);
+        $this->assertSame('/pay/wechat-shell-updated', $record->pay_handleroute);
+        $this->assertSame(2, $record->pay_client);
+        $this->assertSame(1, $record->pay_method);
         $this->assertSame(0, $record->is_open);
     }
 

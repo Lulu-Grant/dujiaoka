@@ -182,6 +182,9 @@ class AdminShellPageStructureTest extends TestCase
             'id' => 303,
             'pay_name' => 'Stripe',
             'pay_check' => 'stripe',
+            'merchant_id' => 'merchant-303',
+            'merchant_key' => 'secret-key-303',
+            'merchant_pem' => 'secret-pem-303',
             'pay_method' => 2,
             'pay_client' => 1,
             'is_open' => 1,
@@ -197,7 +200,7 @@ class AdminShellPageStructureTest extends TestCase
         );
         $header = $service->buildHeader(new LengthAwarePaginator(collect([$pay]), 1, 15));
         $filters = $service->buildFilters(['pay_check' => 'stripe', 'scope' => 'trashed']);
-        $showHeader = $service->buildShowHeader('trashed');
+        $showHeader = $service->buildShowHeader('trashed', $pay);
         $indexPage = $service->buildIndexPageData(new LengthAwarePaginator(collect([$pay]), 1, 15), ['pay_check' => 'stripe', 'scope' => '']);
         $showPage = $service->buildShowPageData($pay, 'trashed');
         $items = $service->detailItems($pay);
@@ -208,17 +211,24 @@ class AdminShellPageStructureTest extends TestCase
         $this->assertSame('Stripe', $requestFilters['pay_name']);
         $this->assertSame('支付标识', $filters['fields'][1]['label']);
         $this->assertSame('支付通道详情', $showHeader['title']);
+        $this->assertStringContainsString('密钥字段已脱敏', $showHeader['meta']);
         $this->assertInstanceOf(AdminShellIndexPageData::class, $indexPage);
         $this->assertInstanceOf(AdminShellShowPageData::class, $showPage);
         $this->assertSame('支付通道管理 - 后台壳样板', $indexPage->title);
         $this->assertSame('支付通道详情 - 后台壳样板', $showPage->title);
         $this->assertSame('支付通道管理 - 后台壳样板', $indexPage->toViewData()['title']);
         $this->assertStringContainsString('?scope=trashed', $showHeader['actions'][0]['href']);
+        $this->assertSame('编辑通道', $showHeader['actions'][1]['label']);
         $this->assertSame('支付名称', $table['headers'][1]);
         $this->assertStringContainsString('Stripe', $table['rows'][0][1]);
+        $this->assertStringContainsString('编辑通道', $table['rows'][0][8]);
         $this->assertSame('当前条件下没有支付通道记录。', $table['empty_title']);
         $this->assertSame('支付名称', $items[1]['label']);
         $this->assertSame('Stripe', $items[1]['value']);
+        $this->assertSame('安全状态', $items[7]['label']);
+        $this->assertStringContainsString('已脱敏', $items[7]['value']);
+        $this->assertSame('商户 KEY', $items[10]['label']);
+        $this->assertStringContainsString('已配置', $items[10]['value']);
     }
 
     public function test_order_page_service_builds_table_and_detail_items()
@@ -265,8 +275,9 @@ class AdminShellPageStructureTest extends TestCase
         $this->assertSame('XIGUA', $requestFilters['order_sn']);
         $this->assertSame('订单状态', $filters['fields'][2]['label']);
         $this->assertSame('订单详情', $showHeader['title']);
-        $this->assertStringContainsString('订单号：XIGUA-ORDER-350', $showHeader['meta']);
-        $this->assertStringContainsString('支付：Stripe', $showHeader['meta']);
+        $this->assertStringContainsString('基础：XIGUA-ORDER-350 / 已完成 / 自动发货', $showHeader['meta']);
+        $this->assertStringContainsString('交易：订单商品 / Stripe', $showHeader['meta']);
+        $this->assertStringContainsString('金额：69 / 交易号 trade-350', $showHeader['meta']);
         $this->assertInstanceOf(AdminShellIndexPageData::class, $indexPage);
         $this->assertInstanceOf(AdminShellShowPageData::class, $showPage);
         $this->assertSame('订单管理 - 后台壳样板', $indexPage->title);
@@ -277,8 +288,16 @@ class AdminShellPageStructureTest extends TestCase
         $this->assertStringContainsString('XIGUA-ORDER-350', $table['rows'][0][1]);
         $this->assertStringContainsString('编辑订单', $table['rows'][0][10]);
         $this->assertSame('当前条件下没有订单记录。', $table['empty_title']);
-        $this->assertSame('支付通道', $items[14]['label']);
-        $this->assertSame('Stripe', $items[14]['value']);
+        $this->assertSame('基础信息', $items[0]['label']);
+        $this->assertStringContainsString('订单号：XIGUA-ORDER-350', $items[0]['value']);
+        $this->assertSame('商品与支付', $items[1]['label']);
+        $this->assertStringContainsString('支付通道：Stripe', $items[1]['value']);
+        $this->assertSame('金额与履约', $items[2]['label']);
+        $this->assertStringContainsString('优惠码：XIGUA-350', $items[2]['value']);
+        $this->assertSame('维护信息', $items[3]['label']);
+        $this->assertStringContainsString('查询密码：search-me', $items[3]['value']);
+        $this->assertSame('订单附加信息', $items[4]['label']);
+        $this->assertStringContainsString('账号: demo', $items[4]['value']);
     }
 
     public function test_admin_shell_page_services_share_common_base_class()

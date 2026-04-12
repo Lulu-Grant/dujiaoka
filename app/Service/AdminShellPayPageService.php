@@ -95,7 +95,7 @@ class AdminShellPayPageService extends AbstractAdminShellPageService
                 ];
             })->all(),
             'empty_title' => '当前条件下没有支付通道记录。',
-            'empty_description' => '可以调整支付名称、支付标识或范围筛选条件，继续查找通道。',
+            'empty_description' => '可以调整支付名称、支付标识、生命周期或范围筛选条件，继续查找通道。',
             'paginator' => $pays,
         ];
     }
@@ -133,9 +133,22 @@ class AdminShellPayPageService extends AbstractAdminShellPageService
         ];
     }
 
-    public function buildShowHeader(?string $scope = null): array
+    public function buildShowHeader(?string $scope = null, ?Pay $pay = null): array
     {
-        return $this->buildResourceShowHeader($scope);
+        $header = $this->buildResourceShowHeader($scope);
+
+        if ($pay) {
+            $header['meta'] = '支付标识：'.$pay->pay_check
+                .' · 生命周期：'.$this->presenter->lifecycleLabel($pay->lifecycle)
+                .' · 密钥字段已脱敏';
+            $header['actions'][] = [
+                'label' => '编辑通道',
+                'href' => admin_url($this->resourceDefinition()['uri'].'/'.$pay->id.'/edit'),
+                'variant' => 'primary',
+            ];
+        }
+
+        return $header;
     }
 
     public function buildIndexPageData(LengthAwarePaginator $pays, array $filters): AdminShellIndexPageData
@@ -152,7 +165,7 @@ class AdminShellPayPageService extends AbstractAdminShellPageService
     {
         return new AdminShellShowPageData(
             $this->buildDocumentTitle('show_title'),
-            $this->buildShowHeader($scope),
+            $this->buildShowHeader($scope, $pay),
             $this->detailItems($pay)
         );
     }
@@ -167,10 +180,11 @@ class AdminShellPayPageService extends AbstractAdminShellPageService
             ['label' => '支付场景', 'value' => e($this->presenter->clientLabel($pay->pay_client))],
             ['label' => '支付方式', 'value' => e($this->presenter->methodLabel($pay->pay_method))],
             ['label' => '启用状态', 'value' => e(strip_tags($this->presenter->openStatusLabel($pay->is_open)))],
+            ['label' => '安全状态', 'value' => $this->renderSecurityState($pay)],
             ['label' => '支付路由', 'value' => e($pay->pay_handleroute)],
             ['label' => '商户 ID', 'value' => e($pay->merchant_id)],
-            ['label' => '商户 KEY', 'value' => e($pay->merchant_key)],
-            ['label' => '商户密钥', 'value' => e($pay->merchant_pem)],
+            ['label' => '商户 KEY', 'value' => $this->renderSecretValue($pay->merchant_key)],
+            ['label' => '商户密钥', 'value' => $this->renderSecretValue($pay->merchant_pem)],
             ['label' => '创建时间', 'value' => e((string) $pay->created_at)],
             ['label' => '更新时间', 'value' => e((string) $pay->updated_at)],
         ];
@@ -194,6 +208,25 @@ class AdminShellPayPageService extends AbstractAdminShellPageService
         return collect($actions)->map(function (array $action) {
             return sprintf('<a href="%s">%s</a>', e($action['href']), e($action['label']));
         })->implode(' / ');
+    }
+
+    private function renderSecurityState(Pay $pay): string
+    {
+        $items = [];
+
+        $items[] = empty($pay->merchant_key) ? '商户 KEY 未配置' : '商户 KEY 已脱敏';
+        $items[] = empty($pay->merchant_pem) ? '商户 PEM 未配置' : '商户 PEM 已脱敏';
+
+        return '<span class="pill '.(empty($pay->merchant_key) || empty($pay->merchant_pem) ? 'closed' : 'open').'">'.e(implode(' · ', $items)).'</span>';
+    }
+
+    private function renderSecretValue(?string $value): string
+    {
+        if (blank($value)) {
+            return '<span class="pill closed">未配置</span>';
+        }
+
+        return '<span class="pill open">已配置 · 页面已脱敏</span>';
     }
 
     protected function resourceKey(): string
