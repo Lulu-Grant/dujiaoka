@@ -16,6 +16,7 @@
 - `./scripts/php74 artisan route:list`：路由注册成功
 - `./scripts/php74 artisan migrate:status --no-ansi`：数据库连接成功
 - `curl -I http://127.0.0.1:8030/`：返回 `HTTP/1.1 200 OK`
+- `./scripts/smoke-admin-shell`：登录后依次巡检 `dashboard`、`system-setting`、`goods`、`order`
 
 ## 推荐步骤
 
@@ -24,6 +25,7 @@
 ./scripts/php74 artisan --version
 ./scripts/php74 artisan route:list
 ./scripts/php74 -S 127.0.0.1:8020 -t public
+./scripts/smoke-admin-shell
 ```
 
 如果当前机器上存在 Homebrew MariaDB 的 socket：
@@ -42,3 +44,4 @@
 - `.env` 仍然不会进入版本控制
 - `install.lock` 会由准备脚本自动补齐
 - 当前本地快速启动仍然依赖 PHP `7.4` 这条遗留基线
+- 烟雾脚本默认使用 `admin / XiguaLocal@2026`，可通过 `ADMIN_USERNAME` / `ADMIN_PASSWORD` 覆盖

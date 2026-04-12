@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+APP_URL="${APP_URL:-http://127.0.0.1:8020}"
+ADMIN_USERNAME="${ADMIN_USERNAME:-admin}"
+ADMIN_PASSWORD="${ADMIN_PASSWORD:-XiguaLocal@2026}"
+
+CURLOPT_CURL="/usr/bin/curl"
+CURLOPT_PERL="/usr/bin/perl"
+CURLOPT_MKTEMP="/usr/bin/mktemp"
+
+tmpdir="$("$CURLOPT_MKTEMP" -d)"
+cleanup() {
+  rm -rf "$tmpdir"
+}
+trap cleanup EXIT
+
+login_page="$("$CURLOPT_CURL" -sS -c "$tmpdir/cookies.txt" "$APP_URL/admin/auth/login")"
+token="$(printf '%s' "$login_page" | "$CURLOPT_PERL" -n0e 'print $1 if /name="_token" value="([^"]+)"/')"
+
+if [[ -z "$token" ]]; then
+  echo "Failed to parse the admin login token."
+  exit 1
+fi
+
+login_response="$("$CURLOPT_CURL" -sS -b "$tmpdir/cookies.txt" -c "$tmpdir/cookies.txt" -X POST "$APP_URL/admin/auth/login" \
+  --data-urlencode "_token=$token" \
+  --data-urlencode "username=$ADMIN_USERNAME" \
+  --data-urlencode "password=$ADMIN_PASSWORD" \
+  --data-urlencode "remember=1")"
+
+case "$login_response" in
+  *'"status":true'*'/admin'*) ;;
+  *)
+    echo "Admin login did not return the expected success payload."
+    echo "$login_response"
+    exit 1
+    ;;
+esac
+
+assert_page() {
+  local path="$1"
+  local expected_title="$2"
+  local expected_snippet="${3:-}"
+  local html
+
+  html="$("$CURLOPT_CURL" -sS -b "$tmpdir/cookies.txt" -L "$APP_URL$path")"
+
+  case "$html" in
+    *"<title>$expected_title</title>"*) ;;
+    *)
+      echo "Unexpected title for $path"
+      echo "Expected: $expected_title"
+      exit 1
+      ;;
+  esac
+
+  if [[ -n "$expected_snippet" ]]; then
+    case "$html" in
+      *"$expected_snippet"*) ;;
+      *)
+        echo "Missing smoke snippet for $path: $expected_snippet"
+        exit 1
+        ;;
+    esac
+  fi
+
+  printf 'OK %s -> %s\n' "$path" "$expected_title"
+}
+
+assert_page "/admin" "后台总览 - 后台壳样板" "今日支付成功率"
+assert_page "/admin/v2/dashboard" "后台总览 - 后台壳样板" "今日完成订单"
+assert_page "/admin/v2/system-setting" "系统设置概览 - 后台壳样板" "编辑订单行为配置"
+assert_page "/admin/v2/goods" "商品管理 - 后台壳样板" "商品管理"
+assert_page "/admin/v2/order" "订单管理 - 后台壳样板" "订单管理"
+
+echo "Admin shell smoke checks passed."

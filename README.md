@@ -130,16 +130,19 @@ OK (209 tests, 798 assertions)
 ./scripts/php74 artisan --version
 ./scripts/php74 artisan route:list
 ./scripts/php74 -S 127.0.0.1:8020 -t public
+./scripts/smoke-admin-shell
 ```
 
 说明：
 
 - 本地开发模板在 [/.env.local.example](/Users/apple/Documents/dujiaoshuka/.env.local.example)
 - 准备脚本在 [/scripts/prepare-local-dev](/Users/apple/Documents/dujiaoshuka/scripts/prepare-local-dev)
+- 烟雾脚本在 [/scripts/smoke-admin-shell](/Users/apple/Documents/dujiaoshuka/scripts/smoke-admin-shell)
 - 默认会使用本机 `127.0.0.1:3306` 的 `dujiaoka_test` 数据库和本机 Redis
 - 如果检测到 Homebrew MariaDB 的 `/private/tmp/mysql.sock`，准备脚本会自动切到 socket 模式并使用当前系统用户
 - `.env` 不会进入版本控制
 - 当前这条本地启动路径已经完成真实 HTTP 验证，首页可返回 `200 OK`
+- 烟雾脚本会登录后台并巡检 `dashboard`、`system-setting`、`goods`、`order`
 
 更多环境说明请查看：
 
