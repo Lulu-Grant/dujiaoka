@@ -10,13 +10,15 @@
 
 # 独角数卡西瓜版
 
-<img width="1516" height="824" alt="首页效果" src="https://github.com/user-attachments/assets/664d7870-8986-41c6-a27e-1ee917111a8f" />
-
-<img width="1647" height="833" alt="后台登录界面" src="https://github.com/user-attachments/assets/9f0fe4d5-94d7-4909-83b2-e9ea680e30c1" />
-<img width="1675" height="868" alt="后台UI" src="https://github.com/user-attachments/assets/f3083155-1697-41fb-a1a4-7225db8e5d10" />
 `Lulu-Grant/dujiaoka` 是基于原始 `assimon/dujiaoka` 停更项目继续维护的分叉版本，当前品牌名为“独角数卡西瓜版”。
 
 这个仓库现在已经不是“原样存档”，也不只是“能跑就行”的修补版，而是在保留原有业务能力前提下，持续推进现代化治理、后台替换和升级前清障的维护分支。
+
+## 界面预览
+
+### 前台首页
+
+<img width="1516" height="824" alt="首页效果" src="https://github.com/user-attachments/assets/664d7870-8986-41c6-a27e-1ee917111a8f" />
 
 当前主目标：
 
@@ -68,6 +70,10 @@
 
 ### 后台壳
 
+### 后台登录
+
+<img width="1647" height="833" alt="后台登录界面" src="https://github.com/user-attachments/assets/9f0fe4d5-94d7-4909-83b2-e9ea680e30c1" />
+
 当前已落地后台壳资源：
 
 - `/admin/v2/dashboard`
@@ -91,6 +97,10 @@
 - 邮件模板 `create / edit`
 - 邮件测试发送
 - 系统设置 `base / branding / mail / push / experience`
+
+### 后台 UI
+
+<img width="1675" height="868" alt="后台UI" src="https://github.com/user-attachments/assets/f3083155-1697-41fb-a1a4-7225db8e5d10" />
 
 ### 当前仍在推进的重点
 
@@ -118,7 +128,7 @@
 当前主线测试结果基线：
 
 ```bash
-OK (209 tests, 798 assertions)
+OK (230 tests, 1049 assertions)
 ```
 
 当前仓库也已经补上 GitHub Actions 基线工作流：
