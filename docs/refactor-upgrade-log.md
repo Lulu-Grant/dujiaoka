@@ -34,6 +34,28 @@
 
 - 继续沿着后台壳扩容和旧 Dcat 降耦合主线推进，优先处理剩余高频后台页和更复杂的操作型页面。
 
+### 144. 卡密旧控制器退壳瘦身
+
+摘要：
+
+- [CarmisController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/CarmisController.php) 现在只保留 `index / create / show / edit / importCarmis` 的兼容跳转层，旧的 `Grid / Show / Form` 构建和无效 import 代码已删除。
+- [tests/Feature/LegacyAdminShellRedirectControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/LegacyAdminShellRedirectControllerTest.php) 新增对 `/admin/carmis`、`/admin/carmis/789` 和 `/admin/carmis/789/edit` 的跳转断言，确保卡密旧入口继续稳定转到新后台壳。
+
+影响范围：
+
+- 卡密旧 Dcat 资源控制器进一步瘦身
+- 旧后台的卡密浏览、编辑和详情入口全部退到新后台壳
+- 跳转行为保持不变，只是移除了不再使用的旧实现
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/LegacyAdminShellRedirectControllerTest.php` 预期通过
+- `./scripts/php74 vendor/bin/phpunit` 预期通过
+
+下一步：
+
+- 继续沿着后台壳扩容和旧 Dcat 降耦合主线推进，优先处理剩余高频后台页和更复杂的操作型页面。
+
 ### 13. 继续压缩旧后台订单控制器
 
 摘要：

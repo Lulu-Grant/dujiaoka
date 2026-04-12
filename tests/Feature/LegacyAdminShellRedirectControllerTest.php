@@ -42,8 +42,36 @@ class LegacyAdminShellRedirectControllerTest extends TestCase
         $admin = $this->makeAdmin();
 
         $this->actingAs($admin, 'admin')
+            ->get('/admin/coupon')
+            ->assertRedirect('/admin/v2/coupon');
+
+        $this->actingAs($admin, 'admin')
+            ->get('/admin/coupon/create')
+            ->assertRedirect('/admin/v2/coupon/create');
+
+        $this->actingAs($admin, 'admin')
+            ->get('/admin/coupon/456')
+            ->assertRedirect('/admin/v2/coupon/456');
+
+        $this->actingAs($admin, 'admin')
+            ->get('/admin/carmis')
+            ->assertRedirect('/admin/v2/carmis');
+
+        $this->actingAs($admin, 'admin')
             ->get('/admin/emailtpl')
             ->assertRedirect('/admin/v2/emailtpl');
+
+        $this->actingAs($admin, 'admin')
+            ->get('/admin/emailtpl/create')
+            ->assertRedirect('/admin/v2/emailtpl/create');
+
+        $this->actingAs($admin, 'admin')
+            ->get('/admin/emailtpl/123')
+            ->assertRedirect('/admin/v2/emailtpl/123');
+
+        $this->actingAs($admin, 'admin')
+            ->get('/admin/emailtpl/123/edit')
+            ->assertRedirect('/admin/v2/emailtpl/123/edit');
 
         $this->actingAs($admin, 'admin')
             ->get('/admin/goods')
@@ -68,6 +96,14 @@ class LegacyAdminShellRedirectControllerTest extends TestCase
         $this->actingAs($admin, 'admin')
             ->get('/admin/goods/789/edit')
             ->assertRedirect('/admin/v2/goods/789/edit');
+
+        $this->actingAs($admin, 'admin')
+            ->get('/admin/carmis/789')
+            ->assertRedirect('/admin/v2/carmis/789');
+
+        $this->actingAs($admin, 'admin')
+            ->get('/admin/carmis/789/edit')
+            ->assertRedirect('/admin/v2/carmis/789/edit');
 
         $this->actingAs($admin, 'admin')
             ->get('/admin/carmis/import')

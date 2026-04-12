@@ -2,19 +2,9 @@
 
 namespace App\Admin\Controllers;
 
-use App\Admin\Actions\Post\BatchRestore;
-use App\Admin\Actions\Post\Restore;
-use App\Admin\Repositories\Emailtpl;
-use App\Service\AdminDetailFieldService;
-use App\Service\AdminFormBehaviorService;
-use App\Service\AdminGridRestoreActionService;
 use App\Service\LegacyAdminShellRedirectService;
-use Dcat\Admin\Form;
-use Dcat\Admin\Grid;
 use Dcat\Admin\Layout\Content;
-use Dcat\Admin\Show;
 use Dcat\Admin\Http\Controllers\AdminController;
-use App\Models\Emailtpl as EmailTplModel;
 
 class EmailtplController extends AdminController
 {
@@ -36,89 +26,5 @@ class EmailtplController extends AdminController
     public function edit($id, Content $content)
     {
         return app(LegacyAdminShellRedirectService::class)->toResourceEdit('emailtpl', $id);
-    }
-
-    /**
-     * Make a grid builder.
-     *
-     * @return Grid
-     */
-    protected function grid()
-    {
-        return Grid::make(new Emailtpl(), function (Grid $grid) {
-            $restoreActions = app(AdminGridRestoreActionService::class);
-            $grid->column('id')->sortable();
-            $grid->column('tpl_name');
-            $grid->column('tpl_token');
-            $grid->column('created_at');
-            $grid->column('updated_at')->sortable();
-            $grid->disableViewButton();
-            $grid->disableDeleteButton();
-            $grid->filter(function (Grid\Filter $filter) {
-                $filter->equal('id');
-                $filter->like('tpl_name');
-                $filter->like('tpl_token');
-            });
-            $grid->actions(function (Grid\Displayers\Actions $actions) {
-                $restoreActions->attachRowRestore($actions, EmailTplModel::class);
-            });
-            $grid->batchActions(function (Grid\Tools\BatchActions $batch) {
-                $restoreActions->attachBatchRestore($batch, EmailTplModel::class);
-            });
-        });
-    }
-
-    /**
-     * Make a show builder.
-     *
-     * @param mixed $id
-     *
-     * @return Show
-     */
-    protected function detail($id)
-    {
-        return Show::make($id, new Emailtpl(), function (Show $show) {
-            app(AdminDetailFieldService::class)->attachShowFields($show, [
-                'id',
-                'tpl_name',
-                'tpl_content',
-                'tpl_token',
-                'created_at',
-                'updated_at',
-            ]);
-        });
-    }
-
-    /**
-     * Make a form builder.
-     *
-     * @return Form
-     */
-    protected function form()
-    {
-        return Form::make(new Emailtpl(), function (Form $form) {
-            $behavior = app(AdminFormBehaviorService::class);
-            $tokenMode = $behavior->emailTemplateTokenFieldMode($form->isCreating());
-
-            app(AdminDetailFieldService::class)->attachDisplayFields($form, ['id']);
-            $form->text('tpl_name')->required();
-            $form->editor('tpl_content')->required();
-            $tokenField = $form->text('tpl_token');
-            if ($tokenMode['required']) {
-                $tokenField->required();
-            }
-            if ($tokenMode['disabled']) {
-                $tokenField->disable();
-            }
-            app(AdminDetailFieldService::class)->attachDisplayFields($form, [
-                'created_at',
-                'updated_at',
-            ]);
-            $form->disableViewButton();
-            $form->disableDeleteButton();
-            $form->footer(function ($footer) {
-                app(AdminFormBehaviorService::class)->disableViewCheck($footer);
-            });
-        });
     }
 }
