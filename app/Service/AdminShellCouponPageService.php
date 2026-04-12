@@ -87,6 +87,10 @@ class AdminShellCouponPageService extends AbstractAdminShellPageService
                     e((string) $coupon->updated_at),
                     $this->renderActionLinks([
                         [
+                            'label' => '编辑优惠码',
+                            'href' => admin_url($definition['uri'].'/'.$coupon->id.'/edit'),
+                        ],
+                        [
                             'label' => '查看详情',
                             'href' => admin_url($definition['uri'].'/'.$coupon->id.($scope ? '?scope='.$scope : '')),
                         ],
@@ -101,7 +105,14 @@ class AdminShellCouponPageService extends AbstractAdminShellPageService
 
     public function buildHeader(LengthAwarePaginator $coupons): array
     {
-        return $this->buildResourceHeader('共 '.$coupons->total().' 条优惠码');
+        $header = $this->buildResourceHeader('共 '.$coupons->total().' 条优惠码');
+        $header['actions'][] = [
+            'label' => '新建优惠码',
+            'href' => admin_url('v2/coupon/create'),
+            'variant' => 'primary',
+        ];
+
+        return $header;
     }
 
     public function buildFilters(array $filters): array

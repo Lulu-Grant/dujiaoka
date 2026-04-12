@@ -2977,3 +2977,26 @@
 下一步：
 
 - 继续沿着这条路径推进更多标准业务编辑页，或挑一张中风险批量动作页继续扩大后台壳的实际承载范围。
+
+### 126. 落地优惠码新建与编辑动作页样板
+
+摘要：
+
+- 新增 [CouponActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/CouponActionController.php) 与 [form.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/coupon/form.blade.php)，把优惠码新建和编辑动作接入后台壳。
+- 新增 [CouponActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/CouponActionService.php)，将优惠码创建、更新和关联商品同步收口到普通服务层。
+- [AdminShellCouponPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellCouponPageService.php) 已在优惠码概览页头补上“新建优惠码”入口，并在表格操作列补上“编辑优惠码”入口。
+- [app/Admin/routes.php](/Users/apple/Documents/dujiaoshuka/app/Admin/routes.php) 已新增 `/admin/v2/coupon/create` 与 `/admin/v2/coupon/{id}/edit` 的 GET/POST 路由，后台壳开始承接优惠码标准业务表单页面。
+
+影响范围：
+
+- 后台壳对带关联商品的标准业务表单页的承接能力
+- 优惠码管理从只读概览页走向真实创建与编辑页
+- 旧后台表单逻辑向普通服务层迁移的模式验证
+
+验证：
+
+- 当前全量回归结果：`OK (180 tests, 636 assertions)`
+
+下一步：
+
+- 继续沿着这条路线推进更多标准业务编辑页，或挑一张中风险批量动作页继续扩大后台壳的实际承载范围。
