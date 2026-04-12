@@ -11,6 +11,73 @@
 
 ## 2026-04-12 阶段日志
 
+### 13. 继续压缩旧后台订单控制器
+
+摘要：
+
+- 将 [app/Admin/Controllers/OrderController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/OrderController.php) 进一步瘦身为兼容跳转层，仅保留 `index`、`show`、`edit` 三个入口。
+- 删除了旧 `OrderController` 中已不再使用的 Dcat `Grid`、`Show`、`Form` 旧实现以及对应的多余 import，避免旧资源控制器继续承载重复渲染逻辑。
+- 在 [tests/Feature/LegacyAdminShellRedirectControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/LegacyAdminShellRedirectControllerTest.php) 新增订单 show 旧路由的跳转断言，确保 `/admin/order/{id}` 仍稳定进入新后台壳，不改变既有 URL 与跳转行为。
+
+影响范围：
+
+- 旧后台订单资源控制器的承载面继续收缩
+- 旧 `admin/order` 路由仍保留，但只承担兼容跳转
+- 订单后台逻辑进一步向新壳集中
+
+验证：
+
+- 订单旧路由的跳转断言已补充，后续可通过全量 PHPUnit 再次确认。
+
+下一步：
+
+- 继续沿着后台壳扩容和旧 Dcat 降耦合主线推进，优先处理剩余高频后台页和更复杂的操作型页面。
+
+### 144. GoodsController 退壳瘦身
+
+摘要：
+
+- [GoodsController.php](/Users/apple/Documents/dujiaoshuka/app/Admin/Controllers/GoodsController.php) 现在只保留 `index/create/show/edit` 四个兼容跳转入口，彻底移除了旧 Dcat 的 `Grid`、`Show`、`Form` 构建实现和已不再使用的 import。
+- [tests/Feature/LegacyAdminShellRedirectControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/LegacyAdminShellRedirectControllerTest.php) 补充了商品列表、创建页和编辑页的旧入口跳转护栏，确保兼容层仍然只负责转发，不改变 URL 和跳转行为。
+- 这次瘦身没有调整任何商品相关 URL，也没有改变新后台壳的路由落点，只把旧 Dcat 控制器里的冗余实现清掉了，进一步降低旧层体积。
+
+影响范围：
+
+- `app/Admin/Controllers/GoodsController.php` 的旧 Dcat 承载面
+- 商品旧入口兼容跳转行为
+- 后台壳继续作为商品管理的主承载层
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/LegacyAdminShellRedirectControllerTest.php` 通过
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果待本轮完整回归确认
+
+下一步：
+
+- 继续沿着后台壳扩容和旧 Dcat 降耦合主线推进，优先处理剩余高频后台页和更复杂的操作型页面。
+
+### 11. 强化后台总览的快捷入口与运营提示
+
+摘要：
+
+- 将 [AdminShellDashboardPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellDashboardPageService.php) 扩展为更偏“指挥台”的页面数据提供者，优先补入 `账号设置`、`系统设置分组`、`高频管理页` 三类快捷入口。
+- 更新 [resources/views/admin-shell/dashboard/index.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/dashboard/index.blade.php)，新增快捷分组区块与本日操作建议区块，让首页从“统计+概览”进一步变成“巡检+跳转+处置”的入口面板。
+- 同步扩展 [AdminShellDashboardControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellDashboardControllerTest.php) 与 [AdminShellDashboardPageServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellDashboardPageServiceTest.php)，锁定新快捷入口与提示文案。
+
+影响范围：
+
+- 后台壳首页
+- 首页快捷入口组织方式
+- 首页运营提示表达
+
+验证：
+
+- 页面服务与 Feature 测试均已更新，后续再跑全量 PHPUnit 与浏览器烟雾检查确认展示效果。
+
+下一步：
+
+- 持续沿“后台壳扩容 + 旧 Dcat 降耦合”主线推进，优先把更多高频页压到新后台壳里。
+
 ### 10. 建立十路并行开发总纲
 
 摘要：
@@ -31,6 +98,28 @@
 下一步：
 
 - 按十路并行计划继续推进后台壳扩容与旧 Dcat 降耦合。
+
+### 12. 扩面后台壳烟雾检查
+
+摘要：
+
+- 将 [tests/Browser/admin-shell-smoke.sh](/Users/apple/Documents/dujiaoshuka/tests/Browser/admin-shell-smoke.sh) 扩展为登录后关键路径巡检，新增 `auth/setting`、`system-setting/base`、`goods/create` 等页面检查。
+- 同步更新 [README.md](/Users/apple/Documents/dujiaoshuka/README.md) 与 [docs/local-dev-quickstart.md](/Users/apple/Documents/dujiaoshuka/docs/local-dev-quickstart.md)，让本地快速拉站说明与 smoke 覆盖范围保持一致。
+- 保持脚本仍然是轻量 `curl` 路线，没有引入额外依赖，方便在当前本地流程中直接使用。
+
+影响范围：
+
+- 本地快速拉站
+- 后台登录后路径回归
+- 烟雾检查覆盖面
+
+验证：
+
+- 更新后 smoke 脚本将继续兼容现有后台登录流程。
+
+下一步：
+
+- 继续把后台壳的其他稳定动作页纳入烟雾检查，优先保持低依赖、高可运行性。
 
 ## 2026-04-02 阶段日志
 
@@ -3392,6 +3481,54 @@
 - `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminAuthShellLoginTest.php` 通过
 - `./scripts/smoke-admin-shell` 通过
 - `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (223 tests, 973 assertions)`
+
+下一步：
+
+- 继续沿着后台壳扩容和旧 Dcat 降耦合主线推进，优先处理剩余高频后台页和更复杂的操作型页面。
+
+### 143. 后台壳动作路由收口
+
+摘要：
+
+- [AdminShellResourceRegistry.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellResourceRegistry.php) 为后台壳资源补充动作路由声明，集中定义 create / store / edit / update / import / send / system-setting 分组动作。
+- [AdminShellRouteRegistrar.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellRouteRegistrar.php) 现在统一读取注册表并挂载动作路由，继续保留现有 `/admin/v2/*` URL，不改外部入口。
+- [app/Admin/routes.php](/Users/apple/Documents/dujiaoshuka/app/Admin/routes.php) 删除了大段手写的 `admin/v2` 动作路由，只保留资源壳、dashboard 和少量旧入口兼容路由。
+- [AdminShellRouteRegistrarTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellRouteRegistrarTest.php) 新增对关键动作路由的注册断言，覆盖商品、邮件模板、支付、卡密导入、系统设置和邮件测试等入口。
+
+影响范围：
+
+- 后台壳动作路由集中声明
+- `app/Admin/routes.php` 的手写路由显著收口
+- 现有 `admin/v2` URL 保持不变
+- 后续新增后台壳动作页时只需补注册表与控制器，不再散落路由定义
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/AdminShellRouteRegistrarTest.php` 通过
+- `./scripts/php74 vendor/bin/phpunit` 通过后补充
+
+下一步：
+
+- 继续沿着后台壳扩容和旧 Dcat 降耦合主线推进，优先处理剩余高频后台页和更复杂的操作型页面。
+
+### 143. 系统设置概览面板化
+
+摘要：
+
+- [AdminShellSystemSettingPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellSystemSettingPageService.php) 重新整理了系统设置概览的分组结构，新增 `品牌与展示配置` 分组，并把索引页的定位从“只读列表”改成“配置导航面板”。
+- 概览页的每个分组都增加了明确的入口动作，行内现在可以直接进入对应配置页，避免用户在详情页和编辑页之间多绕一层。
+- [tests/Feature/AdminShellSystemSettingControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellSystemSettingControllerTest.php) 新增对品牌分组、导航面板标题和直达入口文案的护栏，确保概览页不会回退成普通列表视图。
+
+影响范围：
+
+- 系统设置概览页从“只读列表”升级为“配置导航面板”
+- 品牌 / 基础 / 邮件 / 订单 / 通知 / 体验六个配置入口更清晰
+- 便于后续继续扩展系统设置的更多分组或动作页
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellSystemSettingControllerTest.php` 通过
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果待本轮完整回归确认
 
 下一步：
 

@@ -26,9 +26,14 @@ class AdminShellDashboardControllerTest extends TestCase
         $response->assertOk();
         $response->assertSee('后台总览');
         $response->assertSee('首页先变成指挥台，再慢慢替代旧后台');
+        $response->assertSee('账号设置');
+        $response->assertSee('系统设置分组');
+        $response->assertSee('高频管理页');
         $response->assertSee('系统健康状态');
         $response->assertSee('快捷入口');
+        $response->assertSee('快捷分组');
         $response->assertSee('运营视图');
+        $response->assertSee('本日操作建议');
         $response->assertSee('订单状态分布');
     }
 

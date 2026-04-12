@@ -21,15 +21,18 @@ class AdminShellDashboardPageService
         $successOrders = $this->metricsService->successOrderSummary('today');
         $payout = $this->metricsService->payoutSummary('today');
         $health = $this->buildHealthOverview($successRate, $payout);
+        $shortcutGroups = $this->buildShortcutGroups();
 
         return [
             'title' => '后台总览 - 后台壳样板',
             'header' => [
                 'kicker' => 'Admin Shell Dashboard',
                 'title' => '后台总览',
-                'description' => '这是后台壳中的首页控制台。这里优先呈现健康状态、快捷入口和运营概览，让首页先从“看数据”升级成“指挥中心”。',
-                'meta' => '当前数据口径与旧后台保持一致，但展示层已经切换为更适合日常巡检的控制台布局。',
+                'description' => '这是后台壳中的首页控制台。这里优先呈现健康状态、账号设置、系统设置分组和高频管理页，让首页先从“看数据”升级成“指挥中心”。',
+                'meta' => '当前数据口径与旧后台保持一致，但展示层已经切换为更适合日常巡检的控制台布局。优先从账号设置、系统设置分组和高频管理页开始操作。',
                 'actions' => [
+                    ['label' => '账号设置', 'href' => admin_url('auth/setting')],
+                    ['label' => '系统设置分组', 'href' => admin_url('v2/system-setting')],
                     ['label' => '查看订单管理', 'href' => admin_url('v2/order')],
                     ['label' => '查看商品管理', 'href' => admin_url('v2/goods')],
                 ],
@@ -44,6 +47,8 @@ class AdminShellDashboardPageService
                 'health_note' => $health['note'],
             ],
             'quick_links' => $this->buildQuickLinks(),
+            'shortcut_groups' => $shortcutGroups,
+            'operator_brief' => $this->buildOperatorBrief($shortcutGroups, $health),
             'health' => $health,
             'cards' => [
                 [
@@ -56,7 +61,7 @@ class AdminShellDashboardPageService
                 [
                     'eyebrow' => 'Sales',
                     'title' => '今日销售额',
-                    'value' => $heroSales = number_format((float) $sales['total_price'], 2, '.', ''),
+                    'value' => number_format((float) $sales['total_price'], 2, '.', ''),
                     'description' => '统计范围内已进入履约链的订单销售额总和。',
                     'accent' => 'amber',
                 ],
@@ -118,6 +123,16 @@ class AdminShellDashboardPageService
     {
         return [
             [
+                'label' => '账号设置',
+                'description' => '修改昵称、头像和登录密码。',
+                'href' => admin_url('auth/setting'),
+            ],
+            [
+                'label' => '系统设置分组',
+                'description' => '集中进入基础、品牌、邮件、通知和体验配置。',
+                'href' => admin_url('v2/system-setting'),
+            ],
+            [
                 'label' => '订单管理',
                 'description' => '查看待处理、处理中和已完成订单。',
                 'href' => admin_url('v2/order'),
@@ -143,9 +158,9 @@ class AdminShellDashboardPageService
                 'href' => admin_url('v2/pay'),
             ],
             [
-                'label' => '系统设置',
-                'description' => '调整订单、品牌和通知配置。',
-                'href' => admin_url('v2/system-setting'),
+                'label' => '邮件模板',
+                'description' => '维护通知模板和变量说明。',
+                'href' => admin_url('v2/emailtpl'),
             ],
             [
                 'label' => '邮件测试',
@@ -153,6 +168,73 @@ class AdminShellDashboardPageService
                 'href' => admin_url('v2/email-test'),
             ],
         ];
+    }
+
+    private function buildShortcutGroups(): array
+    {
+        return [
+            [
+                'title' => '账号与系统',
+                'description' => '先把登录入口、基础配置和品牌信息收拢好。',
+                'items' => [
+                    ['label' => '账号设置', 'description' => '昵称、头像、密码', 'href' => admin_url('auth/setting')],
+                    ['label' => '系统设置总览', 'description' => '所有配置分组入口', 'href' => admin_url('v2/system-setting')],
+                    ['label' => '基础配置', 'description' => '站点标题、语言、过期时间', 'href' => admin_url('v2/system-setting/base')],
+                    ['label' => '品牌与 Logo', 'description' => '文本 Logo、图片 Logo、主题', 'href' => admin_url('v2/system-setting/branding')],
+                    ['label' => '通知推送', 'description' => 'Server 酱、Telegram、Bark', 'href' => admin_url('v2/system-setting/push')],
+                ],
+            ],
+            [
+                'title' => '高频管理页',
+                'description' => '日常巡检优先打开这些入口，减少来回找页的成本。',
+                'items' => [
+                    ['label' => '订单管理', 'description' => '待处理、处理中、已完成', 'href' => admin_url('v2/order')],
+                    ['label' => '商品管理', 'description' => '库存、售价、上下架', 'href' => admin_url('v2/goods')],
+                    ['label' => '卡密管理', 'description' => '导入、编辑、巡检库存', 'href' => admin_url('v2/carmis')],
+                    ['label' => '优惠码管理', 'description' => '折扣、次数、启用状态', 'href' => admin_url('v2/coupon')],
+                    ['label' => '支付通道', 'description' => '回调、密钥、启用状态', 'href' => admin_url('v2/pay')],
+                ],
+            ],
+            [
+                'title' => '模板与辅助工具',
+                'description' => '把模板和辅助入口放在一起，方便值班时快速处理。',
+                'items' => [
+                    ['label' => '邮件模板', 'description' => '变量、预览、用途', 'href' => admin_url('v2/emailtpl')],
+                    ['label' => '邮件测试', 'description' => '快速验证发信链路', 'href' => admin_url('v2/email-test')],
+                    ['label' => '商品分类', 'description' => '分类、排序、状态', 'href' => admin_url('v2/goods-group')],
+                ],
+            ],
+        ];
+    }
+
+    private function buildOperatorBrief(array $shortcutGroups, array $health): array
+    {
+        $brief = [
+            [
+                'title' => '第一步：先看异常订单',
+                'description' => '如果健康状态不是“健康”，先进入订单管理处理异常和待支付，再回到总览确认变化。',
+            ],
+            [
+                'title' => '第二步：确认账号与系统设置',
+                'description' => '账号设置、系统设置总览、品牌与 Logo、通知推送都应该在问题排查前先确认一遍。',
+            ],
+            [
+                'title' => '第三步：打开高频管理页',
+                'description' => '订单、商品、卡密、优惠码和支付通道是日常值守的第一线，建议作为浏览器常驻页。',
+            ],
+        ];
+
+        if ($health['tone'] === 'danger') {
+            $brief[0]['description'] = '健康状态已降到关注级，优先进入订单管理处理异常订单，再确认支付通道是否正常。';
+        } elseif ($health['tone'] === 'warning') {
+            $brief[0]['description'] = '健康状态进入观察区，优先检查订单管理和待支付订单，再回到总览确认。';
+        }
+
+        if (!empty($shortcutGroups[0]['items'][0]['href'])) {
+            $brief[1]['description'] = '账号设置和系统设置分组已经单独收拢，品牌、邮件、通知、体验配置都从这里进入。';
+        }
+
+        return $brief;
     }
 
     private function buildHealthOverview(array $successRate, array $payout): array

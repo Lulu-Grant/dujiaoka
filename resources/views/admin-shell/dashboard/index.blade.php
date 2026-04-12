@@ -213,6 +213,12 @@
             grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 16px;
         }
+        .dashboard-playbook-grid,
+        .dashboard-shortcut-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+        }
         .dashboard-health,
         .dashboard-operations {
             background: var(--panel);
@@ -244,6 +250,71 @@
         .dashboard-health__item strong,
         .dashboard-operations__item strong {
             font-size: 18px;
+        }
+        .dashboard-shortcut-card,
+        .dashboard-playbook-card {
+            display: grid;
+            gap: 12px;
+            padding: 20px;
+            border-radius: 22px;
+            border: 1px solid var(--line);
+            background: linear-gradient(180deg, #ffffff 0%, #f7faf4 100%);
+            box-shadow: 0 16px 36px rgba(32, 51, 38, 0.08);
+        }
+        .dashboard-shortcut-card h3,
+        .dashboard-playbook-card h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+        .dashboard-shortcut-card p,
+        .dashboard-playbook-card p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+        .dashboard-shortcut-list,
+        .dashboard-playbook-list {
+            display: grid;
+            gap: 10px;
+        }
+        .dashboard-shortcut-link {
+            display: grid;
+            gap: 4px;
+            padding: 12px 14px;
+            border-radius: 16px;
+            background: rgba(44, 143, 87, 0.06);
+            border: 1px solid rgba(44, 143, 87, 0.10);
+            color: inherit;
+            text-decoration: none;
+            transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
+        }
+        .dashboard-shortcut-link:hover {
+            transform: translateY(-1px);
+            background: rgba(44, 143, 87, 0.1);
+            border-color: rgba(44, 143, 87, 0.18);
+        }
+        .dashboard-shortcut-link strong {
+            font-size: 14px;
+        }
+        .dashboard-shortcut-link span {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .dashboard-playbook-step {
+            display: grid;
+            gap: 4px;
+            padding: 12px 0;
+            border-bottom: 1px dashed rgba(34,49,39,0.08);
+        }
+        .dashboard-playbook-step:last-child {
+            border-bottom: 0;
+            padding-bottom: 0;
+        }
+        .dashboard-playbook-step span {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.55;
         }
         .dashboard-card-grid {
             margin-top: 18px;
@@ -355,7 +426,7 @@
             <div>
                 <div class="dashboard-kicker">Xigua Control Surface</div>
                 <h2 class="dashboard-headline">首页先变成指挥台，再慢慢替代旧后台。</h2>
-                <p class="dashboard-subline">这里不只是统计页，而是后台壳的运行面板。健康状态、快捷入口、运营视图和关键指标会按层次摆开，让巡检、处理和跳转都更直接。</p>
+                <p class="dashboard-subline">这里不只是统计页，而是后台壳的运行面板。我们先把账号设置、系统设置分组和高频管理页摆在最前面，再把健康状态、巡检建议和关键指标铺开，让值班的人少找页面，多做处理。</p>
                 <div class="dashboard-hero-meta">
                     <div class="dashboard-hero-pill">
                         <label>今日成功率</label>
@@ -374,18 +445,12 @@
                         <strong>{{ $hero['completed_count'] }}</strong>
                     </div>
                 </div>
+                <div style="margin-top: 18px;">
+                    <div class="dashboard-health-badge {{ $health['tone'] }}">{{ $health['label'] }}</div>
+                    <p class="dashboard-subline" style="margin-top: 10px;">{{ $health['note'] }}</p>
+                </div>
             </div>
             <div class="dashboard-hero-panel">
-                <div class="dashboard-hero-strip">
-                    <div class="dashboard-health-ring" style="--score: {{ $health['score'] }}">
-                        <span>{{ $health['score'] }}</span>
-                    </div>
-                    <div class="dashboard-health-copy">
-                        <small>系统健康状态</small>
-                        <strong class="dashboard-health-badge {{ $health['tone'] }}">{{ $health['label'] }}</strong>
-                        <p>{{ $health['note'] }}</p>
-                    </div>
-                </div>
                 <div class="dashboard-quick-panel">
                     <h3>快捷入口</h3>
                     <div class="dashboard-quick-list">
@@ -402,11 +467,34 @@
     </section>
 
     <section>
+        <h3 class="dashboard-section-title">快捷分组</h3>
+        <p class="dashboard-section-copy">把账号设置、系统设置分组和高频管理页先固定在这个区块，值班时不用再在旧后台里绕路。</p>
+        <div class="dashboard-shortcut-grid">
+            @foreach($shortcut_groups as $group)
+                <article class="dashboard-shortcut-card">
+                    <div>
+                        <h3>{{ $group['title'] }}</h3>
+                        <p>{{ $group['description'] }}</p>
+                    </div>
+                    <div class="dashboard-shortcut-list">
+                        @foreach($group['items'] as $item)
+                            <a class="dashboard-shortcut-link" href="{{ $item['href'] }}">
+                                <strong>{{ $item['label'] }}</strong>
+                                <span>{{ $item['description'] }}</span>
+                            </a>
+                        @endforeach
+                    </div>
+                </article>
+            @endforeach
+        </div>
+    </section>
+
+    <section>
         <h3 class="dashboard-section-title">运营视图</h3>
-        <p class="dashboard-section-copy">先把今天最需要处理的信号放在最前面，方便快速巡检和分派处理。</p>
+        <p class="dashboard-section-copy">先把今天最需要处理的信号放在最前面，配合上面的快捷分组，方便快速巡检和分派处理。</p>
         <div class="dashboard-panel-grid">
             <div class="dashboard-health">
-                <h3>健康状态</h3>
+                <h3>系统健康状态</h3>
                 <div class="dashboard-health__list">
                     <div class="dashboard-health__item">
                         <span>健康评分</span>
@@ -434,21 +522,15 @@
                     @endforeach
                 </div>
             </div>
-            <div class="dashboard-health">
-                <h3>运营建议</h3>
-                <div class="dashboard-health__list">
-                    <div class="dashboard-health__item">
-                        <span>优先顺序</span>
-                        <strong>订单 / 支付 / 商品</strong>
-                    </div>
-                    <div class="dashboard-health__item">
-                        <span>巡检重点</span>
-                        <strong>异常订单与待支付</strong>
-                    </div>
-                    <div class="dashboard-health__item">
-                        <span>首页目标</span>
-                        <strong>让处理动作比找页面更快</strong>
-                    </div>
+            <div class="dashboard-playbook-card">
+                <h3>本日操作建议</h3>
+                <div class="dashboard-playbook-list">
+                    @foreach($operator_brief as $brief)
+                        <div class="dashboard-playbook-step">
+                            <strong>{{ $brief['title'] }}</strong>
+                            <span>{{ $brief['description'] }}</span>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </div>
