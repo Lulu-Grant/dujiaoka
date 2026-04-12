@@ -10,6 +10,7 @@ use App\Models\Pay;
 use App\Service\AbstractAdminShellPageService;
 use App\Service\AdminShellCarmisPageService;
 use App\Service\AdminShellCouponPageService;
+use App\Service\AdminShellSystemSettingPageService;
 use App\Service\Contracts\AdminShellPageServiceInterface;
 use App\Service\DataTransferObjects\AdminShellIndexPageData;
 use App\Service\DataTransferObjects\AdminShellShowPageData;
@@ -164,6 +165,7 @@ class AdminShellPageStructureTest extends TestCase
         $this->assertInstanceOf(AbstractAdminShellPageService::class, $this->app->make(AdminShellPayPageService::class));
         $this->assertInstanceOf(AbstractAdminShellPageService::class, $this->app->make(AdminShellCouponPageService::class));
         $this->assertInstanceOf(AbstractAdminShellPageService::class, $this->app->make(AdminShellCarmisPageService::class));
+        $this->assertInstanceOf(AbstractAdminShellPageService::class, $this->app->make(AdminShellSystemSettingPageService::class));
     }
 
     public function test_coupon_page_service_builds_table_and_detail_items()
@@ -255,5 +257,33 @@ class AdminShellPageStructureTest extends TestCase
         $this->assertSame('当前条件下没有卡密记录。', $table['empty_title']);
         $this->assertSame('卡密内容', $items[4]['label']);
         $this->assertSame('CARD-505-XYZ', $items[4]['value']);
+    }
+
+    public function test_system_setting_page_service_builds_table_and_detail_items()
+    {
+        $service = $this->app->make(AdminShellSystemSettingPageService::class);
+        $this->assertInstanceOf(AdminShellPageServiceInterface::class, $service);
+
+        $sections = $service->paginate(['section' => '邮件']);
+        $header = $service->buildHeader($sections);
+        $filters = $service->buildFilters(['section' => '邮件']);
+        $showHeader = $service->buildShowHeader();
+        $section = $service->find(3);
+        $indexPage = $service->buildIndexPageData($sections, ['section' => '邮件']);
+        $showPage = $service->buildShowPageData($section);
+        $items = $service->detailItems($section);
+        $requestFilters = $service->extractFilters(Request::create('/admin/v2/system-setting', 'GET', ['section' => '邮件']));
+
+        $this->assertSame('系统设置概览', $header['title']);
+        $this->assertSame('邮件', $requestFilters['section']);
+        $this->assertSame('分组关键字', $filters['fields'][0]['label']);
+        $this->assertSame('系统设置详情', $showHeader['title']);
+        $this->assertInstanceOf(AdminShellIndexPageData::class, $indexPage);
+        $this->assertInstanceOf(AdminShellShowPageData::class, $showPage);
+        $this->assertSame('系统设置概览 - 后台壳样板', $indexPage->title);
+        $this->assertSame('系统设置详情 - 后台壳样板', $showPage->title);
+        $this->assertSame('配置分组', $service->buildTable($sections)['headers'][1]);
+        $this->assertSame('当前条件下没有系统设置分组。', $service->buildTable($sections)['empty_title']);
+        $this->assertSame('邮件驱动', $items[0]['label']);
     }
 }

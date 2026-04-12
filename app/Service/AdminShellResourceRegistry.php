@@ -67,6 +67,17 @@ class AdminShellResourceRegistry
                 'uri' => 'v2/carmis',
                 'uses_scope' => true,
             ],
+            'system-setting' => [
+                'nav_label' => '系统设置概览',
+                'index_title' => '系统设置概览',
+                'index_description' => '这是第二批后台迁移的配置型页面样板。当前按配置分组展示站点、通知与邮件设置，不再依赖 Dcat Card 页面壳。',
+                'show_title' => '系统设置详情',
+                'show_description' => '这张详情页按配置分组展示设置项，为后续迁移真正的配置编辑页提供分组合同。',
+                'controller' => \App\Http\Controllers\AdminShell\SystemSettingShellController::class,
+                'service' => \App\Service\AdminShellSystemSettingPageService::class,
+                'uri' => 'v2/system-setting',
+                'uses_scope' => false,
+            ],
         ];
     }
 

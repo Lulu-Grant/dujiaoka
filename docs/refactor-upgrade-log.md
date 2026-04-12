@@ -2733,3 +2733,25 @@
 下一步：
 
 - 继续沿着第二批优先级推进系统设置或邮件测试，让后台壳开始覆盖非标准 CRUD 页面。
+
+### 115. 落地第二批后台壳配置型样板页：系统设置概览
+
+摘要：
+
+- 新增 [SystemSettingShellController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/SystemSettingShellController.php) 和 [AdminShellSystemSettingPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellSystemSettingPageService.php)，把系统设置作为分组化只读页面接入后台壳。
+- [AdminShellResourceRegistry.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellResourceRegistry.php) 已加入 `system-setting` 资源定义，因此后台壳路由、权限白名单和导航会自动接入 `/admin/v2/system-setting`。
+- 新增 [AdminShellSystemSettingControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellSystemSettingControllerTest.php)，并扩展 [AdminShellPageStructureTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellPageStructureTest.php) 与 [AdminShellResourceRegistryTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellResourceRegistryTest.php)，守住配置型页面的展示合同。
+
+影响范围：
+
+- 第二批后台页从标准 CRUD 扩展到配置型页面
+- 后台壳资源注册表对非标准页面的承载能力
+- 系统设置概览页的只读样板接入路径
+
+验证：
+
+- 当前全量回归结果：`OK (154 tests, 493 assertions)`
+
+下一步：
+
+- 继续推进邮件测试或系统设置编辑路径，让后台壳开始覆盖操作型配置页面。
