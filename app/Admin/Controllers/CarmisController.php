@@ -132,6 +132,6 @@ class CarmisController extends AdminController
      */
     public function importCarmis(Content $content)
     {
-        return app(LegacyAdminShellRedirectService::class)->toPath('v2/carmis/import');
+        return app(LegacyAdminShellRedirectService::class)->toCarmiImport();
     }
 }

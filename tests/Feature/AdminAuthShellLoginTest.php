@@ -52,6 +52,17 @@ class AdminAuthShellLoginTest extends TestCase
         $this->assertGuest('admin');
     }
 
+    public function test_admin_can_logout_back_to_shell_login_page(): void
+    {
+        $admin = $this->makeAdmin();
+
+        $response = $this->actingAs($admin, 'admin')
+            ->get('/admin/auth/logout');
+
+        $response->assertRedirect('/admin/auth/login');
+        $this->assertGuest('admin');
+    }
+
     private function makeAdmin(): Administrator
     {
         DB::table('admin_users')->updateOrInsert(

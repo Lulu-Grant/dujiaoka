@@ -21,6 +21,11 @@ class LegacyAdminShellRedirectService
         return $this->toPath('v2/email-test');
     }
 
+    public function toCarmiImport(): RedirectResponse
+    {
+        return $this->toPath('v2/carmis/import');
+    }
+
     public function toResourceIndex(string $resource): RedirectResponse
     {
         return $this->toPath('v2/'.$resource);
