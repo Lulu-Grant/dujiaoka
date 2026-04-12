@@ -265,6 +265,8 @@ class AdminShellPageStructureTest extends TestCase
         $this->assertSame('XIGUA', $requestFilters['order_sn']);
         $this->assertSame('订单状态', $filters['fields'][2]['label']);
         $this->assertSame('订单详情', $showHeader['title']);
+        $this->assertStringContainsString('订单号：XIGUA-ORDER-350', $showHeader['meta']);
+        $this->assertStringContainsString('支付：Stripe', $showHeader['meta']);
         $this->assertInstanceOf(AdminShellIndexPageData::class, $indexPage);
         $this->assertInstanceOf(AdminShellShowPageData::class, $showPage);
         $this->assertSame('订单管理 - 后台壳样板', $indexPage->title);

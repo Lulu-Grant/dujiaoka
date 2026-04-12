@@ -190,6 +190,7 @@ class AdminShellOrderPageService extends AbstractAdminShellPageService
     public function buildShowHeader(?string $scope = null, ?Order $order = null): array
     {
         $header = $this->buildResourceShowHeader($scope);
+        $header['meta'] = $order ? $this->buildReadOnlyMeta($order) : '订单详情与支付、商品和查询信息分开展示，方便人工维护时快速确认上下文。';
 
         if ($order) {
             $header['actions'][] = [
@@ -200,6 +201,17 @@ class AdminShellOrderPageService extends AbstractAdminShellPageService
         }
 
         return $header;
+    }
+
+    private function buildReadOnlyMeta(Order $order): string
+    {
+        return implode(' | ', [
+            '订单号：'.$order->order_sn,
+            '状态：'.$this->statusLabel($order->status),
+            '类型：'.$this->typeLabel($order->type),
+            '支付：'.(optional($order->pay)->pay_name ?: '未选择支付'),
+            '实付：'.(string) $order->actual_price,
+        ]);
     }
 
     public function buildIndexPageData(LengthAwarePaginator $orders, array $filters): AdminShellIndexPageData

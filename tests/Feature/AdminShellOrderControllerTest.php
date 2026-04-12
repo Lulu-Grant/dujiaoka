@@ -58,6 +58,9 @@ class AdminShellOrderControllerTest extends TestCase
         $response->assertOk();
         $response->assertSee('编辑订单');
         $response->assertSee('XIGUA-ORDER-97001');
+        $response->assertSee('当前订单概览');
+        $response->assertSee('仅允许修改标题、附加信息、状态、查询密码和订单类型');
+        $response->assertSee('可编辑字段：订单标题、订单附加信息、订单状态、查询密码、订单类型');
         $response->assertSee('search-me');
     }
 

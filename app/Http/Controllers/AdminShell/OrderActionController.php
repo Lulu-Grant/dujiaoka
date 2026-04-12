@@ -28,7 +28,7 @@ class OrderActionController extends Controller
             'header' => [
                 'kicker' => 'Admin Shell Action',
                 'title' => '编辑订单',
-                'description' => '这是后台壳中的订单编辑样板页。当前只承接旧后台原本可编辑的标题、附加信息、状态、查询密码和订单类型，不直接触碰支付完成与履约链动作。',
+                'description' => '这是后台壳中的订单编辑样板页。当前仅允许修改标题、附加信息、状态、查询密码和订单类型，不直接触碰支付完成与履约链动作。',
                 'meta' => '这一步优先把订单的低风险人工维护入口迁进后台壳，后续再评估更复杂的订单动作页。',
                 'actions' => [
                     ['label' => '返回订单概览', 'href' => admin_url('v2/order')],
@@ -38,6 +38,7 @@ class OrderActionController extends Controller
             'formAction' => admin_url('v2/order/'.$order->id.'/edit'),
             'submitLabel' => '保存订单',
             'defaults' => $this->orderActionService->editDefaults($order),
+            'context' => $this->orderActionService->editContext($order),
             'statusOptions' => Order::getStatusMap(),
             'typeOptions' => Order::getTypeMap(),
             'order' => $order,
