@@ -7,6 +7,7 @@ use App\Models\Coupon;
 use App\Service\AdminSelectOptionService;
 use App\Service\CouponActionService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class CouponActionController extends Controller
 {
@@ -28,6 +29,10 @@ class CouponActionController extends Controller
 
     public function create(Request $request)
     {
+        if ($this->isBatchStatusMode($request)) {
+            return $this->renderBatchStatusPage($request);
+        }
+
         $batchMode = $this->isBatchMode($request);
 
         return view($batchMode ? 'admin-shell.coupon.batch' : 'admin-shell.coupon.form', [
@@ -50,6 +55,10 @@ class CouponActionController extends Controller
 
     public function store(Request $request)
     {
+        if ($this->isBatchStatusMode($request)) {
+            return $this->storeBatchStatus($request);
+        }
+
         if ($this->isBatchMode($request)) {
             $payload = $this->validateBatchPayload($request);
             $coupons = $this->couponActionService->createBatch($payload);
@@ -136,9 +145,60 @@ class CouponActionController extends Controller
         ]);
     }
 
+    private function renderBatchStatusPage(Request $request)
+    {
+        $couponIds = $this->couponActionService->parseCouponIds((string) $request->query('ids', $request->input('ids_text', '')));
+        $defaults = $this->couponActionService->batchStatusDefaults($couponIds);
+
+        return view('admin-shell.coupon.batch-status', [
+            'title' => '批量启停优惠码 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量启停优惠码',
+                'description' => '这是后台壳中的低风险批量动作页。当前只承接优惠码启用状态切换，不改折扣、次数和关联商品，优先把高频维护动作收进新壳。',
+                'meta' => '支持换行、逗号或空格分隔的 ID 输入。先预览匹配结果，再提交批量启用或停用。',
+                'actions' => [
+                    ['label' => '返回优惠码概览', 'href' => admin_url('v2/coupon')],
+                    ['label' => '批量生成优惠码', 'href' => admin_url('v2/coupon/create?mode=batch'), 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/coupon/create?mode=batch-status'),
+            'submitLabel' => '执行批量状态更新',
+            'defaults' => $defaults,
+            'context' => $this->couponActionService->batchStatusContext($couponIds),
+        ]);
+    }
+
+    private function storeBatchStatus(Request $request)
+    {
+        $payload = $request->validate([
+            'ids_text' => ['required', 'string'],
+            'is_open' => ['required', Rule::in([Coupon::STATUS_OPEN, Coupon::STATUS_CLOSE, '0', '1'])],
+        ]);
+
+        $couponIds = $this->couponActionService->parseCouponIds($payload['ids_text']);
+        if (empty($couponIds)) {
+            return redirect()
+                ->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的优惠码 ID。'])
+                ->withInput();
+        }
+
+        $affected = $this->couponActionService->updateOpenStatus($couponIds, (int) $payload['is_open']);
+        $statusLabel = (int) $payload['is_open'] === Coupon::STATUS_OPEN ? '启用' : '停用';
+
+        return redirect(admin_url('v2/coupon/create?mode=batch-status&ids='.implode(',', $couponIds)))
+            ->with('status', '已批量'.$statusLabel.' '.$affected.' 个优惠码');
+    }
+
     private function isBatchMode(Request $request): bool
     {
         return $request->query('mode') === 'batch' || $request->input('mode') === 'batch';
+    }
+
+    private function isBatchStatusMode(Request $request): bool
+    {
+        return $request->query('mode') === 'batch-status' || $request->input('mode') === 'batch-status';
     }
 
     private function buildHeader(bool $batchMode): array

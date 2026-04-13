@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Models\Coupon;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -43,6 +44,71 @@ class CouponActionService
             'is_use' => Coupon::STATUS_UNUSED,
             'is_open' => Coupon::STATUS_OPEN,
         ];
+    }
+
+    public function batchStatusDefaults(array $couponIds = []): array
+    {
+        return [
+            'ids_text' => implode("\n", $couponIds),
+            'is_open' => Coupon::STATUS_OPEN,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function batchStatusContext(array $couponIds): array
+    {
+        $coupons = $this->queryCouponsByIds($couponIds);
+        $matchedIds = $coupons->pluck('id')->map(function ($id) {
+            return (int) $id;
+        })->all();
+
+        return [
+            'requestedCount' => count($couponIds),
+            'matchedCount' => $coupons->count(),
+            'missingCount' => count(array_diff($couponIds, $matchedIds)),
+            'items' => $coupons->map(function (Coupon $coupon) {
+                return [
+                    'id' => $coupon->id,
+                    'code' => $coupon->coupon,
+                    'discount' => $coupon->discount,
+                    'usage' => (int) $coupon->is_use === Coupon::STATUS_USE ? '已使用' : '未使用',
+                    'status' => (int) $coupon->is_open === Coupon::STATUS_OPEN ? '已启用' : '已停用',
+                    'ret' => $coupon->ret,
+                ];
+            })->all(),
+        ];
+    }
+
+    public function parseCouponIds(string $input): array
+    {
+        $parts = preg_split('/[\s,，;；]+/u', trim($input)) ?: [];
+
+        return collect($parts)
+            ->map(function ($value) {
+                return (int) trim((string) $value);
+            })
+            ->filter(function ($value) {
+                return $value > 0;
+            })
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    public function updateOpenStatus(array $couponIds, int $isOpen): int
+    {
+        if (empty($couponIds)) {
+            return 0;
+        }
+
+        return Coupon::query()
+            ->whereIn('id', $couponIds)
+            ->update([
+                'is_open' => $isOpen,
+                'updated_at' => now(),
+            ]);
     }
 
     public function editDefaults(Coupon $coupon): array
@@ -110,6 +176,21 @@ class CouponActionService
         $coupon->goods()->sync($payload['goods_ids']);
 
         return $coupon->fresh('goods');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Collection<int, \App\Models\Coupon>
+     */
+    private function queryCouponsByIds(array $couponIds): EloquentCollection
+    {
+        if (empty($couponIds)) {
+            return new EloquentCollection();
+        }
+
+        return Coupon::query()
+            ->whereIn('id', $couponIds)
+            ->orderBy('id')
+            ->get(['id', 'coupon', 'discount', 'ret', 'is_use', 'is_open']);
     }
 
     private function normalizePrefix(?string $prefix): string

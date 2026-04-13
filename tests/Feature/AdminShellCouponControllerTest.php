@@ -15,6 +15,7 @@ class AdminShellCouponControllerTest extends TestCase
             DB::table('coupons_goods')->whereIn('coupons_id', $batchIds)->delete();
         }
         DB::table('coupons')->where('coupon', 'like', 'XIGUA-BATCH-%')->delete();
+        DB::table('coupons')->whereIn('id', [95001, 95002, 95003])->delete();
         DB::table('coupons_goods')->whereIn('coupons_id', [94001, 94002, 94003])->delete();
         DB::table('coupons')->whereIn('id', [94001, 94002, 94003])->delete();
         DB::table('coupons')->whereIn('coupon', ['XIGUA-5', 'XIGUA-DETAIL', 'XIGUA-CREATE', 'XIGUA-EDIT'])->delete();
@@ -136,6 +137,43 @@ class AdminShellCouponControllerTest extends TestCase
         $this->assertSame(3, $records->filter(function ($record) {
             return strpos($record->coupon, 'XIGUA-BATCH-') === 0;
         })->count());
+    }
+
+    public function test_batch_status_page_renders_coupon_status_form_and_preview(): void
+    {
+        $this->seedCouponFixture(95001, 'XIGUA-STATE-1', '测试商品 D');
+        $this->seedCouponFixture(95002, 'XIGUA-STATE-2', '测试商品 E');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/coupon/create?mode=batch-status&ids=95001,95002');
+
+        $response->assertOk();
+        $response->assertSee('批量启停优惠码');
+        $response->assertSee('优惠码 ID 列表');
+        $response->assertSee('匹配预览');
+        $response->assertSee('XIGUA-STATE-1');
+        $response->assertSee('XIGUA-STATE-2');
+        $response->assertSee('已启用');
+    }
+
+    public function test_batch_status_page_can_update_coupon_open_status_with_mixed_separators(): void
+    {
+        $this->seedCouponFixture(95001, 'XIGUA-STATE-1', '测试商品 D');
+        $this->seedCouponFixture(95002, 'XIGUA-STATE-2', '测试商品 E');
+        $this->seedCouponFixture(95003, 'XIGUA-STATE-3', '测试商品 F');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/coupon/create?mode=batch-status', [
+                'ids_text' => "95001, 95002\n95003",
+                'is_open' => '0',
+            ]);
+
+        $response->assertRedirect('/admin/v2/coupon/create?mode=batch-status&ids=95001,95002,95003');
+        $response->assertSessionHas('status', '已批量停用 3 个优惠码');
+
+        $this->assertSame(0, (int) DB::table('coupons')->where('id', 95001)->value('is_open'));
+        $this->assertSame(0, (int) DB::table('coupons')->where('id', 95002)->value('is_open'));
+        $this->assertSame(0, (int) DB::table('coupons')->where('id', 95003)->value('is_open'));
     }
 
     public function test_edit_page_renders_coupon_action_form(): void
