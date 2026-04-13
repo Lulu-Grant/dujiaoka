@@ -6,6 +6,80 @@ use App\Models\Pay;
 
 class PayActionService
 {
+    public function parsePayIds(string $rawIds): array
+    {
+        $tokens = preg_split('/[\s,，]+/u', trim($rawIds)) ?: [];
+
+        return collect($tokens)
+            ->map(function ($token) {
+                return trim((string) $token);
+            })
+            ->filter(function (string $token) {
+                return $token !== '' && ctype_digit($token);
+            })
+            ->map(function (string $token) {
+                return (int) $token;
+            })
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    public function batchStatusDefaults(array $payIds = []): array
+    {
+        return [
+            'pay_ids' => $payIds,
+            'ids_text' => implode("\n", $payIds),
+            'is_open' => Pay::STATUS_OPEN,
+        ];
+    }
+
+    public function batchStatusContext(array $payIds): array
+    {
+        $pays = Pay::query()
+            ->whereIn('id', $payIds)
+            ->orderBy('id')
+            ->get(['id', 'pay_name', 'pay_check', 'pay_client', 'pay_method', 'is_open']);
+
+        $matchedIds = $pays->pluck('id')->map(function ($id) {
+            return (int) $id;
+        })->all();
+
+        $missingIds = array_values(array_diff($payIds, $matchedIds));
+
+        return [
+            'requestedCount' => count($payIds),
+            'matchedCount' => $pays->count(),
+            'missingCount' => count($missingIds),
+            'missingIds' => $missingIds,
+            'items' => $pays->map(function (Pay $pay) {
+                return [
+                    'id' => $pay->id,
+                    'name' => $pay->pay_name,
+                    'check' => $pay->pay_check,
+                    'lifecycle' => Pay::getLifecycleLabel($pay->pay_check),
+                    'client' => Pay::getClientMap()[$pay->pay_client] ?? admin_trans('pay.fields.pay_client_pc'),
+                    'method' => Pay::getMethodMap()[$pay->pay_method] ?? admin_trans('pay.fields.method_jump'),
+                    'status' => (int) $pay->is_open === Pay::STATUS_OPEN ? '已启用' : '已停用',
+                ];
+            })->all(),
+        ];
+    }
+
+    public function updateOpenStatus(array $payIds, int $isOpen): int
+    {
+        if (empty($payIds)) {
+            return 0;
+        }
+
+        return Pay::query()
+            ->whereIn('id', $payIds)
+            ->update([
+                'is_open' => $isOpen,
+                'updated_at' => now(),
+            ]);
+    }
+
     public function createContext(?Pay $sourcePay = null): array
     {
         if ($sourcePay) {

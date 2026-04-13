@@ -91,6 +91,51 @@ class PayActionController extends Controller
             ->with('status', '支付通道已保存');
     }
 
+    public function editBatchStatus(Request $request)
+    {
+        $payIds = $this->payActionService->parsePayIds((string) $request->query('ids', ''));
+        $defaults = $this->payActionService->batchStatusDefaults($payIds);
+
+        return view('admin-shell.pay.batch-status', [
+            'title' => '批量启停支付通道 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量启停支付通道',
+                'description' => '这是后台壳中的低风险批量动作页。当前只承接支付通道启用状态切换，不触碰商户密钥、回调路由和其他配置。',
+                'meta' => '适合一口气处理活动下架、灰度启用和临时停用等场景。输入支付通道 ID 即可预览并执行。',
+                'actions' => [
+                    ['label' => '返回支付通道概览', 'href' => admin_url('v2/pay')],
+                    ['label' => '新建支付通道', 'href' => admin_url('v2/pay/create'), 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/pay/batch-status'),
+            'submitLabel' => '执行批量状态更新',
+            'defaults' => $defaults,
+            'context' => $this->payActionService->batchStatusContext($payIds),
+        ]);
+    }
+
+    public function updateBatchStatus(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+            'is_open' => ['required', Rule::in([Pay::STATUS_OPEN, Pay::STATUS_CLOSE, '0', '1'])],
+        ]);
+
+        $payIds = $this->payActionService->parsePayIds($validated['ids_text']);
+        if (empty($payIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的支付通道 ID。'])
+                ->withInput();
+        }
+
+        $affected = $this->payActionService->updateOpenStatus($payIds, (int) $validated['is_open']);
+        $statusLabel = (int) $validated['is_open'] === Pay::STATUS_OPEN ? '启用' : '停用';
+
+        return redirect(admin_url('v2/pay/batch-status').'?ids='.implode(',', $payIds))
+            ->with('status', '已批量'.$statusLabel.' '.$affected.' 个支付通道');
+    }
+
     private function validatePayload(Request $request, bool $isCreate, ?Pay $pay = null): array
     {
         $payCheckRules = ['required', 'string', 'max:255'];

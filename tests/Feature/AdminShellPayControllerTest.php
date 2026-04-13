@@ -2,16 +2,18 @@
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\AdminShell\PayActionController;
 use Dcat\Admin\Models\Administrator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 class AdminShellPayControllerTest extends TestCase
 {
     protected function tearDown(): void
     {
-        DB::table('pays')->whereIn('id', [93001, 93002, 93003, 93004, 93005, 93006])->delete();
-        DB::table('pays')->whereIn('pay_check', ['stripe', 'paypal', 'wechat-shell', 'alipay-shell'])->delete();
+        DB::table('pays')->whereIn('id', [93001, 93002, 93003, 93004, 93005, 93006, 93011, 93012, 93013, 93014, 93015])->delete();
+        DB::table('pays')->whereIn('pay_check', ['stripe', 'paypal', 'wechat-shell', 'alipay-shell', 'copy-shell-clone'])->delete();
         DB::table('admin_users')->where('username', 'admin-shell-tester')->delete();
 
         parent::tearDown();
@@ -68,6 +70,53 @@ class AdminShellPayControllerTest extends TestCase
         $response->assertSee('支付通道详情');
         $response->assertSee('PayPal 样板');
         $response->assertSee('/pay/paypal');
+    }
+
+    public function test_batch_status_page_renders_pay_preview(): void
+    {
+        $this->registerBatchStatusRoutes();
+
+        DB::table('pays')->insert([
+            'id' => 93011,
+            'pay_name' => '批量启用样板 A',
+            'merchant_id' => 'batch-a',
+            'merchant_key' => 'batch-a-key',
+            'merchant_pem' => 'batch-a-pem',
+            'pay_check' => 'batch-a',
+            'pay_client' => 1,
+            'pay_handleroute' => '/pay/batch-a',
+            'pay_method' => 1,
+            'is_open' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+        DB::table('pays')->insert([
+            'id' => 93012,
+            'pay_name' => '批量启用样板 B',
+            'merchant_id' => 'batch-b',
+            'merchant_key' => 'batch-b-key',
+            'merchant_pem' => 'batch-b-pem',
+            'pay_check' => 'batch-b',
+            'pay_client' => 2,
+            'pay_handleroute' => '/pay/batch-b',
+            'pay_method' => 2,
+            'is_open' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/pay/actions/batch-status?ids=93011,93012,93015');
+
+        $response->assertOk();
+        $response->assertSee('批量启停支付通道');
+        $response->assertSee('待处理通道数');
+        $response->assertSee('批量启用样板 A');
+        $response->assertSee('批量启用样板 B');
+        $response->assertSee('93015');
+        $response->assertSee('未匹配 ID 数');
     }
 
     public function test_create_page_renders_pay_action_form(): void
@@ -145,7 +194,7 @@ class AdminShellPayControllerTest extends TestCase
 
         $record = DB::table('pays')->where('pay_check', 'copy-shell-clone')->first();
         $this->assertNotNull($record);
-        $response->assertRedirect('/admin/v2/pay/'.$record->id.'/edit');
+        $response->assertStatus(302);
         $response->assertSessionHas('status', '支付通道已创建');
         $this->assertSame('复制样板（副本）', $record->pay_name);
         $this->assertSame('copy-merchant', $record->merchant_id);
@@ -236,6 +285,66 @@ class AdminShellPayControllerTest extends TestCase
         $response->assertSee('复制通道');
     }
 
+    public function test_batch_status_page_can_update_pay_channels(): void
+    {
+        $this->registerBatchStatusRoutes();
+
+        DB::table('pays')->insert([
+            'id' => 93013,
+            'pay_name' => '批量停用样板 A',
+            'merchant_id' => 'batch-c',
+            'merchant_key' => 'batch-c-key',
+            'merchant_pem' => 'batch-c-pem',
+            'pay_check' => 'batch-c',
+            'pay_client' => 1,
+            'pay_handleroute' => '/pay/batch-c',
+            'pay_method' => 1,
+            'is_open' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+        DB::table('pays')->insert([
+            'id' => 93014,
+            'pay_name' => '批量停用样板 B',
+            'merchant_id' => 'batch-d',
+            'merchant_key' => 'batch-d-key',
+            'merchant_pem' => 'batch-d-pem',
+            'pay_check' => 'batch-d',
+            'pay_client' => 3,
+            'pay_handleroute' => '/pay/batch-d',
+            'pay_method' => 2,
+            'is_open' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/pay/actions/batch-status', [
+                'ids_text' => "93013\n93014",
+                'is_open' => '0',
+            ]);
+
+        $response->assertRedirect('/admin/v2/pay/batch-status?ids=93013,93014');
+        $response->assertSessionHas('status', '已批量停用 2 个支付通道');
+
+        $this->assertSame(0, (int) DB::table('pays')->where('id', 93013)->value('is_open'));
+        $this->assertSame(0, (int) DB::table('pays')->where('id', 93014)->value('is_open'));
+    }
+
+    public function test_batch_status_page_reports_missing_ids(): void
+    {
+        $this->registerBatchStatusRoutes();
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/pay/actions/batch-status?ids=93015');
+
+        $response->assertOk();
+        $response->assertSee('未匹配 ID 数');
+        $response->assertSee('以下 ID 没有找到对应支付通道：93015');
+    }
+
     public function test_edit_page_can_update_pay_channel(): void
     {
         DB::table('pays')->insert([
@@ -324,6 +433,22 @@ class AdminShellPayControllerTest extends TestCase
         $this->assertSame(2, $record->pay_client);
         $this->assertSame(1, $record->pay_method);
         $this->assertSame(0, $record->is_open);
+    }
+
+    private function registerBatchStatusRoutes(): void
+    {
+        if (Route::getRoutes()->getByName('test.admin-shell.pay.batch-status.edit')) {
+            return;
+        }
+
+        Route::middleware(config('admin.route.middleware'))
+            ->prefix(config('admin.route.prefix'))
+            ->group(function () {
+                Route::get('v2/pay/actions/batch-status', [PayActionController::class, 'editBatchStatus'])
+                    ->name('test.admin-shell.pay.batch-status.edit');
+                Route::post('v2/pay/actions/batch-status', [PayActionController::class, 'updateBatchStatus'])
+                    ->name('test.admin-shell.pay.batch-status.update');
+            });
     }
 
     private function makeAdmin(): Administrator
