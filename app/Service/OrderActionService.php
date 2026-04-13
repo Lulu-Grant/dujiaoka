@@ -7,6 +7,106 @@ use Illuminate\Support\Str;
 
 class OrderActionService
 {
+    public function parseOrderIds(string $idsText): array
+    {
+        $tokens = preg_split('/[\s,，]+/u', trim($idsText), -1, PREG_SPLIT_NO_EMPTY);
+
+        if ($tokens === false) {
+            return [];
+        }
+
+        $parsed = [];
+
+        foreach ($tokens as $token) {
+            if (!ctype_digit($token)) {
+                continue;
+            }
+
+            $id = (int) $token;
+
+            if ($id > 0) {
+                $parsed[$id] = $id;
+            }
+        }
+
+        return array_values($parsed);
+    }
+
+    public function batchResetDefaults(array $orderIds = []): array
+    {
+        return [
+            'order_ids' => $orderIds,
+            'ids_text' => implode("\n", $orderIds),
+        ];
+    }
+
+    public function batchResetContext(array $orderIds): array
+    {
+        $orders = Order::query()
+            ->with(['goods:id,gd_name', 'pay:id,pay_name'])
+            ->whereIn('id', $orderIds)
+            ->orderBy('id')
+            ->get([
+                'id',
+                'order_sn',
+                'title',
+                'email',
+                'status',
+                'search_pwd',
+                'updated_at',
+                'goods_id',
+                'pay_id',
+            ]);
+
+        $matchedIds = $orders->pluck('id')->map(function ($id) {
+            return (int) $id;
+        })->all();
+
+        $missingIds = array_values(array_diff($orderIds, $matchedIds));
+
+        return [
+            'requestedCount' => count($orderIds),
+            'matchedCount' => $orders->count(),
+            'missingCount' => count($missingIds),
+            'matchedIds' => $matchedIds,
+            'missingIds' => $missingIds,
+            'items' => $orders->map(function (Order $order) {
+                return [
+                    'id' => $order->id,
+                    'order_sn' => $order->order_sn,
+                    'title' => $order->title,
+                    'email' => $order->email,
+                    'status' => $this->statusLabel($order->status),
+                    'search_pwd' => $order->search_pwd ?: '未设置',
+                    'goods' => optional($order->goods)->gd_name ?: '未关联商品',
+                    'pay' => optional($order->pay)->pay_name ?: '未选择支付',
+                    'updated_at' => (string) $order->updated_at,
+                ];
+            })->all(),
+        ];
+    }
+
+    public function batchResetSearchPasswords(array $orderIds): int
+    {
+        if (empty($orderIds)) {
+            return 0;
+        }
+
+        $orders = Order::query()
+            ->whereIn('id', $orderIds)
+            ->orderBy('id')
+            ->get();
+
+        $updated = 0;
+
+        foreach ($orders as $order) {
+            $this->resetSearchPassword($order);
+            $updated++;
+        }
+
+        return $updated;
+    }
+
     public function editDefaults(Order $order): array
     {
         return [

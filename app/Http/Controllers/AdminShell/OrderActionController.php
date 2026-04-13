@@ -69,4 +69,54 @@ class OrderActionController extends Controller
         return redirect(admin_url('v2/order/'.$order->id.'/edit'))
             ->with('status', '订单已保存');
     }
+
+    public function batchResetSearchPassword(Request $request)
+    {
+        $orderIds = $this->orderActionService->parseOrderIds((string) $request->query('ids', ''));
+        $defaults = $this->orderActionService->batchResetDefaults($orderIds);
+        $context = $this->orderActionService->batchResetContext($orderIds);
+
+        return view('admin-shell.order.batch-reset-search-pwd', [
+            'title' => '批量重置订单查询密码 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量重置订单查询密码',
+                'description' => '这是后台壳中的低风险批量动作页。页面先预览匹配到的订单，再统一重置查询密码，不触碰订单状态、支付或履约链。',
+                'meta' => '支持换行、逗号和空格分隔的订单 ID。提交后只会逐个刷新查询密码，适合批量排查、人工回收或安全维护。',
+                'actions' => [
+                    ['label' => '返回订单概览', 'href' => admin_url('v2/order')],
+                ],
+            ],
+            'formAction' => admin_url('v2/order/batch-reset-search-pwd'),
+            'submitLabel' => '重置匹配订单的查询密码',
+            'defaults' => $defaults,
+            'context' => $context,
+        ]);
+    }
+
+    public function updateBatchResetSearchPassword(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+        ]);
+
+        $orderIds = $this->orderActionService->parseOrderIds($validated['ids_text']);
+
+        if (empty($orderIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的订单 ID。'])
+                ->withInput();
+        }
+
+        $updated = $this->orderActionService->batchResetSearchPasswords($orderIds);
+
+        if ($updated === 0) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '没有找到可重置查询密码的订单。'])
+                ->withInput();
+        }
+
+        return redirect(admin_url('v2/order/batch-reset-search-pwd').'?ids='.implode(',', $orderIds))
+            ->with('status', '已批量重置 '.$updated.' 个订单的查询密码');
+    }
 }
