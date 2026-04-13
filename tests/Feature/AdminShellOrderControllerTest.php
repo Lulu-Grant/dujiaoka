@@ -154,15 +154,24 @@ class AdminShellOrderControllerTest extends TestCase
         $this->seedBatchOrderFixture(98001, 'batch-98001', '订单批量测试 98001');
         $this->seedBatchOrderFixture(98002, 'batch-98002', '订单批量测试 98002');
 
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/order/batch-reset-search-pwd?ids='.urlencode("98001,\n98002,98009"));
+
+        $response->assertOk();
+        $response->assertSee('批量重置订单查询密码');
+        $response->assertSee('订单批量测试 98001');
+        $response->assertSee('订单批量测试 98002');
+        $response->assertSee('98009');
+
         /** @var \App\Http\Controllers\AdminShell\OrderActionController $controller */
         $controller = $this->app->make(OrderActionController::class);
-        $response = $controller->batchResetSearchPassword(Request::create('/admin/v2/order/batch-reset-search-pwd', 'GET', [
+        $view = $controller->batchResetSearchPassword(Request::create('/admin/v2/order/batch-reset-search-pwd', 'GET', [
             'ids' => "98001,\n98002,98009",
         ]));
 
-        $this->assertSame('admin-shell.order.batch-reset-search-pwd', $response->name());
+        $this->assertSame('admin-shell.order.batch-reset-search-pwd', $view->name());
 
-        $data = $response->getData();
+        $data = $view->getData();
         $this->assertSame('批量重置订单查询密码 - 后台壳样板', $data['title']);
         $this->assertSame('批量重置订单查询密码', $data['header']['title']);
         $this->assertSame(3, $data['context']['requestedCount']);
@@ -178,13 +187,12 @@ class AdminShellOrderControllerTest extends TestCase
         $this->seedBatchOrderFixture(98004, 'batch-98004', '订单批量测试 98004');
         $this->seedBatchOrderFixture(98005, 'batch-98005', '订单批量测试 98005');
 
-        /** @var \App\Http\Controllers\AdminShell\OrderActionController $controller */
-        $controller = $this->app->make(OrderActionController::class);
-        $response = $controller->updateBatchResetSearchPassword(Request::create('/admin/v2/order/batch-reset-search-pwd', 'POST', [
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/order/batch-reset-search-pwd', [
             'ids_text' => "98004\n98005,98009",
-        ]));
+        ]);
 
-        $this->assertStringEndsWith('/admin/v2/order/batch-reset-search-pwd?ids=98004,98005,98009', $response->getTargetUrl());
+        $response->assertRedirect('/admin/v2/order/batch-reset-search-pwd?ids=98004,98005,98009');
 
         $first = Order::query()->findOrFail(98004);
         $second = Order::query()->findOrFail(98005);

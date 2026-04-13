@@ -4049,3 +4049,29 @@
 下一步：
 
 - 继续沿着后台壳扩容主线推进，优先处理订单或支付通道的下一批低风险批量动作
+
+### 151. 三条并行批量动作线接入后台壳正式路由
+
+摘要：
+
+- 订单管理新增了批量重置查询密码页，现在可以通过 [batch-reset-search-pwd.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/order/batch-reset-search-pwd.blade.php) 在 `/admin/v2/order/batch-reset-search-pwd` 先预览匹配订单，再统一刷新查询密码。
+- 支付通道新增了批量启停页，现在可以通过 [batch-status.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/pay/batch-status.blade.php) 在 `/admin/v2/pay/batch-status` 批量启用或停用通道。
+- 优惠码新增了批量启停页，现在可以通过 [batch-status.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/coupon/batch-status.blade.php) 在 `/admin/v2/coupon/batch-status` 统一处理启用状态。
+- [AdminShellResourceRegistry.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellResourceRegistry.php) 已把三条动作正式接入资源注册表，真实路由、页头入口和后台壳测试基线都已经追平。
+- [AdminShellOrderPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellOrderPageService.php)、[AdminShellPayPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellPayPageService.php)、[AdminShellCouponPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellCouponPageService.php) 已补上对应入口，方便从资源概览直接进入低风险批量维护页。
+
+影响范围：
+
+- 后台壳从“单条编辑 + 零散动作页”继续推进到了“并行可扩展的批量动作承载层”
+- 订单、支付通道、优惠码三条高频维护线都已经有了真实低风险批量入口
+- 资源注册表继续成为后台壳动作接线的唯一真源，后续再扩批量页会更快
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (254 tests, 1233 assertions)`
+- `ADMIN_USERNAME=auth-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过
+
+下一步：
+
+- 继续沿着后台壳扩容主线推进，优先扩订单、商品、支付通道的下一批低风险批量动作
+- 顺手继续压缩旧 Dcat 兼容层和历史边角文件

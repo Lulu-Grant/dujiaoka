@@ -104,6 +104,16 @@ class CouponActionController extends Controller
             ->with('status', '优惠码已保存');
     }
 
+    public function editBatchStatus(Request $request)
+    {
+        return $this->renderBatchStatusPage($request);
+    }
+
+    public function updateBatchStatus(Request $request)
+    {
+        return $this->storeBatchStatus($request);
+    }
+
     private function validatePayload(Request $request): array
     {
         $payload = $request->validate([
@@ -162,7 +172,7 @@ class CouponActionController extends Controller
                     ['label' => '批量生成优惠码', 'href' => admin_url('v2/coupon/create?mode=batch'), 'variant' => 'secondary'],
                 ],
             ],
-            'formAction' => admin_url('v2/coupon/create?mode=batch-status'),
+            'formAction' => admin_url('v2/coupon/batch-status'),
             'submitLabel' => '执行批量状态更新',
             'defaults' => $defaults,
             'context' => $this->couponActionService->batchStatusContext($couponIds),
@@ -187,7 +197,7 @@ class CouponActionController extends Controller
         $affected = $this->couponActionService->updateOpenStatus($couponIds, (int) $payload['is_open']);
         $statusLabel = (int) $payload['is_open'] === Coupon::STATUS_OPEN ? '启用' : '停用';
 
-        return redirect(admin_url('v2/coupon/create?mode=batch-status&ids='.implode(',', $couponIds)))
+        return redirect(admin_url('v2/coupon/batch-status?ids='.implode(',', $couponIds)))
             ->with('status', '已批量'.$statusLabel.' '.$affected.' 个优惠码');
     }
 

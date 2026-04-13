@@ -108,6 +108,11 @@ class AdminShellPayPageService extends AbstractAdminShellPageService
     {
         $header = $this->buildResourceHeader('共 '.$pays->total().' 条通道');
         $header['actions'][] = [
+            'label' => '批量启停通道',
+            'href' => admin_url('v2/pay/batch-status'),
+            'variant' => 'secondary',
+        ];
+        $header['actions'][] = [
             'label' => '新建支付通道',
             'href' => admin_url('v2/pay/create'),
             'variant' => 'primary',

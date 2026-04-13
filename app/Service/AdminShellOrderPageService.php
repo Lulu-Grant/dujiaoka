@@ -143,7 +143,14 @@ class AdminShellOrderPageService extends AbstractAdminShellPageService
 
     public function buildHeader(LengthAwarePaginator $orders): array
     {
-        return $this->buildResourceHeader('共 '.$orders->total().' 条订单');
+        $header = $this->buildResourceHeader('共 '.$orders->total().' 条订单');
+        $header['actions'][] = [
+            'label' => '批量重置查询密码',
+            'href' => admin_url('v2/order/batch-reset-search-pwd'),
+            'variant' => 'secondary',
+        ];
+
+        return $header;
     }
 
     public function buildFilters(array $filters): array

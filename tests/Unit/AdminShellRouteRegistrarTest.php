@@ -27,8 +27,12 @@ class AdminShellRouteRegistrarTest extends TestCase
 
         $this->assertRouteExists($routes, 'v2/goods-group', 'GET', 'admin-shell.goods-group.index');
         $this->assertRouteExists($routes, 'v2/goods-group/create', 'GET', 'admin-shell.goods-group.create');
+        $this->assertRouteExists($routes, 'v2/order/batch-reset-search-pwd', 'GET', 'admin-shell.order.batch-reset-search-pwd');
+        $this->assertRouteExists($routes, 'v2/order/batch-reset-search-pwd', 'POST', 'admin-shell.order.batch-reset-search-pwd.update');
         $this->assertRouteExists($routes, 'v2/emailtpl/{id}/edit', 'POST', 'admin-shell.emailtpl.update');
+        $this->assertRouteExists($routes, 'v2/pay/batch-status', 'GET', 'admin-shell.pay.batch-status');
         $this->assertRouteExists($routes, 'v2/pay/{id}/edit', 'POST', 'admin-shell.pay.update');
+        $this->assertRouteExists($routes, 'v2/coupon/batch-status', 'POST', 'admin-shell.coupon.batch-status.update');
         $this->assertRouteExists($routes, 'v2/carmis/import', 'GET', 'admin-shell.carmis.import');
         $this->assertRouteExists($routes, 'v2/system-setting/base', 'POST', 'admin-shell.system-setting.base.update');
         $this->assertRouteExists($routes, 'v2/email-test/send', 'POST', 'admin-shell.email-test.send.store');

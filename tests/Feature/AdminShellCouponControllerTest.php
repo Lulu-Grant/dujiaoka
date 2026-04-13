@@ -145,7 +145,7 @@ class AdminShellCouponControllerTest extends TestCase
         $this->seedCouponFixture(95002, 'XIGUA-STATE-2', '测试商品 E');
 
         $response = $this->actingAs($this->makeAdmin(), 'admin')
-            ->get('/admin/v2/coupon/create?mode=batch-status&ids=95001,95002');
+            ->get('/admin/v2/coupon/batch-status?ids=95001,95002');
 
         $response->assertOk();
         $response->assertSee('批量启停优惠码');
@@ -163,12 +163,12 @@ class AdminShellCouponControllerTest extends TestCase
         $this->seedCouponFixture(95003, 'XIGUA-STATE-3', '测试商品 F');
 
         $response = $this->actingAs($this->makeAdmin(), 'admin')
-            ->post('/admin/v2/coupon/create?mode=batch-status', [
+            ->post('/admin/v2/coupon/batch-status', [
                 'ids_text' => "95001, 95002\n95003",
                 'is_open' => '0',
             ]);
 
-        $response->assertRedirect('/admin/v2/coupon/create?mode=batch-status&ids=95001,95002,95003');
+        $response->assertRedirect('/admin/v2/coupon/batch-status?ids=95001,95002,95003');
         $response->assertSessionHas('status', '已批量停用 3 个优惠码');
 
         $this->assertSame(0, (int) DB::table('coupons')->where('id', 95001)->value('is_open'));

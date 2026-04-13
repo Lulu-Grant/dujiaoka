@@ -208,6 +208,7 @@ class AdminShellPageStructureTest extends TestCase
 
         $this->assertSame('支付通道管理', $header['title']);
         $this->assertSame('迁移合同', $header['actions'][0]['label']);
+        $this->assertSame('批量启停通道', $header['actions'][1]['label']);
         $this->assertSame('Stripe', $requestFilters['pay_name']);
         $this->assertSame('支付标识', $filters['fields'][1]['label']);
         $this->assertSame('支付通道详情', $showHeader['title']);
@@ -272,6 +273,7 @@ class AdminShellPageStructureTest extends TestCase
         $requestFilters = $service->extractFilters(Request::create('/admin/v2/order?order_sn=XIGUA&status=4&scope=trashed', 'GET'));
 
         $this->assertSame('订单管理', $header['title']);
+        $this->assertSame('批量重置查询密码', $header['actions'][1]['label']);
         $this->assertSame('XIGUA', $requestFilters['order_sn']);
         $this->assertSame('订单状态', $filters['fields'][2]['label']);
         $this->assertSame('订单详情', $showHeader['title']);
@@ -345,6 +347,7 @@ class AdminShellPageStructureTest extends TestCase
         $requestFilters = $service->extractFilters(Request::create('/admin/v2/coupon?coupon=XIGUA&goods_id=404&scope=trashed', 'GET'));
 
         $this->assertSame('优惠码管理', $header['title']);
+        $this->assertSame('批量启停优惠码', $header['actions'][1]['label']);
         $this->assertSame('XIGUA', $requestFilters['coupon']);
         $this->assertSame('商品 ID', $filters['fields'][2]['label']);
         $this->assertSame('优惠码详情', $showHeader['title']);
