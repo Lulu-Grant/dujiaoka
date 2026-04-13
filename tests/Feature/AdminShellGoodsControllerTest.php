@@ -11,15 +11,15 @@ class AdminShellGoodsControllerTest extends TestCase
     protected function tearDown(): void
     {
         $goodsIds = DB::table('goods')
-            ->whereIn('gd_name', ['测试商品 Shell（复制）', '创建商品 Shell', '编辑商品 Shell'])
+            ->whereIn('gd_name', ['测试商品 Shell（复制）', '创建商品 Shell', '编辑商品 Shell', '测试商品 Shell B'])
             ->pluck('id')
             ->all();
 
-        DB::table('coupons_goods')->whereIn('goods_id', array_merge([96001, 96002, 96003], $goodsIds))->delete();
-        DB::table('coupons_goods')->whereIn('coupons_id', [96001, 96002, 96003])->delete();
-        DB::table('coupons')->whereIn('id', [96001, 96002, 96003])->delete();
-        DB::table('goods')->whereIn('id', array_merge([96001, 96002, 96003], $goodsIds))->delete();
-        DB::table('goods_group')->whereIn('id', [96001, 96002, 96003])->delete();
+        DB::table('coupons_goods')->whereIn('goods_id', array_merge([96001, 96002, 96003, 96004], $goodsIds))->delete();
+        DB::table('coupons_goods')->whereIn('coupons_id', [96001, 96002, 96003, 96004])->delete();
+        DB::table('coupons')->whereIn('id', [96001, 96002, 96003, 96004])->delete();
+        DB::table('goods')->whereIn('id', array_merge([96001, 96002, 96003, 96004], $goodsIds))->delete();
+        DB::table('goods_group')->whereIn('id', [96001, 96002, 96003, 96004])->delete();
         DB::table('admin_users')->where('username', 'admin-shell-tester')->delete();
 
         parent::tearDown();
@@ -121,6 +121,37 @@ class AdminShellGoodsControllerTest extends TestCase
         $this->assertSame(12, $record->in_stock);
         $this->assertSame(1, $record->is_open);
         $this->assertSame(1, DB::table('coupons_goods')->where('goods_id', $record->id)->where('coupons_id', 96002)->count());
+    }
+
+    public function test_batch_status_page_renders_goods_batch_action_form(): void
+    {
+        $this->seedGoodsFixture();
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/goods/batch-status?ids=96001,96004');
+
+        $response->assertOk();
+        $response->assertSee('批量启停商品');
+        $response->assertSee('待处理商品数');
+        $response->assertSee('测试商品 Shell');
+        $response->assertSee('测试商品 Shell B');
+    }
+
+    public function test_batch_status_page_can_bulk_close_goods(): void
+    {
+        $this->seedGoodsFixture();
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/goods/batch-status', [
+                'ids_text' => "96001\n96004",
+                'is_open' => '0',
+            ]);
+
+        $response->assertRedirect('/admin/v2/goods/batch-status?ids=96001,96004');
+        $response->assertSessionHas('status', '已批量停用 2 个商品');
+
+        $this->assertSame(0, (int) DB::table('goods')->where('id', 96001)->value('is_open'));
+        $this->assertSame(0, (int) DB::table('goods')->where('id', 96004)->value('is_open'));
     }
 
     public function test_clone_page_can_store_goods(): void
@@ -251,6 +282,31 @@ class AdminShellGoodsControllerTest extends TestCase
             'wholesale_price_cnf' => "2,70\n5,60",
             'other_ipu_cnf' => "账号\n密码",
             'api_hook' => 'https://example.com/hook',
+            'is_open' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        DB::table('goods')->insert([
+            'id' => 96004,
+            'group_id' => 96001,
+            'gd_name' => '测试商品 Shell B',
+            'gd_description' => '测试商品简介 B',
+            'gd_keywords' => '测试关键字 B',
+            'picture' => null,
+            'retail_price' => 49,
+            'actual_price' => 39,
+            'in_stock' => 8,
+            'sales_volume' => 1,
+            'ord' => 3,
+            'buy_limit_num' => 1,
+            'buy_prompt' => '购买提示 B',
+            'description' => '商品说明 B',
+            'type' => 2,
+            'wholesale_price_cnf' => '',
+            'other_ipu_cnf' => '',
+            'api_hook' => '',
             'is_open' => 1,
             'created_at' => now(),
             'updated_at' => now(),

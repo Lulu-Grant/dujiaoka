@@ -142,6 +142,11 @@ class AdminShellGoodsPageService extends AbstractAdminShellPageService
             'href' => admin_url('v2/goods/create'),
             'variant' => 'primary',
         ];
+        $header['actions'][] = [
+            'label' => '批量启停',
+            'href' => admin_url('v2/goods/batch-status'),
+            'variant' => 'secondary',
+        ];
 
         return $header;
     }

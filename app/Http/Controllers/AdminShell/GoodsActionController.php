@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Goods;
 use App\Service\AdminSelectOptionService;
 use App\Service\GoodsActionService;
+use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 
 class GoodsActionController extends Controller
@@ -116,6 +117,51 @@ class GoodsActionController extends Controller
 
         return redirect(admin_url('v2/goods/'.$goods->id.'/edit'))
             ->with('status', '商品已保存');
+    }
+
+    public function editBatchStatus(Request $request)
+    {
+        $goodsIds = $this->goodsActionService->parseGoodsIds((string) $request->query('ids', ''));
+        $defaults = $this->goodsActionService->batchStatusDefaults($goodsIds);
+
+        return view('admin-shell.goods.batch-status', [
+            'title' => '批量启停商品 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量启停商品',
+                'description' => '这是后台壳中的低风险批量动作页。当前只承接商品启用状态切换，不触碰库存、价格和关联配置，先把高频运营动作收进新壳。',
+                'meta' => '适合一口气处理活动下架、灰度上架和临时停售这类场景。输入商品 ID 即可执行，不依赖旧 Dcat 批量工具。',
+                'actions' => [
+                    ['label' => '返回商品概览', 'href' => admin_url('v2/goods')],
+                    ['label' => '新建商品', 'href' => admin_url('v2/goods/create'), 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/goods/batch-status'),
+            'submitLabel' => '执行批量状态更新',
+            'defaults' => $defaults,
+            'context' => $this->goodsActionService->batchStatusContext($goodsIds),
+        ]);
+    }
+
+    public function updateBatchStatus(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+            'is_open' => ['required', Rule::in([Goods::STATUS_OPEN, Goods::STATUS_CLOSE, '0', '1'])],
+        ]);
+
+        $goodsIds = $this->goodsActionService->parseGoodsIds($validated['ids_text']);
+        if (empty($goodsIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的商品 ID。'])
+                ->withInput();
+        }
+
+        $affected = $this->goodsActionService->updateOpenStatus($goodsIds, (int) $validated['is_open']);
+        $statusLabel = (int) $validated['is_open'] === Goods::STATUS_OPEN ? '启用' : '停用';
+
+        return redirect(admin_url('v2/goods/batch-status').'?ids='.implode(',', $goodsIds))
+            ->with('status', '已批量'.$statusLabel.' '.$affected.' 个商品');
     }
 
     private function validatePayload(Request $request): array

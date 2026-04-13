@@ -6,6 +6,50 @@ use App\Models\Goods;
 
 class GoodsActionService
 {
+    public function batchStatusDefaults(array $goodsIds = []): array
+    {
+        return [
+            'goods_ids' => $goodsIds,
+            'ids_text' => implode("\n", $goodsIds),
+            'is_open' => Goods::STATUS_OPEN,
+        ];
+    }
+
+    public function batchStatusContext(array $goodsIds): array
+    {
+        $goods = Goods::query()
+            ->whereIn('id', $goodsIds)
+            ->orderBy('id')
+            ->get(['id', 'gd_name', 'type', 'is_open']);
+
+        return [
+            'requestedCount' => count($goodsIds),
+            'matchedCount' => $goods->count(),
+            'items' => $goods->map(function (Goods $goods) {
+                return [
+                    'id' => $goods->id,
+                    'name' => $goods->gd_name,
+                    'type' => $this->catalogTypeLabel((int) $goods->type),
+                    'status' => (int) $goods->is_open === Goods::STATUS_OPEN ? '已启用' : '已停用',
+                ];
+            })->all(),
+        ];
+    }
+
+    public function updateOpenStatus(array $goodsIds, int $isOpen): int
+    {
+        if (empty($goodsIds)) {
+            return 0;
+        }
+
+        return Goods::query()
+            ->whereIn('id', $goodsIds)
+            ->update([
+                'is_open' => $isOpen,
+                'updated_at' => now(),
+            ]);
+    }
+
     public function createDefaults(): array
     {
         return [
@@ -367,6 +411,19 @@ class GoodsActionService
     public function catalogTypeLabel(int $type): string
     {
         return Goods::getGoodsTypeMap()[$type] ?? '未知类型';
+    }
+
+    public function parseGoodsIds(string $raw): array
+    {
+        return collect(preg_split('/[\s,，]+/u', trim($raw)) ?: [])
+            ->filter()
+            ->map(function ($value) {
+                return ctype_digit((string) $value) ? (int) $value : null;
+            })
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
     }
 
     private function cloneName(string $name): string

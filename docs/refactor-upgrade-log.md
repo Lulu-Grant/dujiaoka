@@ -4022,3 +4022,30 @@
 下一步：
 
 - 保持烟雾脚本和当前后台壳入口同步
+
+### 150. 商品管理接入第一张批量动作页
+
+摘要：
+
+- 为商品管理新增了后台壳批量动作页 [batch-status.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/goods/batch-status.blade.php)，现在可以通过 `/admin/v2/goods/batch-status` 批量启用或停用商品。
+- [GoodsActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/GoodsActionController.php) 新增了 `editBatchStatus()` / `updateBatchStatus()`，把这条动作收进现有商品动作控制器。
+- [GoodsActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/GoodsActionService.php) 新增了批量 ID 解析、匹配预览和启用状态批量更新逻辑，保持写入边界仍在服务层。
+- [AdminShellGoodsPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellGoodsPageService.php) 已在商品概览页头补上“批量启停”入口。
+- [AdminShellResourceRegistry.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellResourceRegistry.php) 已接入 `goods/batch-status` 路由定义。
+- [AdminShellGoodsControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellGoodsControllerTest.php) 补上了批量动作页展示和批量停用的 Feature 护栏。
+
+影响范围：
+
+- 商品管理从“单条编辑”继续推进到“低风险批量运营动作”
+- 后台壳继续逼近高频后台页的真实主承载
+- 后续扩展商品批量启停、批量恢复或更多运营动作时，已经有了统一入口样板
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellGoodsControllerTest.php` 通过，结果为 `OK (10 tests, 70 assertions)`
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (247 tests, 1179 assertions)`
+- `ADMIN_USERNAME=auth-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过
+
+下一步：
+
+- 继续沿着后台壳扩容主线推进，优先处理订单或支付通道的下一批低风险批量动作
