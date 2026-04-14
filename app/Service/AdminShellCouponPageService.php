@@ -87,7 +87,12 @@ class AdminShellCouponPageService extends AbstractAdminShellPageService
         $header = $this->buildResourceHeader('共 '.$coupons->total().' 条优惠码');
         $header['actions'][] = [
             'label' => '导出优惠码文本',
-            'href' => admin_url($this->resourceDefinition()['uri']).'?'.$this->buildExportQuery($filters),
+            'href' => admin_url($this->resourceDefinition()['uri']).'?'.$this->buildExportQuery($filters, 'text'),
+            'variant' => 'secondary',
+        ];
+        $header['actions'][] = [
+            'label' => '导出优惠码 CSV',
+            'href' => admin_url($this->resourceDefinition()['uri']).'?'.$this->buildExportQuery($filters, 'csv'),
             'variant' => 'secondary',
         ];
         $header['actions'][] = [
@@ -169,10 +174,21 @@ class AdminShellCouponPageService extends AbstractAdminShellPageService
     public function exportTextResponse(array $filters)
     {
         $content = $this->exportText($filters);
-        $filename = $this->buildExportFilename();
+        $filename = $this->buildExportFilename('txt');
 
         return response($content, 200, [
             'Content-Type' => 'text/plain; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+        ]);
+    }
+
+    public function exportCsvResponse(array $filters)
+    {
+        $content = $this->exportCsv($filters);
+        $filename = $this->buildExportFilename('csv');
+
+        return response($content, 200, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
             'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ]);
     }
@@ -369,19 +385,47 @@ class AdminShellCouponPageService extends AbstractAdminShellPageService
         return implode(PHP_EOL, $lines);
     }
 
-    private function buildExportFilename(): string
+    private function exportCsv(array $filters): string
     {
-        return 'coupon-export-'.now()->format('Ymd-His').'.txt';
+        $coupons = $this->filteredQuery($filters)->get();
+        $stream = fopen('php://temp', 'r+');
+
+        fputcsv($stream, ['优惠码', 'ID', '折扣金额', '使用状态', '启用状态', '可用次数', '关联商品', '删除状态', '更新时间']);
+
+        foreach ($coupons as $coupon) {
+            fputcsv($stream, [
+                $coupon->coupon,
+                $coupon->id,
+                $coupon->discount,
+                (int) $coupon->is_use === Coupon::STATUS_USE ? '已使用' : '未使用',
+                $coupon->deleted_at ? '回收站' : ((int) $coupon->is_open === Coupon::STATUS_OPEN ? '已启用' : '已停用'),
+                $coupon->ret,
+                $this->goodsSummary($coupon),
+                $coupon->deleted_at ? '已删除' : '正常',
+                (string) $coupon->updated_at,
+            ]);
+        }
+
+        rewind($stream);
+        $content = stream_get_contents($stream);
+        fclose($stream);
+
+        return $content;
     }
 
-    private function buildExportQuery(array $filters): string
+    private function buildExportFilename(string $extension = 'txt'): string
+    {
+        return 'coupon-export-'.now()->format('Ymd-His').'.'.$extension;
+    }
+
+    private function buildExportQuery(array $filters, string $exportType = 'text'): string
     {
         $query = array_filter($filters, function ($value) {
             return $value !== null && $value !== '';
         });
 
         unset($query['export']);
-        $query['export'] = 'text';
+        $query['export'] = $exportType;
 
         return http_build_query($query);
     }

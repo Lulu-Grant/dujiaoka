@@ -418,8 +418,9 @@ class AdminShellPageStructureTest extends TestCase
         $this->assertInstanceOf(AdminShellShowPageData::class, $showPage);
         $this->assertSame('卡密管理 - 后台壳样板', $indexPage->title);
         $this->assertSame('卡密详情 - 后台壳样板', $showPage->title);
-        $this->assertSame('导出 CSV', $header['actions'][2]['label']);
-        $this->assertSame('导出当前筛选', $header['actions'][3]['label']);
+        $this->assertSame('导入卡密', $header['actions'][2]['label']);
+        $this->assertSame('导出 CSV', $header['actions'][3]['label']);
+        $this->assertSame('导出当前筛选', $header['actions'][4]['label']);
         $this->assertStringContainsString('?scope=trashed', $showHeader['actions'][0]['href']);
         $this->assertSame('关联商品', $table['headers'][1]);
         $this->assertStringContainsString('自动发货商品', $table['rows'][0][1]);

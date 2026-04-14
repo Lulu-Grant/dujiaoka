@@ -200,6 +200,24 @@ class AdminShellCouponControllerTest extends TestCase
         $this->assertSame(1, (int) DB::table('coupons')->where('id', 95002)->value('is_open'));
     }
 
+    public function test_index_can_export_coupon_csv_with_current_filters(): void
+    {
+        $this->seedCouponFixture(95001, 'XIGUA-STATE-1', '测试商品 D');
+        $this->seedCouponFixture(95002, 'XIGUA-STATE-2', '测试商品 E');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/coupon?goods_id=95001&export=csv');
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
+        $this->assertStringContainsString('attachment; filename="coupon-export-', $response->headers->get('Content-Disposition'));
+        $this->assertStringContainsString('优惠码,ID,折扣金额,使用状态,启用状态,可用次数,关联商品,删除状态,更新时间', $response->getContent());
+        $this->assertStringContainsString('XIGUA-STATE-1,95001,5.00,未使用,已启用,1,"测试商品 D",正常', $response->getContent());
+        $response->assertDontSee('XIGUA-STATE-2');
+        $this->assertSame(1, (int) DB::table('coupons')->where('id', 95001)->value('is_open'));
+        $this->assertSame(1, (int) DB::table('coupons')->where('id', 95002)->value('is_open'));
+    }
+
     public function test_edit_page_renders_coupon_action_form(): void
     {
         $this->seedCouponFixture(94002, 'XIGUA-DETAIL', '测试商品 B');
