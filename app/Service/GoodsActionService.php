@@ -36,6 +36,42 @@ class GoodsActionService
         ];
     }
 
+    public function batchBuyLimitDefaults(array $goodsIds = []): array
+    {
+        return [
+            'goods_ids' => $goodsIds,
+            'ids_text' => implode("\n", $goodsIds),
+            'buy_limit_num' => 0,
+        ];
+    }
+
+    public function batchBuyLimitContext(array $goodsIds): array
+    {
+        $goods = Goods::query()
+            ->whereIn('id', $goodsIds)
+            ->orderBy('id')
+            ->get(['id', 'gd_name', 'type', 'is_open', 'buy_limit_num']);
+
+        $matchedIds = $goods->pluck('id')->map(function ($id) {
+            return (int) $id;
+        })->all();
+
+        return [
+            'requestedCount' => count($goodsIds),
+            'matchedCount' => $goods->count(),
+            'missingIds' => array_values(array_diff($goodsIds, $matchedIds)),
+            'items' => $goods->map(function (Goods $goods) {
+                return [
+                    'id' => $goods->id,
+                    'name' => $goods->gd_name,
+                    'type' => $this->catalogTypeLabel((int) $goods->type),
+                    'status' => (int) $goods->is_open === Goods::STATUS_OPEN ? '已启用' : '已停用',
+                    'buy_limit_num' => (int) $goods->buy_limit_num,
+                ];
+            })->all(),
+        ];
+    }
+
     public function updateOpenStatus(array $goodsIds, int $isOpen): int
     {
         if (empty($goodsIds)) {
@@ -46,6 +82,20 @@ class GoodsActionService
             ->whereIn('id', $goodsIds)
             ->update([
                 'is_open' => $isOpen,
+                'updated_at' => now(),
+            ]);
+    }
+
+    public function updateBuyLimitNum(array $goodsIds, int $buyLimitNum): int
+    {
+        if (empty($goodsIds)) {
+            return 0;
+        }
+
+        return Goods::query()
+            ->whereIn('id', $goodsIds)
+            ->update([
+                'buy_limit_num' => $buyLimitNum,
                 'updated_at' => now(),
             ]);
     }

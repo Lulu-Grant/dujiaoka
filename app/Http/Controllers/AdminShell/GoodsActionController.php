@@ -29,6 +29,10 @@ class GoodsActionController extends Controller
 
     public function create(Request $request)
     {
+        if ($this->isBatchBuyLimitMode($request)) {
+            return $this->renderBatchBuyLimitPage($request);
+        }
+
         $cloneSource = null;
         if ($request->filled('clone') && ctype_digit((string) $request->query('clone'))) {
             $cloneSource = Goods::query()->with(['group:id,gp_name', 'coupon:id,coupon'])->find((int) $request->query('clone'));
@@ -40,6 +44,7 @@ class GoodsActionController extends Controller
 
         $actions = [
             ['label' => '返回商品概览', 'href' => admin_url('v2/goods')],
+            ['label' => '批量设置限购数量', 'href' => admin_url('v2/goods/create').'?mode=batch-buy-limit-num', 'variant' => 'secondary'],
         ];
 
         if ($cloneSource) {
@@ -73,6 +78,10 @@ class GoodsActionController extends Controller
 
     public function store(Request $request)
     {
+        if ($this->isBatchBuyLimitMode($request)) {
+            return $this->submitBatchBuyLimit($request);
+        }
+
         $payload = $this->validatePayload($request);
         $goods = $this->goodsActionService->create($payload);
 
@@ -206,5 +215,55 @@ class GoodsActionController extends Controller
             'api_hook' => (string) ($payload['api_hook'] ?? ''),
             'is_open' => $request->boolean('is_open') ? Goods::STATUS_OPEN : Goods::STATUS_CLOSE,
         ]);
+    }
+
+    private function isBatchBuyLimitMode(Request $request): bool
+    {
+        return (string) $request->query('mode', $request->input('mode', '')) === 'batch-buy-limit-num';
+    }
+
+    private function renderBatchBuyLimitPage(Request $request)
+    {
+        $goodsIds = $this->goodsActionService->parseGoodsIds((string) $request->query('ids', ''));
+        $defaults = $this->goodsActionService->batchBuyLimitDefaults($goodsIds);
+
+        return view('admin-shell.goods.batch-buy-limit-num', [
+            'title' => '批量设置限购数量 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量设置限购数量',
+                'description' => '这是后台壳中的低风险批量动作页。当前只承接商品限购数量的统一调整，不触碰价格、库存、分类和其他复杂字段。',
+                'meta' => '适合活动期统一收紧购买数量或恢复默认限购。输入商品 ID 即可执行，支持换行、逗号和空格混输。',
+                'actions' => [
+                    ['label' => '返回商品概览', 'href' => admin_url('v2/goods')],
+                    ['label' => '批量启停商品', 'href' => admin_url('v2/goods/batch-status'), 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/goods/create').'?mode=batch-buy-limit-num',
+            'submitLabel' => '执行限购更新',
+            'defaults' => $defaults,
+            'context' => $this->goodsActionService->batchBuyLimitContext($goodsIds),
+        ]);
+    }
+
+    private function submitBatchBuyLimit(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+            'buy_limit_num' => ['required', 'integer', 'min:0'],
+            'mode' => ['nullable', 'string'],
+        ]);
+
+        $goodsIds = $this->goodsActionService->parseGoodsIds($validated['ids_text']);
+        if (empty($goodsIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的商品 ID。'])
+                ->withInput();
+        }
+
+        $affected = $this->goodsActionService->updateBuyLimitNum($goodsIds, (int) $validated['buy_limit_num']);
+
+        return redirect(admin_url('v2/goods/create').'?mode=batch-buy-limit-num&ids='.implode(',', $goodsIds))
+            ->with('status', '已批量设置 '.$affected.' 个商品的限购数量');
     }
 }

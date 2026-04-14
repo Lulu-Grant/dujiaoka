@@ -65,6 +65,7 @@ class AdminShellGoodsControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('新建商品');
+        $response->assertSee('批量设置限购数量');
         $response->assertSee('基础信息');
         $response->assertSee('价格与库存');
         $response->assertSee('动作分类 Shell');
@@ -152,6 +153,39 @@ class AdminShellGoodsControllerTest extends TestCase
 
         $this->assertSame(0, (int) DB::table('goods')->where('id', 96001)->value('is_open'));
         $this->assertSame(0, (int) DB::table('goods')->where('id', 96004)->value('is_open'));
+    }
+
+    public function test_batch_buy_limit_page_renders_goods_preview(): void
+    {
+        $this->seedGoodsFixture();
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/goods/create?mode=batch-buy-limit-num&ids=96001,96004,99999');
+
+        $response->assertOk();
+        $response->assertSee('批量设置限购数量');
+        $response->assertSee('待处理商品数');
+        $response->assertSee('缺失 ID 数');
+        $response->assertSee('测试商品 Shell');
+        $response->assertSee('当前限购：1');
+    }
+
+    public function test_batch_buy_limit_page_can_update_goods(): void
+    {
+        $this->seedGoodsFixture();
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/goods/create?mode=batch-buy-limit-num', [
+                'mode' => 'batch-buy-limit-num',
+                'ids_text' => "96001, 96004\n",
+                'buy_limit_num' => 6,
+            ]);
+
+        $response->assertRedirect('/admin/v2/goods/create?mode=batch-buy-limit-num&ids=96001,96004');
+        $response->assertSessionHas('status', '已批量设置 2 个商品的限购数量');
+
+        $this->assertSame(6, (int) DB::table('goods')->where('id', 96001)->value('buy_limit_num'));
+        $this->assertSame(6, (int) DB::table('goods')->where('id', 96004)->value('buy_limit_num'));
     }
 
     public function test_clone_page_can_store_goods(): void
