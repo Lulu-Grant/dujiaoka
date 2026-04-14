@@ -188,6 +188,61 @@ class AdminShellOrderControllerTest extends TestCase
         $this->assertSame('batch-98002', $data['context']['items'][1]['search_pwd']);
     }
 
+    public function test_batch_status_page_renders_matching_preview(): void
+    {
+        $this->seedBatchOrderFixture(98006, 'batch-98006', '订单批量测试 98006');
+        $this->seedBatchOrderFixture(98007, 'batch-98007', '订单批量测试 98007');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/order/batch-status?ids='.urlencode("98006,\n98007,98009"));
+
+        $response->assertOk();
+        $response->assertSee('批量更新订单状态');
+        $response->assertSee('订单批量测试 98006');
+        $response->assertSee('订单批量测试 98007');
+        $response->assertSee('98009');
+
+        /** @var \App\Http\Controllers\AdminShell\OrderActionController $controller */
+        $controller = $this->app->make(OrderActionController::class);
+        $view = $controller->editBatchStatus(Request::create('/admin/v2/order/batch-status', 'GET', [
+            'ids' => "98006,\n98007,98009",
+        ]));
+
+        $this->assertSame('admin-shell.order.batch-status', $view->name());
+
+        $data = $view->getData();
+        $this->assertSame('批量更新订单状态 - 后台壳样板', $data['title']);
+        $this->assertSame('批量更新订单状态', $data['header']['title']);
+        $this->assertSame(3, $data['context']['requestedCount']);
+        $this->assertSame(2, $data['context']['matchedCount']);
+        $this->assertSame([98009], $data['context']['missingIds']);
+        $this->assertSame("98006\n98007\n98009", $data['defaults']['ids_text']);
+        $this->assertSame('订单批量测试 98006', $data['context']['items'][0]['title']);
+        $this->assertSame((string) Order::STATUS_PENDING, (string) $data['defaults']['status']);
+    }
+
+    public function test_batch_status_can_update_order_statuses_for_matched_orders(): void
+    {
+        $this->seedBatchOrderFixture(98008, 'batch-98008', '订单批量测试 98008');
+        $this->seedBatchOrderFixture(98009, 'batch-98009', '订单批量测试 98009');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/order/batch-status', [
+                'ids_text' => "98008\n98009,98012",
+                'status' => Order::STATUS_PROCESSING,
+            ]);
+
+        $response->assertRedirect('/admin/v2/order/batch-status?ids=98008,98009,98012');
+
+        $first = Order::query()->findOrFail(98008);
+        $second = Order::query()->findOrFail(98009);
+
+        $this->assertSame(Order::STATUS_PROCESSING, (int) $first->status);
+        $this->assertSame(Order::STATUS_PROCESSING, (int) $second->status);
+        $this->assertSame('batch-98008', $first->search_pwd);
+        $this->assertSame('batch-98009', $second->search_pwd);
+    }
+
     public function test_batch_reset_can_refresh_search_passwords_for_matched_orders(): void
     {
         $this->seedBatchOrderFixture(98004, 'batch-98004', '订单批量测试 98004');
@@ -215,6 +270,7 @@ class AdminShellOrderControllerTest extends TestCase
             ->get('/admin/v2/order');
 
         $response->assertOk();
+        $response->assertSee('批量更新订单状态');
         $response->assertSee('导出文本');
         $response->assertSee('导出 CSV');
     }

@@ -7,6 +7,61 @@ use Illuminate\Support\Str;
 
 class OrderActionService
 {
+    public function batchStatusDefaults(array $orderIds = []): array
+    {
+        return [
+            'order_ids' => $orderIds,
+            'ids_text' => implode("\n", $orderIds),
+            'status' => Order::STATUS_PENDING,
+        ];
+    }
+
+    public function batchStatusContext(array $orderIds): array
+    {
+        $orders = Order::query()
+            ->with(['goods:id,gd_name', 'pay:id,pay_name'])
+            ->whereIn('id', $orderIds)
+            ->orderBy('id')
+            ->get([
+                'id',
+                'order_sn',
+                'title',
+                'email',
+                'status',
+                'actual_price',
+                'updated_at',
+                'goods_id',
+                'pay_id',
+            ]);
+
+        $matchedIds = $orders->pluck('id')->map(function ($id) {
+            return (int) $id;
+        })->all();
+
+        $missingIds = array_values(array_diff($orderIds, $matchedIds));
+
+        return [
+            'requestedCount' => count($orderIds),
+            'matchedCount' => $orders->count(),
+            'missingCount' => count($missingIds),
+            'matchedIds' => $matchedIds,
+            'missingIds' => $missingIds,
+            'items' => $orders->map(function (Order $order) {
+                return [
+                    'id' => $order->id,
+                    'order_sn' => $order->order_sn,
+                    'title' => $order->title,
+                    'email' => $order->email,
+                    'status' => $this->statusLabel($order->status),
+                    'actual_price' => (string) $order->actual_price,
+                    'goods' => optional($order->goods)->gd_name ?: '未关联商品',
+                    'pay' => optional($order->pay)->pay_name ?: '未选择支付',
+                    'updated_at' => (string) $order->updated_at,
+                ];
+            })->all(),
+        ];
+    }
+
     public function parseOrderIds(string $idsText): array
     {
         $tokens = preg_split('/[\s,，]+/u', trim($idsText), -1, PREG_SPLIT_NO_EMPTY);
@@ -101,6 +156,32 @@ class OrderActionService
 
         foreach ($orders as $order) {
             $this->resetSearchPassword($order);
+            $updated++;
+        }
+
+        return $updated;
+    }
+
+    public function updateStatuses(array $orderIds, int $status): int
+    {
+        if (empty($orderIds)) {
+            return 0;
+        }
+
+        $orders = Order::query()
+            ->whereIn('id', $orderIds)
+            ->orderBy('id')
+            ->get();
+
+        $updated = 0;
+
+        foreach ($orders as $order) {
+            $order->status = $status;
+
+            Order::withoutEvents(function () use ($order) {
+                $order->save();
+            });
+
             $updated++;
         }
 

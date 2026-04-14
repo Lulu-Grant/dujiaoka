@@ -70,6 +70,61 @@ class OrderActionController extends Controller
             ->with('status', '订单已保存');
     }
 
+    public function editBatchStatus(Request $request)
+    {
+        $orderIds = $this->orderActionService->parseOrderIds((string) $request->query('ids', ''));
+        $defaults = $this->orderActionService->batchStatusDefaults($orderIds);
+        $context = $this->orderActionService->batchStatusContext($orderIds);
+
+        return view('admin-shell.order.batch-status', [
+            'title' => '批量更新订单状态 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量更新订单状态',
+                'description' => '这是后台壳中的低风险批量动作页。当前只承接订单状态的人工维护，不触碰支付、履约和通知链。',
+                'meta' => '适合人工整理异常订单、统一切换处理中状态或做运营兜底。提交后只更新订单状态字段，并保持无事件写入。',
+                'actions' => [
+                    ['label' => '返回订单概览', 'href' => admin_url('v2/order')],
+                    ['label' => '批量重置查询密码', 'href' => admin_url('v2/order/batch-reset-search-pwd'), 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/order/batch-status'),
+            'submitLabel' => '执行批量状态更新',
+            'defaults' => $defaults,
+            'context' => $context,
+            'statusOptions' => Order::getStatusMap(),
+        ]);
+    }
+
+    public function updateBatchStatus(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+            'status' => ['required', 'integer'],
+        ]);
+
+        $orderIds = $this->orderActionService->parseOrderIds($validated['ids_text']);
+
+        if (empty($orderIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的订单 ID。'])
+                ->withInput();
+        }
+
+        $updated = $this->orderActionService->updateStatuses($orderIds, (int) $validated['status']);
+
+        if ($updated === 0) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '没有找到可更新状态的订单。'])
+                ->withInput();
+        }
+
+        $statusLabel = Order::getStatusMap()[(int) $validated['status']] ?? (string) $validated['status'];
+
+        return redirect(admin_url('v2/order/batch-status').'?ids='.implode(',', $orderIds))
+            ->with('status', '已批量更新 '.$updated.' 个订单的状态为 '.$statusLabel);
+    }
+
     public function batchResetSearchPassword(Request $request)
     {
         $orderIds = $this->orderActionService->parseOrderIds((string) $request->query('ids', ''));

@@ -96,6 +96,11 @@ class AdminShellOrderPageService extends AbstractAdminShellPageService
     {
         $header = $this->buildResourceHeader('共 '.$orders->total().' 条订单');
         $header['actions'][] = [
+            'label' => '批量更新订单状态',
+            'href' => admin_url('v2/order/batch-status'),
+            'variant' => 'secondary',
+        ];
+        $header['actions'][] = [
             'label' => '批量重置查询密码',
             'href' => admin_url('v2/order/batch-reset-search-pwd'),
             'variant' => 'secondary',

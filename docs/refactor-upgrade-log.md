@@ -4127,3 +4127,29 @@
 
 - 继续沿着后台壳扩容主线推进，优先补商品、订单、支付通道的下一批低风险批量动作。
 - 继续压缩旧兼容层，把后台壳从“主入口”再推进到“更完整的主承载”。
+
+### 154. 订单管理接入批量更新状态页
+
+摘要：
+
+- 订单管理现在新增了 [batch-status.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/order/batch-status.blade.php)，可以通过 `/admin/v2/order/batch-status` 先预览匹配订单，再统一切换订单状态。
+- [OrderActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/OrderActionController.php) 新增了 `editBatchStatus()` / `updateBatchStatus()`，把这条低风险批量动作接进现有订单动作控制器。
+- [OrderActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/OrderActionService.php) 新增了批量状态默认值、匹配上下文和无事件状态更新逻辑，保持订单批量维护仍然只落在人工维护字段边界内。
+- [AdminShellOrderPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellOrderPageService.php) 已在订单概览页头补上“批量更新订单状态”入口。
+- [AdminShellResourceRegistry.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellResourceRegistry.php) 已接入 `order/batch-status` 路由定义。
+- [AdminShellOrderControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellOrderControllerTest.php) 和 [AdminShellPageStructureTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellPageStructureTest.php) 补上了展示、更新和页头结构护栏。
+
+影响范围：
+
+- 订单壳页从“单条编辑 + 重置查询密码”继续推进到“可承接第二个真实低风险批量动作”。
+- 后台壳在订单线上的人工维护能力更完整了，适合人工整理待处理、处理中、异常等状态，不会误触支付完成或履约副作用。
+- 这也给后续订单批量类动作页提供了统一样板，后面继续扩展会更顺。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellOrderControllerTest.php` 通过，结果为 `OK (13 tests, 99 assertions)`
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/AdminShellPageStructureTest.php --filter test_order_page_service_builds_table_and_detail_items` 通过
+
+下一步：
+
+- 继续沿着后台壳扩容主线推进，优先处理支付通道或商品的下一批低风险批量动作。

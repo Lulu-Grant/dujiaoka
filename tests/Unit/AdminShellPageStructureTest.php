@@ -290,7 +290,8 @@ class AdminShellPageStructureTest extends TestCase
         $requestFilters = $service->extractFilters(Request::create('/admin/v2/order?order_sn=XIGUA&status=4&scope=trashed', 'GET'));
 
         $this->assertSame('订单管理', $header['title']);
-        $this->assertSame('批量重置查询密码', $header['actions'][1]['label']);
+        $this->assertSame('批量更新订单状态', $header['actions'][1]['label']);
+        $this->assertSame('批量重置查询密码', $header['actions'][2]['label']);
         $this->assertSame('XIGUA', $requestFilters['order_sn']);
         $this->assertSame('订单状态', $filters['fields'][2]['label']);
         $this->assertSame('订单详情', $showHeader['title']);
