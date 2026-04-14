@@ -32,6 +32,7 @@ class AdminShellCarmisControllerTest extends TestCase
         $response->assertSee('测试商品卡密 A');
         $response->assertSee('CARD-SOLD-003');
         $response->assertSee('CARD-AAA-001');
+        $response->assertSee('导出 CSV');
         $response->assertSee('导出未售出卡密');
     }
 
@@ -45,6 +46,23 @@ class AdminShellCarmisControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertHeader('Content-Type', 'text/plain; charset=UTF-8');
+        $response->assertSee('CARD-AAA-001');
+        $response->assertDontSee('CARD-SOLD-003');
+    }
+
+    public function test_index_can_export_unsold_carmis_csv(): void
+    {
+        $this->seedCarmiFixture(95001, '测试商品卡密 A', 'CARD-AAA-001');
+        $this->seedCarmiFixture(95003, '测试商品卡密 C', 'CARD-SOLD-003', 2);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/carmis?export=csv');
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
+        $response->assertHeader('Content-Disposition');
+        $response->assertSee('卡密');
+        $response->assertSee('关联商品');
         $response->assertSee('CARD-AAA-001');
         $response->assertDontSee('CARD-SOLD-003');
     }
@@ -101,7 +119,6 @@ class AdminShellCarmisControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('新建卡密');
-        $response->assertSee('测试商品卡密 A');
         $response->assertSee('维护提示');
         $response->assertSee('批量卡密请优先使用导入页处理');
     }

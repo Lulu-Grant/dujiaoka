@@ -107,6 +107,11 @@ class AdminShellCarmisPageService extends AbstractAdminShellPageService
             'variant' => 'primary',
         ];
         $header['actions'][] = [
+            'label' => '导出 CSV',
+            'href' => $this->exportUrl($filters, 'csv'),
+            'variant' => 'secondary',
+        ];
+        $header['actions'][] = [
             'label' => $this->isDefaultExportFilters($filters) ? '导出未售出卡密' : '导出当前筛选',
             'href' => $this->exportUrl($filters),
             'variant' => 'secondary',
@@ -227,9 +232,19 @@ class AdminShellCarmisPageService extends AbstractAdminShellPageService
         return $normalized;
     }
 
-    public function exportUrl(array $filters): string
+    public function exportTextResponse(array $filters)
     {
-        return admin_url('v2/carmis?'.http_build_query($this->normalizeExportFilters($filters) + ['export' => 1]));
+        return $this->buildExportResponse($this->exportText($filters), 'txt', 'text/plain; charset=UTF-8');
+    }
+
+    public function exportCsvResponse(array $filters)
+    {
+        return $this->buildExportResponse($this->exportCsv($filters), 'csv', 'text/csv; charset=UTF-8');
+    }
+
+    public function exportUrl(array $filters, string $format = 'text'): string
+    {
+        return admin_url('v2/carmis?'.http_build_query($this->normalizeExportFilters($filters) + ['export' => $format]));
     }
 
     private function buildQuery(array $filters)
@@ -260,6 +275,41 @@ class AdminShellCarmisPageService extends AbstractAdminShellPageService
         return empty(array_filter($filters, static function ($value) {
             return $value !== null && $value !== '';
         }));
+    }
+
+    private function exportCsv(array $filters): string
+    {
+        $carmis = $this->buildQuery($filters)->get();
+        $handle = fopen('php://temp', 'r+');
+        fwrite($handle, "\xEF\xBB\xBF");
+        fputcsv($handle, ['ID', '卡密', '关联商品', '状态', '循环使用', '更新时间']);
+
+        foreach ($carmis as $carmi) {
+            fputcsv($handle, [
+                $carmi->id,
+                $carmi->carmi,
+                optional($carmi->goods)->gd_name ?: '未关联商品',
+                $this->catalogPresenter->carmiStatusLabel($carmi->status),
+                $carmi->is_loop ? '是' : '否',
+                (string) $carmi->updated_at,
+            ]);
+        }
+
+        rewind($handle);
+        $content = stream_get_contents($handle);
+        fclose($handle);
+
+        return $content ?: '';
+    }
+
+    private function buildExportResponse(string $content, string $extension, string $contentType)
+    {
+        $filename = 'carmis-export-'.now()->format('YmdHis').'.'.$extension;
+
+        return response($content, 200, [
+            'Content-Type' => $contentType,
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+        ]);
     }
 
     private function renderStatusCell(Carmis $carmi): string

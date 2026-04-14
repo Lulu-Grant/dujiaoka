@@ -13,15 +13,16 @@ class CarmisShellController extends BaseAdminShellController
         $pageService = $this->resolvePageService();
         $filters = $pageService->extractFilters($request);
 
-        if ($request->boolean('export')) {
-            $exportFilters = $pageService->normalizeExportFilters($filters);
-            $content = $pageService->exportText($exportFilters);
-            $filename = 'carmis-export-'.now()->format('YmdHis').'.txt';
+        $export = strtolower(trim((string) $request->query('export', '')));
 
-            return response($content, 200, [
-                'Content-Type' => 'text/plain; charset=UTF-8',
-                'Content-Disposition' => 'attachment; filename="'.$filename.'"',
-            ]);
+        if ($export !== '') {
+            $exportFilters = $pageService->normalizeExportFilters($filters);
+
+            if ($export === 'csv') {
+                return $pageService->exportCsvResponse($exportFilters);
+            }
+
+            return $pageService->exportTextResponse($exportFilters);
         }
 
         $records = $pageService->paginate($filters);
