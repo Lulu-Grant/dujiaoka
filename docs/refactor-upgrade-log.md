@@ -4100,3 +4100,30 @@
 
 - 继续沿着后台壳扩容主线推进，优先处理商品下一批批量动作以及更多中低风险导出/复制入口
 - 继续收拢旧兼容层，减少“同一资源两套维护路径”的残留点
+
+### 153. 六路并行把后台壳导出与工作台能力再推一轮
+
+摘要：
+
+- 商品管理现在已经支持按当前筛选导出文本和 CSV，入口接到了 [AdminShellGoodsPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellGoodsPageService.php) 页头动作里，并由 [GoodsShellController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/GoodsShellController.php) 统一承接 `?export=text` / `?export=csv`。
+- 支付通道管理在保留原有脱敏文本导出的基础上，又补上了结构化 CSV 导出，仍然保持 `merchant_key` / `merchant_pem` 脱敏，不把真实密钥导出到页面边界之外。
+- 优惠码管理新增了 CSV 导出，文本导出和 CSV 导出现在并存，适合运营和交接两种不同阅读场景。
+- 卡密管理新增了 CSV 导出，仍然保留原有文本导出；默认导出未售出卡密，筛选后也能继续沿用当前条件导出。
+- 邮件模板管理新增了“当前筛选摘要导出”，导出内容会带上 `tpl_token`、模板占位符识别结果，以及和预览上下文的命中/缺失关系，方便运营快速核对模板上下文。
+- 后台壳 Dashboard 继续朝“真实工作台”推进，补上了高频动作入口和动作区块，同时烟雾脚本已经覆盖到批量限购和批量重置查询密码这些高频动作页。
+
+影响范围：
+
+- 后台壳从“有导出能力的资源页”继续推进到了“多资源统一导出 + 工作台导流”的状态。
+- 商品、支付通道、优惠码、卡密、邮件模板五条资源线都已经形成了各自的低风险导出入口，人工排查、交接和运营留档更顺了。
+- Dashboard 不再只是统计展示页，而是开始承担新后台壳的高频动作导航职责。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (271 tests, 1409 assertions)`
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过
+
+下一步：
+
+- 继续沿着后台壳扩容主线推进，优先补商品、订单、支付通道的下一批低风险批量动作。
+- 继续压缩旧兼容层，把后台壳从“主入口”再推进到“更完整的主承载”。
