@@ -6,27 +6,14 @@ use App\Models\Emailtpl;
 use App\Service\DataTransferObjects\AdminShellIndexPageData;
 use App\Service\DataTransferObjects\AdminShellShowPageData;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class AdminShellEmailTemplatePageService extends AbstractAdminShellPageService
 {
     public function paginate(array $filters): LengthAwarePaginator
     {
-        $query = Emailtpl::query()->orderByDesc('id');
-
-        if (!empty($filters['id'])) {
-            $query->where('id', (int) $filters['id']);
-        }
-
-        if (!empty($filters['tpl_name'])) {
-            $query->where('tpl_name', 'like', '%'.$filters['tpl_name'].'%');
-        }
-
-        if (!empty($filters['tpl_token'])) {
-            $query->where('tpl_token', 'like', '%'.$filters['tpl_token'].'%');
-        }
-
-        return $query->paginate(15)->appends($filters);
+        return $this->buildQuery($filters)->paginate(15)->appends($filters);
     }
 
     public function extractFilters(Request $request): array
@@ -69,7 +56,7 @@ class AdminShellEmailTemplatePageService extends AbstractAdminShellPageService
         ];
     }
 
-    public function buildHeader(LengthAwarePaginator $templates): array
+    public function buildHeader(LengthAwarePaginator $templates, array $filters = []): array
     {
         $header = $this->buildResourceHeader('共 '.$templates->total().' 条模板 · 模板内容支持 {webname}、{order_id} 等占位符');
         $header['actions'][] = [
@@ -80,6 +67,11 @@ class AdminShellEmailTemplatePageService extends AbstractAdminShellPageService
         $header['actions'][] = [
             'label' => '预览样例模板',
             'href' => admin_url('v2/emailtpl/create').'?preview=1',
+            'variant' => 'secondary',
+        ];
+        $header['actions'][] = [
+            'label' => '导出当前筛选摘要',
+            'href' => $this->exportUrl($filters),
             'variant' => 'secondary',
         ];
 
@@ -124,7 +116,7 @@ class AdminShellEmailTemplatePageService extends AbstractAdminShellPageService
     {
         return new AdminShellIndexPageData(
             $this->buildDocumentTitle('index_title'),
-            $this->buildHeader($templates),
+            $this->buildHeader($templates, $filters),
             $this->buildFilters($filters),
             $this->buildTable($templates)
         );
@@ -166,6 +158,127 @@ class AdminShellEmailTemplatePageService extends AbstractAdminShellPageService
             ['label' => '创建时间', 'value' => e((string) $template->created_at)],
             ['label' => '更新时间', 'value' => e((string) $template->updated_at)],
         ];
+    }
+
+    public function exportSummaryResponse(array $filters)
+    {
+        $content = $this->exportSummary($filters);
+
+        return response($content, 200, [
+            'Content-Type' => 'text/plain; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="'.$this->exportFilename().'"',
+        ]);
+    }
+
+    public function exportUrl(array $filters): string
+    {
+        $query = array_merge($this->exportQuery($filters), ['export' => 'summary']);
+
+        return admin_url('v2/emailtpl?'.http_build_query($query));
+    }
+
+    private function buildQuery(array $filters): Builder
+    {
+        $query = Emailtpl::query()->orderByDesc('id');
+
+        if (!empty($filters['id'])) {
+            $query->where('id', (int) $filters['id']);
+        }
+
+        if (!empty($filters['tpl_name'])) {
+            $query->where('tpl_name', 'like', '%'.$filters['tpl_name'].'%');
+        }
+
+        if (!empty($filters['tpl_token'])) {
+            $query->where('tpl_token', 'like', '%'.$filters['tpl_token'].'%');
+        }
+
+        return $query;
+    }
+
+    private function exportSummary(array $filters): string
+    {
+        $templates = $this->buildQuery($filters)->get();
+        $context = $this->previewContext();
+        $contextKeys = array_keys($context);
+
+        $lines = [
+            '邮件模板导出摘要',
+            '筛选条件：'.$this->describeFilters($filters),
+            '导出数量：'.$templates->count(),
+            '可用预览上下文：'.($contextKeys ? implode('、', $contextKeys) : '无'),
+            str_repeat('=', 72),
+        ];
+
+        foreach ($templates as $index => $template) {
+            $placeholders = $this->detectPlaceholders((string) $template->tpl_content);
+            $matched = array_values(array_intersect($placeholders, $contextKeys));
+            $missing = array_values(array_diff($placeholders, $contextKeys));
+
+            $lines[] = sprintf('[%d] %s', $index + 1, $template->tpl_name);
+            $lines[] = '标识：'.$template->tpl_token;
+            $lines[] = '内容长度：'.strlen((string) $template->tpl_content);
+            $lines[] = '发现占位符：'.($placeholders ? $this->formatTokenList($placeholders) : '无');
+            $lines[] = '上下文命中：'.($matched ? $this->formatTokenList($matched) : '无');
+            $lines[] = '上下文缺失：'.($missing ? $this->formatTokenList($missing) : '无');
+            $lines[] = str_repeat('-', 72);
+        }
+
+        if ($templates->isEmpty()) {
+            $lines[] = '当前筛选条件下没有邮件模板记录。';
+        }
+
+        return implode(PHP_EOL, $lines).PHP_EOL;
+    }
+
+    private function previewContext(): array
+    {
+        return app(EmailTemplateActionService::class)->previewContext();
+    }
+
+    private function detectPlaceholders(string $content): array
+    {
+        if (!preg_match_all('/\{([a-zA-Z0-9_]+)\}/', $content, $matches)) {
+            return [];
+        }
+
+        return array_values(array_unique($matches[1]));
+    }
+
+    private function formatTokenList(array $tokens): string
+    {
+        return implode('、', array_map(static function (string $token): string {
+            return '{'.$token.'}';
+        }, $tokens));
+    }
+
+    private function exportQuery(array $filters): array
+    {
+        return array_filter($filters, static function ($value) {
+            return $value !== null && $value !== '';
+        });
+    }
+
+    private function exportFilename(): string
+    {
+        return 'emailtpl-export-'.now()->format('Ymd-His').'.txt';
+    }
+
+    private function describeFilters(array $filters): string
+    {
+        $parts = [];
+
+        foreach ([
+            'ID' => 'id',
+            '邮件标题' => 'tpl_name',
+            '邮件标识' => 'tpl_token',
+        ] as $label => $key) {
+            if (!empty($filters[$key]) || (isset($filters[$key]) && $filters[$key] === '0')) {
+                $parts[] = $label.'='.($filters[$key] ?? '');
+            }
+        }
+
+        return $parts ? implode('；', $parts) : '无';
     }
 
     private function renderActionLinks(array $actions): string

@@ -5,8 +5,10 @@ namespace App\Service;
 use App\Models\Goods;
 use App\Service\DataTransferObjects\AdminShellIndexPageData;
 use App\Service\DataTransferObjects\AdminShellShowPageData;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class AdminShellGoodsPageService extends AbstractAdminShellPageService
 {
@@ -134,18 +136,30 @@ class AdminShellGoodsPageService extends AbstractAdminShellPageService
         ];
     }
 
-    public function buildHeader(LengthAwarePaginator $goods): array
+    public function buildHeader(LengthAwarePaginator $goods, array $filters = []): array
     {
         $header = $this->buildResourceHeader('共 '.$goods->total().' 条商品');
-        $header['actions'][] = [
-            'label' => '新建商品',
-            'href' => admin_url('v2/goods/create'),
-            'variant' => 'primary',
-        ];
-        $header['actions'][] = [
-            'label' => '批量启停',
-            'href' => admin_url('v2/goods/batch-status'),
-            'variant' => 'secondary',
+        $header['actions'] = [
+            [
+                'label' => '新建商品',
+                'href' => admin_url('v2/goods/create'),
+                'variant' => 'primary',
+            ],
+            [
+                'label' => '批量启停',
+                'href' => admin_url('v2/goods/batch-status'),
+                'variant' => 'secondary',
+            ],
+            [
+                'label' => '导出文本',
+                'href' => $this->exportUrl($filters, 'text'),
+                'variant' => 'secondary',
+            ],
+            [
+                'label' => '导出 CSV',
+                'href' => $this->exportUrl($filters, 'csv'),
+                'variant' => 'secondary',
+            ],
         ];
 
         return $header;
@@ -203,7 +217,7 @@ class AdminShellGoodsPageService extends AbstractAdminShellPageService
     {
         return new AdminShellIndexPageData(
             $this->buildDocumentTitle('index_title'),
-            $this->buildHeader($goods),
+            $this->buildHeader($goods, $filters),
             $this->buildFilters($filters),
             $this->buildTable($goods, $filters)
         );
@@ -278,6 +292,22 @@ class AdminShellGoodsPageService extends AbstractAdminShellPageService
         ];
     }
 
+    public function export(array $filters, string $format = 'text')
+    {
+        $format = strtolower(trim($format));
+        $goods = $this->buildQuery($filters)->get();
+        $content = $format === 'csv'
+            ? $this->buildCsvExport($goods)
+            : $this->buildTextExport($goods, $filters);
+        $filename = 'goods-'.date('Ymd-His').($format === 'csv' ? '.csv' : '.txt');
+        $contentType = $format === 'csv' ? 'text/csv; charset=UTF-8' : 'text/plain; charset=UTF-8';
+
+        return response($content, 200, [
+            'Content-Type' => $contentType,
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+        ]);
+    }
+
     protected function resourceKey(): string
     {
         return 'goods';
@@ -301,5 +331,129 @@ class AdminShellGoodsPageService extends AbstractAdminShellPageService
         return collect($actions)->map(function (array $action) {
             return sprintf('<a href="%s">%s</a>', e($action['href']), e($action['label']));
         })->implode(' / ');
+    }
+
+    private function buildQuery(array $filters): Builder
+    {
+        $query = Goods::query()
+            ->with(['group:id,gp_name', 'coupon:id,coupon'])
+            ->withCount(['carmis as carmis_count' => function ($builder) {
+                $builder->where('status', \App\Models\Carmis::STATUS_UNSOLD);
+            }])
+            ->orderByDesc('id');
+
+        if (($filters['scope'] ?? null) === 'trashed') {
+            $query->onlyTrashed();
+        }
+
+        if (!empty($filters['id'])) {
+            $query->where('id', (int) $filters['id']);
+        }
+
+        if (!empty($filters['gd_name'])) {
+            $query->where('gd_name', 'like', '%'.$filters['gd_name'].'%');
+        }
+
+        if (!empty($filters['type'])) {
+            $query->where('type', (int) $filters['type']);
+        }
+
+        if (!empty($filters['group_id'])) {
+            $query->where('group_id', (int) $filters['group_id']);
+        }
+
+        return $query;
+    }
+
+    private function buildTextExport(Collection $goods, array $filters): string
+    {
+        $lines = [
+            '商品导出',
+            '筛选条件：'.$this->describeFilters($filters),
+            '导出数量：'.$goods->count(),
+            str_repeat('=', 48),
+        ];
+
+        foreach ($goods as $index => $item) {
+            $lines[] = sprintf('[%d] %s', $index + 1, $item->gd_name);
+            $lines[] = '分类：'.(optional($item->group)->gp_name ?: '未分类');
+            $lines[] = '类型：'.$this->catalogPresenter->goodsTypeLabel($item->type);
+            $lines[] = '售价：'.(string) $item->actual_price;
+            $lines[] = '库存：'.(string) $item->in_stock;
+            $lines[] = '启用状态：'.strip_tags($this->statusPresenter->openStatusLabel($item->is_open));
+            $lines[] = '更新时间：'.(string) $item->updated_at;
+            $lines[] = str_repeat('-', 48);
+        }
+
+        return implode(PHP_EOL, $lines).PHP_EOL;
+    }
+
+    private function buildCsvExport(Collection $goods): string
+    {
+        $handle = fopen('php://temp', 'r+');
+        fwrite($handle, "\xEF\xBB\xBF");
+        fputcsv($handle, [
+            'ID',
+            '商品名称',
+            '分类',
+            '类型',
+            '售价',
+            '库存',
+            '启用状态',
+            '更新时间',
+        ]);
+
+        foreach ($goods as $item) {
+            fputcsv($handle, [
+                $item->id,
+                $item->gd_name,
+                optional($item->group)->gp_name ?: '未分类',
+                $this->catalogPresenter->goodsTypeLabel($item->type),
+                $item->actual_price,
+                $item->in_stock,
+                strip_tags($this->statusPresenter->openStatusLabel($item->is_open)),
+                (string) $item->updated_at,
+            ]);
+        }
+
+        rewind($handle);
+        $content = stream_get_contents($handle);
+        fclose($handle);
+
+        return $content ?: '';
+    }
+
+    private function exportUrl(array $filters, string $format): string
+    {
+        $query = $this->exportQuery($filters);
+        $query['export'] = $format;
+
+        return admin_url('v2/goods?'.http_build_query($query));
+    }
+
+    private function exportQuery(array $filters): array
+    {
+        return array_filter($filters, static function ($value) {
+            return $value !== null && $value !== '';
+        });
+    }
+
+    private function describeFilters(array $filters): string
+    {
+        $parts = [];
+
+        foreach ([
+            'ID' => 'id',
+            '商品名称' => 'gd_name',
+            '商品类型' => 'type',
+            '分类ID' => 'group_id',
+            '范围' => 'scope',
+        ] as $label => $key) {
+            if (!empty($filters[$key]) || (isset($filters[$key]) && $filters[$key] === '0')) {
+                $parts[] = $label.'='.($filters[$key] ?? '');
+            }
+        }
+
+        return $parts ? implode('；', $parts) : '无';
     }
 }

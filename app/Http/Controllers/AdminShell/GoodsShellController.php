@@ -12,6 +12,12 @@ class GoodsShellController extends BaseAdminShellController
     {
         $pageService = $this->resolvePageService();
         $filters = $pageService->extractFilters($request);
+        $export = (string) $request->query('export', '');
+
+        if ($export !== '') {
+            return $pageService->export($filters, $export);
+        }
+
         $records = $pageService->paginate($filters);
         $page = $pageService->buildIndexPageData($records, $filters)->toViewData();
 

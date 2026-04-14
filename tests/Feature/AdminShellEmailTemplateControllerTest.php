@@ -10,8 +10,8 @@ class AdminShellEmailTemplateControllerTest extends TestCase
 {
     protected function tearDown(): void
     {
-        DB::table('emailtpls')->whereIn('id', [92001, 92002, 92003, 92004, 92005, 92006])->delete();
-        DB::table('emailtpls')->whereIn('tpl_token', ['shell-template-a', 'shell-template-b', 'shell-template-c', 'shell-template-d', 'shell-template-e', 'shell-created-template', 'shell-created-template-copy'])->delete();
+        DB::table('emailtpls')->whereIn('id', [92001, 92002, 92003, 92004, 92005, 92006, 92007])->delete();
+        DB::table('emailtpls')->whereIn('tpl_token', ['shell-template-a', 'shell-template-b', 'shell-template-c', 'shell-template-d', 'shell-template-e', 'shell-template-f', 'shell-created-template', 'shell-created-template-copy'])->delete();
         DB::table('admin_users')->where('username', 'admin-shell-tester')->delete();
 
         parent::tearDown();
@@ -37,6 +37,34 @@ class AdminShellEmailTemplateControllerTest extends TestCase
         $response->assertSee('模板 A');
         $response->assertSee('占位符');
         $response->assertSee('预览样例模板');
+        $response->assertSee('导出当前筛选摘要');
+    }
+
+    public function test_index_can_export_email_template_summary_for_current_filters(): void
+    {
+        DB::table('emailtpls')->insert([
+            'id' => 92007,
+            'tpl_name' => '模板 F',
+            'tpl_content' => '<p>{webname}</p><p>{order_id}</p><p>{missing_context}</p>',
+            'tpl_token' => 'shell-template-f',
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/emailtpl?tpl_token=shell-template-f&export=summary');
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'text/plain; charset=UTF-8');
+        $response->assertSee('邮件模板导出摘要');
+        $response->assertSee('筛选条件：邮件标识=shell-template-f');
+        $response->assertSee('导出数量：1');
+        $response->assertSee('可用预览上下文');
+        $response->assertSee('发现占位符：{webname}、{order_id}、{missing_context}');
+        $response->assertSee('上下文命中：{webname}、{order_id}');
+        $response->assertSee('上下文缺失：{missing_context}');
+        $response->assertSee('shell-template-f');
     }
 
     public function test_show_renders_email_template_detail_page(): void

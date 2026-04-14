@@ -188,6 +188,39 @@ class AdminShellGoodsControllerTest extends TestCase
         $this->assertSame(6, (int) DB::table('goods')->where('id', 96004)->value('buy_limit_num'));
     }
 
+    public function test_index_can_export_goods_text(): void
+    {
+        $this->seedGoodsFixture();
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/goods?id=96001&export=text');
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'text/plain; charset=UTF-8');
+        $this->assertStringContainsString('attachment; filename="goods-', (string) $response->headers->get('Content-Disposition'));
+        $this->assertStringContainsString('.txt"', (string) $response->headers->get('Content-Disposition'));
+        $this->assertStringContainsString('商品导出', $response->getContent());
+        $this->assertStringContainsString('筛选条件：ID=96001', $response->getContent());
+        $this->assertStringContainsString('测试商品 Shell', $response->getContent());
+        $this->assertStringContainsString('测试分类 Shell', $response->getContent());
+    }
+
+    public function test_index_can_export_goods_csv(): void
+    {
+        $this->seedGoodsFixture();
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/goods?id=96001&export=csv');
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
+        $this->assertStringContainsString('attachment; filename="goods-', (string) $response->headers->get('Content-Disposition'));
+        $this->assertStringContainsString('.csv"', (string) $response->headers->get('Content-Disposition'));
+        $this->assertStringContainsString('商品名称,分类,类型,售价,库存,启用状态,更新时间', $response->getContent());
+        $this->assertStringContainsString('测试商品 Shell', $response->getContent());
+        $this->assertStringContainsString('测试分类 Shell', $response->getContent());
+    }
+
     public function test_clone_page_can_store_goods(): void
     {
         $this->seedGoodsFixture();
