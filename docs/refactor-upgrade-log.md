@@ -4075,3 +4075,28 @@
 
 - 继续沿着后台壳扩容主线推进，优先扩订单、商品、支付通道的下一批低风险批量动作
 - 顺手继续压缩旧 Dcat 兼容层和历史边角文件
+
+### 152. 订单、支付通道、优惠码导出线并行落地
+
+摘要：
+
+- 订单管理现在支持按当前筛选直接导出文本或 CSV，入口已经接到 [AdminShellOrderPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellOrderPageService.php) 的页头动作里，并由 [OrderShellController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/OrderShellController.php) 统一承接 `?export=text` / `?export=csv`。
+- 支付通道管理现在支持按当前筛选导出脱敏文本，敏感字段继续保持 `merchant_key` / `merchant_pem` 脱敏，不把真实密钥带出页面边界。
+- 优惠码管理现在支持按当前筛选导出人工运营友好的文本，包含优惠码、折扣、启用状态、使用状态、可用次数和关联商品摘要。
+- 这三条导出线都没有引入业务副作用，只复用当前筛选条件与页面服务查询边界，适合作为后台壳中的低风险“排查 / 交接 / 留档”动作。
+
+影响范围：
+
+- 后台壳从“批量维护动作”继续扩到了“低风险导出动作”
+- 订单、支付通道、优惠码三条高频资源现在都具备了可直接交付人工运营使用的导出入口
+- 导出逻辑继续压在资源页服务与壳控制器里，旧 Dcat 不再承担这些高频排查能力
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (265 tests, 1325 assertions)`
+- `ADMIN_USERNAME=auth-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过
+
+下一步：
+
+- 继续沿着后台壳扩容主线推进，优先处理商品下一批批量动作以及更多中低风险导出/复制入口
+- 继续收拢旧兼容层，减少“同一资源两套维护路径”的残留点
