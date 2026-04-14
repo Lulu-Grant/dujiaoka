@@ -6,6 +6,7 @@ use App\Models\Pay;
 use App\Service\DataTransferObjects\AdminShellIndexPageData;
 use App\Service\DataTransferObjects\AdminShellShowPageData;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class AdminShellPayPageService extends AbstractAdminShellPageService
@@ -23,25 +24,7 @@ class AdminShellPayPageService extends AbstractAdminShellPageService
 
     public function paginate(array $filters): LengthAwarePaginator
     {
-        $query = Pay::query()->orderByDesc('id');
-
-        if (($filters['scope'] ?? null) === 'trashed') {
-            $query->onlyTrashed();
-        }
-
-        if (!empty($filters['id'])) {
-            $query->where('id', (int) $filters['id']);
-        }
-
-        if (!empty($filters['pay_check'])) {
-            $query->where('pay_check', $filters['pay_check']);
-        }
-
-        if (!empty($filters['pay_name'])) {
-            $query->where('pay_name', 'like', '%'.$filters['pay_name'].'%');
-        }
-
-        return $query->paginate(15)->appends($filters);
+        return $this->filteredQuery($filters)->paginate(15)->appends($filters);
     }
 
     public function extractFilters(Request $request): array
@@ -106,6 +89,11 @@ class AdminShellPayPageService extends AbstractAdminShellPageService
 
     public function buildHeader(LengthAwarePaginator $pays): array
     {
+        return $this->buildHeaderForFilters([], $pays);
+    }
+
+    public function buildHeaderForFilters(array $filters, LengthAwarePaginator $pays): array
+    {
         $header = $this->buildResourceHeader('共 '.$pays->total().' 条通道');
         $header['actions'][] = [
             'label' => '批量启停通道',
@@ -116,6 +104,11 @@ class AdminShellPayPageService extends AbstractAdminShellPageService
             'label' => '新建支付通道',
             'href' => admin_url('v2/pay/create'),
             'variant' => 'primary',
+        ];
+        $header['actions'][] = [
+            'label' => '导出当前筛选',
+            'href' => $this->exportUrl($filters),
+            'variant' => 'secondary',
         ];
 
         return $header;
@@ -140,6 +133,26 @@ class AdminShellPayPageService extends AbstractAdminShellPageService
             ],
             'resetUrl' => admin_url($definition['uri']),
         ];
+    }
+
+    public function exportRows(array $filters): array
+    {
+        return $this->filteredQuery($filters)->orderByDesc('id')->get()->map(function (Pay $pay) {
+            return [
+                'id' => $pay->id,
+                'pay_name' => $pay->pay_name,
+                'pay_check' => $pay->pay_check,
+                'lifecycle' => $this->presenter->lifecycleLabel($pay->lifecycle),
+                'pay_client' => $this->presenter->clientLabel($pay->pay_client),
+                'pay_method' => $this->presenter->methodLabel($pay->pay_method),
+                'is_open' => strip_tags($this->presenter->openStatusLabel($pay->is_open)),
+                'pay_handleroute' => $pay->pay_handleroute,
+                'merchant_id' => $pay->merchant_id,
+                'merchant_key' => blank($pay->merchant_key) ? '未配置' : '已脱敏',
+                'merchant_pem' => blank($pay->merchant_pem) ? '未配置' : '已脱敏',
+                'updated_at' => (string) $pay->updated_at,
+            ];
+        })->all();
     }
 
     public function buildShowHeader(?string $scope = null, ?Pay $pay = null): array
@@ -169,7 +182,7 @@ class AdminShellPayPageService extends AbstractAdminShellPageService
     {
         return new AdminShellIndexPageData(
             $this->buildDocumentTitle('index_title'),
-            $this->buildHeader($pays),
+            $this->buildHeaderForFilters($filters, $pays),
             $this->buildFilters($filters),
             $this->buildTable($pays, $filters)
         );
@@ -246,5 +259,75 @@ class AdminShellPayPageService extends AbstractAdminShellPageService
     protected function resourceKey(): string
     {
         return 'pay';
+    }
+
+    private function filteredQuery(array $filters): Builder
+    {
+        $query = Pay::query();
+
+        if (($filters['scope'] ?? null) === 'trashed') {
+            $query->onlyTrashed();
+        }
+
+        if (!empty($filters['id'])) {
+            $query->where('id', (int) $filters['id']);
+        }
+
+        if (!empty($filters['pay_check'])) {
+            $query->where('pay_check', $filters['pay_check']);
+        }
+
+        if (!empty($filters['pay_name'])) {
+            $query->where('pay_name', 'like', '%'.$filters['pay_name'].'%');
+        }
+
+        return $query;
+    }
+
+    private function exportUrl(array $filters): string
+    {
+        $query = array_filter(array_merge($filters, ['export' => 1]), function ($value) {
+            return $value !== null && $value !== '';
+        });
+
+        return admin_url($this->resourceDefinition()['uri']).'?'.http_build_query($query);
+    }
+
+    public function exportText(array $filters): string
+    {
+        $rows = $this->exportRows($filters);
+        $lines = [];
+
+        $lines[] = '# 支付通道导出';
+        $lines[] = '筛选条件：';
+        $lines[] = '- ID：'.($filters['id'] ?? '全部');
+        $lines[] = '- 支付标识：'.($filters['pay_check'] ?? '全部');
+        $lines[] = '- 支付名称：'.($filters['pay_name'] ?? '全部');
+        $lines[] = '- 范围：'.(($filters['scope'] ?? null) === 'trashed' ? '回收站' : '全部');
+        $lines[] = '- 导出时间：'.now()->toDateTimeString();
+        $lines[] = '';
+
+        if (empty($rows)) {
+            $lines[] = '没有匹配到支付通道记录。';
+
+            return implode(PHP_EOL, $lines).PHP_EOL;
+        }
+
+        foreach ($rows as $row) {
+            $lines[] = sprintf('[%s] %s', $row['id'], $row['pay_name']);
+            $lines[] = '支付标识：'.$row['pay_check'];
+            $lines[] = '生命周期：'.$row['lifecycle'];
+            $lines[] = '支付场景：'.$row['pay_client'];
+            $lines[] = '支付方式：'.$row['pay_method'];
+            $lines[] = '启用状态：'.$row['is_open'];
+            $lines[] = '支付路由：'.$row['pay_handleroute'];
+            $lines[] = '商户 ID：'.$row['merchant_id'];
+            $lines[] = '商户 KEY：'.($row['merchant_key'] === '未配置' ? '未配置' : '已脱敏');
+            $lines[] = '商户 PEM：'.($row['merchant_pem'] === '未配置' ? '未配置' : '已脱敏');
+            $lines[] = '更新时间：'.$row['updated_at'];
+            $lines[] = '';
+        }
+
+        return implode(PHP_EOL, $lines);
     }
 }

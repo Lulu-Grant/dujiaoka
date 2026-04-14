@@ -12,7 +12,7 @@ class AdminShellPayControllerTest extends TestCase
 {
     protected function tearDown(): void
     {
-        DB::table('pays')->whereIn('id', [93001, 93002, 93003, 93004, 93005, 93006, 93011, 93012, 93013, 93014, 93015])->delete();
+        DB::table('pays')->whereIn('id', [93001, 93002, 93003, 93004, 93005, 93006, 93011, 93012, 93013, 93014, 93015, 93020, 93021, 93030, 93031])->delete();
         DB::table('pays')->whereIn('pay_check', ['stripe', 'paypal', 'wechat-shell', 'alipay-shell', 'copy-shell-clone'])->delete();
         DB::table('admin_users')->where('username', 'admin-shell-tester')->delete();
 
@@ -43,19 +43,71 @@ class AdminShellPayControllerTest extends TestCase
         $response->assertOk();
         $response->assertSee('支付通道管理');
         $response->assertSee('Stripe 样板');
+        $response->assertSee('导出当前筛选');
+    }
+
+    public function test_index_can_export_filtered_pay_channels_as_desensitized_text(): void
+    {
+        DB::table('pays')->insert([
+            'id' => 93030,
+            'pay_name' => '导出样板 A',
+            'merchant_id' => 'export-merchant-a',
+            'merchant_key' => 'export-secret-key-a',
+            'merchant_pem' => 'export-secret-pem-a',
+            'pay_check' => 'export-a',
+            'pay_client' => 1,
+            'pay_handleroute' => '/pay/export-a',
+            'pay_method' => 2,
+            'is_open' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+        DB::table('pays')->insert([
+            'id' => 93031,
+            'pay_name' => '导出样板 B',
+            'merchant_id' => 'export-merchant-b',
+            'merchant_key' => 'export-secret-key-b',
+            'merchant_pem' => 'export-secret-pem-b',
+            'pay_check' => 'export-b',
+            'pay_client' => 2,
+            'pay_handleroute' => '/pay/export-b',
+            'pay_method' => 1,
+            'is_open' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/pay?pay_name=%E5%AF%BC%E5%87%BA%E6%A0%B7%E6%9D%BF&export=1');
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'text/plain; charset=UTF-8');
+        $response->assertHeader('Content-Disposition');
+        $response->assertSee('支付通道导出');
+        $response->assertSee('筛选条件：');
+        $response->assertSee('导出样板 A');
+        $response->assertSee('导出样板 B');
+        $response->assertSee('商户 KEY：已脱敏');
+        $response->assertSee('商户 PEM：已脱敏');
+        $response->assertDontSee('export-secret-key-a');
+        $response->assertDontSee('export-secret-pem-a');
+        $response->assertDontSee('export-secret-key-b');
+        $response->assertDontSee('export-secret-pem-b');
     }
 
     public function test_show_renders_pay_detail_page(): void
     {
         DB::table('pays')->insert([
             'id' => 93002,
-            'pay_name' => 'PayPal 样板',
-            'merchant_id' => 'paypal-id',
-            'merchant_key' => 'paypal-key',
-            'merchant_pem' => 'paypal-pem',
-            'pay_check' => 'paypal',
+            'pay_name' => '展示样板',
+            'merchant_id' => 'show-id',
+            'merchant_key' => 'show-key',
+            'merchant_pem' => 'show-pem',
+            'pay_check' => 'show-shell',
             'pay_client' => 2,
-            'pay_handleroute' => '/pay/paypal',
+            'pay_handleroute' => '/pay/show-shell',
             'pay_method' => 2,
             'is_open' => 0,
             'created_at' => now(),
@@ -68,8 +120,8 @@ class AdminShellPayControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('支付通道详情');
-        $response->assertSee('PayPal 样板');
-        $response->assertSee('/pay/paypal');
+        $response->assertSee('展示样板');
+        $response->assertSee('/pay/show-shell');
     }
 
     public function test_batch_status_page_renders_pay_preview(): void
