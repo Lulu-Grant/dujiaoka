@@ -106,8 +106,13 @@ class AdminShellPayPageService extends AbstractAdminShellPageService
             'variant' => 'primary',
         ];
         $header['actions'][] = [
+            'label' => '导出结构化 CSV',
+            'href' => $this->exportUrl($filters, 'csv'),
+            'variant' => 'secondary',
+        ];
+        $header['actions'][] = [
             'label' => '导出当前筛选',
-            'href' => $this->exportUrl($filters),
+            'href' => $this->exportUrl($filters, 'txt'),
             'variant' => 'secondary',
         ];
 
@@ -153,6 +158,38 @@ class AdminShellPayPageService extends AbstractAdminShellPageService
                 'updated_at' => (string) $pay->updated_at,
             ];
         })->all();
+    }
+
+    public function exportCsv(array $filters): string
+    {
+        $rows = $this->exportRows($filters);
+        $handle = fopen('php://temp', 'r+');
+
+        fwrite($handle, "\xEF\xBB\xBF");
+        fputcsv($handle, ['ID', '支付名称', '支付标识', '生命周期', '支付场景', '支付方式', '启用状态', '支付路由', '商户 ID', '商户 KEY', '商户 PEM', '更新时间']);
+
+        foreach ($rows as $row) {
+            fputcsv($handle, [
+                $row['id'],
+                $row['pay_name'],
+                $row['pay_check'],
+                $row['lifecycle'],
+                $row['pay_client'],
+                $row['pay_method'],
+                $row['is_open'],
+                $row['pay_handleroute'],
+                $row['merchant_id'],
+                $row['merchant_key'],
+                $row['merchant_pem'],
+                $row['updated_at'],
+            ]);
+        }
+
+        rewind($handle);
+        $content = stream_get_contents($handle);
+        fclose($handle);
+
+        return $content;
     }
 
     public function buildShowHeader(?string $scope = null, ?Pay $pay = null): array
@@ -284,9 +321,9 @@ class AdminShellPayPageService extends AbstractAdminShellPageService
         return $query;
     }
 
-    private function exportUrl(array $filters): string
+    private function exportUrl(array $filters, string $format = 'txt'): string
     {
-        $query = array_filter(array_merge($filters, ['export' => 1]), function ($value) {
+        $query = array_filter(array_merge($filters, ['export' => $format]), function ($value) {
             return $value !== null && $value !== '';
         });
 

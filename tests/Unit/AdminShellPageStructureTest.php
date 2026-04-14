@@ -108,7 +108,7 @@ class AdminShellPageStructureTest extends TestCase
             new LengthAwarePaginator(collect([$goods]), 1, 15),
             ['scope' => '']
         );
-        $header = $service->buildHeader(new LengthAwarePaginator(collect([$goods]), 1, 15));
+        $header = $service->buildHeader(new LengthAwarePaginator(collect([$goods]), 1, 15), ['gd_name' => '测试', 'scope' => '']);
         $filters = $service->buildFilters(['gd_name' => '测试', 'type' => Goods::AUTOMATIC_DELIVERY, 'scope' => 'trashed']);
         $showHeader = $service->buildShowHeader('trashed');
         $indexPage = $service->buildIndexPageData(new LengthAwarePaginator(collect([$goods]), 1, 15), ['gd_name' => '测试', 'scope' => '']);
@@ -117,6 +117,12 @@ class AdminShellPageStructureTest extends TestCase
         $requestFilters = $service->extractFilters(Request::create('/admin/v2/goods?gd_name=test&type=1&scope=trashed', 'GET'));
 
         $this->assertSame('商品管理', $header['title']);
+        $this->assertSame('新建商品', $header['actions'][0]['label']);
+        $this->assertSame('批量启停', $header['actions'][1]['label']);
+        $this->assertSame('导出文本', $header['actions'][2]['label']);
+        $this->assertSame('导出 CSV', $header['actions'][3]['label']);
+        $this->assertStringContainsString('export=text', $header['actions'][2]['href']);
+        $this->assertStringContainsString('export=csv', $header['actions'][3]['href']);
         $this->assertSame('test', $requestFilters['gd_name']);
         $this->assertSame('商品类型', $filters['fields'][2]['label']);
         $this->assertSame('商品详情', $showHeader['title']);
@@ -149,7 +155,7 @@ class AdminShellPageStructureTest extends TestCase
         $table = $service->buildTable(
             new LengthAwarePaginator(collect([$template]), 1, 15)
         );
-        $header = $service->buildHeader(new LengthAwarePaginator(collect([$template]), 1, 15));
+        $header = $service->buildHeader(new LengthAwarePaginator(collect([$template]), 1, 15), ['tpl_name' => '发货', 'tpl_token' => 'deliver_notice']);
         $filters = $service->buildFilters(['tpl_name' => '发货', 'tpl_token' => 'deliver_notice']);
         $showHeader = $service->buildShowHeader();
         $indexPage = $service->buildIndexPageData(new LengthAwarePaginator(collect([$template]), 1, 15), ['tpl_name' => '发货']);
@@ -159,6 +165,12 @@ class AdminShellPageStructureTest extends TestCase
 
         $this->assertSame('邮件模板管理', $header['title']);
         $this->assertSame('迁移合同', $header['actions'][0]['label']);
+        $this->assertSame('新建邮件模板', $header['actions'][1]['label']);
+        $this->assertSame('预览样例模板', $header['actions'][2]['label']);
+        $this->assertSame('导出当前筛选摘要', $header['actions'][3]['label']);
+        $this->assertStringContainsString('export=summary', $header['actions'][3]['href']);
+        $this->assertStringContainsString('tpl_name=%E5%8F%91%E8%B4%A7', $header['actions'][3]['href']);
+        $this->assertStringContainsString('tpl_token=deliver_notice', $header['actions'][3]['href']);
         $this->assertSame('deliver_notice', $requestFilters['tpl_token']);
         $this->assertSame('邮件标题', $filters['fields'][1]['label']);
         $this->assertSame('邮件模板详情', $showHeader['title']);
@@ -210,7 +222,10 @@ class AdminShellPageStructureTest extends TestCase
         $this->assertSame('迁移合同', $header['actions'][0]['label']);
         $this->assertSame('批量启停通道', $header['actions'][1]['label']);
         $this->assertSame('新建支付通道', $header['actions'][2]['label']);
-        $this->assertSame('导出当前筛选', $header['actions'][3]['label']);
+        $this->assertSame('导出结构化 CSV', $header['actions'][3]['label']);
+        $this->assertSame('导出当前筛选', $header['actions'][4]['label']);
+        $this->assertStringContainsString('export=csv', $header['actions'][3]['href']);
+        $this->assertStringContainsString('export=txt', $header['actions'][4]['href']);
         $this->assertSame('Stripe', $requestFilters['pay_name']);
         $this->assertSame('支付标识', $filters['fields'][1]['label']);
         $this->assertSame('支付通道详情', $showHeader['title']);
@@ -350,7 +365,8 @@ class AdminShellPageStructureTest extends TestCase
 
         $this->assertSame('优惠码管理', $header['title']);
         $this->assertSame('导出优惠码文本', $header['actions'][1]['label']);
-        $this->assertSame('批量启停优惠码', $header['actions'][2]['label']);
+        $this->assertSame('导出优惠码 CSV', $header['actions'][2]['label']);
+        $this->assertSame('批量启停优惠码', $header['actions'][3]['label']);
         $this->assertSame('XIGUA', $requestFilters['coupon']);
         $this->assertSame('商品 ID', $filters['fields'][2]['label']);
         $this->assertSame('优惠码详情', $showHeader['title']);
@@ -402,6 +418,8 @@ class AdminShellPageStructureTest extends TestCase
         $this->assertInstanceOf(AdminShellShowPageData::class, $showPage);
         $this->assertSame('卡密管理 - 后台壳样板', $indexPage->title);
         $this->assertSame('卡密详情 - 后台壳样板', $showPage->title);
+        $this->assertSame('导出 CSV', $header['actions'][2]['label']);
+        $this->assertSame('导出当前筛选', $header['actions'][3]['label']);
         $this->assertStringContainsString('?scope=trashed', $showHeader['actions'][0]['href']);
         $this->assertSame('关联商品', $table['headers'][1]);
         $this->assertStringContainsString('自动发货商品', $table['rows'][0][1]);

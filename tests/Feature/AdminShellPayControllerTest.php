@@ -43,6 +43,7 @@ class AdminShellPayControllerTest extends TestCase
         $response->assertOk();
         $response->assertSee('支付通道管理');
         $response->assertSee('Stripe 样板');
+        $response->assertSee('导出结构化 CSV');
         $response->assertSee('导出当前筛选');
     }
 
@@ -95,6 +96,55 @@ class AdminShellPayControllerTest extends TestCase
         $response->assertDontSee('export-secret-pem-a');
         $response->assertDontSee('export-secret-key-b');
         $response->assertDontSee('export-secret-pem-b');
+    }
+
+    public function test_index_can_export_filtered_pay_channels_as_csv(): void
+    {
+        DB::table('pays')->insert([
+            'id' => 93020,
+            'pay_name' => 'CSV 样板 A',
+            'merchant_id' => 'csv-merchant-a',
+            'merchant_key' => 'csv-secret-key-a',
+            'merchant_pem' => 'csv-secret-pem-a',
+            'pay_check' => 'csv-a',
+            'pay_client' => 1,
+            'pay_handleroute' => '/pay/csv-a',
+            'pay_method' => 2,
+            'is_open' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+        DB::table('pays')->insert([
+            'id' => 93021,
+            'pay_name' => 'CSV 样板 B',
+            'merchant_id' => 'csv-merchant-b',
+            'merchant_key' => 'csv-secret-key-b',
+            'merchant_pem' => 'csv-secret-pem-b',
+            'pay_check' => 'csv-b',
+            'pay_client' => 2,
+            'pay_handleroute' => '/pay/csv-b',
+            'pay_method' => 1,
+            'is_open' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/pay?pay_name=CSV&export=csv');
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
+        $response->assertHeader('Content-Disposition');
+        $response->assertSee('ID,支付名称,支付标识,生命周期,支付场景,支付方式,启用状态,支付路由,"商户 ID","商户 KEY","商户 PEM",更新时间');
+        $response->assertSee('93020,"CSV 样板 A",csv-a');
+        $response->assertSee('93021,"CSV 样板 B",csv-b');
+        $response->assertSee('已脱敏');
+        $response->assertDontSee('csv-secret-key-a');
+        $response->assertDontSee('csv-secret-pem-a');
+        $response->assertDontSee('csv-secret-key-b');
+        $response->assertDontSee('csv-secret-pem-b');
     }
 
     public function test_show_renders_pay_detail_page(): void

@@ -10,6 +10,18 @@ class PayShellController extends BaseAdminShellController
 
     public function index(Request $request)
     {
+        if ($request->query('export') === 'csv') {
+            $pageService = $this->resolvePageService();
+            $filters = $pageService->extractFilters($request);
+            $content = $pageService->exportCsv($filters);
+            $filename = 'pay-export-'.now()->format('Ymd-His').'.csv';
+
+            return response($content, 200, [
+                'Content-Type' => 'text/csv; charset=UTF-8',
+                'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+            ]);
+        }
+
         if ($request->boolean('export')) {
             $pageService = $this->resolvePageService();
             $filters = $pageService->extractFilters($request);
