@@ -33,28 +33,7 @@ class AdminShellCouponPageService extends AbstractAdminShellPageService
 
     public function paginate(array $filters): LengthAwarePaginator
     {
-        $query = Coupon::query()->with('goods:id,gd_name')->orderByDesc('id');
-
-        if (($filters['scope'] ?? null) === 'trashed') {
-            $query->onlyTrashed();
-        }
-
-        if (!empty($filters['id'])) {
-            $query->where('id', (int) $filters['id']);
-        }
-
-        if (!empty($filters['coupon'])) {
-            $query->where('coupon', 'like', '%'.$filters['coupon'].'%');
-        }
-
-        if (!empty($filters['goods_id'])) {
-            $goodsId = (int) $filters['goods_id'];
-            $query->whereHas('goods', function ($builder) use ($goodsId) {
-                $builder->where('goods.id', $goodsId);
-            });
-        }
-
-        return $query->paginate(15)->appends($filters);
+        return $this->filteredQuery($filters)->paginate(15)->appends($filters);
     }
 
     public function find(int $id, ?string $scope = null)
@@ -103,9 +82,14 @@ class AdminShellCouponPageService extends AbstractAdminShellPageService
         ];
     }
 
-    public function buildHeader(LengthAwarePaginator $coupons): array
+    public function buildHeader(LengthAwarePaginator $coupons, array $filters): array
     {
         $header = $this->buildResourceHeader('共 '.$coupons->total().' 条优惠码');
+        $header['actions'][] = [
+            'label' => '导出优惠码文本',
+            'href' => admin_url($this->resourceDefinition()['uri']).'?'.$this->buildExportQuery($filters),
+            'variant' => 'secondary',
+        ];
         $header['actions'][] = [
             'label' => '批量启停优惠码',
             'href' => admin_url('v2/coupon/batch-status'),
@@ -155,7 +139,7 @@ class AdminShellCouponPageService extends AbstractAdminShellPageService
     {
         return new AdminShellIndexPageData(
             $this->buildDocumentTitle('index_title'),
-            $this->buildHeader($coupons),
+            $this->buildHeader($coupons, $filters),
             $this->buildFilters($filters),
             $this->buildTable($coupons, $filters)
         );
@@ -180,6 +164,17 @@ class AdminShellCouponPageService extends AbstractAdminShellPageService
                 '回收站模式适合检查已删除优惠码的历史状态。',
             ],
         ];
+    }
+
+    public function exportTextResponse(array $filters)
+    {
+        $content = $this->exportText($filters);
+        $filename = $this->buildExportFilename();
+
+        return response($content, 200, [
+            'Content-Type' => 'text/plain; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+        ]);
     }
 
     public function buildShowViewData(Coupon $coupon, ?string $scope = null): array
@@ -244,7 +239,7 @@ class AdminShellCouponPageService extends AbstractAdminShellPageService
             return '未加载';
         }
 
-        $names = $coupon->goods->pluck('gd_name')->filter()->values();
+        $names = $coupon->goods->pluck('gd_name')->filter()->unique()->values();
 
         if ($names->isEmpty()) {
             return '未关联商品';
@@ -321,6 +316,97 @@ class AdminShellCouponPageService extends AbstractAdminShellPageService
                 'value' => '<strong>'.$linkedCount.'</strong><span style="margin-left: 10px; color: #66756b;">个</span>',
             ],
         ];
+    }
+
+    private function filteredQuery(array $filters)
+    {
+        $query = Coupon::query()->with('goods:id,gd_name')->orderByDesc('id');
+
+        if (($filters['scope'] ?? null) === 'trashed') {
+            $query->onlyTrashed();
+        }
+
+        if (!empty($filters['id'])) {
+            $query->where('id', (int) $filters['id']);
+        }
+
+        if (!empty($filters['coupon'])) {
+            $query->where('coupon', 'like', '%'.$filters['coupon'].'%');
+        }
+
+        if (!empty($filters['goods_id'])) {
+            $goodsId = (int) $filters['goods_id'];
+            $query->whereHas('goods', function ($builder) use ($goodsId) {
+                $builder->whereKey($goodsId);
+            });
+        }
+
+        return $query;
+    }
+
+    private function exportText(array $filters): string
+    {
+        $coupons = $this->filteredQuery($filters)->get();
+        $lines = [
+            '独角数卡西瓜版 - 优惠码文本导出',
+            '导出时间：'.now()->format('Y-m-d H:i:s'),
+            '筛选条件：'.$this->describeFilters($filters),
+            '导出数量：'.$coupons->count(),
+            '',
+        ];
+
+        foreach ($coupons as $index => $coupon) {
+            $lines[] = sprintf('%d. 优惠码：%s', $index + 1, $coupon->coupon);
+            $lines[] = '   ID：'.$coupon->id;
+            $lines[] = '   折扣：'.$coupon->discount;
+            $lines[] = '   启用状态：'.((int) $coupon->is_open === Coupon::STATUS_OPEN ? '已启用' : '已停用');
+            $lines[] = '   使用状态：'.((int) $coupon->is_use === Coupon::STATUS_USE ? '已使用' : '未使用');
+            $lines[] = '   可用次数：'.$coupon->ret;
+            $lines[] = '   关联商品：'.$this->goodsSummary($coupon);
+            $lines[] = '';
+        }
+
+        return implode(PHP_EOL, $lines);
+    }
+
+    private function buildExportFilename(): string
+    {
+        return 'coupon-export-'.now()->format('Ymd-His').'.txt';
+    }
+
+    private function buildExportQuery(array $filters): string
+    {
+        $query = array_filter($filters, function ($value) {
+            return $value !== null && $value !== '';
+        });
+
+        unset($query['export']);
+        $query['export'] = 'text';
+
+        return http_build_query($query);
+    }
+
+    private function describeFilters(array $filters): string
+    {
+        $segments = [];
+
+        if (!empty($filters['id'])) {
+            $segments[] = 'ID='.$filters['id'];
+        }
+
+        if (!empty($filters['coupon'])) {
+            $segments[] = '优惠码包含“'.$filters['coupon'].'”';
+        }
+
+        if (!empty($filters['goods_id'])) {
+            $segments[] = '商品ID='.$filters['goods_id'];
+        }
+
+        if (($filters['scope'] ?? null) === 'trashed') {
+            $segments[] = '范围=回收站';
+        }
+
+        return empty($segments) ? '全部优惠码' : implode('，', $segments);
     }
 
     private function renderActionLinks(array $actions): string

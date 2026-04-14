@@ -34,6 +34,7 @@ class AdminShellCouponControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('优惠码管理');
+        $response->assertSee('导出优惠码文本');
         $response->assertSee('批量生成优惠码');
         $response->assertSee('复制、核对和进入编辑页');
         $response->assertSee('当前结果');
@@ -174,6 +175,29 @@ class AdminShellCouponControllerTest extends TestCase
         $this->assertSame(0, (int) DB::table('coupons')->where('id', 95001)->value('is_open'));
         $this->assertSame(0, (int) DB::table('coupons')->where('id', 95002)->value('is_open'));
         $this->assertSame(0, (int) DB::table('coupons')->where('id', 95003)->value('is_open'));
+    }
+
+    public function test_index_can_export_coupon_text_with_current_filters(): void
+    {
+        $this->seedCouponFixture(95001, 'XIGUA-STATE-1', '测试商品 D');
+        $this->seedCouponFixture(95002, 'XIGUA-STATE-2', '测试商品 E');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/coupon?goods_id=95001&export=text');
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'text/plain; charset=UTF-8');
+        $this->assertStringContainsString('attachment; filename="coupon-export-', $response->headers->get('Content-Disposition'));
+        $response->assertSee('独角数卡西瓜版 - 优惠码文本导出');
+        $response->assertSee('筛选条件：商品ID=95001');
+        $response->assertSee('优惠码：XIGUA-STATE-1');
+        $response->assertSee('折扣：5');
+        $response->assertSee('启用状态：已启用');
+        $response->assertSee('使用状态：未使用');
+        $response->assertSee('关联商品：测试商品 D');
+        $response->assertDontSee('XIGUA-STATE-2');
+        $this->assertSame(1, (int) DB::table('coupons')->where('id', 95001)->value('is_open'));
+        $this->assertSame(1, (int) DB::table('coupons')->where('id', 95002)->value('is_open'));
     }
 
     public function test_edit_page_renders_coupon_action_form(): void

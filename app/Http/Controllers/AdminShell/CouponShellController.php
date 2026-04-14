@@ -12,6 +12,11 @@ class CouponShellController extends BaseAdminShellController
     {
         $pageService = $this->resolvePageService();
         $filters = $pageService->extractFilters($request);
+
+        if ($request->query('export') === 'text') {
+            return $pageService->exportTextResponse($filters);
+        }
+
         $records = $pageService->paginate($filters);
         $page = array_merge(
             $pageService->buildIndexPageData($records, $filters)->toViewData(),
