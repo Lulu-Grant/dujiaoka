@@ -29,6 +29,12 @@ class AdminShellOrderControllerTest extends TestCase
             98007,
             98008,
             98009,
+            98011,
+            98012,
+            98013,
+            98021,
+            98022,
+            98023,
         ])->delete();
         DB::table('admin_users')->where('username', 'admin-shell-tester')->delete();
 
@@ -203,6 +209,56 @@ class AdminShellOrderControllerTest extends TestCase
         $this->assertStringStartsWith('XG-', $second->search_pwd);
     }
 
+    public function test_index_exposes_export_actions(): void
+    {
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/order');
+
+        $response->assertOk();
+        $response->assertSee('导出文本');
+        $response->assertSee('导出 CSV');
+    }
+
+    public function test_index_can_export_text_for_current_filters(): void
+    {
+        DB::table('orders')->where('order_sn', 'like', 'XIGUA-EXPORT-%')->delete();
+        $this->seedExportOrderFixture(98011, 'Export Alpha Shell');
+        $this->seedExportOrderFixture(98012, 'Export Beta Shell');
+        $this->seedExportOrderFixture(98013, 'Other Title');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/order?title='.urlencode('Export').'&export=text');
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'text/plain; charset=UTF-8');
+        $response->assertHeader('Content-Disposition');
+        $response->assertSee('订单导出');
+        $response->assertSee('筛选条件：标题=Export');
+        $response->assertSee('导出数量：2');
+        $response->assertSee('Export Alpha Shell');
+        $response->assertSee('Export Beta Shell');
+        $response->assertDontSee('Other Title');
+    }
+
+    public function test_index_can_export_csv_for_current_filters(): void
+    {
+        DB::table('orders')->where('order_sn', 'like', 'XIGUA-EXPORT-%')->delete();
+        $this->seedExportOrderFixture(98021, 'CSV Export Alpha');
+        $this->seedExportOrderFixture(98022, 'CSV Export Beta');
+        $this->seedExportOrderFixture(98023, 'Different Title');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/order?title='.urlencode('CSV Export').'&export=csv');
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
+        $response->assertHeader('Content-Disposition');
+        $response->assertSee('订单号');
+        $response->assertSee('CSV Export Alpha');
+        $response->assertSee('CSV Export Beta');
+        $response->assertDontSee('Different Title');
+    }
+
     private function seedOrderFixture(int $id): void
     {
         DB::table('orders')->where('id', $id)->delete();
@@ -226,6 +282,35 @@ class AdminShellOrderControllerTest extends TestCase
             'trade_no' => 'trade-no-shell',
             'status' => 4,
             'info' => "账号: demo@example.com {$id}\n密码: 123456 {$id}",
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+    }
+
+    private function seedExportOrderFixture(int $id, string $title): void
+    {
+        DB::table('orders')->where('id', $id)->delete();
+        DB::table('orders')->insert([
+            'id' => $id,
+            'order_sn' => 'XIGUA-EXPORT-'.$id,
+            'title' => $title,
+            'type' => 1,
+            'email' => 'export@example.com',
+            'goods_id' => 0,
+            'goods_price' => 88,
+            'buy_amount' => 1,
+            'total_price' => 88,
+            'coupon_id' => 0,
+            'coupon_discount_price' => 0,
+            'wholesale_discount_price' => 0,
+            'actual_price' => 88,
+            'pay_id' => 0,
+            'buy_ip' => '127.0.0.1',
+            'search_pwd' => 'export-pwd-'.$id,
+            'trade_no' => 'trade-no-export-'.$id,
+            'status' => 4,
+            'info' => "导出测试 {$id}",
             'created_at' => now(),
             'updated_at' => now(),
             'deleted_at' => null,
@@ -263,17 +348,16 @@ class AdminShellOrderControllerTest extends TestCase
 
     private function makeAdmin(): Administrator
     {
-        DB::table('admin_users')->updateOrInsert(
-            ['username' => 'admin-shell-tester'],
-            [
-                'password' => bcrypt('secret123'),
-                'name' => 'Admin Shell Tester',
-                'avatar' => null,
-                'remember_token' => null,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]
-        );
+        DB::table('admin_users')->where('username', 'admin-shell-tester')->delete();
+        DB::table('admin_users')->insert([
+            'username' => 'admin-shell-tester',
+            'password' => bcrypt('secret123'),
+            'name' => 'Admin Shell Tester',
+            'avatar' => null,
+            'remember_token' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
 
         return Administrator::query()->where('username', 'admin-shell-tester')->firstOrFail();
     }

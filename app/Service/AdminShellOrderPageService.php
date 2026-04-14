@@ -5,8 +5,10 @@ namespace App\Service;
 use App\Models\Order;
 use App\Service\DataTransferObjects\AdminShellIndexPageData;
 use App\Service\DataTransferObjects\AdminShellShowPageData;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class AdminShellOrderPageService extends AbstractAdminShellPageService
 {
@@ -30,63 +32,7 @@ class AdminShellOrderPageService extends AbstractAdminShellPageService
 
     public function paginate(array $filters): LengthAwarePaginator
     {
-        $query = Order::query()
-            ->with([
-                'goods:id,gd_name',
-                'coupon:id,coupon',
-                'pay:id,pay_name',
-            ])
-            ->orderByDesc('id');
-
-        if (($filters['scope'] ?? null) === 'trashed') {
-            $query->onlyTrashed();
-        }
-
-        if (!empty($filters['order_sn'])) {
-            $query->where('order_sn', $filters['order_sn']);
-        }
-
-        if (!empty($filters['title'])) {
-            $query->where('title', 'like', '%'.$filters['title'].'%');
-        }
-
-        if ($this->filled($filters, 'status')) {
-            $query->where('status', (int) $filters['status']);
-        }
-
-        if (!empty($filters['email'])) {
-            $query->where('email', $filters['email']);
-        }
-
-        if (!empty($filters['trade_no'])) {
-            $query->where('trade_no', $filters['trade_no']);
-        }
-
-        if ($this->filled($filters, 'type')) {
-            $query->where('type', (int) $filters['type']);
-        }
-
-        if ($this->filled($filters, 'goods_id')) {
-            $query->where('goods_id', (int) $filters['goods_id']);
-        }
-
-        if ($this->filled($filters, 'coupon_id')) {
-            $query->where('coupon_id', (int) $filters['coupon_id']);
-        }
-
-        if ($this->filled($filters, 'pay_id')) {
-            $query->where('pay_id', (int) $filters['pay_id']);
-        }
-
-        if (!empty($filters['start'])) {
-            $query->where('created_at', '>=', $filters['start']);
-        }
-
-        if (!empty($filters['end'])) {
-            $query->where('created_at', '<=', $filters['end']);
-        }
-
-        return $query->paginate(15)->appends($filters);
+        return $this->buildQuery($filters)->paginate(15)->appends($filters);
     }
 
     public function find(int $id, ?string $scope = null)
@@ -143,10 +89,25 @@ class AdminShellOrderPageService extends AbstractAdminShellPageService
 
     public function buildHeader(LengthAwarePaginator $orders): array
     {
+        return $this->buildHeaderWithFilters($orders, []);
+    }
+
+    public function buildHeaderWithFilters(LengthAwarePaginator $orders, array $filters): array
+    {
         $header = $this->buildResourceHeader('共 '.$orders->total().' 条订单');
         $header['actions'][] = [
             'label' => '批量重置查询密码',
             'href' => admin_url('v2/order/batch-reset-search-pwd'),
+            'variant' => 'secondary',
+        ];
+        $header['actions'][] = [
+            'label' => '导出文本',
+            'href' => $this->exportUrl($filters, 'text'),
+            'variant' => 'secondary',
+        ];
+        $header['actions'][] = [
+            'label' => '导出 CSV',
+            'href' => $this->exportUrl($filters, 'csv'),
             'variant' => 'secondary',
         ];
 
@@ -223,7 +184,7 @@ class AdminShellOrderPageService extends AbstractAdminShellPageService
     {
         return new AdminShellIndexPageData(
             $this->buildDocumentTitle('index_title'),
-            $this->buildHeader($orders),
+            $this->buildHeaderWithFilters($orders, $filters),
             $this->buildFilters($filters),
             $this->buildTable($orders, $filters)
         );
@@ -298,6 +259,22 @@ class AdminShellOrderPageService extends AbstractAdminShellPageService
         ];
     }
 
+    public function export(array $filters, string $format = 'text')
+    {
+        $format = strtolower(trim($format));
+        $orders = $this->buildQuery($filters)->get();
+        $content = $format === 'csv'
+            ? $this->buildCsvExport($orders)
+            : $this->buildTextExport($orders, $filters);
+        $filename = 'orders-'.date('Ymd-His').($format === 'csv' ? '.csv' : '.txt');
+        $contentType = $format === 'csv' ? 'text/csv; charset=UTF-8' : 'text/plain; charset=UTF-8';
+
+        return response($content, 200, [
+            'Content-Type' => $contentType,
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+        ]);
+    }
+
     protected function resourceKey(): string
     {
         return 'order';
@@ -329,6 +306,182 @@ class AdminShellOrderPageService extends AbstractAdminShellPageService
         return collect($actions)->map(function (array $action) {
             return sprintf('<a href="%s">%s</a>', e($action['href']), e($action['label']));
         })->implode(' / ');
+    }
+
+    private function buildQuery(array $filters): Builder
+    {
+        $query = Order::query()
+            ->with([
+                'goods:id,gd_name',
+                'coupon:id,coupon',
+                'pay:id,pay_name',
+            ])
+            ->orderByDesc('id');
+
+        if (($filters['scope'] ?? null) === 'trashed') {
+            $query->onlyTrashed();
+        }
+
+        if (!empty($filters['order_sn'])) {
+            $query->where('order_sn', $filters['order_sn']);
+        }
+
+        if (!empty($filters['title'])) {
+            $query->where('title', 'like', '%'.$filters['title'].'%');
+        }
+
+        if ($this->filled($filters, 'status')) {
+            $query->where('status', (int) $filters['status']);
+        }
+
+        if (!empty($filters['email'])) {
+            $query->where('email', $filters['email']);
+        }
+
+        if (!empty($filters['trade_no'])) {
+            $query->where('trade_no', $filters['trade_no']);
+        }
+
+        if ($this->filled($filters, 'type')) {
+            $query->where('type', (int) $filters['type']);
+        }
+
+        if ($this->filled($filters, 'goods_id')) {
+            $query->where('goods_id', (int) $filters['goods_id']);
+        }
+
+        if ($this->filled($filters, 'coupon_id')) {
+            $query->where('coupon_id', (int) $filters['coupon_id']);
+        }
+
+        if ($this->filled($filters, 'pay_id')) {
+            $query->where('pay_id', (int) $filters['pay_id']);
+        }
+
+        if (!empty($filters['start'])) {
+            $query->where('created_at', '>=', $filters['start']);
+        }
+
+        if (!empty($filters['end'])) {
+            $query->where('created_at', '<=', $filters['end']);
+        }
+
+        return $query;
+    }
+
+    private function buildTextExport(Collection $orders, array $filters): string
+    {
+        $lines = [
+            '订单导出',
+            '筛选条件：'.$this->describeFilters($filters),
+            '导出数量：'.$orders->count(),
+            str_repeat('=', 48),
+        ];
+
+        foreach ($orders as $index => $order) {
+            $lines[] = sprintf('[%d] %s', $index + 1, $order->order_sn);
+            $lines[] = '标题：'.$order->title;
+            $lines[] = '状态：'.$this->statusLabel($order->status);
+            $lines[] = '类型：'.$this->typeLabel($order->type);
+            $lines[] = '邮箱：'.$order->email;
+            $lines[] = '商品：'.(optional($order->goods)->gd_name ?: '未关联商品');
+            $lines[] = '支付通道：'.(optional($order->pay)->pay_name ?: '未选择支付');
+            $lines[] = '总价：'.(string) $order->total_price.' / 实付：'.(string) $order->actual_price;
+            $lines[] = '优惠码：'.(optional($order->coupon)->coupon ?: '未使用优惠码');
+            $lines[] = '查询密码：'.($order->search_pwd ?: '未设置');
+            $lines[] = '交易号：'.($order->trade_no ?: '未生成');
+            $lines[] = '更新时间：'.(string) $order->updated_at;
+            $lines[] = str_repeat('-', 48);
+        }
+
+        return implode(PHP_EOL, $lines).PHP_EOL;
+    }
+
+    private function buildCsvExport(Collection $orders): string
+    {
+        $handle = fopen('php://temp', 'r+');
+        fwrite($handle, "\xEF\xBB\xBF");
+        fputcsv($handle, [
+            'ID',
+            '订单号',
+            '标题',
+            '状态',
+            '类型',
+            '邮箱',
+            '商品',
+            '支付通道',
+            '总价',
+            '实付金额',
+            '优惠码',
+            '查询密码',
+            '交易号',
+            '更新时间',
+        ]);
+
+        foreach ($orders as $order) {
+            fputcsv($handle, [
+                $order->id,
+                $order->order_sn,
+                $order->title,
+                $this->statusLabel($order->status),
+                $this->typeLabel($order->type),
+                $order->email,
+                optional($order->goods)->gd_name ?: '未关联商品',
+                optional($order->pay)->pay_name ?: '未选择支付',
+                $order->total_price,
+                $order->actual_price,
+                optional($order->coupon)->coupon ?: '未使用优惠码',
+                $order->search_pwd ?: '未设置',
+                $order->trade_no ?: '未生成',
+                (string) $order->updated_at,
+            ]);
+        }
+
+        rewind($handle);
+        $content = stream_get_contents($handle);
+        fclose($handle);
+
+        return $content ?: '';
+    }
+
+    private function describeFilters(array $filters): string
+    {
+        $parts = [];
+
+        foreach ([
+            '订单号' => 'order_sn',
+            '标题' => 'title',
+            '状态' => 'status',
+            '邮箱' => 'email',
+            '交易号' => 'trade_no',
+            '类型' => 'type',
+            '商品ID' => 'goods_id',
+            '优惠码ID' => 'coupon_id',
+            '支付通道ID' => 'pay_id',
+            '起始' => 'start',
+            '结束' => 'end',
+            '范围' => 'scope',
+        ] as $label => $key) {
+            if (!empty($filters[$key]) || (isset($filters[$key]) && $filters[$key] === '0')) {
+                $parts[] = $label.'='.($filters[$key] ?? '');
+            }
+        }
+
+        return $parts ? implode('；', $parts) : '无';
+    }
+
+    public function exportUrl(array $filters, string $format): string
+    {
+        $query = array_merge($this->exportQuery($filters), ['export' => $format]);
+
+        return admin_url('v2/order?'.http_build_query($query));
+    }
+
+    private function exportQuery(array $filters): array
+    {
+        return array_filter($filters, static function ($value) {
+            return $value !== null && $value !== '';
+        });
     }
 
     private function statusLabel($status): string
