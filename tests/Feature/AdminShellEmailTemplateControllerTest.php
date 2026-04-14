@@ -10,8 +10,8 @@ class AdminShellEmailTemplateControllerTest extends TestCase
 {
     protected function tearDown(): void
     {
-        DB::table('emailtpls')->whereIn('id', [92001, 92002, 92003])->delete();
-        DB::table('emailtpls')->whereIn('tpl_token', ['shell-template-a', 'shell-template-b', 'shell-template-c', 'shell-created-template'])->delete();
+        DB::table('emailtpls')->whereIn('id', [92001, 92002, 92003, 92004, 92005, 92006])->delete();
+        DB::table('emailtpls')->whereIn('tpl_token', ['shell-template-a', 'shell-template-b', 'shell-template-c', 'shell-template-d', 'shell-template-e', 'shell-created-template', 'shell-created-template-copy'])->delete();
         DB::table('admin_users')->where('username', 'admin-shell-tester')->delete();
 
         parent::tearDown();
@@ -77,6 +77,30 @@ class AdminShellEmailTemplateControllerTest extends TestCase
         $response->assertSee('{webname}');
     }
 
+    public function test_create_copy_page_prefills_existing_email_template(): void
+    {
+        DB::table('emailtpls')->insert([
+            'id' => 92004,
+            'tpl_name' => '模板 D',
+            'tpl_content' => '<p>复制前的模板内容</p>',
+            'tpl_token' => 'shell-template-d',
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/emailtpl/create?copy=92004');
+
+        $response->assertOk();
+        $response->assertSee('复制邮件模板');
+        $response->assertSee('模板 D');
+        $response->assertSee('复制前的模板内容');
+        $response->assertSee('复制并创建邮件模板');
+        $response->assertSee('模板标识');
+        $response->assertSee('模板内容');
+    }
+
     public function test_create_preview_page_renders_email_template_preview_page(): void
     {
         $response = $this->actingAs($this->makeAdmin(), 'admin')
@@ -88,6 +112,36 @@ class AdminShellEmailTemplateControllerTest extends TestCase
         $response->assertSee('邮件模板预览');
         $response->assertSee('占位符参考');
         $response->assertSee('返回创建页');
+    }
+
+    public function test_create_copy_page_can_store_email_template_without_overwriting_source(): void
+    {
+        DB::table('emailtpls')->insert([
+            'id' => 92005,
+            'tpl_name' => '模板 E',
+            'tpl_content' => '<p>复制前的模板内容 E</p>',
+            'tpl_token' => 'shell-template-e',
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/emailtpl/create?copy=92005', [
+                'tpl_name' => '模板 E 副本',
+                'tpl_token' => 'shell-created-template-copy',
+                'tpl_content' => '<p>复制后的模板内容 E</p>',
+            ]);
+
+        $template = DB::table('emailtpls')->where('tpl_token', 'shell-created-template-copy')->first();
+        $source = DB::table('emailtpls')->where('id', 92005)->first();
+
+        $this->assertNotNull($template);
+        $response->assertRedirect('/admin/v2/emailtpl/'.$template->id.'/edit');
+        $response->assertSessionHas('status', '邮件模板已创建');
+        $this->assertSame('模板 E', $source->tpl_name);
+        $this->assertSame('<p>复制前的模板内容 E</p>', $source->tpl_content);
+        $this->assertSame('shell-template-e', $source->tpl_token);
     }
 
     public function test_create_page_can_store_email_template(): void

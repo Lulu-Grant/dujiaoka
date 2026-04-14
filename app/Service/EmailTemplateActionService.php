@@ -6,8 +6,16 @@ use App\Models\Emailtpl;
 
 class EmailTemplateActionService
 {
-    public function createDefaults(): array
+    public function createDefaults(?Emailtpl $template = null): array
     {
+        if ($template !== null) {
+            return [
+                'tpl_name' => $template->tpl_name,
+                'tpl_token' => '',
+                'tpl_content' => $template->tpl_content,
+            ];
+        }
+
         return [
             'tpl_name' => '',
             'tpl_token' => '',
@@ -63,10 +71,16 @@ class EmailTemplateActionService
         ];
     }
 
-    public function buildPreviewPageData(?Emailtpl $template = null): array
+    public function buildPreviewPageData(?Emailtpl $template = null, bool $createMode = false): array
     {
-        $isCreatePreview = $template === null;
-        $defaults = $isCreatePreview ? $this->createDefaults() : $this->editDefaults($template);
+        $isCreatePreview = $createMode || $template === null;
+        if ($template === null) {
+            $defaults = $this->createDefaults();
+        } elseif ($createMode) {
+            $defaults = $this->createDefaults($template);
+        } else {
+            $defaults = $this->editDefaults($template);
+        }
         $previewContext = $this->previewContext();
 
         return [

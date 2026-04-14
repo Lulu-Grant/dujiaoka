@@ -22,26 +22,31 @@ class EmailTemplateActionController extends Controller
 
     public function create(Request $request)
     {
-        $defaults = $this->emailTemplateActionService->createDefaults();
+        $copyTemplate = $this->resolveCopyTemplate($request);
+        $defaults = $this->emailTemplateActionService->createDefaults($copyTemplate);
         $previewContext = $this->emailTemplateActionService->previewContext();
 
         if ($request->boolean('preview')) {
-            return view('admin-shell.emailtpl.preview', $this->emailTemplateActionService->buildPreviewPageData());
+            return view('admin-shell.emailtpl.preview', $this->emailTemplateActionService->buildPreviewPageData($copyTemplate, true));
         }
 
         return view('admin-shell.emailtpl.form', [
-            'title' => '新建邮件模板 - 后台壳样板',
+            'title' => $copyTemplate ? '复制邮件模板 - 后台壳样板' : '新建邮件模板 - 后台壳样板',
             'header' => [
                 'kicker' => 'Admin Shell Action',
-                'title' => '新建邮件模板',
-                'description' => '这是后台壳中的标准业务编辑页样板。当前先承接邮件模板的新建动作，右侧会同步展示预览和占位符说明，方便直接检查 HTML 效果。',
-                'meta' => '模板标识在创建后将作为稳定引用键，建议使用语义明确且长期稳定的命名；模板内容支持 {webname}、{order_id} 等占位符',
+                'title' => $copyTemplate ? '复制邮件模板' : '新建邮件模板',
+                'description' => $copyTemplate
+                    ? '这是后台壳中的邮件模板复制样板页。当前会从现有模板预填标题和内容，方便在此基础上快速生成新模板。'
+                    : '这是后台壳中的标准业务编辑页样板。当前先承接邮件模板的新建动作，右侧会同步展示预览和占位符说明，方便直接检查 HTML 效果。',
+                'meta' => $copyTemplate
+                    ? '模板内容会从现有模板复制过来，但模板标识会保持为空，避免覆盖原模板引用。'
+                    : '模板标识在创建后将作为稳定引用键，建议使用语义明确且长期稳定的命名；模板内容支持 {webname}、{order_id} 等占位符',
                 'actions' => [
                     ['label' => '返回邮件模板概览', 'href' => admin_url('v2/emailtpl')],
                 ],
             ],
-            'formAction' => admin_url('v2/emailtpl/create'),
-            'submitLabel' => '创建邮件模板',
+            'formAction' => admin_url('v2/emailtpl/create').($copyTemplate ? '?copy='.$copyTemplate->id : ''),
+            'submitLabel' => $copyTemplate ? '复制并创建邮件模板' : '创建邮件模板',
             'isCreate' => true,
             'defaults' => $defaults,
             'previewHtml' => $this->emailTemplateActionService->renderPreview($defaults['tpl_content'], $previewContext),
@@ -112,5 +117,16 @@ class EmailTemplateActionController extends Controller
 
         return redirect(admin_url('v2/emailtpl/'.$template->id.'/edit'))
             ->with('status', '邮件模板已保存');
+    }
+
+    private function resolveCopyTemplate(Request $request): ?Emailtpl
+    {
+        $copyId = $request->query('copy');
+
+        if (!$copyId) {
+            return null;
+        }
+
+        return Emailtpl::query()->findOrFail((int) $copyId);
     }
 }
