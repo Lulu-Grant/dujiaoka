@@ -82,6 +82,8 @@ assert_page "/admin/auth/setting" "账号设置 - 独角数卡西瓜版后台壳
 assert_page "/admin/v2/system-setting" "系统设置概览 - 后台壳样板" "编辑订单行为配置"
 assert_page "/admin/v2/goods" "商品管理 - 后台壳样板" "商品管理"
 assert_page "/admin/v2/goods/create" "新建商品 - 后台壳样板" "创建商品"
+assert_page "/admin/v2/goods/create?mode=batch-buy-limit-num" "批量设置限购数量 - 后台壳样板" "批量设置限购数量"
+assert_page "/admin/v2/order/batch-reset-search-pwd" "批量重置订单查询密码 - 后台壳样板" "批量重置订单查询密码"
 assert_page "/admin/v2/emailtpl/create" "新建邮件模板 - 后台壳样板" "创建邮件模板"
 assert_page "/admin/v2/order" "订单管理 - 后台壳样板" "订单管理"
 

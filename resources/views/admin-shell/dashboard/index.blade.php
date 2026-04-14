@@ -266,6 +266,33 @@
             margin: 0;
             font-size: 18px;
         }
+        .dashboard-action-grid {
+            margin-top: 16px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+        }
+        .dashboard-action-card {
+            display: grid;
+            gap: 10px;
+            padding: 18px;
+            border-radius: 22px;
+            border: 1px solid rgba(44, 143, 87, 0.14);
+            background: linear-gradient(180deg, #ffffff 0%, #f7fbf5 100%);
+            box-shadow: 0 14px 32px rgba(32, 51, 38, 0.06);
+        }
+        .dashboard-action-card h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+        .dashboard-action-card p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.65;
+        }
+        .dashboard-action-card .button {
+            width: fit-content;
+        }
         .dashboard-shortcut-card p,
         .dashboard-playbook-card p {
             margin: 0;
@@ -484,6 +511,22 @@
                             </a>
                         @endforeach
                     </div>
+                </article>
+            @endforeach
+        </div>
+    </section>
+
+    <section>
+        <h3 class="dashboard-section-title">高频动作</h3>
+        <p class="dashboard-section-copy">把最常用的批量操作单独放出来，减少先找列表页再找操作按钮的两步走。</p>
+        <div class="dashboard-action-grid">
+            @foreach($focus_actions as $action)
+                <article class="dashboard-action-card">
+                    <div>
+                        <h3>{{ $action['label'] }}</h3>
+                        <p>{{ $action['description'] }}</p>
+                    </div>
+                    <a class="button secondary" href="{{ $action['href'] }}">立即进入</a>
                 </article>
             @endforeach
         </div>

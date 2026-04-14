@@ -35,6 +35,8 @@ class AdminShellDashboardPageService
                     ['label' => '系统设置分组', 'href' => admin_url('v2/system-setting')],
                     ['label' => '查看订单管理', 'href' => admin_url('v2/order')],
                     ['label' => '查看商品管理', 'href' => admin_url('v2/goods')],
+                    ['label' => '批量设置限购数量', 'href' => admin_url('v2/goods/create?mode=batch-buy-limit-num')],
+                    ['label' => '批量重置查询密码', 'href' => admin_url('v2/order/batch-reset-search-pwd')],
                 ],
             ],
             'hero' => [
@@ -48,6 +50,7 @@ class AdminShellDashboardPageService
             ],
             'quick_links' => $this->buildQuickLinks(),
             'shortcut_groups' => $shortcutGroups,
+            'focus_actions' => $this->buildFocusActions(),
             'operator_brief' => $this->buildOperatorBrief($shortcutGroups, $health),
             'health' => $health,
             'cards' => [
@@ -203,6 +206,32 @@ class AdminShellDashboardPageService
                     ['label' => '邮件测试', 'description' => '快速验证发信链路', 'href' => admin_url('v2/email-test')],
                     ['label' => '商品分类', 'description' => '分类、排序、状态', 'href' => admin_url('v2/goods-group')],
                 ],
+            ],
+        ];
+    }
+
+    private function buildFocusActions(): array
+    {
+        return [
+            [
+                'label' => '批量设置限购数量',
+                'description' => '一次调整多件商品的限购上限，适合活动前统一收口。',
+                'href' => admin_url('v2/goods/create?mode=batch-buy-limit-num'),
+            ],
+            [
+                'label' => '批量重置查询密码',
+                'description' => '一组订单统一刷新查询密码，适合人工维护和安全回收。',
+                'href' => admin_url('v2/order/batch-reset-search-pwd'),
+            ],
+            [
+                'label' => '批量启停商品',
+                'description' => '活动下架、灰度上架或临时停售都能快速处理。',
+                'href' => admin_url('v2/goods/batch-status'),
+            ],
+            [
+                'label' => '批量启停通道',
+                'description' => '临时关闭或恢复支付通道，保持支付链路可控。',
+                'href' => admin_url('v2/pay/batch-status'),
             ],
         ];
     }

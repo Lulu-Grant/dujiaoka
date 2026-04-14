@@ -35,11 +35,12 @@ class AdminShellDashboardPageServiceTest extends TestCase
 
         $this->assertSame('后台总览 - 后台壳样板', $page['title']);
         $this->assertSame('后台总览', $page['header']['title']);
-        $this->assertCount(4, $page['header']['actions']);
+        $this->assertCount(6, $page['header']['actions']);
         $this->assertCount(4, $page['cards']);
         $this->assertCount(2, $page['segments']);
         $this->assertCount(9, $page['quick_links']);
         $this->assertCount(3, $page['shortcut_groups']);
+        $this->assertCount(4, $page['focus_actions']);
         $this->assertCount(3, $page['operator_brief']);
         $this->assertCount(3, $page['operations']);
         $this->assertSame('健康', $page['health']['label']);
@@ -49,6 +50,8 @@ class AdminShellDashboardPageServiceTest extends TestCase
         $this->assertSame('系统设置分组', $page['quick_links'][1]['label']);
         $this->assertSame('账号与系统', $page['shortcut_groups'][0]['title']);
         $this->assertSame('高频管理页', $page['shortcut_groups'][1]['title']);
+        $this->assertSame('批量设置限购数量', $page['focus_actions'][0]['label']);
+        $this->assertSame('批量重置查询密码', $page['focus_actions'][1]['label']);
     }
 
     private function seedOrder(string $orderSn, int $status, float $actualPrice, $createdAt): void
