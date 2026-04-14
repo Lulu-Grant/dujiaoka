@@ -41,6 +41,7 @@ class AdminShellSystemSettingControllerTest extends TestCase
         $response->assertSee('邮件发送配置');
         $response->assertSee('通知推送配置');
         $response->assertSee('站点体验配置');
+        $response->assertSee('支付与查单配置');
         $response->assertSee('进入品牌配置');
         $response->assertSee('进入基础配置');
         $response->assertDontSee('进入旧版功能页');
@@ -130,10 +131,11 @@ class AdminShellSystemSettingControllerTest extends TestCase
             ->get('/admin/v2/system-setting');
 
         $response->assertOk();
-        $response->assertSee('共 6 个配置分组');
+        $response->assertSee('共 7 个配置分组');
         $response->assertSee('进入订单配置');
         $response->assertSee('进入通知配置');
         $response->assertSee('进入体验配置');
+        $response->assertSee('进入支付与查单配置');
     }
 
     public function test_branding_edit_page_can_save_settings(): void
@@ -381,6 +383,43 @@ class AdminShellSystemSettingControllerTest extends TestCase
         $this->assertSame(0, $settings['is_open_google_translate']);
         $this->assertSame('新的站点公告', $settings['notice']);
         $this->assertSame('<p>新的页脚</p>', $settings['footer']);
+    }
+
+    public function test_payment_edit_page_renders_shell_action_form(): void
+    {
+        Cache::forever(SystemSettingService::CACHE_KEY, [
+            'order_expire_time' => 18,
+            'is_open_img_code' => 1,
+            'is_open_search_pwd' => 1,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/system-setting/experience?mode=payment');
+
+        $response->assertOk();
+        $response->assertSee('编辑支付与查单配置');
+        $response->assertSee('支付与查单节奏');
+        $response->assertSee('18');
+    }
+
+    public function test_payment_edit_page_can_save_settings(): void
+    {
+        Cache::forget(SystemSettingService::CACHE_KEY);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/system-setting/experience?mode=payment', [
+                'order_expire_time' => 25,
+                'is_open_img_code' => '1',
+                'is_open_search_pwd' => '1',
+            ]);
+
+        $response->assertRedirect('/admin/v2/system-setting/experience?mode=payment');
+        $response->assertSessionHas('status', '支付与查单配置已保存');
+
+        $settings = app(SystemSettingService::class)->all();
+        $this->assertSame(25, $settings['order_expire_time']);
+        $this->assertSame(1, $settings['is_open_img_code']);
+        $this->assertSame(1, $settings['is_open_search_pwd']);
     }
 
     private function makeAdmin(): Administrator

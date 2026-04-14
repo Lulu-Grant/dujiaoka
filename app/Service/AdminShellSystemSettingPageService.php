@@ -127,6 +127,11 @@ class AdminShellSystemSettingPageService extends AbstractAdminShellPageService
             'href' => admin_url('v2/system-setting/experience'),
             'variant' => 'secondary',
         ];
+        $header['actions'][] = [
+            'label' => '编辑支付与查单配置',
+            'href' => admin_url('v2/system-setting/experience').'?mode=payment',
+            'variant' => 'secondary',
+        ];
 
         return $header;
     }
@@ -278,6 +283,17 @@ class AdminShellSystemSettingPageService extends AbstractAdminShellPageService
                     ['label' => '页脚自定义代码', 'value' => $settings['footer'] ?? '', 'style' => 'grid-column: 1 / -1;', 'value_style' => 'white-space: pre-wrap;'],
                 ],
             ],
+            [
+                'id' => 7,
+                'title' => '支付与查单节奏配置',
+                'summary' => '订单过期时间、图片验证码与查询密码',
+                'item_count' => 3,
+                'items' => [
+                    ['label' => '订单过期时间', 'value' => (string) ($settings['order_expire_time'] ?? '')],
+                    ['label' => '图片验证码', 'value' => $this->statusText($settings['is_open_img_code'] ?? 0)],
+                    ['label' => '订单查询密码', 'value' => $this->statusText($settings['is_open_search_pwd'] ?? 0)],
+                ],
+            ],
         ];
     }
 
@@ -323,6 +339,12 @@ class AdminShellSystemSettingPageService extends AbstractAdminShellPageService
                 [
                     'label' => '进入体验配置',
                     'href' => admin_url('v2/system-setting/experience'),
+                ],
+            ],
+            7 => [
+                [
+                    'label' => '进入支付与查单配置',
+                    'href' => admin_url('v2/system-setting/experience').'?mode=payment',
                 ],
             ],
         ];

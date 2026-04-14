@@ -367,9 +367,39 @@ class SystemSettingActionController extends Controller
             ->with('status', '通知推送配置已保存');
     }
 
-    public function editExperience()
+    public function editExperience(Request $request)
     {
         $settings = $this->systemSettingService->all();
+
+        if ($request->query('mode') === 'payment') {
+            return view('admin-shell.system-setting.edit-payment', $this->actionPageData(
+                '编辑支付与查单配置 - 后台壳样板',
+                '编辑支付与查单配置',
+                '这是后台壳中的支付与查单节奏配置样板页。当前先承接订单过期时间、图形验证码和查询密码这些低风险字段，方便从支付侧排查购买链路节奏。',
+                '当前为过渡样板，后续可继续扩展支付节奏与查单体验的更细分入口',
+                admin_url('v2/system-setting/experience').'?mode=payment',
+                [
+                    $this->section(
+                        '支付与查单节奏',
+                        '订单过期时间和查单保护项放在这一组，属于最轻量的支付相关体验配置。',
+                        [
+                            $this->field('订单过期时间（分钟）', 'order_expire_time', $settings['order_expire_time'] ?? 5, 'number', ['min' => 1, 'max' => 1440, 'required' => true]),
+                            $this->field('开启图形验证码', 'is_open_img_code', (int) ($settings['is_open_img_code'] ?? BaseModel::STATUS_CLOSE), 'checkbox', ['checked' => (int) ($settings['is_open_img_code'] ?? BaseModel::STATUS_CLOSE) === BaseModel::STATUS_OPEN]),
+                            $this->field('开启订单查询密码', 'is_open_search_pwd', (int) ($settings['is_open_search_pwd'] ?? BaseModel::STATUS_CLOSE), 'checkbox', ['checked' => (int) ($settings['is_open_search_pwd'] ?? BaseModel::STATUS_CLOSE) === BaseModel::STATUS_OPEN]),
+                        ],
+                        '如果你要调购买后查单节奏，优先从这里改。'
+                    ),
+                ],
+                [
+                    'defaults' => [
+                        'order_expire_time' => $settings['order_expire_time'] ?? 5,
+                        'is_open_img_code' => (int) ($settings['is_open_img_code'] ?? BaseModel::STATUS_CLOSE),
+                        'is_open_search_pwd' => (int) ($settings['is_open_search_pwd'] ?? BaseModel::STATUS_CLOSE),
+                    ],
+                ],
+                '保存支付与查单配置'
+            ));
+        }
 
         return view('admin-shell.system-setting.edit-experience', $this->actionPageData(
             '编辑站点体验配置 - 后台壳样板',
@@ -414,6 +444,22 @@ class SystemSettingActionController extends Controller
 
     public function updateExperience(Request $request)
     {
+        if ($request->query('mode') === 'payment') {
+            $payload = $request->validate([
+                'order_expire_time' => ['required', 'integer', 'min:1', 'max:1440'],
+            ]);
+
+            $payload = array_merge($payload, [
+                'is_open_img_code' => $request->boolean('is_open_img_code') ? BaseModel::STATUS_OPEN : BaseModel::STATUS_CLOSE,
+                'is_open_search_pwd' => $request->boolean('is_open_search_pwd') ? BaseModel::STATUS_OPEN : BaseModel::STATUS_CLOSE,
+            ]);
+
+            $this->systemSettingService->save($payload);
+
+            return redirect(admin_url('v2/system-setting/experience').'?mode=payment')
+                ->with('status', '支付与查单配置已保存');
+        }
+
         $payload = $request->validate([
             'notice' => ['nullable', 'string', 'max:20000'],
             'footer' => ['nullable', 'string', 'max:20000'],
