@@ -75,6 +75,15 @@ class PayActionService
         ];
     }
 
+    public function batchMethodDefaults(array $payIds = []): array
+    {
+        return [
+            'pay_ids' => $payIds,
+            'ids_text' => implode("\n", $payIds),
+            'pay_method' => Pay::METHOD_JUMP,
+        ];
+    }
+
     public function batchClientContext(array $payIds): array
     {
         $pays = Pay::query()
@@ -131,6 +140,20 @@ class PayActionService
             ->whereIn('id', $payIds)
             ->update([
                 'pay_client' => $payClient,
+                'updated_at' => now(),
+            ]);
+    }
+
+    public function updateMethod(array $payIds, int $payMethod): int
+    {
+        if (empty($payIds)) {
+            return 0;
+        }
+
+        return Pay::query()
+            ->whereIn('id', $payIds)
+            ->update([
+                'pay_method' => $payMethod,
                 'updated_at' => now(),
             ]);
     }

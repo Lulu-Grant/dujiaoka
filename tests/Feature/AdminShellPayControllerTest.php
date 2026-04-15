@@ -12,7 +12,7 @@ class AdminShellPayControllerTest extends TestCase
 {
     protected function tearDown(): void
     {
-        DB::table('pays')->whereIn('id', [93001, 93002, 93003, 93004, 93005, 93006, 93011, 93012, 93013, 93014, 93015, 93016, 93017, 93018, 93020, 93021, 93030, 93031])->delete();
+        DB::table('pays')->whereIn('id', [93001, 93002, 93003, 93004, 93005, 93006, 93011, 93012, 93013, 93014, 93015, 93016, 93017, 93018, 93019, 93020, 93021, 93022, 93030, 93031])->delete();
         DB::table('pays')->whereIn('pay_check', ['stripe', 'paypal', 'wechat-shell', 'alipay-shell', 'copy-shell-clone'])->delete();
         DB::table('admin_users')->where('username', 'admin-shell-tester')->delete();
 
@@ -536,6 +536,97 @@ class AdminShellPayControllerTest extends TestCase
 
         $this->assertSame(3, (int) DB::table('pays')->where('id', 93016)->value('pay_client'));
         $this->assertSame(3, (int) DB::table('pays')->where('id', 93017)->value('pay_client'));
+    }
+
+    public function test_batch_method_page_renders_pay_preview(): void
+    {
+        DB::table('pays')->insert([
+            'id' => 93018,
+            'pay_name' => '批量方式样板 A',
+            'merchant_id' => 'batch-method-a',
+            'merchant_key' => 'batch-method-a-key',
+            'merchant_pem' => 'batch-method-a-pem',
+            'pay_check' => 'batch-method-a',
+            'pay_client' => 1,
+            'pay_handleroute' => '/pay/batch-method-a',
+            'pay_method' => 1,
+            'is_open' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+        DB::table('pays')->insert([
+            'id' => 93019,
+            'pay_name' => '批量方式样板 B',
+            'merchant_id' => 'batch-method-b',
+            'merchant_key' => 'batch-method-b-key',
+            'merchant_pem' => 'batch-method-b-pem',
+            'pay_check' => 'batch-method-b',
+            'pay_client' => 2,
+            'pay_handleroute' => '/pay/batch-method-b',
+            'pay_method' => 1,
+            'is_open' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/pay/batch-method?ids=93018,93019,93022');
+
+        $response->assertOk();
+        $response->assertSee('批量切换支付方式');
+        $response->assertSee('待处理通道数');
+        $response->assertSee('批量方式样板 A');
+        $response->assertSee('批量方式样板 B');
+        $response->assertSee('93022');
+        $response->assertSee('未匹配 ID 数');
+    }
+
+    public function test_batch_method_page_can_update_pay_channels(): void
+    {
+        DB::table('pays')->insert([
+            'id' => 93018,
+            'pay_name' => '批量方式样板 A',
+            'merchant_id' => 'batch-method-a',
+            'merchant_key' => 'batch-method-a-key',
+            'merchant_pem' => 'batch-method-a-pem',
+            'pay_check' => 'batch-method-a',
+            'pay_client' => 1,
+            'pay_handleroute' => '/pay/batch-method-a',
+            'pay_method' => 1,
+            'is_open' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+        DB::table('pays')->insert([
+            'id' => 93019,
+            'pay_name' => '批量方式样板 B',
+            'merchant_id' => 'batch-method-b',
+            'merchant_key' => 'batch-method-b-key',
+            'merchant_pem' => 'batch-method-b-pem',
+            'pay_check' => 'batch-method-b',
+            'pay_client' => 2,
+            'pay_handleroute' => '/pay/batch-method-b',
+            'pay_method' => 1,
+            'is_open' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/pay/batch-method', [
+                'ids_text' => "93018\n93019\n93022",
+                'pay_method' => '2',
+            ]);
+
+        $response->assertRedirect('/admin/v2/pay/batch-method?ids=93018,93019,93022');
+        $response->assertSessionHas('status', '已批量切换 2 个支付通道到 '.admin_trans('pay.fields.method_scan').' 方式');
+
+        $this->assertSame(2, (int) DB::table('pays')->where('id', 93018)->value('pay_method'));
+        $this->assertSame(2, (int) DB::table('pays')->where('id', 93019)->value('pay_method'));
     }
 
     public function test_edit_page_can_update_pay_channel(): void

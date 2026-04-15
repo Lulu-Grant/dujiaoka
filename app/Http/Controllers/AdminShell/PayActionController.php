@@ -140,6 +140,31 @@ class PayActionController extends Controller
         ]);
     }
 
+    public function editBatchMethod(Request $request)
+    {
+        $payIds = $this->payActionService->parsePayIds((string) $request->query('ids', ''));
+        $defaults = $this->payActionService->batchMethodDefaults($payIds);
+
+        return view('admin-shell.pay.batch-method', [
+            'title' => '批量切换支付方式 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量切换支付方式',
+                'description' => '这是后台壳中的低风险批量动作页。当前只承接支付方式切换，不触碰商户密钥、支付标识、回调路由和生命周期。',
+                'meta' => '适合统一把一批通道切到跳转或扫码方式，便于活动切流和配置收口。提交后只更新支付方式字段。',
+                'actions' => [
+                    ['label' => '返回支付通道概览', 'href' => admin_url('v2/pay')],
+                    ['label' => '批量切换场景', 'href' => admin_url('v2/pay/batch-client'), 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/pay/batch-method'),
+            'submitLabel' => '执行批量支付方式切换',
+            'defaults' => $defaults,
+            'context' => $this->payActionService->batchClientContext($payIds),
+            'methodOptions' => Pay::getMethodMap(),
+        ]);
+    }
+
     public function updateBatchStatus(Request $request)
     {
         $validated = $request->validate([
@@ -181,6 +206,28 @@ class PayActionController extends Controller
 
         return redirect(admin_url('v2/pay/batch-client').'?ids='.implode(',', $payIds))
             ->with('status', '已批量切换 '.$affected.' 个支付通道到 '.$clientLabel.' 场景');
+    }
+
+    public function updateBatchMethod(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+            'pay_method' => ['required', Rule::in(array_keys(Pay::getMethodMap()))],
+        ]);
+
+        $payIds = $this->payActionService->parsePayIds($validated['ids_text']);
+        if (empty($payIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的支付通道 ID。'])
+                ->withInput();
+        }
+
+        $targetMethod = (int) $validated['pay_method'];
+        $affected = $this->payActionService->updateMethod($payIds, $targetMethod);
+        $methodLabel = Pay::getMethodMap()[$targetMethod] ?? (string) $targetMethod;
+
+        return redirect(admin_url('v2/pay/batch-method').'?ids='.implode(',', $payIds))
+            ->with('status', '已批量切换 '.$affected.' 个支付通道到 '.$methodLabel.' 方式');
     }
 
     private function validatePayload(Request $request, bool $isCreate, ?Pay $pay = null): array

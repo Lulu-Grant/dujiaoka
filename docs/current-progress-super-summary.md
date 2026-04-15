@@ -9,7 +9,7 @@
 ## 当前数字
 
 - 总体进度估算：`68%`
-- PHPUnit：`OK (282 tests, 1490 assertions)`
+- PHPUnit：`OK (284 tests, 1505 assertions)`
 - 当前主分支：`master`
 - 当前默认后台落点：`/admin -> /admin/v2/dashboard`
 - 当前后台主入口：
@@ -87,7 +87,7 @@
 - 商品：`create / edit / clone / batch-status / batch-buy-limit-num / batch-group / export`
 - 订单：`edit / reset search password / batch-status / batch-reset-search-pwd / export`
 - 邮件模板：`create / edit / preview / copy / export summary`
-- 支付通道：`create / edit / copy / batch-status / batch-client / export`
+- 支付通道：`create / edit / copy / batch-status / batch-client / batch-method / export`
 - 优惠码：`create / edit / batch generate / batch-status / batch-ret / export`
 - 卡密：`create / edit / import / export / batch-loop`
 - 邮件测试：`send`

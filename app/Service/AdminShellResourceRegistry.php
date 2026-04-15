@@ -99,6 +99,8 @@ class AdminShellResourceRegistry
                     ['method' => 'post', 'uri' => 'create', 'action' => 'store', 'name' => 'store', 'controller' => \App\Http\Controllers\AdminShell\PayActionController::class],
                     ['method' => 'get', 'uri' => 'batch-client', 'action' => 'editBatchClient', 'name' => 'batch-client', 'controller' => \App\Http\Controllers\AdminShell\PayActionController::class],
                     ['method' => 'post', 'uri' => 'batch-client', 'action' => 'updateBatchClient', 'name' => 'batch-client.update', 'controller' => \App\Http\Controllers\AdminShell\PayActionController::class],
+                    ['method' => 'get', 'uri' => 'batch-method', 'action' => 'editBatchMethod', 'name' => 'batch-method', 'controller' => \App\Http\Controllers\AdminShell\PayActionController::class],
+                    ['method' => 'post', 'uri' => 'batch-method', 'action' => 'updateBatchMethod', 'name' => 'batch-method.update', 'controller' => \App\Http\Controllers\AdminShell\PayActionController::class],
                     ['method' => 'get', 'uri' => 'batch-status', 'action' => 'editBatchStatus', 'name' => 'batch-status', 'controller' => \App\Http\Controllers\AdminShell\PayActionController::class],
                     ['method' => 'post', 'uri' => 'batch-status', 'action' => 'updateBatchStatus', 'name' => 'batch-status.update', 'controller' => \App\Http\Controllers\AdminShell\PayActionController::class],
                     ['method' => 'get', 'uri' => '{id}/edit', 'action' => 'edit', 'name' => 'edit', 'controller' => \App\Http\Controllers\AdminShell\PayActionController::class],

@@ -4325,3 +4325,31 @@
 
 - 在后续每个“是否进行下一步”的判断点前，优先让常驻子代理先做一次偏航检查
 - 主线程继续沿着后台壳扩容主线往下推，并在稳定节点同步 GitHub
+
+### 162. 支付通道接入批量切换支付方式页
+
+摘要：
+
+- 支付通道现在新增了 [batch-method.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/pay/batch-method.blade.php)，可以通过 `/admin/v2/pay/batch-method` 先预览匹配通道，再统一切换支付方式。
+- [PayActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/PayActionController.php) 新增了 `editBatchMethod()` / `updateBatchMethod()`，把这条低风险批量动作接进现有支付动作控制器。
+- [PayActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PayActionService.php) 新增了批量支付方式默认值和 `pay_method` 批量更新逻辑，继续把写入边界压在服务层，不把逻辑回流到旧兼容层。
+- [AdminShellPayPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellPayPageService.php) 已在支付通道概览页头补上“批量切换方式”入口。
+- [AdminShellResourceRegistry.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellResourceRegistry.php)、[AdminShellRouteRegistrarTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellRouteRegistrarTest.php)、[AdminShellPayControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellPayControllerTest.php) 和 [AdminShellPageStructureTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellPageStructureTest.php) 已把这条动作的路由、页头合同和展示/提交流程护栏补齐。
+- [tests/Browser/admin-shell-smoke.sh](/Users/apple/Documents/dujiaoshuka/tests/Browser/admin-shell-smoke.sh) 已补上 `/admin/v2/pay/batch-method` 的页面巡检，后台壳烟雾覆盖面继续扩大。
+
+影响范围：
+
+- 支付壳页从“启停 + 场景 + 导出”继续推进到了“第三个真实低风险批量配置动作”。
+- 后台壳在支付配置维护线上的人工操作能力更完整了，适合统一切换跳转 / 扫码方式，而不会误动支付标识、商户密钥、回调路由和生命周期。
+- 仓库首页、当前基线审计和当前进度总汇已经同步追平到新的动作清单和最新测试基线，入口文档继续保持一致。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellPayControllerTest.php` 通过，结果为 `OK (19 tests, 133 assertions)`
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/AdminShellRouteRegistrarTest.php tests/Unit/AdminShellPageStructureTest.php` 通过，结果为 `OK (1 test, 17 assertions)`
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (284 tests, 1505 assertions)`
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过
+
+下一步：
+
+- 继续沿着后台壳扩容主线推进，优先补齐 `pay / coupon / carmis / goods / order` 的下一批低风险批量动作

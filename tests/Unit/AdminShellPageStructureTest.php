@@ -223,11 +223,12 @@ class AdminShellPageStructureTest extends TestCase
         $this->assertSame('迁移合同', $header['actions'][0]['label']);
         $this->assertSame('批量启停通道', $header['actions'][1]['label']);
         $this->assertSame('批量切换场景', $header['actions'][2]['label']);
-        $this->assertSame('新建支付通道', $header['actions'][3]['label']);
-        $this->assertSame('导出结构化 CSV', $header['actions'][4]['label']);
-        $this->assertSame('导出当前筛选', $header['actions'][5]['label']);
-        $this->assertStringContainsString('export=csv', $header['actions'][4]['href']);
-        $this->assertStringContainsString('export=txt', $header['actions'][5]['href']);
+        $this->assertSame('批量切换方式', $header['actions'][3]['label']);
+        $this->assertSame('新建支付通道', $header['actions'][4]['label']);
+        $this->assertSame('导出结构化 CSV', $header['actions'][5]['label']);
+        $this->assertSame('导出当前筛选', $header['actions'][6]['label']);
+        $this->assertStringContainsString('export=csv', $header['actions'][5]['href']);
+        $this->assertStringContainsString('export=txt', $header['actions'][6]['href']);
         $this->assertSame('Stripe', $requestFilters['pay_name']);
         $this->assertSame('支付标识', $filters['fields'][1]['label']);
         $this->assertSame('支付通道详情', $showHeader['title']);

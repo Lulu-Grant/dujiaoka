@@ -106,6 +106,11 @@ class AdminShellPayPageService extends AbstractAdminShellPageService
             'variant' => 'secondary',
         ];
         $header['actions'][] = [
+            'label' => '批量切换方式',
+            'href' => admin_url('v2/pay/batch-method'),
+            'variant' => 'secondary',
+        ];
+        $header['actions'][] = [
             'label' => '新建支付通道',
             'href' => admin_url('v2/pay/create'),
             'variant' => 'primary',
