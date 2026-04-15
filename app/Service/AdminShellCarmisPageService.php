@@ -107,6 +107,11 @@ class AdminShellCarmisPageService extends AbstractAdminShellPageService
             'variant' => 'primary',
         ];
         $header['actions'][] = [
+            'label' => '批量设置循环使用',
+            'href' => admin_url('v2/carmis/batch-loop'),
+            'variant' => 'secondary',
+        ];
+        $header['actions'][] = [
             'label' => '导出 CSV',
             'href' => $this->exportUrl($filters, 'csv'),
             'variant' => 'secondary',

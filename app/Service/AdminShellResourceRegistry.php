@@ -133,6 +133,8 @@ class AdminShellResourceRegistry
                 'uri' => 'v2/carmis',
                 'uses_scope' => true,
                 'actions' => [
+                    ['method' => 'get', 'uri' => 'batch-loop', 'action' => 'editBatchLoop', 'name' => 'batch-loop', 'controller' => \App\Http\Controllers\AdminShell\CarmiActionController::class],
+                    ['method' => 'post', 'uri' => 'batch-loop', 'action' => 'updateBatchLoop', 'name' => 'batch-loop.update', 'controller' => \App\Http\Controllers\AdminShell\CarmiActionController::class],
                     ['method' => 'get', 'uri' => 'create', 'action' => 'create', 'name' => 'create', 'controller' => \App\Http\Controllers\AdminShell\CarmiActionController::class],
                     ['method' => 'post', 'uri' => 'create', 'action' => 'store', 'name' => 'store', 'controller' => \App\Http\Controllers\AdminShell\CarmiActionController::class],
                     ['method' => 'get', 'uri' => '{id}/edit', 'action' => 'edit', 'name' => 'edit', 'controller' => \App\Http\Controllers\AdminShell\CarmiActionController::class],

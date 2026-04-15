@@ -4153,3 +4153,49 @@
 下一步：
 
 - 继续沿着后台壳扩容主线推进，优先处理支付通道或商品的下一批低风险批量动作。
+
+### 155. 基线常驻监控子代理机制启动
+
+摘要：
+
+- 已将“常驻基线监控子代理”规则写入 [rectification-execution-plan.md](/Users/apple/Documents/dujiaoshuka/docs/rectification-execution-plan.md)，后续默认由主线程连续推进，监控子代理只负责检查是否严重偏离基线。
+- 监控子代理当前给出的初始判断是：主线没有明显偏离，最该继续的方向仍然是“后台壳扩容 + 旧 Dcat 降耦合”，优先处理 `goods / order / pay / carmis / system-setting` 这几条高频线。
+- 严重偏离的判定也已经固定下来，重点包括：重新把逻辑写回旧 Dcat 路径、脱离基线提前跳去大范围升级或重写、以及放弃当前测试与烟雾护栏。
+
+影响范围：
+
+- 后续开发过程不再靠临时感觉判断“要不要继续下一步”，而是有了一个轻量但持续的偏航检查口。
+- 监控子代理不会阻塞主线程，只在严重偏离时提出建议，保持当前“低打扰连续推进”的节奏。
+
+验证：
+
+- 初始基线检查结论：当前主线未明显偏离既定总纲
+
+下一步：
+
+- 在后续每个明显的分叉点前，优先让常驻监控子代理先做一次偏离检查
+- 主线程继续沿着后台壳扩容主线往下推
+
+### 156. 卡密管理接入批量设置循环使用页
+
+摘要：
+
+- 卡密管理现在新增了 [batch-loop.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/carmis/batch-loop.blade.php)，可以通过 `/admin/v2/carmis/batch-loop` 先预览匹配卡密，再统一切换循环使用标记。
+- [CarmiActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/CarmiActionController.php) 新增了 `editBatchLoop()` / `updateBatchLoop()`，把这条低风险批量动作接进现有卡密动作控制器。
+- [CarmiActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/CarmiActionService.php) 新增了批量 ID 解析、匹配上下文和循环使用标记批量更新逻辑，保持修改边界仍然只落在卡密维护字段。
+- [AdminShellCarmisPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellCarmisPageService.php) 已在卡密概览页头补上“批量设置循环使用”入口。
+- [AdminShellResourceRegistry.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellResourceRegistry.php) 已接入 `carmis/batch-loop` 路由定义。
+
+影响范围：
+
+- 卡密壳页从“单条编辑 + 导入 + 导出”继续推进到了“第二个真实低风险批量动作”。
+- 后台壳在库存与履约维护线上的人工操作能力更完整了，适合成组调整循环使用策略，而不会误改卡密内容和销售状态。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellCarmisControllerTest.php` 通过，结果为 `OK (14 tests, 73 assertions)`
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/AdminShellPageStructureTest.php --filter test_carmis_page_service_builds_table_and_detail_items` 通过
+
+下一步：
+
+- 继续沿着后台壳扩容主线推进，优先处理支付通道或商品的下一批低风险批量动作

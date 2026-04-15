@@ -7,6 +7,7 @@ use App\Models\Carmis;
 use App\Service\AdminSelectOptionService;
 use App\Service\CarmiActionService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class CarmiActionController extends Controller
 {
@@ -91,6 +92,53 @@ class CarmiActionController extends Controller
 
         return redirect(admin_url('v2/carmis/'.$carmi->id.'/edit'))
             ->with('status', '卡密已保存');
+    }
+
+    public function editBatchLoop(Request $request)
+    {
+        $carmiIds = $this->carmiActionService->parseCarmiIds((string) $request->query('ids', ''));
+        $defaults = $this->carmiActionService->batchLoopDefaults($carmiIds);
+        $context = $this->carmiActionService->batchLoopContext($carmiIds);
+
+        return view('admin-shell.carmis.batch-loop', [
+            'title' => '批量设置循环使用 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量设置循环使用',
+                'description' => '这是后台壳中的低风险批量动作页。当前只承接卡密循环使用标记切换，不触碰卡密内容、销售状态和商品归属。',
+                'meta' => '适合处理一批需要重复使用或取消重复使用的卡密。提交后只更新循环使用标记。',
+                'actions' => [
+                    ['label' => '返回卡密概览', 'href' => admin_url('v2/carmis')],
+                    ['label' => '导入卡密', 'href' => admin_url('v2/carmis/import'), 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/carmis/batch-loop'),
+            'submitLabel' => '执行批量循环设置',
+            'defaults' => $defaults,
+            'context' => $context,
+        ]);
+    }
+
+    public function updateBatchLoop(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+            'is_loop' => ['required', Rule::in(['0', '1', 0, 1])],
+        ]);
+
+        $carmiIds = $this->carmiActionService->parseCarmiIds($validated['ids_text']);
+
+        if (empty($carmiIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的卡密 ID。'])
+                ->withInput();
+        }
+
+        $affected = $this->carmiActionService->updateLoopStatus($carmiIds, (int) $validated['is_loop']);
+        $label = (int) $validated['is_loop'] === 1 ? '启用循环使用' : '关闭循环使用';
+
+        return redirect(admin_url('v2/carmis/batch-loop').'?ids='.implode(',', $carmiIds))
+            ->with('status', '已批量'.$label.' '.$affected.' 条卡密');
     }
 
     private function validatePayload(Request $request): array

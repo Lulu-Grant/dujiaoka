@@ -123,6 +123,39 @@ class AdminShellCarmisControllerTest extends TestCase
         $response->assertSee('批量卡密请优先使用导入页处理');
     }
 
+    public function test_batch_loop_page_renders_matching_preview(): void
+    {
+        $this->seedCarmiFixture(95001, '测试商品卡密 A', 'CARD-AAA-001');
+        $this->seedCarmiFixture(95002, '测试商品卡密 B', 'CARD-BBB-002');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/carmis/batch-loop?ids=95001,95002,95999');
+
+        $response->assertOk();
+        $response->assertSee('批量设置循环使用');
+        $response->assertSee('测试商品卡密 A');
+        $response->assertSee('测试商品卡密 B');
+        $response->assertSee('95999');
+    }
+
+    public function test_batch_loop_page_can_update_loop_status(): void
+    {
+        $this->seedCarmiFixture(95001, '测试商品卡密 A', 'CARD-AAA-001');
+        $this->seedCarmiFixture(95002, '测试商品卡密 B', 'CARD-BBB-002');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/carmis/batch-loop', [
+                'ids_text' => "95001\n95002,95999",
+                'is_loop' => '1',
+            ]);
+
+        $response->assertRedirect('/admin/v2/carmis/batch-loop?ids=95001,95002,95999');
+        $response->assertSessionHas('status', '已批量启用循环使用 2 条卡密');
+
+        $this->assertSame(1, (int) DB::table('carmis')->where('id', 95001)->value('is_loop'));
+        $this->assertSame(1, (int) DB::table('carmis')->where('id', 95002)->value('is_loop'));
+    }
+
     public function test_create_page_can_store_carmi(): void
     {
         $this->seedCarmiFixture(95001, '测试商品卡密 A', 'CARD-AAA-001');
