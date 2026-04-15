@@ -10,7 +10,7 @@
 
 - 结构化治理后期
 - 后台替换中后期
-- 支付与升级前清障中前期
+- 升级前清障中前期
 
 如果只用一句话概括：
 
@@ -34,7 +34,7 @@
 
 ## 当前基线数字
 
-- PHPUnit：`OK (280 tests, 1474 assertions)`
+- PHPUnit：`OK (282 tests, 1490 assertions)`
 - 当前分支：`master`
 - 当前后台默认落点：`/admin -> /admin/v2/dashboard`
 - 当前后台主入口：
@@ -152,7 +152,7 @@
 - 订单：`edit / reset search password / batch-status / batch-reset-search-pwd / export`
 - 邮件模板：`create / edit / preview / copy / export summary`
 - 支付通道：`create / edit / copy / batch-status / batch-client / export`
-- 优惠码：`create / edit / batch generate / batch-status / export`
+- 优惠码：`create / edit / batch generate / batch-status / batch-ret / export`
 - 卡密：`create / edit / import / export / batch-loop`
 - 邮件测试：`send`
 - 系统设置：`base / branding / mail / order / push / experience`
@@ -285,4 +285,3 @@
 3. 回到支付层收尾
 4. 启动安全专项
 5. 再进入 Laravel / PHP 升级前清障
-

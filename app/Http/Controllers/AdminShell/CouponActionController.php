@@ -114,6 +114,16 @@ class CouponActionController extends Controller
         return $this->storeBatchStatus($request);
     }
 
+    public function editBatchRet(Request $request)
+    {
+        return $this->renderBatchRetPage($request);
+    }
+
+    public function updateBatchRet(Request $request)
+    {
+        return $this->storeBatchRet($request);
+    }
+
     private function validatePayload(Request $request): array
     {
         $payload = $request->validate([
@@ -199,6 +209,52 @@ class CouponActionController extends Controller
 
         return redirect(admin_url('v2/coupon/batch-status?ids='.implode(',', $couponIds)))
             ->with('status', '已批量'.$statusLabel.' '.$affected.' 个优惠码');
+    }
+
+    private function renderBatchRetPage(Request $request)
+    {
+        $couponIds = $this->couponActionService->parseCouponIds((string) $request->query('ids', $request->input('ids_text', '')));
+        $defaults = $this->couponActionService->batchRetDefaults($couponIds);
+
+        return view('admin-shell.coupon.batch-ret', [
+            'title' => '批量设置优惠码可用次数 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量设置优惠码可用次数',
+                'description' => '这是后台壳中的低风险批量动作页。当前只承接优惠码可用次数调整，不改折扣、启用状态和关联商品，优先把常见运营维护动作收进新壳。',
+                'meta' => '适合活动码补量、测试码限次和人工纠偏。支持换行、逗号或空格分隔的 ID 输入，先预览再统一提交。',
+                'actions' => [
+                    ['label' => '返回优惠码概览', 'href' => admin_url('v2/coupon')],
+                    ['label' => '批量启停优惠码', 'href' => admin_url('v2/coupon/batch-status'), 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/coupon/batch-ret'),
+            'submitLabel' => '执行批量次数更新',
+            'defaults' => $defaults,
+            'context' => $this->couponActionService->batchStatusContext($couponIds),
+        ]);
+    }
+
+    private function storeBatchRet(Request $request)
+    {
+        $payload = $request->validate([
+            'ids_text' => ['required', 'string'],
+            'ret' => ['required', 'integer', 'min:0'],
+        ]);
+
+        $couponIds = $this->couponActionService->parseCouponIds($payload['ids_text']);
+        if (empty($couponIds)) {
+            return redirect()
+                ->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的优惠码 ID。'])
+                ->withInput();
+        }
+
+        $ret = (int) $payload['ret'];
+        $affected = $this->couponActionService->updateRet($couponIds, $ret);
+
+        return redirect(admin_url('v2/coupon/batch-ret?ids='.implode(',', $couponIds)))
+            ->with('status', '已批量把 '.$affected.' 个优惠码的可用次数调整为 '.$ret.' 次');
     }
 
     private function isBatchMode(Request $request): bool

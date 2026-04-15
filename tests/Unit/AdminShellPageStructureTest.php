@@ -370,6 +370,7 @@ class AdminShellPageStructureTest extends TestCase
         $this->assertSame('导出优惠码文本', $header['actions'][1]['label']);
         $this->assertSame('导出优惠码 CSV', $header['actions'][2]['label']);
         $this->assertSame('批量启停优惠码', $header['actions'][3]['label']);
+        $this->assertSame('批量设置可用次数', $header['actions'][4]['label']);
         $this->assertSame('XIGUA', $requestFilters['coupon']);
         $this->assertSame('商品 ID', $filters['fields'][2]['label']);
         $this->assertSame('优惠码详情', $showHeader['title']);

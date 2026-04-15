@@ -54,6 +54,14 @@ class CouponActionService
         ];
     }
 
+    public function batchRetDefaults(array $couponIds = []): array
+    {
+        return [
+            'ids_text' => implode("\n", $couponIds),
+            'ret' => 1,
+        ];
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -107,6 +115,20 @@ class CouponActionService
             ->whereIn('id', $couponIds)
             ->update([
                 'is_open' => $isOpen,
+                'updated_at' => now(),
+            ]);
+    }
+
+    public function updateRet(array $couponIds, int $ret): int
+    {
+        if (empty($couponIds)) {
+            return 0;
+        }
+
+        return Coupon::query()
+            ->whereIn('id', $couponIds)
+            ->update([
+                'ret' => $ret,
                 'updated_at' => now(),
             ]);
     }

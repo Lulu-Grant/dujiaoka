@@ -15,7 +15,7 @@ class AdminShellCouponControllerTest extends TestCase
             DB::table('coupons_goods')->whereIn('coupons_id', $batchIds)->delete();
         }
         DB::table('coupons')->where('coupon', 'like', 'XIGUA-BATCH-%')->delete();
-        DB::table('coupons')->whereIn('id', [95001, 95002, 95003])->delete();
+        DB::table('coupons')->whereIn('id', [95001, 95002, 95003, 95004, 95005])->delete();
         DB::table('coupons_goods')->whereIn('coupons_id', [94001, 94002, 94003])->delete();
         DB::table('coupons')->whereIn('id', [94001, 94002, 94003])->delete();
         DB::table('coupons')->whereIn('coupon', ['XIGUA-5', 'XIGUA-DETAIL', 'XIGUA-CREATE', 'XIGUA-EDIT'])->delete();
@@ -175,6 +175,43 @@ class AdminShellCouponControllerTest extends TestCase
         $this->assertSame(0, (int) DB::table('coupons')->where('id', 95001)->value('is_open'));
         $this->assertSame(0, (int) DB::table('coupons')->where('id', 95002)->value('is_open'));
         $this->assertSame(0, (int) DB::table('coupons')->where('id', 95003)->value('is_open'));
+    }
+
+    public function test_batch_ret_page_renders_coupon_ret_form_and_preview(): void
+    {
+        $this->seedCouponFixture(95004, 'XIGUA-RET-1', '测试商品 G');
+        $this->seedCouponFixture(95005, 'XIGUA-RET-2', '测试商品 H');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/coupon/batch-ret?ids=95004,95005');
+
+        $response->assertOk();
+        $response->assertSee('批量设置优惠码可用次数');
+        $response->assertSee('目标可用次数');
+        $response->assertSee('匹配预览');
+        $response->assertSee('XIGUA-RET-1');
+        $response->assertSee('XIGUA-RET-2');
+        $response->assertSee('当前可用次数');
+    }
+
+    public function test_batch_ret_page_can_update_coupon_ret_with_mixed_separators(): void
+    {
+        $this->seedCouponFixture(95001, 'XIGUA-RET-1', '测试商品 D');
+        $this->seedCouponFixture(95002, 'XIGUA-RET-2', '测试商品 E');
+        $this->seedCouponFixture(95003, 'XIGUA-RET-3', '测试商品 F');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/coupon/batch-ret', [
+                'ids_text' => "95001, 95002\n95003",
+                'ret' => 6,
+            ]);
+
+        $response->assertRedirect('/admin/v2/coupon/batch-ret?ids=95001,95002,95003');
+        $response->assertSessionHas('status', '已批量把 3 个优惠码的可用次数调整为 6 次');
+
+        $this->assertSame(6, (int) DB::table('coupons')->where('id', 95001)->value('ret'));
+        $this->assertSame(6, (int) DB::table('coupons')->where('id', 95002)->value('ret'));
+        $this->assertSame(6, (int) DB::table('coupons')->where('id', 95003)->value('ret'));
     }
 
     public function test_index_can_export_coupon_text_with_current_filters(): void

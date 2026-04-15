@@ -95,7 +95,7 @@
 - 商品分类 `create / edit`
 - 商品 `create / edit / clone / batch-status / batch-buy-limit-num / batch-group / export`
 - 订单 `edit / reset search password / batch-status / batch-reset-search-pwd / export`
-- 优惠码 `create / edit / batch generate / batch-status / export`
+- 优惠码 `create / edit / batch generate / batch-status / batch-ret / export`
 - 支付通道 `create / edit / copy / batch-status / batch-client / export`
 - 卡密 `create / edit / import / export / batch-loop`
 - 邮件模板 `create / edit / preview / copy / export summary`
@@ -132,7 +132,7 @@
 当前主线测试结果基线：
 
 ```bash
-OK (280 tests, 1474 assertions)
+OK (282 tests, 1490 assertions)
 ```
 
 当前仓库也已经补上 GitHub Actions 基线工作流：

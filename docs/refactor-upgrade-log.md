@@ -4271,3 +4271,57 @@
 下一步：
 
 - 继续沿着后台壳扩容主线推进，优先补齐 `goods / order / pay / coupon` 的下一批低风险批量动作
+
+### 160. 优惠码管理接入批量设置可用次数页
+
+摘要：
+
+- 优惠码管理现在新增了 [batch-ret.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/coupon/batch-ret.blade.php)，可以通过 `/admin/v2/coupon/batch-ret` 先预览匹配优惠码，再统一调整可用次数。
+- [CouponActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/CouponActionController.php) 新增了 `editBatchRet()` / `updateBatchRet()`，把这条低风险批量动作接进现有优惠码动作控制器。
+- [CouponActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/CouponActionService.php) 新增了批量可用次数默认值和 `ret` 批量更新逻辑，继续把写入边界压在服务层，不把逻辑回流到旧兼容层。
+- [AdminShellCouponPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellCouponPageService.php) 已在优惠码概览页头补上“批量设置可用次数”入口。
+- [AdminShellResourceRegistry.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellResourceRegistry.php)、[AdminShellRouteRegistrarTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellRouteRegistrarTest.php)、[AdminShellCouponControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellCouponControllerTest.php) 和 [AdminShellPageStructureTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellPageStructureTest.php) 已把这条动作的路由、页头合同和展示/提交流程护栏补齐。
+- [tests/Browser/admin-shell-smoke.sh](/Users/apple/Documents/dujiaoshuka/tests/Browser/admin-shell-smoke.sh) 已补上 `/admin/v2/coupon/batch-ret` 的页面巡检，后台壳烟雾覆盖面继续扩大。
+
+影响范围：
+
+- 优惠码壳页从“批量生成 + 启停 + 导出”继续推进到了“第二个真实低风险批量维护动作”。
+- 后台壳在优惠码运营线上的人工维护能力更完整了，适合成组补量、限次和人工纠偏，而不会误动折扣、启停状态和商品关联。
+- 仓库首页、当前基线审计和当前进度总汇已经同步追平到新的动作清单和最新测试基线，入口文档继续保持一致。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellCouponControllerTest.php` 通过，结果为 `OK (14 tests, 101 assertions)`
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/AdminShellRouteRegistrarTest.php` 通过，结果为 `OK (1 test, 15 assertions)`
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/AdminShellPageStructureTest.php` 通过，结果为 `OK (10 tests, 193 assertions)`
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (282 tests, 1490 assertions)`
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过
+
+下一步：
+
+- 继续沿着后台壳扩容主线推进，优先补齐 `coupon / carmis / goods / order` 的下一批低风险批量动作
+
+### 161. 常驻基线监控子代理进入实际运行
+
+摘要：
+
+- 已按 [rectification-execution-plan.md](/Users/apple/Documents/dujiaoshuka/docs/rectification-execution-plan.md) 的既定方向，正式启用一个常驻基线监控子代理，后续专门负责“是否继续下一步”判断点的轻量偏航检查。
+- 这次不是只保留原则说明，而是把实际运行协议补进了执行总纲：主线程先总结稳定节点，再由子代理做一次 10 秒级检查，未严重偏离则默认继续，存在风险则只返回“建议暂停检查”。
+- 子代理当前给出的初始结论是：主线没有严重偏离；当前仍然应继续沿着 `后台壳扩容 + 旧 Dcat 降耦合 + 支付层收口 + 升级前清障` 这条主线推进。
+
+影响范围：
+
+- 后续开发流程不再靠主线程临时判断“这一步要不要继续”，而是有了一个持续在线的轻量监控口。
+- 常驻子代理不会主导实现，也不会替代主线程做取舍，只在分叉点检查是否明显偏离既定总纲。
+- 这让“静默开发、连续推进、不逐步询问”有了更稳定的护栏，同时保持建议非强制的节奏。
+
+验证：
+
+- 当前偏航检查结论：`可继续`
+- 当前稳定基线仍为：`OK (282 tests, 1490 assertions)`
+- 当前主线判断未变化：`后台壳扩容 + 旧 Dcat 降耦合 + 支付层收口 + 升级前清障`
+
+下一步：
+
+- 在后续每个“是否进行下一步”的判断点前，优先让常驻子代理先做一次偏航检查
+- 主线程继续沿着后台壳扩容主线往下推，并在稳定节点同步 GitHub
