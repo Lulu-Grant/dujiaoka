@@ -72,4 +72,15 @@ class PayActionServiceTest extends TestCase
         $this->assertSame('', $defaults['pay_check']);
         $this->assertSame('/pay/stripe', $defaults['pay_handleroute']);
     }
+
+    public function test_batch_client_defaults_use_pc_as_safe_default(): void
+    {
+        $service = $this->app->make(PayActionService::class);
+
+        $defaults = $service->batchClientDefaults([101, 102]);
+
+        $this->assertSame([101, 102], $defaults['pay_ids']);
+        $this->assertSame("101\n102", $defaults['ids_text']);
+        $this->assertSame(Pay::PAY_CLIENT_PC, $defaults['pay_client']);
+    }
 }

@@ -115,6 +115,31 @@ class PayActionController extends Controller
         ]);
     }
 
+    public function editBatchClient(Request $request)
+    {
+        $payIds = $this->payActionService->parsePayIds((string) $request->query('ids', ''));
+        $defaults = $this->payActionService->batchClientDefaults($payIds);
+
+        return view('admin-shell.pay.batch-client', [
+            'title' => '批量切换支付场景 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量切换支付场景',
+                'description' => '这是后台壳中的低风险批量动作页。当前只承接支付场景切换，不触碰商户密钥、支付标识、回调路由和生命周期。',
+                'meta' => '适合统一把一批通道切到 PC、H5 或通用场景，便于活动切流和入口整顿。提交后只更新支付场景字段。',
+                'actions' => [
+                    ['label' => '返回支付通道概览', 'href' => admin_url('v2/pay')],
+                    ['label' => '批量启停通道', 'href' => admin_url('v2/pay/batch-status'), 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/pay/batch-client'),
+            'submitLabel' => '执行批量支付场景切换',
+            'defaults' => $defaults,
+            'context' => $this->payActionService->batchClientContext($payIds),
+            'clientOptions' => Pay::getClientMap(),
+        ]);
+    }
+
     public function updateBatchStatus(Request $request)
     {
         $validated = $request->validate([
@@ -134,6 +159,28 @@ class PayActionController extends Controller
 
         return redirect(admin_url('v2/pay/batch-status').'?ids='.implode(',', $payIds))
             ->with('status', '已批量'.$statusLabel.' '.$affected.' 个支付通道');
+    }
+
+    public function updateBatchClient(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+            'pay_client' => ['required', Rule::in(array_keys(Pay::getClientMap()))],
+        ]);
+
+        $payIds = $this->payActionService->parsePayIds($validated['ids_text']);
+        if (empty($payIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的支付通道 ID。'])
+                ->withInput();
+        }
+
+        $targetClient = (int) $validated['pay_client'];
+        $affected = $this->payActionService->updateClient($payIds, $targetClient);
+        $clientLabel = Pay::getClientMap()[$targetClient] ?? (string) $targetClient;
+
+        return redirect(admin_url('v2/pay/batch-client').'?ids='.implode(',', $payIds))
+            ->with('status', '已批量切换 '.$affected.' 个支付通道到 '.$clientLabel.' 场景');
     }
 
     private function validatePayload(Request $request, bool $isCreate, ?Pay $pay = null): array

@@ -4199,3 +4199,29 @@
 下一步：
 
 - 继续沿着后台壳扩容主线推进，优先处理支付通道或商品的下一批低风险批量动作
+
+### 157. 支付通道接入批量切换支付场景页
+
+摘要：
+
+- 支付通道现在新增了 [batch-client.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/pay/batch-client.blade.php)，可以通过 `/admin/v2/pay/batch-client` 先预览匹配通道，再统一切换支付场景。
+- [PayActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/PayActionController.php) 新增了 `editBatchClient()` / `updateBatchClient()`，把这条低风险批量动作接进现有支付动作控制器。
+- [PayActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PayActionService.php) 新增了批量场景默认值、匹配上下文和 `pay_client` 批量更新逻辑，保持修改边界仍然只落在支付场景字段。
+- [AdminShellPayPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellPayPageService.php) 已在支付通道概览页头补上“批量切换场景”入口。
+- [AdminShellResourceRegistry.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellResourceRegistry.php) 已接入 `pay/batch-client` 路由定义。
+
+影响范围：
+
+- 支付壳页从“单条编辑 + 复制 + 启停 + 导出”继续推进到了“第二个真实低风险批量动作”。
+- 后台壳在支付配置维护线上的人工操作能力更完整了，适合统一整理 PC / 手机 / 通用场景，而不会误改密钥、回调路由和生命周期。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellPayControllerTest.php` 通过，结果为 `OK (17 tests, 121 assertions)`
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/AdminShellPageStructureTest.php --filter test_pay_page_service_builds_table_and_detail_items` 通过，结果为 `OK (1 test, 31 assertions)`
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/AdminShellRouteRegistrarTest.php tests/Unit/PayActionServiceTest.php` 通过，结果为 `OK (1 test, 13 assertions)`
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (278 tests, 1460 assertions)`
+
+下一步：
+
+- 继续沿着后台壳扩容主线推进，优先处理商品、订单或支付通道的下一批低风险批量动作

@@ -12,7 +12,7 @@ class AdminShellPayControllerTest extends TestCase
 {
     protected function tearDown(): void
     {
-        DB::table('pays')->whereIn('id', [93001, 93002, 93003, 93004, 93005, 93006, 93011, 93012, 93013, 93014, 93015, 93020, 93021, 93030, 93031])->delete();
+        DB::table('pays')->whereIn('id', [93001, 93002, 93003, 93004, 93005, 93006, 93011, 93012, 93013, 93014, 93015, 93016, 93017, 93018, 93020, 93021, 93030, 93031])->delete();
         DB::table('pays')->whereIn('pay_check', ['stripe', 'paypal', 'wechat-shell', 'alipay-shell', 'copy-shell-clone'])->delete();
         DB::table('admin_users')->where('username', 'admin-shell-tester')->delete();
 
@@ -445,6 +445,97 @@ class AdminShellPayControllerTest extends TestCase
         $response->assertOk();
         $response->assertSee('未匹配 ID 数');
         $response->assertSee('以下 ID 没有找到对应支付通道：93015');
+    }
+
+    public function test_batch_client_page_renders_pay_preview(): void
+    {
+        DB::table('pays')->insert([
+            'id' => 93016,
+            'pay_name' => '批量场景样板 A',
+            'merchant_id' => 'batch-client-a',
+            'merchant_key' => 'batch-client-a-key',
+            'merchant_pem' => 'batch-client-a-pem',
+            'pay_check' => 'batch-client-a',
+            'pay_client' => 1,
+            'pay_handleroute' => '/pay/batch-client-a',
+            'pay_method' => 1,
+            'is_open' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+        DB::table('pays')->insert([
+            'id' => 93017,
+            'pay_name' => '批量场景样板 B',
+            'merchant_id' => 'batch-client-b',
+            'merchant_key' => 'batch-client-b-key',
+            'merchant_pem' => 'batch-client-b-pem',
+            'pay_check' => 'batch-client-b',
+            'pay_client' => 2,
+            'pay_handleroute' => '/pay/batch-client-b',
+            'pay_method' => 2,
+            'is_open' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/pay/batch-client?ids=93016,93017,93018');
+
+        $response->assertOk();
+        $response->assertSee('批量切换支付场景');
+        $response->assertSee('待处理通道数');
+        $response->assertSee('批量场景样板 A');
+        $response->assertSee('批量场景样板 B');
+        $response->assertSee('93018');
+        $response->assertSee('未匹配 ID 数');
+    }
+
+    public function test_batch_client_page_can_update_pay_channels(): void
+    {
+        DB::table('pays')->insert([
+            'id' => 93016,
+            'pay_name' => '批量场景样板 A',
+            'merchant_id' => 'batch-client-a',
+            'merchant_key' => 'batch-client-a-key',
+            'merchant_pem' => 'batch-client-a-pem',
+            'pay_check' => 'batch-client-a',
+            'pay_client' => 1,
+            'pay_handleroute' => '/pay/batch-client-a',
+            'pay_method' => 1,
+            'is_open' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+        DB::table('pays')->insert([
+            'id' => 93017,
+            'pay_name' => '批量场景样板 B',
+            'merchant_id' => 'batch-client-b',
+            'merchant_key' => 'batch-client-b-key',
+            'merchant_pem' => 'batch-client-b-pem',
+            'pay_check' => 'batch-client-b',
+            'pay_client' => 2,
+            'pay_handleroute' => '/pay/batch-client-b',
+            'pay_method' => 2,
+            'is_open' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/pay/batch-client', [
+                'ids_text' => "93016\n93017\n93018",
+                'pay_client' => '3',
+            ]);
+
+        $response->assertRedirect('/admin/v2/pay/batch-client?ids=93016,93017,93018');
+        $response->assertSessionHas('status', '已批量切换 2 个支付通道到 '.admin_trans('pay.fields.pay_client_all').' 场景');
+
+        $this->assertSame(3, (int) DB::table('pays')->where('id', 93016)->value('pay_client'));
+        $this->assertSame(3, (int) DB::table('pays')->where('id', 93017)->value('pay_client'));
     }
 
     public function test_edit_page_can_update_pay_channel(): void
