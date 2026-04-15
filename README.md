@@ -93,12 +93,12 @@
 当前后台壳已落地动作页包括：
 
 - 商品分类 `create / edit`
-- 商品 `create / edit / clone`
-- 订单 `edit / reset search password`
-- 优惠码 `create / edit / batch generate`
-- 支付通道 `create / edit / copy`
-- 卡密 `create / edit / import / export`
-- 邮件模板 `create / edit / preview`
+- 商品 `create / edit / clone / batch-status / batch-buy-limit-num / batch-group / export`
+- 订单 `edit / reset search password / batch-status / batch-reset-search-pwd / export`
+- 优惠码 `create / edit / batch generate / batch-status / export`
+- 支付通道 `create / edit / copy / batch-status / batch-client / export`
+- 卡密 `create / edit / import / export / batch-loop`
+- 邮件模板 `create / edit / preview / copy / export summary`
 - 邮件测试发送
 - 系统设置 `base / branding / mail / order / push / experience`
 
@@ -132,7 +132,7 @@
 当前主线测试结果基线：
 
 ```bash
-OK (245 tests, 1169 assertions)
+OK (280 tests, 1474 assertions)
 ```
 
 当前仓库也已经补上 GitHub Actions 基线工作流：
@@ -174,6 +174,7 @@ OK (245 tests, 1169 assertions)
 如果你想快速看清“已经做到哪里、还剩多少工作”，建议先看：
 
 - [当前基线审计](docs/current-baseline-audit.md)
+- [当前进度总汇](docs/current-progress-super-summary.md)
 - [重构升级日志](docs/refactor-upgrade-log.md)
 - [大整改执行方案](docs/rectification-execution-plan.md)
 
@@ -191,6 +192,7 @@ OK (245 tests, 1169 assertions)
 - [支付迁移计划](docs/paypal-stripe-transition-plan.md)
 - [本地快速拉站](docs/local-dev-quickstart.md)
 - [当前基线审计](docs/current-baseline-audit.md)
+- [当前进度总汇](docs/current-progress-super-summary.md)
 
 ## 说明
 

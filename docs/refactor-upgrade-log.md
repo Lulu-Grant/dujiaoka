@@ -4249,3 +4249,25 @@
 下一步：
 
 - 继续沿着后台壳扩容主线推进，优先处理订单、支付通道或商品的下一批低风险批量动作
+
+### 159. 当前进度总汇与基线文档追平
+
+摘要：
+
+- 新增了 [current-progress-super-summary.md](/Users/apple/Documents/dujiaoshuka/docs/current-progress-super-summary.md)，把当前整体阶段、总进度估算、已完成主轴、后台壳资源与动作面、剩余重点工作集中整理成一份总汇文档。
+- [current-baseline-audit.md](/Users/apple/Documents/dujiaoshuka/docs/current-baseline-audit.md) 已重写并追平到 2026-04-15 的真实状态，更新了当前阶段判断、总进度估算和最新基线数字。
+- [README.md](/Users/apple/Documents/dujiaoshuka/README.md) 已同步更新后台壳动作页清单、最新测试基线以及新的“当前进度总汇”入口。
+
+影响范围：
+
+- 仓库现在有了一个更适合阶段盘点和外部同步的“超级整理”入口，不需要再从升级日志里逐段拼接当前状态。
+- 当前基线、README、动作页清单和测试数字已经重新统一，不会出现文档入口彼此口径不一致的问题。
+
+验证：
+
+- 本次为文档整理，无代码逻辑变更
+- 基线数字引用自上一轮已验证通过的全量结果：`OK (280 tests, 1474 assertions)`
+
+下一步：
+
+- 继续沿着后台壳扩容主线推进，优先补齐 `goods / order / pay / coupon` 的下一批低风险批量动作
