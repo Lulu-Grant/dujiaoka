@@ -4225,3 +4225,27 @@
 下一步：
 
 - 继续沿着后台壳扩容主线推进，优先处理商品、订单或支付通道的下一批低风险批量动作
+
+### 158. 商品管理接入批量切换分类页
+
+摘要：
+
+- 商品管理现在新增了 [batch-group.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/goods/batch-group.blade.php)，可以通过 `/admin/v2/goods/create?mode=batch-group` 先预览匹配商品，再统一切换商品分类。
+- [GoodsActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/GoodsActionController.php) 新增了批量分类模式判断、批量分类页面渲染和提交流程，继续复用商品动作页现有的 `mode` 承载方式。
+- [GoodsActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/GoodsActionService.php) 新增了批量分类默认值、匹配上下文和 `group_id` 批量更新逻辑，保持修改边界仍然只落在商品分类字段。
+- [AdminShellGoodsPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellGoodsPageService.php) 已在商品概览页头补上“批量切换分类”入口。
+
+影响范围：
+
+- 商品壳页从“单条编辑 + 复制 + 启停 + 限购调整 + 导出”继续推进到了“第三个真实低风险批量动作”。
+- 后台壳在商品运营整理线上的人工操作能力更完整了，适合把一批商品统一迁移到新分类，而不会误改价格、库存、限购和启用状态。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellGoodsControllerTest.php` 通过，结果为 `OK (16 tests, 112 assertions)`
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/AdminShellPageStructureTest.php --filter test_goods_page_service_builds_table_and_detail_items` 通过，结果为 `OK (1 test, 21 assertions)`
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (280 tests, 1474 assertions)`
+
+下一步：
+
+- 继续沿着后台壳扩容主线推进，优先处理订单、支付通道或商品的下一批低风险批量动作

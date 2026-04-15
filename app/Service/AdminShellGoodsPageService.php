@@ -151,6 +151,11 @@ class AdminShellGoodsPageService extends AbstractAdminShellPageService
                 'variant' => 'secondary',
             ],
             [
+                'label' => '批量切换分类',
+                'href' => admin_url('v2/goods/create').'?mode=batch-group',
+                'variant' => 'secondary',
+            ],
+            [
                 'label' => '导出文本',
                 'href' => $this->exportUrl($filters, 'text'),
                 'variant' => 'secondary',

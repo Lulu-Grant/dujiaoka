@@ -37,6 +37,7 @@ class AdminShellGoodsControllerTest extends TestCase
         $response->assertSee('商品壳页优先用于查找、核对和进入编辑页');
         $response->assertSee('测试商品 Shell');
         $response->assertSee('测试分类 Shell');
+        $response->assertSee('批量切换分类');
     }
 
     public function test_show_renders_goods_detail_page(): void
@@ -186,6 +187,42 @@ class AdminShellGoodsControllerTest extends TestCase
 
         $this->assertSame(6, (int) DB::table('goods')->where('id', 96001)->value('buy_limit_num'));
         $this->assertSame(6, (int) DB::table('goods')->where('id', 96004)->value('buy_limit_num'));
+    }
+
+    public function test_batch_group_page_renders_goods_preview(): void
+    {
+        $this->seedGoodsFixture();
+        $this->seedActionFixtures();
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/goods/create?mode=batch-group&ids=96001,96004,99999');
+
+        $response->assertOk();
+        $response->assertSee('批量切换商品分类');
+        $response->assertSee('待处理商品数');
+        $response->assertSee('缺失 ID 数');
+        $response->assertSee('测试商品 Shell');
+        $response->assertSee('当前分类：测试分类 Shell');
+        $response->assertSee('动作分类 Shell');
+    }
+
+    public function test_batch_group_page_can_update_goods(): void
+    {
+        $this->seedGoodsFixture();
+        $this->seedActionFixtures();
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/goods/create?mode=batch-group', [
+                'mode' => 'batch-group',
+                'ids_text' => "96001, 96004\n99999",
+                'group_id' => 96002,
+            ]);
+
+        $response->assertRedirect('/admin/v2/goods/create?mode=batch-group&ids=96001,96004,99999');
+        $response->assertSessionHas('status', '已批量把 2 个商品切换到分类 动作分类 Shell');
+
+        $this->assertSame(96002, (int) DB::table('goods')->where('id', 96001)->value('group_id'));
+        $this->assertSame(96002, (int) DB::table('goods')->where('id', 96004)->value('group_id'));
     }
 
     public function test_index_can_export_goods_text(): void

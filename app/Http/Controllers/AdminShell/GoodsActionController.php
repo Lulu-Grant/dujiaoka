@@ -33,6 +33,10 @@ class GoodsActionController extends Controller
             return $this->renderBatchBuyLimitPage($request);
         }
 
+        if ($this->isBatchGroupMode($request)) {
+            return $this->renderBatchGroupPage($request);
+        }
+
         $cloneSource = null;
         if ($request->filled('clone') && ctype_digit((string) $request->query('clone'))) {
             $cloneSource = Goods::query()->with(['group:id,gp_name', 'coupon:id,coupon'])->find((int) $request->query('clone'));
@@ -80,6 +84,10 @@ class GoodsActionController extends Controller
     {
         if ($this->isBatchBuyLimitMode($request)) {
             return $this->submitBatchBuyLimit($request);
+        }
+
+        if ($this->isBatchGroupMode($request)) {
+            return $this->submitBatchGroup($request);
         }
 
         $payload = $this->validatePayload($request);
@@ -222,6 +230,11 @@ class GoodsActionController extends Controller
         return (string) $request->query('mode', $request->input('mode', '')) === 'batch-buy-limit-num';
     }
 
+    private function isBatchGroupMode(Request $request): bool
+    {
+        return (string) $request->query('mode', $request->input('mode', '')) === 'batch-group';
+    }
+
     private function renderBatchBuyLimitPage(Request $request)
     {
         $goodsIds = $this->goodsActionService->parseGoodsIds((string) $request->query('ids', ''));
@@ -265,5 +278,53 @@ class GoodsActionController extends Controller
 
         return redirect(admin_url('v2/goods/create').'?mode=batch-buy-limit-num&ids='.implode(',', $goodsIds))
             ->with('status', '已批量设置 '.$affected.' 个商品的限购数量');
+    }
+
+    private function renderBatchGroupPage(Request $request)
+    {
+        $goodsIds = $this->goodsActionService->parseGoodsIds((string) $request->query('ids', ''));
+        $defaults = $this->goodsActionService->batchGroupDefaults($goodsIds);
+
+        return view('admin-shell.goods.batch-group', [
+            'title' => '批量切换商品分类 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量切换商品分类',
+                'description' => '这是后台壳中的低风险批量动作页。当前只承接商品分类迁移，不触碰价格、库存、限购和启用状态。',
+                'meta' => '适合活动归档、运营重组或把一批商品统一归到新分类下。提交后只更新分类字段。',
+                'actions' => [
+                    ['label' => '返回商品概览', 'href' => admin_url('v2/goods')],
+                    ['label' => '批量启停商品', 'href' => admin_url('v2/goods/batch-status'), 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/goods/create').'?mode=batch-group',
+            'submitLabel' => '执行分类迁移',
+            'defaults' => $defaults,
+            'context' => $this->goodsActionService->batchGroupContext($goodsIds),
+            'groupOptions' => $this->adminSelectOptionService->goodsGroupOptions(),
+        ]);
+    }
+
+    private function submitBatchGroup(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+            'group_id' => ['required', 'integer', 'exists:goods_group,id'],
+            'mode' => ['nullable', 'string'],
+        ]);
+
+        $goodsIds = $this->goodsActionService->parseGoodsIds($validated['ids_text']);
+        if (empty($goodsIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的商品 ID。'])
+                ->withInput();
+        }
+
+        $targetGroupId = (int) $validated['group_id'];
+        $affected = $this->goodsActionService->updateGroupId($goodsIds, $targetGroupId);
+        $groupName = $this->adminSelectOptionService->goodsGroupOptions()[$targetGroupId] ?? (string) $targetGroupId;
+
+        return redirect(admin_url('v2/goods/create').'?mode=batch-group&ids='.implode(',', $goodsIds))
+            ->with('status', '已批量把 '.$affected.' 个商品切换到分类 '.$groupName);
     }
 }

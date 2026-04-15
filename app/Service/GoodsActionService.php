@@ -72,6 +72,43 @@ class GoodsActionService
         ];
     }
 
+    public function batchGroupDefaults(array $goodsIds = []): array
+    {
+        return [
+            'goods_ids' => $goodsIds,
+            'ids_text' => implode("\n", $goodsIds),
+            'group_id' => null,
+        ];
+    }
+
+    public function batchGroupContext(array $goodsIds): array
+    {
+        $goods = Goods::query()
+            ->with('group:id,gp_name')
+            ->whereIn('id', $goodsIds)
+            ->orderBy('id')
+            ->get(['id', 'group_id', 'gd_name', 'type', 'is_open']);
+
+        $matchedIds = $goods->pluck('id')->map(function ($id) {
+            return (int) $id;
+        })->all();
+
+        return [
+            'requestedCount' => count($goodsIds),
+            'matchedCount' => $goods->count(),
+            'missingIds' => array_values(array_diff($goodsIds, $matchedIds)),
+            'items' => $goods->map(function (Goods $goods) {
+                return [
+                    'id' => $goods->id,
+                    'name' => $goods->gd_name,
+                    'type' => $this->catalogTypeLabel((int) $goods->type),
+                    'status' => (int) $goods->is_open === Goods::STATUS_OPEN ? '已启用' : '已停用',
+                    'group_name' => optional($goods->group)->gp_name ?: '未分类',
+                ];
+            })->all(),
+        ];
+    }
+
     public function updateOpenStatus(array $goodsIds, int $isOpen): int
     {
         if (empty($goodsIds)) {
@@ -96,6 +133,20 @@ class GoodsActionService
             ->whereIn('id', $goodsIds)
             ->update([
                 'buy_limit_num' => $buyLimitNum,
+                'updated_at' => now(),
+            ]);
+    }
+
+    public function updateGroupId(array $goodsIds, int $groupId): int
+    {
+        if (empty($goodsIds)) {
+            return 0;
+        }
+
+        return Goods::query()
+            ->whereIn('id', $goodsIds)
+            ->update([
+                'group_id' => $groupId,
                 'updated_at' => now(),
             ]);
     }
