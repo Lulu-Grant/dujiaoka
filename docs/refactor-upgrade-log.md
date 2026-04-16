@@ -4407,3 +4407,31 @@
 下一步：
 
 - 继续沿着后台壳扩容主线推进，优先补齐 `coupon / order / pay / goods` 的下一批低风险批量动作
+
+### 164. 订单管理接入批量设置订单类型页
+
+摘要：
+
+- 订单管理现在新增了 [batch-type.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/order/batch-type.blade.php)，可以通过 `/admin/v2/order/batch-type` 先预览匹配订单，再统一调整订单类型。
+- [OrderActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/OrderActionController.php) 新增了 `editBatchType()` / `updateBatchType()`，把这条低风险批量动作接进现有订单动作控制器。
+- [OrderActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/OrderActionService.php) 新增了批量订单类型默认值和 `type` 批量更新逻辑，同时把匹配预览上下文扩到订单类型字段，继续保持写入边界只落在服务层。
+- [AdminShellOrderPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellOrderPageService.php) 已在订单概览页头补上“批量设置订单类型”入口。
+- [AdminShellResourceRegistry.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellResourceRegistry.php)、[AdminShellRouteRegistrarTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellRouteRegistrarTest.php)、[AdminShellOrderControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellOrderControllerTest.php) 和 [AdminShellPageStructureTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellPageStructureTest.php) 已把这条动作的路由、页头合同和展示/提交流程护栏补齐。
+
+影响范围：
+
+- 订单壳页从“批量状态 + 批量重置查询密码 + 导出”继续推进到了“第三个真实低风险批量动作”。
+- 后台壳在订单人工维护线上的能力更完整了，适合统一纠偏自动发货/人工处理类型，而不会误动订单状态、支付状态、履约链和通知链。
+- 当前这条动作只更新 `type`，并保持无事件写入，不会触发支付完成、发货或通知副作用。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellOrderControllerTest.php` 通过，结果为 `OK (15 tests, 122 assertions)`
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/AdminShellPageStructureTest.php` 通过，结果为 `OK (10 tests, 197 assertions)`
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/AdminShellRouteRegistrarTest.php` 通过，结果为 `OK (1 test, 23 assertions)`
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (290 tests, 1563 assertions)`
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过
+
+下一步：
+
+- 继续沿着后台壳扩容主线推进，优先补齐 `order / pay / goods` 的下一批低风险批量动作

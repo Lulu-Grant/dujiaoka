@@ -61,6 +61,8 @@ class AdminShellResourceRegistry
                 'actions' => [
                     ['method' => 'get', 'uri' => 'batch-status', 'action' => 'editBatchStatus', 'name' => 'batch-status', 'controller' => \App\Http\Controllers\AdminShell\OrderActionController::class],
                     ['method' => 'post', 'uri' => 'batch-status', 'action' => 'updateBatchStatus', 'name' => 'batch-status.update', 'controller' => \App\Http\Controllers\AdminShell\OrderActionController::class],
+                    ['method' => 'get', 'uri' => 'batch-type', 'action' => 'editBatchType', 'name' => 'batch-type', 'controller' => \App\Http\Controllers\AdminShell\OrderActionController::class],
+                    ['method' => 'post', 'uri' => 'batch-type', 'action' => 'updateBatchType', 'name' => 'batch-type.update', 'controller' => \App\Http\Controllers\AdminShell\OrderActionController::class],
                     ['method' => 'get', 'uri' => 'batch-reset-search-pwd', 'action' => 'batchResetSearchPassword', 'name' => 'batch-reset-search-pwd', 'controller' => \App\Http\Controllers\AdminShell\OrderActionController::class],
                     ['method' => 'post', 'uri' => 'batch-reset-search-pwd', 'action' => 'updateBatchResetSearchPassword', 'name' => 'batch-reset-search-pwd.update', 'controller' => \App\Http\Controllers\AdminShell\OrderActionController::class],
                     ['method' => 'get', 'uri' => '{id}/edit', 'action' => 'edit', 'name' => 'edit', 'controller' => \App\Http\Controllers\AdminShell\OrderActionController::class],

@@ -96,6 +96,32 @@ class OrderActionController extends Controller
         ]);
     }
 
+    public function editBatchType(Request $request)
+    {
+        $orderIds = $this->orderActionService->parseOrderIds((string) $request->query('ids', ''));
+        $defaults = $this->orderActionService->batchTypeDefaults($orderIds);
+        $context = $this->orderActionService->batchStatusContext($orderIds);
+
+        return view('admin-shell.order.batch-type', [
+            'title' => '批量设置订单类型 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量设置订单类型',
+                'description' => '这是后台壳中的低风险批量动作页。当前只承接订单类型的人工维护，不触碰状态、支付、履约和通知链。',
+                'meta' => '适合人工纠偏自动发货/人工处理类型，或统一整理一批历史订单。提交后只更新订单类型字段，并保持无事件写入。',
+                'actions' => [
+                    ['label' => '返回订单概览', 'href' => admin_url('v2/order')],
+                    ['label' => '批量更新订单状态', 'href' => admin_url('v2/order/batch-status'), 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/order/batch-type'),
+            'submitLabel' => '执行批量类型更新',
+            'defaults' => $defaults,
+            'context' => $context,
+            'typeOptions' => Order::getTypeMap(),
+        ]);
+    }
+
     public function updateBatchStatus(Request $request)
     {
         $validated = $request->validate([
@@ -123,6 +149,35 @@ class OrderActionController extends Controller
 
         return redirect(admin_url('v2/order/batch-status').'?ids='.implode(',', $orderIds))
             ->with('status', '已批量更新 '.$updated.' 个订单的状态为 '.$statusLabel);
+    }
+
+    public function updateBatchType(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+            'type' => ['required', 'integer'],
+        ]);
+
+        $orderIds = $this->orderActionService->parseOrderIds($validated['ids_text']);
+
+        if (empty($orderIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的订单 ID。'])
+                ->withInput();
+        }
+
+        $updated = $this->orderActionService->updateTypes($orderIds, (int) $validated['type']);
+
+        if ($updated === 0) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '没有找到可更新类型的订单。'])
+                ->withInput();
+        }
+
+        $typeLabel = Order::getTypeMap()[(int) $validated['type']] ?? (string) $validated['type'];
+
+        return redirect(admin_url('v2/order/batch-type').'?ids='.implode(',', $orderIds))
+            ->with('status', '已批量更新 '.$updated.' 个订单的类型为 '.$typeLabel);
     }
 
     public function batchResetSearchPassword(Request $request)

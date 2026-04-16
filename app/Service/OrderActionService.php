@@ -16,6 +16,15 @@ class OrderActionService
         ];
     }
 
+    public function batchTypeDefaults(array $orderIds = []): array
+    {
+        return [
+            'order_ids' => $orderIds,
+            'ids_text' => implode("\n", $orderIds),
+            'type' => Order::AUTOMATIC_DELIVERY,
+        ];
+    }
+
     public function batchStatusContext(array $orderIds): array
     {
         $orders = Order::query()
@@ -26,6 +35,7 @@ class OrderActionService
                 'id',
                 'order_sn',
                 'title',
+                'type',
                 'email',
                 'status',
                 'actual_price',
@@ -53,6 +63,7 @@ class OrderActionService
                     'title' => $order->title,
                     'email' => $order->email,
                     'status' => $this->statusLabel($order->status),
+                    'type' => $this->typeLabel($order->type),
                     'actual_price' => (string) $order->actual_price,
                     'goods' => optional($order->goods)->gd_name ?: '未关联商品',
                     'pay' => optional($order->pay)->pay_name ?: '未选择支付',
@@ -93,6 +104,32 @@ class OrderActionService
             'order_ids' => $orderIds,
             'ids_text' => implode("\n", $orderIds),
         ];
+    }
+
+    public function updateTypes(array $orderIds, int $type): int
+    {
+        if (empty($orderIds)) {
+            return 0;
+        }
+
+        $orders = Order::query()
+            ->whereIn('id', $orderIds)
+            ->orderBy('id')
+            ->get();
+
+        $updated = 0;
+
+        foreach ($orders as $order) {
+            $order->type = $type;
+
+            Order::withoutEvents(function () use ($order) {
+                $order->save();
+            });
+
+            $updated++;
+        }
+
+        return $updated;
     }
 
     public function batchResetContext(array $orderIds): array
