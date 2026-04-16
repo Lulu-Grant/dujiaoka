@@ -251,6 +251,43 @@ class AdminShellCouponControllerTest extends TestCase
         $this->assertSame(\App\Models\Coupon::STATUS_USE, (int) DB::table('coupons')->where('id', 95003)->value('is_use'));
     }
 
+    public function test_batch_discount_page_renders_coupon_discount_form_and_preview(): void
+    {
+        $this->seedCouponFixture(95004, 'XIGUA-DISCOUNT-1', '测试商品 G');
+        $this->seedCouponFixture(95005, 'XIGUA-DISCOUNT-2', '测试商品 H');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/coupon/batch-discount?ids=95004,95005');
+
+        $response->assertOk();
+        $response->assertSee('批量设置优惠码折扣');
+        $response->assertSee('目标折扣金额');
+        $response->assertSee('匹配预览');
+        $response->assertSee('XIGUA-DISCOUNT-1');
+        $response->assertSee('XIGUA-DISCOUNT-2');
+        $response->assertSee('当前折扣');
+    }
+
+    public function test_batch_discount_page_can_update_coupon_discount_with_mixed_separators(): void
+    {
+        $this->seedCouponFixture(95001, 'XIGUA-DISCOUNT-1', '测试商品 D');
+        $this->seedCouponFixture(95002, 'XIGUA-DISCOUNT-2', '测试商品 E');
+        $this->seedCouponFixture(95003, 'XIGUA-DISCOUNT-3', '测试商品 F');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/coupon/batch-discount', [
+                'ids_text' => "95001, 95002\n95003",
+                'discount' => '8.8',
+            ]);
+
+        $response->assertRedirect('/admin/v2/coupon/batch-discount?ids=95001,95002,95003');
+        $response->assertSessionHas('status', '已批量把 3 个优惠码的折扣调整为 8.8');
+
+        $this->assertSame('8.80', (string) DB::table('coupons')->where('id', 95001)->value('discount'));
+        $this->assertSame('8.80', (string) DB::table('coupons')->where('id', 95002)->value('discount'));
+        $this->assertSame('8.80', (string) DB::table('coupons')->where('id', 95003)->value('discount'));
+    }
+
     public function test_index_can_export_coupon_text_with_current_filters(): void
     {
         $this->seedCouponFixture(95001, 'XIGUA-STATE-1', '测试商品 D');

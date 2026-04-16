@@ -106,6 +106,11 @@ class AdminShellCouponPageService extends AbstractAdminShellPageService
             'variant' => 'secondary',
         ];
         $header['actions'][] = [
+            'label' => '批量设置折扣',
+            'href' => admin_url('v2/coupon/batch-discount'),
+            'variant' => 'secondary',
+        ];
+        $header['actions'][] = [
             'label' => '批量设置可用次数',
             'href' => admin_url('v2/coupon/batch-ret'),
             'variant' => 'secondary',

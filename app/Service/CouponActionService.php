@@ -70,6 +70,14 @@ class CouponActionService
         ];
     }
 
+    public function batchDiscountDefaults(array $couponIds = []): array
+    {
+        return [
+            'ids_text' => implode("\n", $couponIds),
+            'discount' => 0,
+        ];
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -151,6 +159,20 @@ class CouponActionService
             ->whereIn('id', $couponIds)
             ->update([
                 'is_use' => $isUse,
+                'updated_at' => now(),
+            ]);
+    }
+
+    public function updateDiscount(array $couponIds, float $discount): int
+    {
+        if (empty($couponIds)) {
+            return 0;
+        }
+
+        return Coupon::query()
+            ->whereIn('id', $couponIds)
+            ->update([
+                'discount' => $discount,
                 'updated_at' => now(),
             ]);
     }

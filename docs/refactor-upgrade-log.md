@@ -4379,3 +4379,31 @@
 下一步：
 
 - 继续沿着后台壳扩容主线推进，优先补齐 `pay / coupon / carmis / goods / order` 的下一批低风险批量动作
+
+### 163. 优惠码管理接入批量设置折扣页
+
+摘要：
+
+- 优惠码管理现在新增了 [batch-discount.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/coupon/batch-discount.blade.php)，可以通过 `/admin/v2/coupon/batch-discount` 先预览匹配优惠码，再统一调整折扣值。
+- [CouponActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/CouponActionController.php) 新增了 `editBatchDiscount()` / `updateBatchDiscount()`，把这条低风险批量动作接进现有优惠码动作控制器。
+- [CouponActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/CouponActionService.php) 新增了批量折扣默认值和 `discount` 批量更新逻辑，继续把写入边界压在服务层，不把逻辑回流到旧兼容层。
+- [AdminShellCouponPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellCouponPageService.php) 已在优惠码概览页头补上“批量设置折扣”入口。
+- [AdminShellResourceRegistry.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellResourceRegistry.php)、[AdminShellRouteRegistrarTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellRouteRegistrarTest.php)、[AdminShellCouponControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellCouponControllerTest.php) 和 [AdminShellPageStructureTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellPageStructureTest.php) 已把这条动作的路由、页头合同和展示/提交流程护栏补齐。
+
+影响范围：
+
+- 优惠码壳页从“启停 + 使用状态 + 可用次数 + 导出 + 批量生成”继续推进到了“又一个真实低风险批量维护动作”。
+- 后台壳在优惠码运营线上的人工维护能力更完整了，适合统一调价测试码、活动码和补发码，而不会误动可用次数、启停状态、使用状态和商品关联。
+- 当前这条动作只更新 `discount`，不改 `is_use`、`ret`、`is_open` 和 `goods` 关系，边界保持干净。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellCouponControllerTest.php` 通过，结果为 `OK (18 tests, 127 assertions)`
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/AdminShellPageStructureTest.php` 通过，结果为 `OK (10 tests, 196 assertions)`
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/AdminShellRouteRegistrarTest.php` 通过，结果为 `OK (1 test, 21 assertions)`
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (288 tests, 1537 assertions)`
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过
+
+下一步：
+
+- 继续沿着后台壳扩容主线推进，优先补齐 `coupon / order / pay / goods` 的下一批低风险批量动作

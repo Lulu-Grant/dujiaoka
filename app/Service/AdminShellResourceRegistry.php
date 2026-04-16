@@ -124,6 +124,8 @@ class AdminShellResourceRegistry
                     ['method' => 'post', 'uri' => 'batch-status', 'action' => 'updateBatchStatus', 'name' => 'batch-status.update', 'controller' => \App\Http\Controllers\AdminShell\CouponActionController::class],
                     ['method' => 'get', 'uri' => 'batch-use', 'action' => 'editBatchUse', 'name' => 'batch-use', 'controller' => \App\Http\Controllers\AdminShell\CouponActionController::class],
                     ['method' => 'post', 'uri' => 'batch-use', 'action' => 'updateBatchUse', 'name' => 'batch-use.update', 'controller' => \App\Http\Controllers\AdminShell\CouponActionController::class],
+                    ['method' => 'get', 'uri' => 'batch-discount', 'action' => 'editBatchDiscount', 'name' => 'batch-discount', 'controller' => \App\Http\Controllers\AdminShell\CouponActionController::class],
+                    ['method' => 'post', 'uri' => 'batch-discount', 'action' => 'updateBatchDiscount', 'name' => 'batch-discount.update', 'controller' => \App\Http\Controllers\AdminShell\CouponActionController::class],
                     ['method' => 'get', 'uri' => 'batch-ret', 'action' => 'editBatchRet', 'name' => 'batch-ret', 'controller' => \App\Http\Controllers\AdminShell\CouponActionController::class],
                     ['method' => 'post', 'uri' => 'batch-ret', 'action' => 'updateBatchRet', 'name' => 'batch-ret.update', 'controller' => \App\Http\Controllers\AdminShell\CouponActionController::class],
                     ['method' => 'get', 'uri' => '{id}/edit', 'action' => 'edit', 'name' => 'edit', 'controller' => \App\Http\Controllers\AdminShell\CouponActionController::class],
