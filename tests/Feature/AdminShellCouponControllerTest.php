@@ -194,6 +194,23 @@ class AdminShellCouponControllerTest extends TestCase
         $response->assertSee('当前可用次数');
     }
 
+    public function test_batch_use_page_renders_coupon_use_form_and_preview(): void
+    {
+        $this->seedCouponFixture(95004, 'XIGUA-USE-1', '测试商品 G');
+        $this->seedCouponFixture(95005, 'XIGUA-USE-2', '测试商品 H');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/coupon/batch-use?ids=95004,95005');
+
+        $response->assertOk();
+        $response->assertSee('批量设置优惠码使用状态');
+        $response->assertSee('目标使用状态');
+        $response->assertSee('匹配预览');
+        $response->assertSee('XIGUA-USE-1');
+        $response->assertSee('XIGUA-USE-2');
+        $response->assertSee('当前使用状态');
+    }
+
     public function test_batch_ret_page_can_update_coupon_ret_with_mixed_separators(): void
     {
         $this->seedCouponFixture(95001, 'XIGUA-RET-1', '测试商品 D');
@@ -212,6 +229,26 @@ class AdminShellCouponControllerTest extends TestCase
         $this->assertSame(6, (int) DB::table('coupons')->where('id', 95001)->value('ret'));
         $this->assertSame(6, (int) DB::table('coupons')->where('id', 95002)->value('ret'));
         $this->assertSame(6, (int) DB::table('coupons')->where('id', 95003)->value('ret'));
+    }
+
+    public function test_batch_use_page_can_update_coupon_usage_with_mixed_separators(): void
+    {
+        $this->seedCouponFixture(95001, 'XIGUA-USE-1', '测试商品 D');
+        $this->seedCouponFixture(95002, 'XIGUA-USE-2', '测试商品 E');
+        $this->seedCouponFixture(95003, 'XIGUA-USE-3', '测试商品 F');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/coupon/batch-use', [
+                'ids_text' => "95001, 95002\n95003",
+                'is_use' => (string) \App\Models\Coupon::STATUS_USE,
+            ]);
+
+        $response->assertRedirect('/admin/v2/coupon/batch-use?ids=95001,95002,95003');
+        $response->assertSessionHas('status', '已批量把 3 个优惠码的使用状态调整为 '.admin_trans('coupon.fields.status_use'));
+
+        $this->assertSame(\App\Models\Coupon::STATUS_USE, (int) DB::table('coupons')->where('id', 95001)->value('is_use'));
+        $this->assertSame(\App\Models\Coupon::STATUS_USE, (int) DB::table('coupons')->where('id', 95002)->value('is_use'));
+        $this->assertSame(\App\Models\Coupon::STATUS_USE, (int) DB::table('coupons')->where('id', 95003)->value('is_use'));
     }
 
     public function test_index_can_export_coupon_text_with_current_filters(): void

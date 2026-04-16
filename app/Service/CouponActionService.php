@@ -62,6 +62,14 @@ class CouponActionService
         ];
     }
 
+    public function batchUseDefaults(array $couponIds = []): array
+    {
+        return [
+            'ids_text' => implode("\n", $couponIds),
+            'is_use' => Coupon::STATUS_UNUSED,
+        ];
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -129,6 +137,20 @@ class CouponActionService
             ->whereIn('id', $couponIds)
             ->update([
                 'ret' => $ret,
+                'updated_at' => now(),
+            ]);
+    }
+
+    public function updateUseStatus(array $couponIds, int $isUse): int
+    {
+        if (empty($couponIds)) {
+            return 0;
+        }
+
+        return Coupon::query()
+            ->whereIn('id', $couponIds)
+            ->update([
+                'is_use' => $isUse,
                 'updated_at' => now(),
             ]);
     }

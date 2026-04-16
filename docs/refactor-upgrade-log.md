@@ -4272,6 +4272,32 @@
 
 - 继续沿着后台壳扩容主线推进，优先补齐 `goods / order / pay / coupon` 的下一批低风险批量动作
 
+### 160. 优惠码管理接入批量设置使用状态页
+
+摘要：
+
+- 优惠码管理现在新增了 [batch-use.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/coupon/batch-use.blade.php)，可以通过 `/admin/v2/coupon/batch-use` 先预览匹配优惠码，再统一切换使用状态。
+- [CouponActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/CouponActionController.php) 新增了 `editBatchUse()` / `updateBatchUse()`，把这条低风险批量动作接进现有优惠码动作控制器。
+- [CouponActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/CouponActionService.php) 新增了批量使用状态默认值和 `is_use` 批量更新逻辑，保持修改边界仍然只落在优惠码使用状态字段。
+- [AdminShellCouponPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellCouponPageService.php) 已在优惠码概览页头补上“批量设置使用状态”入口。
+- [AdminShellResourceRegistry.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellResourceRegistry.php) 已接入 `coupon/batch-use` 路由定义。
+
+影响范围：
+
+- 优惠码壳页从“单条编辑 + 批量启停 + 批量改次数 + 导出 + 批量生成”继续推进到了“第三个真实低风险批量动作”。
+- 后台壳在优惠码运营维护线上的人工操作能力更完整了，适合纠偏测试码、恢复误标记状态或统一标记已用优惠码，而不会误改折扣、可用次数、启用状态和关联商品。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellCouponControllerTest.php` 通过，结果为 `OK (16 tests, 114 assertions)`
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/AdminShellPageStructureTest.php --filter test_coupon_page_service_builds_table_and_detail_items` 通过，结果为 `OK (1 test, 20 assertions)`
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/AdminShellRouteRegistrarTest.php` 通过，结果为 `OK (1 test, 19 assertions)`
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (286 tests, 1521 assertions)`
+
+下一步：
+
+- 继续沿着后台壳扩容主线推进，优先处理 `order / pay / goods / coupon` 的下一批低风险批量动作
+
 ### 160. 优惠码管理接入批量设置可用次数页
 
 摘要：
