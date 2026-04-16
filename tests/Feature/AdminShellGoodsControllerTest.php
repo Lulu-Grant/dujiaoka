@@ -225,6 +225,39 @@ class AdminShellGoodsControllerTest extends TestCase
         $this->assertSame(96002, (int) DB::table('goods')->where('id', 96004)->value('group_id'));
     }
 
+    public function test_batch_sales_volume_page_renders_goods_preview(): void
+    {
+        $this->seedGoodsFixture();
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/goods/create?mode=batch-sales-volume&ids=96001,96004,99999');
+
+        $response->assertOk();
+        $response->assertSee('批量设置销量');
+        $response->assertSee('测试商品 Shell');
+        $response->assertSee('测试商品 Shell B');
+        $response->assertSee('99999');
+        $response->assertSee('当前销量：5');
+    }
+
+    public function test_batch_sales_volume_page_can_update_goods(): void
+    {
+        $this->seedGoodsFixture();
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/goods/create?mode=batch-sales-volume', [
+                'mode' => 'batch-sales-volume',
+                'ids_text' => "96001, 96004\n99999",
+                'sales_volume' => 88,
+            ]);
+
+        $response->assertRedirect('/admin/v2/goods/create?mode=batch-sales-volume&ids=96001,96004,99999');
+        $response->assertSessionHas('status', '已批量设置 2 个商品的销量');
+
+        $this->assertSame(88, (int) DB::table('goods')->where('id', 96001)->value('sales_volume'));
+        $this->assertSame(88, (int) DB::table('goods')->where('id', 96004)->value('sales_volume'));
+    }
+
     public function test_index_can_export_goods_text(): void
     {
         $this->seedGoodsFixture();

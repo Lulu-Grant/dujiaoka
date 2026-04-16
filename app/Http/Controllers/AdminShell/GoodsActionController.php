@@ -29,6 +29,10 @@ class GoodsActionController extends Controller
 
     public function create(Request $request)
     {
+        if ($this->isBatchSalesVolumeMode($request)) {
+            return $this->renderBatchSalesVolumePage($request);
+        }
+
         if ($this->isBatchBuyLimitMode($request)) {
             return $this->renderBatchBuyLimitPage($request);
         }
@@ -82,6 +86,10 @@ class GoodsActionController extends Controller
 
     public function store(Request $request)
     {
+        if ($this->isBatchSalesVolumeMode($request)) {
+            return $this->submitBatchSalesVolume($request);
+        }
+
         if ($this->isBatchBuyLimitMode($request)) {
             return $this->submitBatchBuyLimit($request);
         }
@@ -230,6 +238,11 @@ class GoodsActionController extends Controller
         return (string) $request->query('mode', $request->input('mode', '')) === 'batch-buy-limit-num';
     }
 
+    private function isBatchSalesVolumeMode(Request $request): bool
+    {
+        return (string) $request->query('mode', $request->input('mode', '')) === 'batch-sales-volume';
+    }
+
     private function isBatchGroupMode(Request $request): bool
     {
         return (string) $request->query('mode', $request->input('mode', '')) === 'batch-group';
@@ -259,6 +272,30 @@ class GoodsActionController extends Controller
         ]);
     }
 
+    private function renderBatchSalesVolumePage(Request $request)
+    {
+        $goodsIds = $this->goodsActionService->parseGoodsIds((string) $request->query('ids', ''));
+        $defaults = $this->goodsActionService->batchSalesVolumeDefaults($goodsIds);
+
+        return view('admin-shell.goods.batch-sales-volume', [
+            'title' => '批量设置销量 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量设置销量',
+                'description' => '这是后台壳中的低风险批量动作页。当前只承接商品销量的统一调整，不触碰价格、库存、分类和商品类型。',
+                'meta' => '适合活动期修正展示销量、导入历史销量或做人工运营纠偏。输入商品 ID 即可执行，支持换行、逗号和空格混输。',
+                'actions' => [
+                    ['label' => '返回商品概览', 'href' => admin_url('v2/goods')],
+                    ['label' => '批量设置限购数量', 'href' => admin_url('v2/goods/create').'?mode=batch-buy-limit-num', 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/goods/create').'?mode=batch-sales-volume',
+            'submitLabel' => '执行销量更新',
+            'defaults' => $defaults,
+            'context' => $this->goodsActionService->batchSalesVolumeContext($goodsIds),
+        ]);
+    }
+
     private function submitBatchBuyLimit(Request $request)
     {
         $validated = $request->validate([
@@ -278,6 +315,27 @@ class GoodsActionController extends Controller
 
         return redirect(admin_url('v2/goods/create').'?mode=batch-buy-limit-num&ids='.implode(',', $goodsIds))
             ->with('status', '已批量设置 '.$affected.' 个商品的限购数量');
+    }
+
+    private function submitBatchSalesVolume(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+            'sales_volume' => ['required', 'integer', 'min:0'],
+            'mode' => ['nullable', 'string'],
+        ]);
+
+        $goodsIds = $this->goodsActionService->parseGoodsIds($validated['ids_text']);
+        if (empty($goodsIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的商品 ID。'])
+                ->withInput();
+        }
+
+        $affected = $this->goodsActionService->updateSalesVolume($goodsIds, (int) $validated['sales_volume']);
+
+        return redirect(admin_url('v2/goods/create').'?mode=batch-sales-volume&ids='.implode(',', $goodsIds))
+            ->with('status', '已批量设置 '.$affected.' 个商品的销量');
     }
 
     private function renderBatchGroupPage(Request $request)

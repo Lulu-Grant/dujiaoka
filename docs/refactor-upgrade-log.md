@@ -4435,3 +4435,31 @@
 下一步：
 
 - 继续沿着后台壳扩容主线推进，优先补齐 `order / pay / goods` 的下一批低风险批量动作
+
+### 165. 商品管理接入批量设置销量页
+
+摘要：
+
+- 商品管理现在新增了 [batch-sales-volume.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/goods/batch-sales-volume.blade.php)，可以通过 `/admin/v2/goods/create?mode=batch-sales-volume` 先预览匹配商品，再统一调整销量。
+- [GoodsActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/GoodsActionController.php) 新增了 `batch-sales-volume` 模式下的页面渲染和提交处理，把这条低风险批量动作接进现有商品动作控制器。
+- [GoodsActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/GoodsActionService.php) 新增了批量销量默认值、匹配预览上下文和 `sales_volume` 批量更新逻辑，继续把写入边界压在服务层。
+- [AdminShellGoodsPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellGoodsPageService.php) 已在商品概览页头补上“批量设置销量”入口。
+- [AdminShellPageStructureTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellPageStructureTest.php)、[AdminShellRouteRegistrarTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellRouteRegistrarTest.php) 和 [AdminShellGoodsControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellGoodsControllerTest.php) 已把这条动作的页头合同、路由接线和展示/提交流程护栏补齐。
+
+影响范围：
+
+- 商品壳页从“启停 + 切换分类 + 限购维护 + 导出”继续推进到了“又一个真实低风险批量动作”。
+- 后台壳在商品运营维护线上的能力更完整了，适合人工修正展示销量、回填历史销量或统一做活动前后纠偏，而不会误动价格、库存、分类和商品类型。
+- 当前这条动作只更新 `sales_volume`，不改 `actual_price`、`in_stock`、`group_id`、`type` 和 `is_open`。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellGoodsControllerTest.php` 通过，结果为 `OK (18 tests, 123 assertions)`
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/AdminShellPageStructureTest.php` 通过，结果为 `OK (10 tests, 198 assertions)`
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/AdminShellRouteRegistrarTest.php` 通过，结果为 `OK (1 test, 25 assertions)`
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (292 tests, 1577 assertions)`
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过
+
+下一步：
+
+- 继续沿着后台壳扩容主线推进，优先补齐 `goods / pay` 的下一批低风险批量动作
