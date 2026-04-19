@@ -147,6 +147,31 @@ class OrderActionController extends Controller
         ]);
     }
 
+    public function editBatchTitle(Request $request)
+    {
+        $orderIds = $this->orderActionService->parseOrderIds((string) $request->query('ids', ''));
+        $defaults = $this->orderActionService->batchTitleDefaults($orderIds);
+        $context = $this->orderActionService->batchStatusContext($orderIds);
+
+        return view('admin-shell.order.batch-title', [
+            'title' => '批量设置订单标题 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量设置订单标题',
+                'description' => '这是后台壳中的低风险批量动作页。当前只承接订单标题的人工维护，不触碰状态、类型、支付、履约和通知链。',
+                'meta' => '适合统一补充活动标签、人工复核标记或整理一批历史订单标题。提交后只更新订单标题字段，并保持无事件写入。',
+                'actions' => [
+                    ['label' => '返回订单概览', 'href' => admin_url('v2/order')],
+                    ['label' => '批量设置附加信息', 'href' => admin_url('v2/order/batch-info'), 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/order/batch-title'),
+            'submitLabel' => '执行批量标题更新',
+            'defaults' => $defaults,
+            'context' => $context,
+        ]);
+    }
+
     public function updateBatchStatus(Request $request)
     {
         $validated = $request->validate([
@@ -230,6 +255,33 @@ class OrderActionController extends Controller
 
         return redirect(admin_url('v2/order/batch-info').'?ids='.implode(',', $orderIds))
             ->with('status', '已批量更新 '.$updated.' 个订单的附加信息');
+    }
+
+    public function updateBatchTitle(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+            'title' => ['required', 'string', 'max:255'],
+        ]);
+
+        $orderIds = $this->orderActionService->parseOrderIds($validated['ids_text']);
+
+        if (empty($orderIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的订单 ID。'])
+                ->withInput();
+        }
+
+        $updated = $this->orderActionService->updateTitles($orderIds, $validated['title']);
+
+        if ($updated === 0) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '没有找到可更新标题的订单。'])
+                ->withInput();
+        }
+
+        return redirect(admin_url('v2/order/batch-title').'?ids='.implode(',', $orderIds))
+            ->with('status', '已批量更新 '.$updated.' 个订单的标题');
     }
 
     public function batchResetSearchPassword(Request $request)

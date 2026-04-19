@@ -34,6 +34,15 @@ class OrderActionService
         ];
     }
 
+    public function batchTitleDefaults(array $orderIds = []): array
+    {
+        return [
+            'order_ids' => $orderIds,
+            'ids_text' => implode("\n", $orderIds),
+            'title' => '',
+        ];
+    }
+
     public function batchStatusContext(array $orderIds): array
     {
         $orders = Order::query()
@@ -156,6 +165,32 @@ class OrderActionService
 
         foreach ($orders as $order) {
             $order->info = $info;
+
+            Order::withoutEvents(function () use ($order) {
+                $order->save();
+            });
+
+            $updated++;
+        }
+
+        return $updated;
+    }
+
+    public function updateTitles(array $orderIds, string $title): int
+    {
+        if (empty($orderIds)) {
+            return 0;
+        }
+
+        $orders = Order::query()
+            ->whereIn('id', $orderIds)
+            ->orderBy('id')
+            ->get();
+
+        $updated = 0;
+
+        foreach ($orders as $order) {
+            $order->title = $title;
 
             Order::withoutEvents(function () use ($order) {
                 $order->save();

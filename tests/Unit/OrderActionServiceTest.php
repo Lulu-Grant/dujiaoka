@@ -31,6 +31,15 @@ class OrderActionServiceTest extends TestCase
         $this->assertSame($newPassword, $order->search_pwd);
     }
 
+    public function test_batch_title_defaults_start_empty_for_safe_review(): void
+    {
+        $defaults = app(OrderActionService::class)->batchTitleDefaults([98001, 98002]);
+
+        $this->assertSame([98001, 98002], $defaults['order_ids']);
+        $this->assertSame("98001\n98002", $defaults['ids_text']);
+        $this->assertSame('', $defaults['title']);
+    }
+
     private function seedOrderFixture(int $id): Order
     {
         DB::table('orders')->where('id', $id)->delete();
