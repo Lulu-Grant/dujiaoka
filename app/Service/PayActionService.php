@@ -93,6 +93,15 @@ class PayActionService
         ];
     }
 
+    public function batchNamePrefixDefaults(array $payIds = []): array
+    {
+        return [
+            'pay_ids' => $payIds,
+            'ids_text' => implode("\n", $payIds),
+            'name_prefix' => '',
+        ];
+    }
+
     public function batchClientContext(array $payIds): array
     {
         $pays = Pay::query()
@@ -179,6 +188,29 @@ class PayActionService
                 'pay_name' => $payName,
                 'updated_at' => now(),
             ]);
+    }
+
+    public function addNamePrefix(array $payIds, string $prefix): int
+    {
+        if (empty($payIds)) {
+            return 0;
+        }
+
+        $pays = Pay::query()
+            ->whereIn('id', $payIds)
+            ->orderBy('id')
+            ->get();
+
+        $updated = 0;
+
+        foreach ($pays as $pay) {
+            $pay->pay_name = $prefix.$pay->pay_name;
+            $pay->updated_at = now();
+            $pay->save();
+            $updated++;
+        }
+
+        return $updated;
     }
 
     public function createContext(?Pay $sourcePay = null): array

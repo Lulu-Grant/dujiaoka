@@ -730,6 +730,107 @@ class AdminShellPayControllerTest extends TestCase
         $this->assertSame('统一支付名称', DB::table('pays')->where('id', 93027)->value('pay_name'));
     }
 
+    public function test_batch_name_prefix_page_renders_pay_preview(): void
+    {
+        DB::table('pays')
+            ->whereIn('id', [93029, 93030])
+            ->orWhereIn('pay_check', ['batch-prefix-a', 'batch-prefix-b'])
+            ->delete();
+
+        DB::table('pays')->insert([
+            'id' => 93029,
+            'pay_name' => '前缀样板 A',
+            'merchant_id' => 'batch-prefix-a',
+            'merchant_key' => 'batch-prefix-a-key',
+            'merchant_pem' => 'batch-prefix-a-pem',
+            'pay_check' => 'batch-prefix-a',
+            'pay_client' => 1,
+            'pay_handleroute' => '/pay/batch-prefix-a',
+            'pay_method' => 1,
+            'is_open' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+        DB::table('pays')->insert([
+            'id' => 93030,
+            'pay_name' => '前缀样板 B',
+            'merchant_id' => 'batch-prefix-b',
+            'merchant_key' => 'batch-prefix-b-key',
+            'merchant_pem' => 'batch-prefix-b-pem',
+            'pay_check' => 'batch-prefix-b',
+            'pay_client' => 2,
+            'pay_handleroute' => '/pay/batch-prefix-b',
+            'pay_method' => 2,
+            'is_open' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/pay/batch-name-prefix?ids=93029,93030,93031');
+
+        $response->assertOk();
+        $response->assertSee('批量添加支付名称前缀');
+        $response->assertSee('待处理通道数');
+        $response->assertSee('前缀样板 A');
+        $response->assertSee('前缀样板 B');
+        $response->assertSee('93031');
+        $response->assertSee('未匹配 ID 数');
+    }
+
+    public function test_batch_name_prefix_page_can_update_pay_channels(): void
+    {
+        DB::table('pays')
+            ->whereIn('id', [93032, 93033])
+            ->orWhereIn('pay_check', ['batch-prefix-update-a', 'batch-prefix-update-b'])
+            ->delete();
+
+        DB::table('pays')->insert([
+            'id' => 93032,
+            'pay_name' => '前缀样板 A',
+            'merchant_id' => 'batch-prefix-a',
+            'merchant_key' => 'batch-prefix-a-key',
+            'merchant_pem' => 'batch-prefix-a-pem',
+            'pay_check' => 'batch-prefix-update-a',
+            'pay_client' => 1,
+            'pay_handleroute' => '/pay/batch-prefix-update-a',
+            'pay_method' => 1,
+            'is_open' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+        DB::table('pays')->insert([
+            'id' => 93033,
+            'pay_name' => '前缀样板 B',
+            'merchant_id' => 'batch-prefix-b',
+            'merchant_key' => 'batch-prefix-b-key',
+            'merchant_pem' => 'batch-prefix-b-pem',
+            'pay_check' => 'batch-prefix-update-b',
+            'pay_client' => 2,
+            'pay_handleroute' => '/pay/batch-prefix-update-b',
+            'pay_method' => 2,
+            'is_open' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/pay/batch-name-prefix', [
+                'ids_text' => "93032\n93033\n93034",
+                'name_prefix' => '[活动期] ',
+            ]);
+
+        $response->assertRedirect('/admin/v2/pay/batch-name-prefix?ids=93032,93033,93034');
+        $response->assertSessionHas('status', '已批量为 2 个支付通道添加名称前缀');
+
+        $this->assertSame('[活动期]前缀样板 A', DB::table('pays')->where('id', 93032)->value('pay_name'));
+        $this->assertSame('[活动期]前缀样板 B', DB::table('pays')->where('id', 93033)->value('pay_name'));
+    }
+
     public function test_edit_page_can_update_pay_channel(): void
     {
         DB::table('pays')->insert([

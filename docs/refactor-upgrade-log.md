@@ -4568,6 +4568,32 @@
 
 - 继续沿着后台壳扩容主线推进，优先补齐 `pay / goods / order` 的下一批低风险批量动作
 
+### 171. 支付通道接入批量添加名称前缀页
+
+摘要：
+
+- 支付通道管理现在新增了 [batch-name-prefix.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/pay/batch-name-prefix.blade.php)，可以通过 `/admin/v2/pay/batch-name-prefix` 先预览匹配通道，再统一为当前支付名称添加前缀。
+- [PayActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/PayActionController.php) 新增了 `batch-name-prefix` 模式下的页面渲染和提交处理，把这条低风险批量动作接进现有支付动作控制器。
+- [PayActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PayActionService.php) 新增了前缀默认值和 `pay_name` 前缀追加逻辑，继续把写入边界压在服务层。
+- [AdminShellPayPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellPayPageService.php) 已在支付概览页头补上“批量添加名称前缀”入口。
+- [AdminShellPayControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellPayControllerTest.php)、[PayActionServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/PayActionServiceTest.php)、[AdminShellPageStructureTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellPageStructureTest.php)、[AdminShellRouteRegistrarTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellRouteRegistrarTest.php) 和 [tests/Browser/admin-shell-smoke.sh](/Users/apple/Documents/dujiaoshuka/tests/Browser/admin-shell-smoke.sh) 已把这条动作的展示、默认值、页头合同、路由接线和页面巡检护栏补齐。
+
+影响范围：
+
+- 支付壳页从“启停 + 切换场景 + 切换方式 + 设置名称 + 导出”继续推进到了“又一个真实低风险批量动作”。
+- 后台壳在支付通道运营维护线上的能力更完整了，适合活动期统一标记通道、区分渠道批次或添加运营标签，而不会误动支付标识、商户密钥、支付场景、支付方式、回调路由和启用状态。
+- 当前这条动作只更新 `pay_name`，不改 `pay_check`、`merchant_id`、`merchant_key`、`merchant_pem`、`pay_client`、`pay_method`、`pay_handleroute` 和 `is_open`。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellPayControllerTest.php tests/Unit/AdminShellPageStructureTest.php tests/Unit/AdminShellRouteRegistrarTest.php tests/Unit/PayActionServiceTest.php` 通过，结果为 `OK (23 tests, 157 assertions)`
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (307 tests, 1687 assertions)`
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过
+
+下一步：
+
+- 继续沿着后台壳扩容主线推进，优先补齐 `goods / pay / coupon` 的下一批低风险批量动作
+
 ### 166. 商品管理接入批量设置排序页
 
 摘要：
