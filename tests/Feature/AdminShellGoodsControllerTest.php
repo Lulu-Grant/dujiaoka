@@ -291,6 +291,40 @@ class AdminShellGoodsControllerTest extends TestCase
         $this->assertSame(77, (int) DB::table('goods')->where('id', 96004)->value('ord'));
     }
 
+    public function test_batch_buy_prompt_page_renders_goods_preview(): void
+    {
+        $this->seedGoodsFixture();
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/goods/create?mode=batch-buy-prompt&ids=96001,96004,99999');
+
+        $response->assertOk();
+        $response->assertSee('批量设置购买提示');
+        $response->assertSee('测试商品 Shell');
+        $response->assertSee('测试商品 Shell B');
+        $response->assertSee('99999');
+        $response->assertSee('购买提示');
+        $response->assertSee('购买提示 B');
+    }
+
+    public function test_batch_buy_prompt_page_can_update_goods(): void
+    {
+        $this->seedGoodsFixture();
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/goods/create?mode=batch-buy-prompt', [
+                'mode' => 'batch-buy-prompt',
+                'ids_text' => "96001, 96004\n99999",
+                'buy_prompt' => '购买后请先查看发货说明',
+            ]);
+
+        $response->assertRedirect('/admin/v2/goods/create?mode=batch-buy-prompt&ids=96001,96004,99999');
+        $response->assertSessionHas('status', '已批量设置 2 个商品的购买提示');
+
+        $this->assertSame('购买后请先查看发货说明', DB::table('goods')->where('id', 96001)->value('buy_prompt'));
+        $this->assertSame('购买后请先查看发货说明', DB::table('goods')->where('id', 96004)->value('buy_prompt'));
+    }
+
     public function test_index_can_export_goods_text(): void
     {
         $this->seedGoodsFixture();

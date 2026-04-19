@@ -4542,6 +4542,32 @@
 
 - 继续沿着后台壳扩容主线推进，优先补齐 `pay / goods / coupon` 的下一批低风险批量动作
 
+### 170. 商品管理接入批量设置购买提示页
+
+摘要：
+
+- 商品管理现在新增了 [batch-buy-prompt.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/goods/batch-buy-prompt.blade.php)，可以通过 `/admin/v2/goods/create?mode=batch-buy-prompt` 先预览匹配商品，再统一调整购买提示。
+- [GoodsActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/GoodsActionController.php) 新增了 `batch-buy-prompt` 模式下的页面渲染和提交处理，把这条低风险批量动作接进现有商品动作控制器。
+- [GoodsActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/GoodsActionService.php) 新增了批量购买提示默认值、匹配预览上下文和 `buy_prompt` 批量更新逻辑，继续把写入边界压在服务层。
+- [AdminShellGoodsPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellGoodsPageService.php) 已在商品概览页头补上“批量设置购买提示”入口。
+- [AdminShellGoodsControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellGoodsControllerTest.php)、[AdminShellPageStructureTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellPageStructureTest.php) 和 [tests/Browser/admin-shell-smoke.sh](/Users/apple/Documents/dujiaoshuka/tests/Browser/admin-shell-smoke.sh) 已把这条动作的展示、页头合同和页面巡检护栏补齐。
+
+影响范围：
+
+- 商品壳页从“启停 + 切换分类 + 限购维护 + 销量维护 + 排序维护 + 导出”继续推进到了“又一个真实低风险批量动作”。
+- 后台壳在商品运营辅助维护线上的能力更完整了，适合活动前统一补充购买说明、交付提醒或售后提示，而不会误动价格、库存、分类、商品类型和启用状态。
+- 当前这条动作只更新 `buy_prompt`，不改 `actual_price`、`in_stock`、`group_id`、`type`、`sales_volume`、`ord` 和 `is_open`。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellGoodsControllerTest.php tests/Unit/AdminShellPageStructureTest.php` 通过，结果为 `OK (22 tests, 146 assertions)`
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (304 tests, 1669 assertions)`
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过
+
+下一步：
+
+- 继续沿着后台壳扩容主线推进，优先补齐 `pay / goods / order` 的下一批低风险批量动作
+
 ### 166. 商品管理接入批量设置排序页
 
 摘要：

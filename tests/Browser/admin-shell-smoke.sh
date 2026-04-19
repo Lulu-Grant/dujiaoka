@@ -85,6 +85,7 @@ assert_page "/admin/v2/goods/create" "新建商品 - 后台壳样板" "创建商
 assert_page "/admin/v2/goods/create?mode=batch-buy-limit-num" "批量设置限购数量 - 后台壳样板" "批量设置限购数量"
 assert_page "/admin/v2/goods/create?mode=batch-sales-volume" "批量设置销量 - 后台壳样板" "目标销量"
 assert_page "/admin/v2/goods/create?mode=batch-ord" "批量设置排序 - 后台壳样板" "目标排序"
+assert_page "/admin/v2/goods/create?mode=batch-buy-prompt" "批量设置购买提示 - 后台壳样板" "目标购买提示"
 assert_page "/admin/v2/coupon/batch-ret" "批量设置优惠码可用次数 - 后台壳样板" "目标可用次数"
 assert_page "/admin/v2/coupon/batch-code" "批量重生成优惠码内容 - 后台壳样板" "目标前缀"
 assert_page "/admin/v2/pay/batch-method" "批量切换支付方式 - 后台壳样板" "目标支付方式"

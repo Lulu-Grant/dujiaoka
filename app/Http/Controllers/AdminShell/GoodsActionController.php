@@ -29,6 +29,10 @@ class GoodsActionController extends Controller
 
     public function create(Request $request)
     {
+        if ($this->isBatchBuyPromptMode($request)) {
+            return $this->renderBatchBuyPromptPage($request);
+        }
+
         if ($this->isBatchOrdMode($request)) {
             return $this->renderBatchOrdPage($request);
         }
@@ -90,6 +94,10 @@ class GoodsActionController extends Controller
 
     public function store(Request $request)
     {
+        if ($this->isBatchBuyPromptMode($request)) {
+            return $this->submitBatchBuyPrompt($request);
+        }
+
         if ($this->isBatchOrdMode($request)) {
             return $this->submitBatchOrd($request);
         }
@@ -261,6 +269,11 @@ class GoodsActionController extends Controller
         return (string) $request->query('mode', $request->input('mode', '')) === 'batch-group';
     }
 
+    private function isBatchBuyPromptMode(Request $request): bool
+    {
+        return (string) $request->query('mode', $request->input('mode', '')) === 'batch-buy-prompt';
+    }
+
     private function renderBatchBuyLimitPage(Request $request)
     {
         $goodsIds = $this->goodsActionService->parseGoodsIds((string) $request->query('ids', ''));
@@ -333,6 +346,30 @@ class GoodsActionController extends Controller
         ]);
     }
 
+    private function renderBatchBuyPromptPage(Request $request)
+    {
+        $goodsIds = $this->goodsActionService->parseGoodsIds((string) $request->query('ids', ''));
+        $defaults = $this->goodsActionService->batchBuyPromptDefaults($goodsIds);
+
+        return view('admin-shell.goods.batch-buy-prompt', [
+            'title' => '批量设置购买提示 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量设置购买提示',
+                'description' => '这是后台壳中的低风险批量动作页。当前只承接商品购买提示的统一调整，不触碰价格、库存、分类、商品类型和启用状态。',
+                'meta' => '适合活动前统一补充购买说明、交付提醒或售后提示。输入商品 ID 即可执行，支持换行、逗号和空格混输。',
+                'actions' => [
+                    ['label' => '返回商品概览', 'href' => admin_url('v2/goods')],
+                    ['label' => '批量设置排序', 'href' => admin_url('v2/goods/create').'?mode=batch-ord', 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/goods/create').'?mode=batch-buy-prompt',
+            'submitLabel' => '执行购买提示更新',
+            'defaults' => $defaults,
+            'context' => $this->goodsActionService->batchBuyPromptContext($goodsIds),
+        ]);
+    }
+
     private function submitBatchBuyLimit(Request $request)
     {
         $validated = $request->validate([
@@ -394,6 +431,26 @@ class GoodsActionController extends Controller
 
         return redirect(admin_url('v2/goods/create').'?mode=batch-ord&ids='.implode(',', $goodsIds))
             ->with('status', '已批量设置 '.$affected.' 个商品的排序');
+    }
+
+    private function submitBatchBuyPrompt(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+            'buy_prompt' => ['nullable', 'string'],
+        ]);
+
+        $goodsIds = $this->goodsActionService->parseGoodsIds($validated['ids_text']);
+        if (empty($goodsIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的商品 ID。'])
+                ->withInput();
+        }
+
+        $affected = $this->goodsActionService->updateBuyPrompt($goodsIds, (string) ($validated['buy_prompt'] ?? ''));
+
+        return redirect(admin_url('v2/goods/create').'?mode=batch-buy-prompt&ids='.implode(',', $goodsIds))
+            ->with('status', '已批量设置 '.$affected.' 个商品的购买提示');
     }
 
     private function renderBatchGroupPage(Request $request)

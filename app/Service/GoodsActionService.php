@@ -63,6 +63,15 @@ class GoodsActionService
         ];
     }
 
+    public function batchBuyPromptDefaults(array $goodsIds = []): array
+    {
+        return [
+            'goods_ids' => $goodsIds,
+            'ids_text' => implode("\n", $goodsIds),
+            'buy_prompt' => '',
+        ];
+    }
+
     public function batchBuyLimitContext(array $goodsIds): array
     {
         $goods = Goods::query()
@@ -181,6 +190,33 @@ class GoodsActionService
         ];
     }
 
+    public function batchBuyPromptContext(array $goodsIds): array
+    {
+        $goods = Goods::query()
+            ->whereIn('id', $goodsIds)
+            ->orderBy('id')
+            ->get(['id', 'gd_name', 'type', 'is_open', 'buy_prompt']);
+
+        $matchedIds = $goods->pluck('id')->map(function ($id) {
+            return (int) $id;
+        })->all();
+
+        return [
+            'requestedCount' => count($goodsIds),
+            'matchedCount' => $goods->count(),
+            'missingIds' => array_values(array_diff($goodsIds, $matchedIds)),
+            'items' => $goods->map(function (Goods $goods) {
+                return [
+                    'id' => $goods->id,
+                    'name' => $goods->gd_name,
+                    'type' => $this->catalogTypeLabel((int) $goods->type),
+                    'status' => (int) $goods->is_open === Goods::STATUS_OPEN ? '已启用' : '已停用',
+                    'buy_prompt' => (string) $goods->buy_prompt,
+                ];
+            })->all(),
+        ];
+    }
+
     public function updateOpenStatus(array $goodsIds, int $isOpen): int
     {
         if (empty($goodsIds)) {
@@ -247,6 +283,20 @@ class GoodsActionService
             ->whereIn('id', $goodsIds)
             ->update([
                 'group_id' => $groupId,
+                'updated_at' => now(),
+            ]);
+    }
+
+    public function updateBuyPrompt(array $goodsIds, string $buyPrompt): int
+    {
+        if (empty($goodsIds)) {
+            return 0;
+        }
+
+        return Goods::query()
+            ->whereIn('id', $goodsIds)
+            ->update([
+                'buy_prompt' => $buyPrompt,
                 'updated_at' => now(),
             ]);
     }
