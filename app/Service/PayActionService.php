@@ -102,6 +102,15 @@ class PayActionService
         ];
     }
 
+    public function batchNameSuffixDefaults(array $payIds = []): array
+    {
+        return [
+            'pay_ids' => $payIds,
+            'ids_text' => implode("\n", $payIds),
+            'name_suffix' => '',
+        ];
+    }
+
     public function batchClientContext(array $payIds): array
     {
         $pays = Pay::query()
@@ -205,6 +214,29 @@ class PayActionService
 
         foreach ($pays as $pay) {
             $pay->pay_name = $prefix.$pay->pay_name;
+            $pay->updated_at = now();
+            $pay->save();
+            $updated++;
+        }
+
+        return $updated;
+    }
+
+    public function addNameSuffix(array $payIds, string $suffix): int
+    {
+        if (empty($payIds)) {
+            return 0;
+        }
+
+        $pays = Pay::query()
+            ->whereIn('id', $payIds)
+            ->orderBy('id')
+            ->get();
+
+        $updated = 0;
+
+        foreach ($pays as $pay) {
+            $pay->pay_name = $pay->pay_name.$suffix;
             $pay->updated_at = now();
             $pay->save();
             $updated++;

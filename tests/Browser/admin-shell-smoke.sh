@@ -93,6 +93,7 @@ assert_page "/admin/v2/coupon/batch-code-prefix" "批量添加优惠码前缀 - 
 assert_page "/admin/v2/pay/batch-method" "批量切换支付方式 - 后台壳样板" "目标支付方式"
 assert_page "/admin/v2/pay/batch-name" "批量设置支付名称 - 后台壳样板" "目标支付名称"
 assert_page "/admin/v2/pay/batch-name-prefix" "批量添加支付名称前缀 - 后台壳样板" "目标前缀"
+assert_page "/admin/v2/pay/batch-name-suffix" "批量添加支付名称后缀 - 后台壳样板" "目标后缀"
 assert_page "/admin/v2/order/batch-info" "批量设置订单附加信息 - 后台壳样板" "目标附加信息"
 assert_page "/admin/v2/order/batch-title" "批量设置订单标题 - 后台壳样板" "目标标题"
 assert_page "/admin/v2/order/batch-type" "批量设置订单类型 - 后台壳样板" "目标类型"

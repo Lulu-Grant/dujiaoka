@@ -4646,6 +4646,32 @@
 
 - 继续沿着后台壳扩容主线推进，优先补齐 `pay / order / coupon` 的下一批低风险批量动作
 
+### 175. 支付通道接入批量添加名称后缀页
+
+摘要：
+
+- 支付通道管理现在新增了 [batch-name-suffix.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/pay/batch-name-suffix.blade.php)，可以通过 `/admin/v2/pay/batch-name-suffix` 先预览命中的通道，再统一给当前支付名称添加后缀。
+- [PayActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/PayActionController.php) 新增了 `batch-name-suffix` 的页面渲染和提交处理，把这条低风险批量动作接进现有支付动作控制器。
+- [PayActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PayActionService.php) 新增了批量后缀默认值和 `pay_name` 后缀补充逻辑，继续把写入边界压在服务层。
+- [AdminShellPayPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellPayPageService.php) 已在支付通道概览页头补上“批量添加名称后缀”入口。
+- [AdminShellPayControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellPayControllerTest.php)、[PayActionServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/PayActionServiceTest.php)、[AdminShellPageStructureTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellPageStructureTest.php)、[AdminShellRouteRegistrarTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellRouteRegistrarTest.php) 和 [tests/Browser/admin-shell-smoke.sh](/Users/apple/Documents/dujiaoshuka/tests/Browser/admin-shell-smoke.sh) 已把这条动作的展示、默认值、路由注册和页面巡检护栏补齐。
+
+影响范围：
+
+- 支付壳页从“启停 + 场景 + 方式 + 名称 + 名称前缀 + 导出”继续推进到了“又一条真实低风险批量动作”。
+- 后台壳在支付运营维护线上的能力更完整了，适合活动期统一补充尾部标签、区分渠道批次或追加运营说明，而不会误动支付标识、商户密钥、支付场景、支付方式、回调路由和启用状态。
+- 当前这条动作只更新 `pay_name`，不改 `pay_check`、`merchant_id`、`merchant_key`、`merchant_pem`、`pay_client`、`pay_method`、`pay_handleroute` 和 `is_open`。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellPayControllerTest.php tests/Unit/PayActionServiceTest.php tests/Unit/AdminShellPageStructureTest.php tests/Unit/AdminShellRouteRegistrarTest.php` 通过
+- `./scripts/php74 vendor/bin/phpunit` 通过
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过
+
+下一步：
+
+- 继续沿着后台壳扩容主线推进，优先补齐 `goods / pay / order / coupon` 的下一批低风险批量动作
+
 ### 174. 订单管理接入批量设置订单标题页
 
 摘要：

@@ -105,4 +105,15 @@ class PayActionServiceTest extends TestCase
         $this->assertSame("301\n302", $defaults['ids_text']);
         $this->assertSame('', $defaults['name_prefix']);
     }
+
+    public function test_batch_name_suffix_defaults_start_empty_for_safe_review(): void
+    {
+        $service = $this->app->make(PayActionService::class);
+
+        $defaults = $service->batchNameSuffixDefaults([401, 402]);
+
+        $this->assertSame([401, 402], $defaults['pay_ids']);
+        $this->assertSame("401\n402", $defaults['ids_text']);
+        $this->assertSame('', $defaults['name_suffix']);
+    }
 }

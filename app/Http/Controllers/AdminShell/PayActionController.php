@@ -213,6 +213,30 @@ class PayActionController extends Controller
         ]);
     }
 
+    public function editBatchNameSuffix(Request $request)
+    {
+        $payIds = $this->payActionService->parsePayIds((string) $request->query('ids', ''));
+        $defaults = $this->payActionService->batchNameSuffixDefaults($payIds);
+
+        return view('admin-shell.pay.batch-name-suffix', [
+            'title' => '批量添加支付名称后缀 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量添加支付名称后缀',
+                'description' => '这是后台壳中的低风险批量动作页。当前只承接支付通道展示名称后缀调整，不触碰支付标识、商户密钥、场景、方式和回调路由。',
+                'meta' => '适合活动期统一补尾部标签、区分渠道批次或追加运营说明。提交后会把目标后缀追加到当前支付名称后面。',
+                'actions' => [
+                    ['label' => '返回支付通道概览', 'href' => admin_url('v2/pay')],
+                    ['label' => '批量添加名称前缀', 'href' => admin_url('v2/pay/batch-name-prefix'), 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/pay/batch-name-suffix'),
+            'submitLabel' => '执行批量后缀更新',
+            'defaults' => $defaults,
+            'context' => $this->payActionService->batchClientContext($payIds),
+        ]);
+    }
+
     public function updateBatchStatus(Request $request)
     {
         $validated = $request->validate([
@@ -318,6 +342,27 @@ class PayActionController extends Controller
 
         return redirect(admin_url('v2/pay/batch-name-prefix').'?ids='.implode(',', $payIds))
             ->with('status', '已批量为 '.$affected.' 个支付通道添加名称前缀');
+    }
+
+    public function updateBatchNameSuffix(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+            'name_suffix' => ['required', 'string', 'max:100'],
+        ]);
+
+        $payIds = $this->payActionService->parsePayIds($validated['ids_text']);
+        if (empty($payIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的支付通道 ID。'])
+                ->withInput();
+        }
+
+        $suffix = trim($validated['name_suffix']);
+        $affected = $this->payActionService->addNameSuffix($payIds, $suffix);
+
+        return redirect(admin_url('v2/pay/batch-name-suffix').'?ids='.implode(',', $payIds))
+            ->with('status', '已批量为 '.$affected.' 个支付通道添加名称后缀');
     }
 
     private function validatePayload(Request $request, bool $isCreate, ?Pay $pay = null): array

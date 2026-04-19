@@ -12,7 +12,7 @@ class AdminShellPayControllerTest extends TestCase
 {
     protected function tearDown(): void
     {
-        DB::table('pays')->whereIn('id', [93001, 93002, 93003, 93004, 93005, 93006, 93011, 93012, 93013, 93014, 93015, 93016, 93017, 93018, 93019, 93020, 93021, 93022, 93030, 93031])->delete();
+        DB::table('pays')->whereIn('id', [93001, 93002, 93003, 93004, 93005, 93006, 93011, 93012, 93013, 93014, 93015, 93016, 93017, 93018, 93019, 93020, 93021, 93022, 93029, 93030, 93031, 93032, 93033, 93035, 93036, 93037])->delete();
         DB::table('pays')->whereIn('pay_check', ['stripe', 'paypal', 'wechat-shell', 'alipay-shell', 'copy-shell-clone'])->delete();
         DB::table('admin_users')->where('username', 'admin-shell-tester')->delete();
 
@@ -829,6 +829,107 @@ class AdminShellPayControllerTest extends TestCase
 
         $this->assertSame('[活动期]前缀样板 A', DB::table('pays')->where('id', 93032)->value('pay_name'));
         $this->assertSame('[活动期]前缀样板 B', DB::table('pays')->where('id', 93033)->value('pay_name'));
+    }
+
+    public function test_batch_name_suffix_page_renders_pay_preview(): void
+    {
+        DB::table('pays')
+            ->whereIn('id', [93035, 93036])
+            ->orWhereIn('pay_check', ['batch-suffix-a', 'batch-suffix-b'])
+            ->delete();
+
+        DB::table('pays')->insert([
+            'id' => 93035,
+            'pay_name' => '后缀样板 A',
+            'merchant_id' => 'batch-suffix-a',
+            'merchant_key' => 'batch-suffix-a-key',
+            'merchant_pem' => 'batch-suffix-a-pem',
+            'pay_check' => 'batch-suffix-a',
+            'pay_client' => 1,
+            'pay_handleroute' => '/pay/batch-suffix-a',
+            'pay_method' => 1,
+            'is_open' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+        DB::table('pays')->insert([
+            'id' => 93036,
+            'pay_name' => '后缀样板 B',
+            'merchant_id' => 'batch-suffix-b',
+            'merchant_key' => 'batch-suffix-b-key',
+            'merchant_pem' => 'batch-suffix-b-pem',
+            'pay_check' => 'batch-suffix-b',
+            'pay_client' => 2,
+            'pay_handleroute' => '/pay/batch-suffix-b',
+            'pay_method' => 2,
+            'is_open' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/pay/batch-name-suffix?ids=93035,93036,93037');
+
+        $response->assertOk();
+        $response->assertSee('批量添加支付名称后缀');
+        $response->assertSee('待处理通道数');
+        $response->assertSee('后缀样板 A');
+        $response->assertSee('后缀样板 B');
+        $response->assertSee('93037');
+        $response->assertSee('未匹配 ID 数');
+    }
+
+    public function test_batch_name_suffix_page_can_update_pay_channels(): void
+    {
+        DB::table('pays')
+            ->whereIn('id', [93035, 93036])
+            ->orWhereIn('pay_check', ['batch-suffix-update-a', 'batch-suffix-update-b'])
+            ->delete();
+
+        DB::table('pays')->insert([
+            'id' => 93035,
+            'pay_name' => '后缀样板 A',
+            'merchant_id' => 'batch-suffix-a',
+            'merchant_key' => 'batch-suffix-a-key',
+            'merchant_pem' => 'batch-suffix-a-pem',
+            'pay_check' => 'batch-suffix-update-a',
+            'pay_client' => 1,
+            'pay_handleroute' => '/pay/batch-suffix-update-a',
+            'pay_method' => 1,
+            'is_open' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+        DB::table('pays')->insert([
+            'id' => 93036,
+            'pay_name' => '后缀样板 B',
+            'merchant_id' => 'batch-suffix-b',
+            'merchant_key' => 'batch-suffix-b-key',
+            'merchant_pem' => 'batch-suffix-b-pem',
+            'pay_check' => 'batch-suffix-update-b',
+            'pay_client' => 2,
+            'pay_handleroute' => '/pay/batch-suffix-update-b',
+            'pay_method' => 2,
+            'is_open' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/pay/batch-name-suffix', [
+                'ids_text' => "93035\n93036\n93037",
+                'name_suffix' => ' - 春季活动',
+            ]);
+
+        $response->assertRedirect('/admin/v2/pay/batch-name-suffix?ids=93035,93036,93037');
+        $response->assertSessionHas('status', '已批量为 2 个支付通道添加名称后缀');
+
+        $this->assertSame('后缀样板 A- 春季活动', DB::table('pays')->where('id', 93035)->value('pay_name'));
+        $this->assertSame('后缀样板 B- 春季活动', DB::table('pays')->where('id', 93036)->value('pay_name'));
     }
 
     public function test_edit_page_can_update_pay_channel(): void
