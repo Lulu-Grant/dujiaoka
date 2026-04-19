@@ -258,6 +258,39 @@ class AdminShellGoodsControllerTest extends TestCase
         $this->assertSame(88, (int) DB::table('goods')->where('id', 96004)->value('sales_volume'));
     }
 
+    public function test_batch_ord_page_renders_goods_preview(): void
+    {
+        $this->seedGoodsFixture();
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/goods/create?mode=batch-ord&ids=96001,96004,99999');
+
+        $response->assertOk();
+        $response->assertSee('批量设置排序');
+        $response->assertSee('测试商品 Shell');
+        $response->assertSee('测试商品 Shell B');
+        $response->assertSee('99999');
+        $response->assertSee('当前排序：2');
+    }
+
+    public function test_batch_ord_page_can_update_goods(): void
+    {
+        $this->seedGoodsFixture();
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/goods/create?mode=batch-ord', [
+                'mode' => 'batch-ord',
+                'ids_text' => "96001, 96004\n99999",
+                'ord' => 77,
+            ]);
+
+        $response->assertRedirect('/admin/v2/goods/create?mode=batch-ord&ids=96001,96004,99999');
+        $response->assertSessionHas('status', '已批量设置 2 个商品的排序');
+
+        $this->assertSame(77, (int) DB::table('goods')->where('id', 96001)->value('ord'));
+        $this->assertSame(77, (int) DB::table('goods')->where('id', 96004)->value('ord'));
+    }
+
     public function test_index_can_export_goods_text(): void
     {
         $this->seedGoodsFixture();

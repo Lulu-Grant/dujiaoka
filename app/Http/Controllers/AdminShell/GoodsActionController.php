@@ -29,6 +29,10 @@ class GoodsActionController extends Controller
 
     public function create(Request $request)
     {
+        if ($this->isBatchOrdMode($request)) {
+            return $this->renderBatchOrdPage($request);
+        }
+
         if ($this->isBatchSalesVolumeMode($request)) {
             return $this->renderBatchSalesVolumePage($request);
         }
@@ -86,6 +90,10 @@ class GoodsActionController extends Controller
 
     public function store(Request $request)
     {
+        if ($this->isBatchOrdMode($request)) {
+            return $this->submitBatchOrd($request);
+        }
+
         if ($this->isBatchSalesVolumeMode($request)) {
             return $this->submitBatchSalesVolume($request);
         }
@@ -243,6 +251,11 @@ class GoodsActionController extends Controller
         return (string) $request->query('mode', $request->input('mode', '')) === 'batch-sales-volume';
     }
 
+    private function isBatchOrdMode(Request $request): bool
+    {
+        return (string) $request->query('mode', $request->input('mode', '')) === 'batch-ord';
+    }
+
     private function isBatchGroupMode(Request $request): bool
     {
         return (string) $request->query('mode', $request->input('mode', '')) === 'batch-group';
@@ -296,6 +309,30 @@ class GoodsActionController extends Controller
         ]);
     }
 
+    private function renderBatchOrdPage(Request $request)
+    {
+        $goodsIds = $this->goodsActionService->parseGoodsIds((string) $request->query('ids', ''));
+        $defaults = $this->goodsActionService->batchOrdDefaults($goodsIds);
+
+        return view('admin-shell.goods.batch-ord', [
+            'title' => '批量设置排序 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量设置排序',
+                'description' => '这是后台壳中的低风险批量动作页。当前只承接商品排序值的统一调整，不触碰价格、库存、分类、商品类型和启用状态。',
+                'meta' => '适合活动编排、首页排序整理或批量归档前后调整展示顺序。输入商品 ID 即可执行，支持换行、逗号和空格混输。',
+                'actions' => [
+                    ['label' => '返回商品概览', 'href' => admin_url('v2/goods')],
+                    ['label' => '批量设置销量', 'href' => admin_url('v2/goods/create').'?mode=batch-sales-volume', 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/goods/create').'?mode=batch-ord',
+            'submitLabel' => '执行排序更新',
+            'defaults' => $defaults,
+            'context' => $this->goodsActionService->batchOrdContext($goodsIds),
+        ]);
+    }
+
     private function submitBatchBuyLimit(Request $request)
     {
         $validated = $request->validate([
@@ -336,6 +373,27 @@ class GoodsActionController extends Controller
 
         return redirect(admin_url('v2/goods/create').'?mode=batch-sales-volume&ids='.implode(',', $goodsIds))
             ->with('status', '已批量设置 '.$affected.' 个商品的销量');
+    }
+
+    private function submitBatchOrd(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+            'ord' => ['required', 'integer', 'min:0'],
+            'mode' => ['nullable', 'string'],
+        ]);
+
+        $goodsIds = $this->goodsActionService->parseGoodsIds($validated['ids_text']);
+        if (empty($goodsIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的商品 ID。'])
+                ->withInput();
+        }
+
+        $affected = $this->goodsActionService->updateOrd($goodsIds, (int) $validated['ord']);
+
+        return redirect(admin_url('v2/goods/create').'?mode=batch-ord&ids='.implode(',', $goodsIds))
+            ->with('status', '已批量设置 '.$affected.' 个商品的排序');
     }
 
     private function renderBatchGroupPage(Request $request)

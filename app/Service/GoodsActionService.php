@@ -54,6 +54,15 @@ class GoodsActionService
         ];
     }
 
+    public function batchOrdDefaults(array $goodsIds = []): array
+    {
+        return [
+            'goods_ids' => $goodsIds,
+            'ids_text' => implode("\n", $goodsIds),
+            'ord' => 1,
+        ];
+    }
+
     public function batchBuyLimitContext(array $goodsIds): array
     {
         $goods = Goods::query()
@@ -103,6 +112,33 @@ class GoodsActionService
                     'type' => $this->catalogTypeLabel((int) $goods->type),
                     'status' => (int) $goods->is_open === Goods::STATUS_OPEN ? '已启用' : '已停用',
                     'sales_volume' => (int) $goods->sales_volume,
+                ];
+            })->all(),
+        ];
+    }
+
+    public function batchOrdContext(array $goodsIds): array
+    {
+        $goods = Goods::query()
+            ->whereIn('id', $goodsIds)
+            ->orderBy('id')
+            ->get(['id', 'gd_name', 'type', 'is_open', 'ord']);
+
+        $matchedIds = $goods->pluck('id')->map(function ($id) {
+            return (int) $id;
+        })->all();
+
+        return [
+            'requestedCount' => count($goodsIds),
+            'matchedCount' => $goods->count(),
+            'missingIds' => array_values(array_diff($goodsIds, $matchedIds)),
+            'items' => $goods->map(function (Goods $goods) {
+                return [
+                    'id' => $goods->id,
+                    'name' => $goods->gd_name,
+                    'type' => $this->catalogTypeLabel((int) $goods->type),
+                    'status' => (int) $goods->is_open === Goods::STATUS_OPEN ? '已启用' : '已停用',
+                    'ord' => (int) $goods->ord,
                 ];
             })->all(),
         ];
@@ -183,6 +219,20 @@ class GoodsActionService
             ->whereIn('id', $goodsIds)
             ->update([
                 'sales_volume' => $salesVolume,
+                'updated_at' => now(),
+            ]);
+    }
+
+    public function updateOrd(array $goodsIds, int $ord): int
+    {
+        if (empty($goodsIds)) {
+            return 0;
+        }
+
+        return Goods::query()
+            ->whereIn('id', $goodsIds)
+            ->update([
+                'ord' => $ord,
                 'updated_at' => now(),
             ]);
     }
