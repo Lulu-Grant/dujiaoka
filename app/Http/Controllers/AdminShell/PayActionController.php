@@ -165,6 +165,30 @@ class PayActionController extends Controller
         ]);
     }
 
+    public function editBatchName(Request $request)
+    {
+        $payIds = $this->payActionService->parsePayIds((string) $request->query('ids', ''));
+        $defaults = $this->payActionService->batchNameDefaults($payIds);
+
+        return view('admin-shell.pay.batch-name', [
+            'title' => '批量设置支付名称 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量设置支付名称',
+                'description' => '这是后台壳中的低风险批量动作页。当前只承接支付通道展示名称调整，不触碰支付标识、商户密钥、场景、方式和回调路由。',
+                'meta' => '适合统一整理通道展示名、活动命名和渠道别名。提交后只更新支付名称字段。',
+                'actions' => [
+                    ['label' => '返回支付通道概览', 'href' => admin_url('v2/pay')],
+                    ['label' => '批量切换方式', 'href' => admin_url('v2/pay/batch-method'), 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/pay/batch-name'),
+            'submitLabel' => '执行批量支付名称更新',
+            'defaults' => $defaults,
+            'context' => $this->payActionService->batchClientContext($payIds),
+        ]);
+    }
+
     public function updateBatchStatus(Request $request)
     {
         $validated = $request->validate([
@@ -228,6 +252,27 @@ class PayActionController extends Controller
 
         return redirect(admin_url('v2/pay/batch-method').'?ids='.implode(',', $payIds))
             ->with('status', '已批量切换 '.$affected.' 个支付通道到 '.$methodLabel.' 方式');
+    }
+
+    public function updateBatchName(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+            'pay_name' => ['required', 'string', 'max:255'],
+        ]);
+
+        $payIds = $this->payActionService->parsePayIds($validated['ids_text']);
+        if (empty($payIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的支付通道 ID。'])
+                ->withInput();
+        }
+
+        $payName = trim($validated['pay_name']);
+        $affected = $this->payActionService->updateName($payIds, $payName);
+
+        return redirect(admin_url('v2/pay/batch-name').'?ids='.implode(',', $payIds))
+            ->with('status', '已批量更新 '.$affected.' 个支付通道的名称');
     }
 
     private function validatePayload(Request $request, bool $isCreate, ?Pay $pay = null): array

@@ -38,6 +38,8 @@ class AdminShellRouteRegistrarTest extends TestCase
         $this->assertRouteExists($routes, 'v2/pay/batch-client', 'POST', 'admin-shell.pay.batch-client.update');
         $this->assertRouteExists($routes, 'v2/pay/batch-method', 'GET', 'admin-shell.pay.batch-method');
         $this->assertRouteExists($routes, 'v2/pay/batch-method', 'POST', 'admin-shell.pay.batch-method.update');
+        $this->assertRouteExists($routes, 'v2/pay/batch-name', 'GET', 'admin-shell.pay.batch-name');
+        $this->assertRouteExists($routes, 'v2/pay/batch-name', 'POST', 'admin-shell.pay.batch-name.update');
         $this->assertRouteExists($routes, 'v2/pay/batch-status', 'GET', 'admin-shell.pay.batch-status');
         $this->assertRouteExists($routes, 'v2/pay/{id}/edit', 'POST', 'admin-shell.pay.update');
         $this->assertRouteExists($routes, 'v2/coupon/batch-status', 'POST', 'admin-shell.coupon.batch-status.update');

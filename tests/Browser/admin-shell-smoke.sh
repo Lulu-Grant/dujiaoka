@@ -87,6 +87,7 @@ assert_page "/admin/v2/goods/create?mode=batch-sales-volume" "批量设置销量
 assert_page "/admin/v2/goods/create?mode=batch-ord" "批量设置排序 - 后台壳样板" "目标排序"
 assert_page "/admin/v2/coupon/batch-ret" "批量设置优惠码可用次数 - 后台壳样板" "目标可用次数"
 assert_page "/admin/v2/pay/batch-method" "批量切换支付方式 - 后台壳样板" "目标支付方式"
+assert_page "/admin/v2/pay/batch-name" "批量设置支付名称 - 后台壳样板" "目标支付名称"
 assert_page "/admin/v2/order/batch-type" "批量设置订单类型 - 后台壳样板" "目标类型"
 assert_page "/admin/v2/order/batch-reset-search-pwd" "批量重置订单查询密码 - 后台壳样板" "批量重置订单查询密码"
 assert_page "/admin/v2/emailtpl/create" "新建邮件模板 - 后台壳样板" "创建邮件模板"

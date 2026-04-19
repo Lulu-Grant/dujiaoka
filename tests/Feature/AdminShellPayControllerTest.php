@@ -629,6 +629,107 @@ class AdminShellPayControllerTest extends TestCase
         $this->assertSame(2, (int) DB::table('pays')->where('id', 93019)->value('pay_method'));
     }
 
+    public function test_batch_name_page_renders_pay_preview(): void
+    {
+        DB::table('pays')
+            ->whereIn('id', [93023, 93024])
+            ->orWhereIn('pay_check', ['batch-name-a', 'batch-name-b'])
+            ->delete();
+
+        DB::table('pays')->insert([
+            'id' => 93023,
+            'pay_name' => '批量名称样板 A',
+            'merchant_id' => 'batch-name-a',
+            'merchant_key' => 'batch-name-a-key',
+            'merchant_pem' => 'batch-name-a-pem',
+            'pay_check' => 'batch-name-a',
+            'pay_client' => 1,
+            'pay_handleroute' => '/pay/batch-name-a',
+            'pay_method' => 1,
+            'is_open' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+        DB::table('pays')->insert([
+            'id' => 93024,
+            'pay_name' => '批量名称样板 B',
+            'merchant_id' => 'batch-name-b',
+            'merchant_key' => 'batch-name-b-key',
+            'merchant_pem' => 'batch-name-b-pem',
+            'pay_check' => 'batch-name-b',
+            'pay_client' => 2,
+            'pay_handleroute' => '/pay/batch-name-b',
+            'pay_method' => 2,
+            'is_open' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/pay/batch-name?ids=93023,93024,93025');
+
+        $response->assertOk();
+        $response->assertSee('批量设置支付名称');
+        $response->assertSee('待处理通道数');
+        $response->assertSee('批量名称样板 A');
+        $response->assertSee('批量名称样板 B');
+        $response->assertSee('93025');
+        $response->assertSee('未匹配 ID 数');
+    }
+
+    public function test_batch_name_page_can_update_pay_channels(): void
+    {
+        DB::table('pays')
+            ->whereIn('id', [93026, 93027])
+            ->orWhereIn('pay_check', ['batch-name-update-a', 'batch-name-update-b'])
+            ->delete();
+
+        DB::table('pays')->insert([
+            'id' => 93026,
+            'pay_name' => '批量名称样板 A',
+            'merchant_id' => 'batch-name-a',
+            'merchant_key' => 'batch-name-a-key',
+            'merchant_pem' => 'batch-name-a-pem',
+            'pay_check' => 'batch-name-update-a',
+            'pay_client' => 1,
+            'pay_handleroute' => '/pay/batch-name-update-a',
+            'pay_method' => 1,
+            'is_open' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+        DB::table('pays')->insert([
+            'id' => 93027,
+            'pay_name' => '批量名称样板 B',
+            'merchant_id' => 'batch-name-b',
+            'merchant_key' => 'batch-name-b-key',
+            'merchant_pem' => 'batch-name-b-pem',
+            'pay_check' => 'batch-name-update-b',
+            'pay_client' => 2,
+            'pay_handleroute' => '/pay/batch-name-update-b',
+            'pay_method' => 2,
+            'is_open' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/pay/batch-name', [
+                'ids_text' => "93026\n93027\n93028",
+                'pay_name' => '统一支付名称',
+            ]);
+
+        $response->assertRedirect('/admin/v2/pay/batch-name?ids=93026,93027,93028');
+        $response->assertSessionHas('status', '已批量更新 2 个支付通道的名称');
+
+        $this->assertSame('统一支付名称', DB::table('pays')->where('id', 93026)->value('pay_name'));
+        $this->assertSame('统一支付名称', DB::table('pays')->where('id', 93027)->value('pay_name'));
+    }
+
     public function test_edit_page_can_update_pay_channel(): void
     {
         DB::table('pays')->insert([

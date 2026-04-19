@@ -4464,6 +4464,32 @@
 
 - 继续沿着后台壳扩容主线推进，优先补齐 `goods / pay` 的下一批低风险批量动作
 
+### 167. 支付通道接入批量设置支付名称页
+
+摘要：
+
+- 支付通道管理现在新增了 [batch-name.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/pay/batch-name.blade.php)，可以通过 `/admin/v2/pay/batch-name` 先预览匹配通道，再统一调整支付名称。
+- [PayActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/PayActionController.php) 新增了 `batch-name` 模式下的页面渲染和提交处理，把这条低风险批量动作接进现有支付动作控制器。
+- [PayActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PayActionService.php) 新增了批量名称默认值和 `pay_name` 批量更新逻辑，继续把写入边界压在服务层。
+- [AdminShellPayPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellPayPageService.php) 已在支付概览页头补上“批量设置名称”入口。
+- [AdminShellPayControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellPayControllerTest.php)、[AdminShellPageStructureTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellPageStructureTest.php)、[AdminShellRouteRegistrarTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellRouteRegistrarTest.php)、[PayActionServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/PayActionServiceTest.php) 和 [tests/Browser/admin-shell-smoke.sh](/Users/apple/Documents/dujiaoshuka/tests/Browser/admin-shell-smoke.sh) 已把这条动作的展示、页头合同、路由接线、服务默认值和页面巡检护栏补齐。
+
+影响范围：
+
+- 支付壳页从“启停 + 切换场景 + 切换方式 + 导出 + 复制”继续推进到了“又一个真实低风险批量动作”。
+- 后台壳在支付通道运营维护线上的能力更完整了，适合统一整理支付展示名、活动命名或渠道别名，而不会误动支付标识、商户密钥、支付场景、支付方式和回调链路。
+- 当前这条动作只更新 `pay_name`，不改 `pay_check`、`merchant_id`、`merchant_key`、`merchant_pem`、`pay_client`、`pay_method`、`pay_handleroute` 和 `is_open`。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellPayControllerTest.php tests/Unit/AdminShellPageStructureTest.php tests/Unit/AdminShellRouteRegistrarTest.php tests/Unit/PayActionServiceTest.php` 通过，结果为 `OK (21 tests, 145 assertions)`
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (297 tests, 1607 assertions)`
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过
+
+下一步：
+
+- 继续沿着后台壳扩容主线推进，优先补齐 `order / pay / coupon` 的下一批低风险批量动作
+
 ### 166. 商品管理接入批量设置排序页
 
 摘要：

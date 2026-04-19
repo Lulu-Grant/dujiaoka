@@ -84,6 +84,15 @@ class PayActionService
         ];
     }
 
+    public function batchNameDefaults(array $payIds = []): array
+    {
+        return [
+            'pay_ids' => $payIds,
+            'ids_text' => implode("\n", $payIds),
+            'pay_name' => '',
+        ];
+    }
+
     public function batchClientContext(array $payIds): array
     {
         $pays = Pay::query()
@@ -154,6 +163,20 @@ class PayActionService
             ->whereIn('id', $payIds)
             ->update([
                 'pay_method' => $payMethod,
+                'updated_at' => now(),
+            ]);
+    }
+
+    public function updateName(array $payIds, string $payName): int
+    {
+        if (empty($payIds)) {
+            return 0;
+        }
+
+        return Pay::query()
+            ->whereIn('id', $payIds)
+            ->update([
+                'pay_name' => $payName,
                 'updated_at' => now(),
             ]);
     }
