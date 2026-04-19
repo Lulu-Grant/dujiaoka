@@ -15,7 +15,7 @@ class AdminShellCouponControllerTest extends TestCase
             DB::table('coupons_goods')->whereIn('coupons_id', $batchIds)->delete();
         }
         DB::table('coupons')->where('coupon', 'like', 'XIGUA-BATCH-%')->delete();
-        DB::table('coupons')->whereIn('id', [95001, 95002, 95003, 95004, 95005])->delete();
+        DB::table('coupons')->whereIn('id', [95001, 95002, 95003, 95004, 95005, 95006, 95007, 95008])->delete();
         DB::table('coupons_goods')->whereIn('coupons_id', [94001, 94002, 94003])->delete();
         DB::table('coupons')->whereIn('id', [94001, 94002, 94003])->delete();
         DB::table('coupons')->whereIn('coupon', ['XIGUA-5', 'XIGUA-DETAIL', 'XIGUA-CREATE', 'XIGUA-EDIT'])->delete();
@@ -334,6 +334,43 @@ class AdminShellCouponControllerTest extends TestCase
         $this->assertNotSame('XIGUA-CODE-1', $firstCode);
         $this->assertNotSame('XIGUA-CODE-2', $secondCode);
         $this->assertNotSame($firstCode, $secondCode);
+        $this->assertSame($beforeDiscount, (string) DB::table('coupons')->where('id', 95006)->value('discount'));
+        $this->assertSame(1, (int) DB::table('coupons')->where('id', 95006)->value('ret'));
+        $this->assertSame(\App\Models\Coupon::STATUS_OPEN, (int) DB::table('coupons')->where('id', 95006)->value('is_open'));
+    }
+
+    public function test_batch_code_prefix_page_renders_coupon_prefix_form_and_preview(): void
+    {
+        $this->seedCouponFixture(95006, 'XIGUA-PREFIX-1', '测试商品 I');
+        $this->seedCouponFixture(95007, 'XIGUA-PREFIX-2', '测试商品 J');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/coupon/batch-code-prefix?ids=95006,95007');
+
+        $response->assertOk();
+        $response->assertSee('批量添加优惠码前缀');
+        $response->assertSee('目标前缀');
+        $response->assertSee('XIGUA-PREFIX-1');
+        $response->assertSee('XIGUA-PREFIX-2');
+    }
+
+    public function test_batch_code_prefix_page_can_add_coupon_prefix_with_mixed_separators(): void
+    {
+        $this->seedCouponFixture(95006, 'XIGUA-PREFIX-1', '测试商品 I');
+        $this->seedCouponFixture(95007, 'XIGUA-PREFIX-2', '测试商品 J');
+        $beforeDiscount = (string) DB::table('coupons')->where('id', 95006)->value('discount');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/coupon/batch-code-prefix', [
+                'ids_text' => "95006, 95007\n95008",
+                'prefix' => 'SPRING-',
+            ]);
+
+        $response->assertRedirect('/admin/v2/coupon/batch-code-prefix?ids=95006,95007,95008');
+        $response->assertSessionHas('status', '已批量为 2 个优惠码添加前缀');
+
+        $this->assertSame('SPRING-XIGUA-PREFIX-1', (string) DB::table('coupons')->where('id', 95006)->value('coupon'));
+        $this->assertSame('SPRING-XIGUA-PREFIX-2', (string) DB::table('coupons')->where('id', 95007)->value('coupon'));
         $this->assertSame($beforeDiscount, (string) DB::table('coupons')->where('id', 95006)->value('discount'));
         $this->assertSame(1, (int) DB::table('coupons')->where('id', 95006)->value('ret'));
         $this->assertSame(\App\Models\Coupon::STATUS_OPEN, (int) DB::table('coupons')->where('id', 95006)->value('is_open'));

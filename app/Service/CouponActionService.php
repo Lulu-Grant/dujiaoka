@@ -87,6 +87,14 @@ class CouponActionService
         ];
     }
 
+    public function batchCodePrefixDefaults(array $couponIds = []): array
+    {
+        return [
+            'ids_text' => implode("\n", $couponIds),
+            'prefix' => '',
+        ];
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -203,6 +211,48 @@ class CouponActionService
 
         foreach ($coupons as $coupon) {
             $coupon->coupon = $this->buildUniqueCouponCode($normalizedPrefix, $length);
+            $coupon->updated_at = now();
+            $coupon->save();
+            $updated++;
+        }
+
+        return $updated;
+    }
+
+    public function addCodePrefix(array $couponIds, ?string $prefix): int
+    {
+        if (empty($couponIds)) {
+            return 0;
+        }
+
+        $normalizedPrefix = trim((string) $prefix);
+        if ($normalizedPrefix === '') {
+            return 0;
+        }
+
+        $coupons = Coupon::query()
+            ->whereIn('id', $couponIds)
+            ->orderBy('id')
+            ->get();
+
+        $updated = 0;
+
+        foreach ($coupons as $coupon) {
+            $baseCode = (string) $coupon->coupon;
+            $nextCode = $normalizedPrefix.$baseCode;
+            $attempts = 0;
+
+            while (
+                Coupon::query()
+                    ->where('coupon', $nextCode)
+                    ->where('id', '!=', $coupon->id)
+                    ->exists()
+            ) {
+                $attempts++;
+                $nextCode = $normalizedPrefix.$baseCode.'-'.$attempts;
+            }
+
+            $coupon->coupon = $nextCode;
             $coupon->updated_at = now();
             $coupon->save();
             $updated++;
