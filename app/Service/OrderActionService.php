@@ -25,6 +25,15 @@ class OrderActionService
         ];
     }
 
+    public function batchInfoDefaults(array $orderIds = []): array
+    {
+        return [
+            'order_ids' => $orderIds,
+            'ids_text' => implode("\n", $orderIds),
+            'info' => '',
+        ];
+    }
+
     public function batchStatusContext(array $orderIds): array
     {
         $orders = Order::query()
@@ -121,6 +130,32 @@ class OrderActionService
 
         foreach ($orders as $order) {
             $order->type = $type;
+
+            Order::withoutEvents(function () use ($order) {
+                $order->save();
+            });
+
+            $updated++;
+        }
+
+        return $updated;
+    }
+
+    public function updateInfos(array $orderIds, string $info): int
+    {
+        if (empty($orderIds)) {
+            return 0;
+        }
+
+        $orders = Order::query()
+            ->whereIn('id', $orderIds)
+            ->orderBy('id')
+            ->get();
+
+        $updated = 0;
+
+        foreach ($orders as $order) {
+            $order->info = $info;
 
             Order::withoutEvents(function () use ($order) {
                 $order->save();

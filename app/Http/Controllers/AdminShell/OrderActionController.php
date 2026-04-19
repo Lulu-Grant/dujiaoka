@@ -122,6 +122,31 @@ class OrderActionController extends Controller
         ]);
     }
 
+    public function editBatchInfo(Request $request)
+    {
+        $orderIds = $this->orderActionService->parseOrderIds((string) $request->query('ids', ''));
+        $defaults = $this->orderActionService->batchInfoDefaults($orderIds);
+        $context = $this->orderActionService->batchStatusContext($orderIds);
+
+        return view('admin-shell.order.batch-info', [
+            'title' => '批量设置订单附加信息 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量设置订单附加信息',
+                'description' => '这是后台壳中的低风险批量动作页。当前只承接订单附加信息的人工维护，不触碰状态、类型、支付、履约和通知链。',
+                'meta' => '适合统一补充运营备注、售后说明或人工核对标记。提交后只更新订单附加信息字段，并保持无事件写入。',
+                'actions' => [
+                    ['label' => '返回订单概览', 'href' => admin_url('v2/order')],
+                    ['label' => '批量设置订单类型', 'href' => admin_url('v2/order/batch-type'), 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/order/batch-info'),
+            'submitLabel' => '执行批量附加信息更新',
+            'defaults' => $defaults,
+            'context' => $context,
+        ]);
+    }
+
     public function updateBatchStatus(Request $request)
     {
         $validated = $request->validate([
@@ -178,6 +203,33 @@ class OrderActionController extends Controller
 
         return redirect(admin_url('v2/order/batch-type').'?ids='.implode(',', $orderIds))
             ->with('status', '已批量更新 '.$updated.' 个订单的类型为 '.$typeLabel);
+    }
+
+    public function updateBatchInfo(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+            'info' => ['nullable', 'string'],
+        ]);
+
+        $orderIds = $this->orderActionService->parseOrderIds($validated['ids_text']);
+
+        if (empty($orderIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的订单 ID。'])
+                ->withInput();
+        }
+
+        $updated = $this->orderActionService->updateInfos($orderIds, (string) ($validated['info'] ?? ''));
+
+        if ($updated === 0) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '没有找到可更新附加信息的订单。'])
+                ->withInput();
+        }
+
+        return redirect(admin_url('v2/order/batch-info').'?ids='.implode(',', $orderIds))
+            ->with('status', '已批量更新 '.$updated.' 个订单的附加信息');
     }
 
     public function batchResetSearchPassword(Request $request)

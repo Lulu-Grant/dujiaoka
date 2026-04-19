@@ -4490,6 +4490,32 @@
 
 - 继续沿着后台壳扩容主线推进，优先补齐 `order / pay / coupon` 的下一批低风险批量动作
 
+### 168. 订单管理接入批量设置附加信息页
+
+摘要：
+
+- 订单管理现在新增了 [batch-info.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/order/batch-info.blade.php)，可以通过 `/admin/v2/order/batch-info` 先预览匹配订单，再统一调整附加信息。
+- [OrderActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/OrderActionController.php) 新增了 `batch-info` 模式下的页面渲染和提交处理，把这条低风险批量动作接进现有订单动作控制器。
+- [OrderActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/OrderActionService.php) 新增了批量附加信息默认值和 `info` 批量更新逻辑，继续把写入边界压在服务层。
+- [AdminShellOrderPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellOrderPageService.php) 已在订单概览页头补上“批量设置附加信息”入口。
+- [AdminShellOrderControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellOrderControllerTest.php)、[AdminShellPageStructureTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellPageStructureTest.php)、[AdminShellRouteRegistrarTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellRouteRegistrarTest.php) 和 [tests/Browser/admin-shell-smoke.sh](/Users/apple/Documents/dujiaoshuka/tests/Browser/admin-shell-smoke.sh) 已把这条动作的展示、页头合同、路由接线和页面巡检护栏补齐。
+
+影响范围：
+
+- 订单壳页从“批量更新状态 + 批量设置类型 + 批量重置查询密码 + 导出”继续推进到了“又一个真实低风险批量动作”。
+- 后台壳在订单人工维护线上的能力更完整了，适合统一补充运营备注、售后说明或人工核对标记，而不会误动订单状态机、支付、履约和通知链。
+- 当前这条动作只更新 `info`，不改 `status`、`type`、`search_pwd`、`trade_no`、金额字段和支付关联。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellOrderControllerTest.php tests/Unit/AdminShellPageStructureTest.php tests/Unit/AdminShellRouteRegistrarTest.php` 通过，结果为 `OK (17 tests, 145 assertions)`
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (299 tests, 1633 assertions)`
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过
+
+下一步：
+
+- 继续沿着后台壳扩容主线推进，优先补齐 `coupon / order / pay` 的下一批低风险批量动作
+
 ### 166. 商品管理接入批量设置排序页
 
 摘要：
