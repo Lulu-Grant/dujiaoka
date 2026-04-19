@@ -31,6 +31,15 @@ class CouponActionServiceTest extends TestCase
         $this->assertSame(1, $defaults['ret']);
     }
 
+    public function test_batch_code_defaults_provide_safe_regeneration_values(): void
+    {
+        $defaults = app(CouponActionService::class)->batchCodeDefaults([1, 2]);
+
+        $this->assertSame("1\n2", $defaults['ids_text']);
+        $this->assertSame('XIGUA-', $defaults['prefix']);
+        $this->assertSame(6, $defaults['length']);
+    }
+
     public function test_create_batch_creates_multiple_coupons_with_shared_payload(): void
     {
         DB::table('goods')->updateOrInsert(

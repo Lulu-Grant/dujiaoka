@@ -78,6 +78,15 @@ class CouponActionService
         ];
     }
 
+    public function batchCodeDefaults(array $couponIds = []): array
+    {
+        return [
+            'ids_text' => implode("\n", $couponIds),
+            'prefix' => $this->couponCodePrefix(),
+            'length' => 6,
+        ];
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -175,6 +184,31 @@ class CouponActionService
                 'discount' => $discount,
                 'updated_at' => now(),
             ]);
+    }
+
+    public function regenerateCodes(array $couponIds, ?string $prefix, int $length): int
+    {
+        if (empty($couponIds)) {
+            return 0;
+        }
+
+        $coupons = Coupon::query()
+            ->whereIn('id', $couponIds)
+            ->orderBy('id')
+            ->get();
+
+        $normalizedPrefix = $this->normalizePrefix($prefix);
+        $length = max(4, $length);
+        $updated = 0;
+
+        foreach ($coupons as $coupon) {
+            $coupon->coupon = $this->buildUniqueCouponCode($normalizedPrefix, $length);
+            $coupon->updated_at = now();
+            $coupon->save();
+            $updated++;
+        }
+
+        return $updated;
     }
 
     public function editDefaults(Coupon $coupon): array

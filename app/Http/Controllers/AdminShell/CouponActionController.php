@@ -129,6 +129,11 @@ class CouponActionController extends Controller
         return $this->renderBatchDiscountPage($request);
     }
 
+    public function editBatchCode(Request $request)
+    {
+        return $this->renderBatchCodePage($request);
+    }
+
     public function updateBatchRet(Request $request)
     {
         return $this->storeBatchRet($request);
@@ -142,6 +147,11 @@ class CouponActionController extends Controller
     public function updateBatchDiscount(Request $request)
     {
         return $this->storeBatchDiscount($request);
+    }
+
+    public function updateBatchCode(Request $request)
+    {
+        return $this->storeBatchCode($request);
     }
 
     private function validatePayload(Request $request): array
@@ -304,6 +314,30 @@ class CouponActionController extends Controller
         ]);
     }
 
+    private function renderBatchCodePage(Request $request)
+    {
+        $couponIds = $this->couponActionService->parseCouponIds((string) $request->query('ids', $request->input('ids_text', '')));
+        $defaults = $this->couponActionService->batchCodeDefaults($couponIds);
+
+        return view('admin-shell.coupon.batch-code', [
+            'title' => '批量重生成优惠码内容 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量重生成优惠码内容',
+                'description' => '这是后台壳中的低风险维护页。当前只承接优惠码内容重生成，不改折扣、可用次数、启用状态、使用状态和关联商品。',
+                'meta' => '适合统一更新活动期优惠码前缀、重整测试码样式或人工换码。提交后会按前缀和长度逐个生成新的唯一优惠码内容。',
+                'actions' => [
+                    ['label' => '返回优惠码概览', 'href' => admin_url('v2/coupon')],
+                    ['label' => '批量设置折扣', 'href' => admin_url('v2/coupon/batch-discount'), 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/coupon/batch-code'),
+            'submitLabel' => '执行批量换码',
+            'defaults' => $defaults,
+            'context' => $this->couponActionService->batchStatusContext($couponIds),
+        ]);
+    }
+
     private function storeBatchRet(Request $request)
     {
         $payload = $request->validate([
@@ -369,6 +403,32 @@ class CouponActionController extends Controller
 
         return redirect(admin_url('v2/coupon/batch-discount?ids='.implode(',', $couponIds)))
             ->with('status', '已批量把 '.$affected.' 个优惠码的折扣调整为 '.$discount);
+    }
+
+    private function storeBatchCode(Request $request)
+    {
+        $payload = $request->validate([
+            'ids_text' => ['required', 'string'],
+            'prefix' => ['nullable', 'string', 'max:64'],
+            'length' => ['required', 'integer', 'min:4', 'max:32'],
+        ]);
+
+        $couponIds = $this->couponActionService->parseCouponIds($payload['ids_text']);
+        if (empty($couponIds)) {
+            return redirect()
+                ->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的优惠码 ID。'])
+                ->withInput();
+        }
+
+        $affected = $this->couponActionService->regenerateCodes(
+            $couponIds,
+            $payload['prefix'] ?? null,
+            (int) $payload['length']
+        );
+
+        return redirect(admin_url('v2/coupon/batch-code?ids='.implode(',', $couponIds)))
+            ->with('status', '已批量重生成 '.$affected.' 个优惠码内容');
     }
 
     private function isBatchMode(Request $request): bool

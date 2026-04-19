@@ -288,6 +288,57 @@ class AdminShellCouponControllerTest extends TestCase
         $this->assertSame('8.80', (string) DB::table('coupons')->where('id', 95003)->value('discount'));
     }
 
+    public function test_batch_code_page_renders_coupon_code_form_and_preview(): void
+    {
+        DB::table('coupons_goods')->whereIn('coupons_id', [95006, 95007])->delete();
+        DB::table('coupons')->whereIn('id', [95006, 95007])->delete();
+
+        $this->seedCouponFixture(95006, 'XIGUA-CODE-1', '测试商品 I');
+        $this->seedCouponFixture(95007, 'XIGUA-CODE-2', '测试商品 J');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/coupon/batch-code?ids=95006,95007');
+
+        $response->assertOk();
+        $response->assertSee('批量重生成优惠码内容');
+        $response->assertSee('目标前缀');
+        $response->assertSee('随机段长度');
+        $response->assertSee('XIGUA-CODE-1');
+        $response->assertSee('XIGUA-CODE-2');
+    }
+
+    public function test_batch_code_page_can_regenerate_coupon_codes_with_mixed_separators(): void
+    {
+        DB::table('coupons_goods')->whereIn('coupons_id', [95006, 95007])->delete();
+        DB::table('coupons')->whereIn('id', [95006, 95007])->delete();
+
+        $this->seedCouponFixture(95006, 'XIGUA-CODE-1', '测试商品 I');
+        $this->seedCouponFixture(95007, 'XIGUA-CODE-2', '测试商品 J');
+        $beforeDiscount = (string) DB::table('coupons')->where('id', 95006)->value('discount');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/coupon/batch-code', [
+                'ids_text' => "95006, 95007\n95008",
+                'prefix' => 'SPRING-',
+                'length' => 5,
+            ]);
+
+        $response->assertRedirect('/admin/v2/coupon/batch-code?ids=95006,95007,95008');
+        $response->assertSessionHas('status', '已批量重生成 2 个优惠码内容');
+
+        $firstCode = (string) DB::table('coupons')->where('id', 95006)->value('coupon');
+        $secondCode = (string) DB::table('coupons')->where('id', 95007)->value('coupon');
+
+        $this->assertStringStartsWith('SPRING-', $firstCode);
+        $this->assertStringStartsWith('SPRING-', $secondCode);
+        $this->assertNotSame('XIGUA-CODE-1', $firstCode);
+        $this->assertNotSame('XIGUA-CODE-2', $secondCode);
+        $this->assertNotSame($firstCode, $secondCode);
+        $this->assertSame($beforeDiscount, (string) DB::table('coupons')->where('id', 95006)->value('discount'));
+        $this->assertSame(1, (int) DB::table('coupons')->where('id', 95006)->value('ret'));
+        $this->assertSame(\App\Models\Coupon::STATUS_OPEN, (int) DB::table('coupons')->where('id', 95006)->value('is_open'));
+    }
+
     public function test_index_can_export_coupon_text_with_current_filters(): void
     {
         $this->seedCouponFixture(95001, 'XIGUA-STATE-1', '测试商品 D');

@@ -4516,6 +4516,32 @@
 
 - 继续沿着后台壳扩容主线推进，优先补齐 `coupon / order / pay` 的下一批低风险批量动作
 
+### 169. 优惠码管理接入批量重生成优惠码内容页
+
+摘要：
+
+- 优惠码管理现在新增了 [batch-code.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/coupon/batch-code.blade.php)，可以通过 `/admin/v2/coupon/batch-code` 先预览匹配优惠码，再统一重生成新的优惠码内容。
+- [CouponActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/CouponActionController.php) 新增了 `batch-code` 模式下的页面渲染和提交处理，把这条低风险维护动作接进现有优惠码动作控制器。
+- [CouponActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/CouponActionService.php) 新增了批量换码默认值和基于前缀/长度的唯一优惠码重生成逻辑，继续把写入边界压在服务层。
+- [AdminShellCouponPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellCouponPageService.php) 已在优惠码概览页头补上“批量重生成优惠码”入口。
+- [AdminShellCouponControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellCouponControllerTest.php)、[CouponActionServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/CouponActionServiceTest.php)、[AdminShellPageStructureTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellPageStructureTest.php)、[AdminShellRouteRegistrarTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellRouteRegistrarTest.php) 和 [tests/Browser/admin-shell-smoke.sh](/Users/apple/Documents/dujiaoshuka/tests/Browser/admin-shell-smoke.sh) 已把这条动作的展示、默认值、页头合同、路由接线和页面巡检护栏补齐。
+
+影响范围：
+
+- 优惠码壳页从“启停 + 使用状态 + 折扣 + 可用次数 + 导出 + 批量生成”继续推进到了“又一个真实低风险维护动作”。
+- 后台壳在优惠码人工维护线上的能力更完整了，适合统一更新活动期优惠码前缀、重整测试码样式或人工换码，而不会误动折扣、可用次数、启用状态、使用状态和关联商品。
+- 当前这条动作只更新 `coupon`，不改 `discount`、`ret`、`is_open`、`is_use` 和 `goods` 关联。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellCouponControllerTest.php tests/Unit/AdminShellPageStructureTest.php tests/Unit/AdminShellRouteRegistrarTest.php tests/Unit/CouponActionServiceTest.php` 通过，结果为 `OK (20 tests, 144 assertions)`
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (302 tests, 1656 assertions)`
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过
+
+下一步：
+
+- 继续沿着后台壳扩容主线推进，优先补齐 `pay / goods / coupon` 的下一批低风险批量动作
+
 ### 166. 商品管理接入批量设置排序页
 
 摘要：
