@@ -123,10 +123,11 @@ class AdminShellPageStructureTest extends TestCase
         $this->assertSame('批量设置销量', $header['actions'][3]['label']);
         $this->assertSame('批量设置排序', $header['actions'][4]['label']);
         $this->assertSame('批量设置购买提示', $header['actions'][5]['label']);
-        $this->assertSame('导出文本', $header['actions'][6]['label']);
-        $this->assertSame('导出 CSV', $header['actions'][7]['label']);
-        $this->assertStringContainsString('export=text', $header['actions'][6]['href']);
-        $this->assertStringContainsString('export=csv', $header['actions'][7]['href']);
+        $this->assertSame('批量设置商品说明', $header['actions'][6]['label']);
+        $this->assertSame('导出文本', $header['actions'][7]['label']);
+        $this->assertSame('导出 CSV', $header['actions'][8]['label']);
+        $this->assertStringContainsString('export=text', $header['actions'][7]['href']);
+        $this->assertStringContainsString('export=csv', $header['actions'][8]['href']);
         $this->assertSame('test', $requestFilters['gd_name']);
         $this->assertSame('商品类型', $filters['fields'][2]['label']);
         $this->assertSame('商品详情', $showHeader['title']);

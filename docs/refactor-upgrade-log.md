@@ -4594,6 +4594,32 @@
 
 - 继续沿着后台壳扩容主线推进，优先补齐 `goods / pay / coupon` 的下一批低风险批量动作
 
+### 172. 商品管理接入批量设置商品说明页
+
+摘要：
+
+- 商品管理现在新增了 [batch-description.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/goods/batch-description.blade.php)，可以通过 `/admin/v2/goods/create?mode=batch-description` 先预览命中的商品，再统一调整商品说明。
+- [GoodsActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/GoodsActionController.php) 新增了 `batch-description` 模式下的页面渲染和提交处理，把这条低风险批量动作接进现有商品动作控制器。
+- [GoodsActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/GoodsActionService.php) 新增了批量商品说明默认值、匹配预览上下文和 `description` 批量更新逻辑，继续把写入边界压在服务层。
+- [AdminShellGoodsPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellGoodsPageService.php) 已在商品概览页头补上“批量设置商品说明”入口。
+- [AdminShellGoodsControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellGoodsControllerTest.php)、[GoodsActionServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/GoodsActionServiceTest.php)、[AdminShellPageStructureTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellPageStructureTest.php) 和 [tests/Browser/admin-shell-smoke.sh](/Users/apple/Documents/dujiaoshuka/tests/Browser/admin-shell-smoke.sh) 已把这条动作的展示、页头合同、服务默认值和页面巡检护栏补齐。
+
+影响范围：
+
+- 商品壳页从“启停 + 切换分类 + 限购维护 + 销量维护 + 排序维护 + 购买提示维护 + 导出”继续推进到了“又一个真实低风险批量动作”。
+- 后台壳在商品运营文案维护线上的能力更完整了，适合活动期统一补充商品说明、售后须知和交付细节，而不会误动价格、库存、分类、商品类型、销量、排序和启用状态。
+- 当前这条动作只更新 `description`，不改 `actual_price`、`in_stock`、`group_id`、`type`、`sales_volume`、`ord`、`buy_prompt` 和 `is_open`。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellGoodsControllerTest.php tests/Unit/GoodsActionServiceTest.php tests/Unit/AdminShellPageStructureTest.php` 通过
+- `./scripts/php74 vendor/bin/phpunit` 通过
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过
+
+下一步：
+
+- 继续沿着后台壳扩容主线推进，优先补齐 `pay / order / goods` 的下一批低风险批量动作
+
 ### 166. 商品管理接入批量设置排序页
 
 摘要：

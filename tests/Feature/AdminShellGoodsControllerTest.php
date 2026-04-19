@@ -325,6 +325,40 @@ class AdminShellGoodsControllerTest extends TestCase
         $this->assertSame('购买后请先查看发货说明', DB::table('goods')->where('id', 96004)->value('buy_prompt'));
     }
 
+    public function test_batch_description_page_renders_goods_preview(): void
+    {
+        $this->seedGoodsFixture();
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/goods/create?mode=batch-description&ids=96001,96004,99999');
+
+        $response->assertOk();
+        $response->assertSee('批量设置商品说明');
+        $response->assertSee('测试商品 Shell');
+        $response->assertSee('测试商品 Shell B');
+        $response->assertSee('99999');
+        $response->assertSee('商品说明');
+        $response->assertSee('商品说明 B');
+    }
+
+    public function test_batch_description_page_can_update_goods(): void
+    {
+        $this->seedGoodsFixture();
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/goods/create?mode=batch-description', [
+                'mode' => 'batch-description',
+                'ids_text' => "96001, 96004\n99999",
+                'description' => '发货后请先保存卡密并核对商品说明',
+            ]);
+
+        $response->assertRedirect('/admin/v2/goods/create?mode=batch-description&ids=96001,96004,99999');
+        $response->assertSessionHas('status', '已批量设置 2 个商品的商品说明');
+
+        $this->assertSame('发货后请先保存卡密并核对商品说明', DB::table('goods')->where('id', 96001)->value('description'));
+        $this->assertSame('发货后请先保存卡密并核对商品说明', DB::table('goods')->where('id', 96004)->value('description'));
+    }
+
     public function test_index_can_export_goods_text(): void
     {
         $this->seedGoodsFixture();
