@@ -99,6 +99,14 @@ class GoodsActionService
         ];
     }
 
+    public function batchKeywordsTrimDefaults(array $goodsIds = []): array
+    {
+        return [
+            'goods_ids' => $goodsIds,
+            'ids_text' => implode("\n", $goodsIds),
+        ];
+    }
+
     public function batchBuyLimitContext(array $goodsIds): array
     {
         $goods = Goods::query()
@@ -425,6 +433,34 @@ class GoodsActionService
 
         foreach ($goods as $item) {
             $item->gd_keywords = ((string) $item->gd_keywords).$suffix;
+            $item->updated_at = now();
+            $item->save();
+            $updated++;
+        }
+
+        return $updated;
+    }
+
+    public function trimKeywords(array $goodsIds): int
+    {
+        if (empty($goodsIds)) {
+            return 0;
+        }
+
+        $goods = Goods::query()
+            ->whereIn('id', $goodsIds)
+            ->orderBy('id')
+            ->get(['id', 'gd_keywords']);
+
+        $updated = 0;
+
+        foreach ($goods as $item) {
+            $nextKeywords = trim((string) $item->gd_keywords);
+            if ($nextKeywords === (string) $item->gd_keywords) {
+                continue;
+            }
+
+            $item->gd_keywords = $nextKeywords;
             $item->updated_at = now();
             $item->save();
             $updated++;

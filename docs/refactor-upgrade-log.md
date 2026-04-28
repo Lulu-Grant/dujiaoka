@@ -11,6 +11,28 @@
 
 ## 2026-04-12 阶段日志
 
+### 184. 商品接入批量清理关键字空格页
+
+摘要：
+
+- 在后台壳商品线新增 [batch-keywords-trim.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/goods/batch-keywords-trim.blade.php)，支持按商品 ID 预览并批量清理商品关键字首尾空格。
+- 扩展 [GoodsActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/GoodsActionService.php) 与 [GoodsActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/GoodsActionController.php)，新增 `batchKeywordsTrimDefaults`、`trimKeywords` 和 `batch-keywords-trim` 模式。
+- 同步把“批量清理关键字空格”加入商品列表头部动作和后台壳 smoke 检查。
+
+影响范围：
+
+- 只更新 `goods.gd_keywords` 的首尾空格，并只统计实际发生变化的商品
+- 不触碰商品名称、简介、价格、库存、分类、类型、销量、排序、启用状态和履约配置
+
+验证：
+
+- 新增定向 PHPUnit 覆盖服务默认值、页面渲染、批量提交和商品页头部动作结构
+- 本轮继续执行定向测试、全量 PHPUnit 与后台壳 smoke
+
+下一步：
+
+- 继续沿 goods/carmis/order 线补齐只改展示或运营辅助字段的低风险批量动作，保持后台壳扩容节奏
+
 ### 183. 支付通道接入批量清理名称空格页
 
 摘要：

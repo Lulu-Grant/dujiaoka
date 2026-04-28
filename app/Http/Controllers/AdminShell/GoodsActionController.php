@@ -29,6 +29,10 @@ class GoodsActionController extends Controller
 
     public function create(Request $request)
     {
+        if ($this->isBatchKeywordsTrimMode($request)) {
+            return $this->renderBatchKeywordsTrimPage($request);
+        }
+
         if ($this->isBatchKeywordsSuffixMode($request)) {
             return $this->renderBatchKeywordsSuffixPage($request);
         }
@@ -106,6 +110,10 @@ class GoodsActionController extends Controller
 
     public function store(Request $request)
     {
+        if ($this->isBatchKeywordsTrimMode($request)) {
+            return $this->submitBatchKeywordsTrim($request);
+        }
+
         if ($this->isBatchKeywordsSuffixMode($request)) {
             return $this->submitBatchKeywordsSuffix($request);
         }
@@ -313,6 +321,11 @@ class GoodsActionController extends Controller
         return (string) $request->query('mode', $request->input('mode', '')) === 'batch-keywords-suffix';
     }
 
+    private function isBatchKeywordsTrimMode(Request $request): bool
+    {
+        return (string) $request->query('mode', $request->input('mode', '')) === 'batch-keywords-trim';
+    }
+
     private function renderBatchBuyLimitPage(Request $request)
     {
         $goodsIds = $this->goodsActionService->parseGoodsIds((string) $request->query('ids', ''));
@@ -481,6 +494,30 @@ class GoodsActionController extends Controller
         ]);
     }
 
+    private function renderBatchKeywordsTrimPage(Request $request)
+    {
+        $goodsIds = $this->goodsActionService->parseGoodsIds((string) $request->query('ids', ''));
+        $defaults = $this->goodsActionService->batchKeywordsTrimDefaults($goodsIds);
+
+        return view('admin-shell.goods.batch-keywords-trim', [
+            'title' => '批量清理商品关键字空格 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量清理商品关键字空格',
+                'description' => '这是后台壳中的低风险批量动作页。当前只清理商品关键字首尾空格，不触碰价格、库存、分类、商品类型、销量、排序、启用状态和履约配置。',
+                'meta' => '适合导入后整理检索标签或运营关键字。提交后只会把商品关键字做 trim，并且只统计实际发生变化的商品。',
+                'actions' => [
+                    ['label' => '返回商品概览', 'href' => admin_url('v2/goods')],
+                    ['label' => '批量添加关键字后缀', 'href' => admin_url('v2/goods/create').'?mode=batch-keywords-suffix', 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/goods/create').'?mode=batch-keywords-trim',
+            'submitLabel' => '执行关键字空格清理',
+            'defaults' => $defaults,
+            'context' => $this->goodsActionService->batchKeywordsContext($goodsIds),
+        ]);
+    }
+
     private function submitBatchBuyLimit(Request $request)
     {
         $validated = $request->validate([
@@ -629,6 +666,25 @@ class GoodsActionController extends Controller
 
         return redirect(admin_url('v2/goods/create').'?mode=batch-keywords-suffix&ids='.implode(',', $goodsIds))
             ->with('status', '已批量为 '.$affected.' 个商品添加关键字后缀');
+    }
+
+    private function submitBatchKeywordsTrim(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+        ]);
+
+        $goodsIds = $this->goodsActionService->parseGoodsIds($validated['ids_text']);
+        if (empty($goodsIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的商品 ID。'])
+                ->withInput();
+        }
+
+        $affected = $this->goodsActionService->trimKeywords($goodsIds);
+
+        return redirect(admin_url('v2/goods/create').'?mode=batch-keywords-trim&ids='.implode(',', $goodsIds))
+            ->with('status', '已批量清理 '.$affected.' 个商品的关键字空格');
     }
 
     private function renderBatchGroupPage(Request $request)
