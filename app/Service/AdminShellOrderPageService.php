@@ -121,6 +121,11 @@ class AdminShellOrderPageService extends AbstractAdminShellPageService
             'variant' => 'secondary',
         ];
         $header['actions'][] = [
+            'label' => '批量添加标题后缀',
+            'href' => admin_url('v2/order/batch-title-suffix'),
+            'variant' => 'secondary',
+        ];
+        $header['actions'][] = [
             'label' => '批量重置查询密码',
             'href' => admin_url('v2/order/batch-reset-search-pwd'),
             'variant' => 'secondary',

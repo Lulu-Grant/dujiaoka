@@ -102,6 +102,7 @@ assert_page "/admin/v2/pay/batch-name-replace" "批量替换支付名称片段 -
 assert_page "/admin/v2/order/batch-info" "批量设置订单附加信息 - 后台壳样板" "目标附加信息"
 assert_page "/admin/v2/order/batch-title" "批量设置订单标题 - 后台壳样板" "目标标题"
 assert_page "/admin/v2/order/batch-title-prefix" "批量添加订单标题前缀 - 后台壳样板" "目标标题前缀"
+assert_page "/admin/v2/order/batch-title-suffix" "批量添加订单标题后缀 - 后台壳样板" "目标标题后缀"
 assert_page "/admin/v2/order/batch-type" "批量设置订单类型 - 后台壳样板" "目标类型"
 assert_page "/admin/v2/order/batch-reset-search-pwd" "批量重置订单查询密码 - 后台壳样板" "批量重置订单查询密码"
 assert_page "/admin/v2/emailtpl/create" "新建邮件模板 - 后台壳样板" "创建邮件模板"

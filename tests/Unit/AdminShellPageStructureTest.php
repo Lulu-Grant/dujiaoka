@@ -308,7 +308,8 @@ class AdminShellPageStructureTest extends TestCase
         $this->assertSame('批量设置附加信息', $header['actions'][3]['label']);
         $this->assertSame('批量设置订单标题', $header['actions'][4]['label']);
         $this->assertSame('批量添加标题前缀', $header['actions'][5]['label']);
-        $this->assertSame('批量重置查询密码', $header['actions'][6]['label']);
+        $this->assertSame('批量添加标题后缀', $header['actions'][6]['label']);
+        $this->assertSame('批量重置查询密码', $header['actions'][7]['label']);
         $this->assertSame('XIGUA', $requestFilters['order_sn']);
         $this->assertSame('订单状态', $filters['fields'][2]['label']);
         $this->assertSame('订单详情', $showHeader['title']);

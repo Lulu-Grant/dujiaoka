@@ -52,6 +52,15 @@ class OrderActionService
         ];
     }
 
+    public function batchTitleSuffixDefaults(array $orderIds = []): array
+    {
+        return [
+            'order_ids' => $orderIds,
+            'ids_text' => implode("\n", $orderIds),
+            'title_suffix' => '',
+        ];
+    }
+
     public function batchStatusContext(array $orderIds): array
     {
         $orders = Order::query()
@@ -226,6 +235,32 @@ class OrderActionService
 
         foreach ($orders as $order) {
             $order->title = $prefix.$order->title;
+
+            Order::withoutEvents(function () use ($order) {
+                $order->save();
+            });
+
+            $updated++;
+        }
+
+        return $updated;
+    }
+
+    public function addTitleSuffix(array $orderIds, string $suffix): int
+    {
+        if (empty($orderIds)) {
+            return 0;
+        }
+
+        $orders = Order::query()
+            ->whereIn('id', $orderIds)
+            ->orderBy('id')
+            ->get();
+
+        $updated = 0;
+
+        foreach ($orders as $order) {
+            $order->title = $order->title.$suffix;
 
             Order::withoutEvents(function () use ($order) {
                 $order->save();

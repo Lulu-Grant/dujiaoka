@@ -197,6 +197,31 @@ class OrderActionController extends Controller
         ]);
     }
 
+    public function editBatchTitleSuffix(Request $request)
+    {
+        $orderIds = $this->orderActionService->parseOrderIds((string) $request->query('ids', ''));
+        $defaults = $this->orderActionService->batchTitleSuffixDefaults($orderIds);
+        $context = $this->orderActionService->batchStatusContext($orderIds);
+
+        return view('admin-shell.order.batch-title-suffix', [
+            'title' => '批量添加订单标题后缀 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量添加订单标题后缀',
+                'description' => '这是后台壳中的低风险批量动作页。当前只承接订单标题后缀的人工维护，不触碰状态、类型、支付、履约和通知链。',
+                'meta' => '适合统一补充活动尾标、售后结案标记或历史订单整理说明。提交后只更新订单标题字段，并保持无事件写入。',
+                'actions' => [
+                    ['label' => '返回订单概览', 'href' => admin_url('v2/order')],
+                    ['label' => '批量添加标题前缀', 'href' => admin_url('v2/order/batch-title-prefix'), 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/order/batch-title-suffix'),
+            'submitLabel' => '执行标题后缀更新',
+            'defaults' => $defaults,
+            'context' => $context,
+        ]);
+    }
+
     public function updateBatchStatus(Request $request)
     {
         $validated = $request->validate([
@@ -334,6 +359,33 @@ class OrderActionController extends Controller
 
         return redirect(admin_url('v2/order/batch-title-prefix').'?ids='.implode(',', $orderIds))
             ->with('status', '已批量为 '.$updated.' 个订单标题添加前缀');
+    }
+
+    public function updateBatchTitleSuffix(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+            'title_suffix' => ['required', 'string', 'max:64'],
+        ]);
+
+        $orderIds = $this->orderActionService->parseOrderIds($validated['ids_text']);
+
+        if (empty($orderIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的订单 ID。'])
+                ->withInput();
+        }
+
+        $updated = $this->orderActionService->addTitleSuffix($orderIds, $validated['title_suffix']);
+
+        if ($updated === 0) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '没有找到可更新标题后缀的订单。'])
+                ->withInput();
+        }
+
+        return redirect(admin_url('v2/order/batch-title-suffix').'?ids='.implode(',', $orderIds))
+            ->with('status', '已批量为 '.$updated.' 个订单标题添加后缀');
     }
 
     public function batchResetSearchPassword(Request $request)
