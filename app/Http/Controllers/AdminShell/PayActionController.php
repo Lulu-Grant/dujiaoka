@@ -261,6 +261,30 @@ class PayActionController extends Controller
         ]);
     }
 
+    public function editBatchNameTrim(Request $request)
+    {
+        $payIds = $this->payActionService->parsePayIds((string) $request->query('ids', ''));
+        $defaults = $this->payActionService->batchNameTrimDefaults($payIds);
+
+        return view('admin-shell.pay.batch-name-trim', [
+            'title' => '批量清理支付名称空格 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量清理支付名称空格',
+                'description' => '这是后台壳中的低风险批量动作页。当前只清理支付通道展示名称首尾空格，不触碰支付标识、商户密钥、场景、方式和回调路由。',
+                'meta' => '适合导入后规范展示名、清理人工维护时误粘贴的首尾空白。提交后只更新实际发生变化的支付名称。',
+                'actions' => [
+                    ['label' => '返回支付通道概览', 'href' => admin_url('v2/pay')],
+                    ['label' => '批量替换名称片段', 'href' => admin_url('v2/pay/batch-name-replace'), 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/pay/batch-name-trim'),
+            'submitLabel' => '执行名称空格清理',
+            'defaults' => $defaults,
+            'context' => $this->payActionService->batchClientContext($payIds),
+        ]);
+    }
+
     public function updateBatchStatus(Request $request)
     {
         $validated = $request->validate([
@@ -416,6 +440,25 @@ class PayActionController extends Controller
 
         return redirect(admin_url('v2/pay/batch-name-replace').'?ids='.implode(',', $payIds))
             ->with('status', '已批量替换 '.$affected.' 个支付通道的名称片段');
+    }
+
+    public function updateBatchNameTrim(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+        ]);
+
+        $payIds = $this->payActionService->parsePayIds($validated['ids_text']);
+        if (empty($payIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的支付通道 ID。'])
+                ->withInput();
+        }
+
+        $affected = $this->payActionService->trimNames($payIds);
+
+        return redirect(admin_url('v2/pay/batch-name-trim').'?ids='.implode(',', $payIds))
+            ->with('status', '已批量清理 '.$affected.' 个支付通道的名称空格');
     }
 
     private function validatePayload(Request $request, bool $isCreate, ?Pay $pay = null): array

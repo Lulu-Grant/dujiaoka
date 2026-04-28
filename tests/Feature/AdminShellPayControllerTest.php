@@ -12,7 +12,7 @@ class AdminShellPayControllerTest extends TestCase
 {
     protected function tearDown(): void
     {
-        DB::table('pays')->whereIn('id', [93001, 93002, 93003, 93004, 93005, 93006, 93011, 93012, 93013, 93014, 93015, 93016, 93017, 93018, 93019, 93020, 93021, 93022, 93023, 93024, 93025, 93026, 93027, 93028, 93029, 93030, 93031, 93032, 93033, 93034, 93035, 93036, 93037, 93038, 93039, 93040, 93041, 93042, 93043])->delete();
+        DB::table('pays')->whereIn('id', [93001, 93002, 93003, 93004, 93005, 93006, 93011, 93012, 93013, 93014, 93015, 93016, 93017, 93018, 93019, 93020, 93021, 93022, 93023, 93024, 93025, 93026, 93027, 93028, 93029, 93030, 93031, 93032, 93033, 93034, 93035, 93036, 93037, 93038, 93039, 93040, 93041, 93042, 93043, 93044, 93045, 93046, 93047, 93048, 93049])->delete();
         DB::table('pays')->whereIn('pay_check', ['stripe', 'paypal', 'wechat-shell', 'alipay-shell', 'copy-shell-clone'])->delete();
         DB::table('admin_users')->where('username', 'admin-shell-tester')->delete();
 
@@ -1040,6 +1040,113 @@ class AdminShellPayControllerTest extends TestCase
         $this->assertSame(1, $record->pay_method);
         $this->assertSame(1, $record->is_open);
         $this->assertSame('替换样板 B - 新标签', DB::table('pays')->where('id', 93042)->value('pay_name'));
+    }
+
+    public function test_batch_name_trim_page_renders_pay_preview(): void
+    {
+        DB::table('pays')
+            ->whereIn('id', [93044, 93045])
+            ->orWhereIn('pay_check', ['batch-trim-a', 'batch-trim-b'])
+            ->delete();
+
+        DB::table('pays')->insert([
+            'id' => 93044,
+            'pay_name' => '  清理空格样板 A  ',
+            'merchant_id' => 'batch-trim-a',
+            'merchant_key' => 'batch-trim-a-key',
+            'merchant_pem' => 'batch-trim-a-pem',
+            'pay_check' => 'batch-trim-a',
+            'pay_client' => 1,
+            'pay_handleroute' => '/pay/batch-trim-a',
+            'pay_method' => 1,
+            'is_open' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+        DB::table('pays')->insert([
+            'id' => 93045,
+            'pay_name' => '清理空格样板 B',
+            'merchant_id' => 'batch-trim-b',
+            'merchant_key' => 'batch-trim-b-key',
+            'merchant_pem' => 'batch-trim-b-pem',
+            'pay_check' => 'batch-trim-b',
+            'pay_client' => 2,
+            'pay_handleroute' => '/pay/batch-trim-b',
+            'pay_method' => 2,
+            'is_open' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/pay/batch-name-trim?ids=93044,93045,93046');
+
+        $response->assertOk();
+        $response->assertSee('批量清理支付名称空格');
+        $response->assertSee('待处理通道数');
+        $response->assertSee('清理空格样板 A');
+        $response->assertSee('清理空格样板 B');
+        $response->assertSee('93046');
+        $response->assertSee('未匹配 ID 数');
+    }
+
+    public function test_batch_name_trim_page_can_trim_pay_names_without_touching_payment_config(): void
+    {
+        DB::table('pays')
+            ->whereIn('id', [93047, 93048])
+            ->orWhereIn('pay_check', ['batch-trim-update-a', 'batch-trim-update-b'])
+            ->delete();
+
+        DB::table('pays')->insert([
+            'id' => 93047,
+            'pay_name' => '  清理空格样板 A  ',
+            'merchant_id' => 'batch-trim-a',
+            'merchant_key' => 'batch-trim-a-key',
+            'merchant_pem' => 'batch-trim-a-pem',
+            'pay_check' => 'batch-trim-update-a',
+            'pay_client' => 1,
+            'pay_handleroute' => '/pay/batch-trim-update-a',
+            'pay_method' => 1,
+            'is_open' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+        DB::table('pays')->insert([
+            'id' => 93048,
+            'pay_name' => '清理空格样板 B',
+            'merchant_id' => 'batch-trim-b',
+            'merchant_key' => 'batch-trim-b-key',
+            'merchant_pem' => 'batch-trim-b-pem',
+            'pay_check' => 'batch-trim-update-b',
+            'pay_client' => 2,
+            'pay_handleroute' => '/pay/batch-trim-update-b',
+            'pay_method' => 2,
+            'is_open' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/pay/batch-name-trim', [
+                'ids_text' => "93047\n93048\n93049",
+            ]);
+
+        $response->assertRedirect('/admin/v2/pay/batch-name-trim?ids=93047,93048,93049');
+        $response->assertSessionHas('status', '已批量清理 1 个支付通道的名称空格');
+
+        $record = DB::table('pays')->where('id', 93047)->first();
+        $this->assertSame('清理空格样板 A', $record->pay_name);
+        $this->assertSame('batch-trim-update-a', $record->pay_check);
+        $this->assertSame('batch-trim-a-key', $record->merchant_key);
+        $this->assertSame('/pay/batch-trim-update-a', $record->pay_handleroute);
+        $this->assertSame(1, $record->pay_client);
+        $this->assertSame(1, $record->pay_method);
+        $this->assertSame(1, $record->is_open);
+        $this->assertSame('清理空格样板 B', DB::table('pays')->where('id', 93048)->value('pay_name'));
     }
 
     public function test_edit_page_can_update_pay_channel(): void

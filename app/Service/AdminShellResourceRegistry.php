@@ -119,6 +119,8 @@ class AdminShellResourceRegistry
                     ['method' => 'post', 'uri' => 'batch-name-suffix', 'action' => 'updateBatchNameSuffix', 'name' => 'batch-name-suffix.update', 'controller' => \App\Http\Controllers\AdminShell\PayActionController::class],
                     ['method' => 'get', 'uri' => 'batch-name-replace', 'action' => 'editBatchNameReplace', 'name' => 'batch-name-replace', 'controller' => \App\Http\Controllers\AdminShell\PayActionController::class],
                     ['method' => 'post', 'uri' => 'batch-name-replace', 'action' => 'updateBatchNameReplace', 'name' => 'batch-name-replace.update', 'controller' => \App\Http\Controllers\AdminShell\PayActionController::class],
+                    ['method' => 'get', 'uri' => 'batch-name-trim', 'action' => 'editBatchNameTrim', 'name' => 'batch-name-trim', 'controller' => \App\Http\Controllers\AdminShell\PayActionController::class],
+                    ['method' => 'post', 'uri' => 'batch-name-trim', 'action' => 'updateBatchNameTrim', 'name' => 'batch-name-trim.update', 'controller' => \App\Http\Controllers\AdminShell\PayActionController::class],
                     ['method' => 'get', 'uri' => 'batch-status', 'action' => 'editBatchStatus', 'name' => 'batch-status', 'controller' => \App\Http\Controllers\AdminShell\PayActionController::class],
                     ['method' => 'post', 'uri' => 'batch-status', 'action' => 'updateBatchStatus', 'name' => 'batch-status.update', 'controller' => \App\Http\Controllers\AdminShell\PayActionController::class],
                     ['method' => 'get', 'uri' => '{id}/edit', 'action' => 'edit', 'name' => 'edit', 'controller' => \App\Http\Controllers\AdminShell\PayActionController::class],

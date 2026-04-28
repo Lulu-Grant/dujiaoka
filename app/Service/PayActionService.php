@@ -121,6 +121,14 @@ class PayActionService
         ];
     }
 
+    public function batchNameTrimDefaults(array $payIds = []): array
+    {
+        return [
+            'pay_ids' => $payIds,
+            'ids_text' => implode("\n", $payIds),
+        ];
+    }
+
     public function batchClientContext(array $payIds): array
     {
         $pays = Pay::query()
@@ -270,6 +278,35 @@ class PayActionService
 
         foreach ($pays as $pay) {
             $nextName = str_replace($search, $replacement, (string) $pay->pay_name);
+
+            if ($nextName === $pay->pay_name) {
+                continue;
+            }
+
+            $pay->pay_name = $nextName;
+            $pay->updated_at = now();
+            $pay->save();
+            $updated++;
+        }
+
+        return $updated;
+    }
+
+    public function trimNames(array $payIds): int
+    {
+        if (empty($payIds)) {
+            return 0;
+        }
+
+        $pays = Pay::query()
+            ->whereIn('id', $payIds)
+            ->orderBy('id')
+            ->get();
+
+        $updated = 0;
+
+        foreach ($pays as $pay) {
+            $nextName = trim((string) $pay->pay_name);
 
             if ($nextName === $pay->pay_name) {
                 continue;
