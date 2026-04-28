@@ -376,6 +376,43 @@ class AdminShellCouponControllerTest extends TestCase
         $this->assertSame(\App\Models\Coupon::STATUS_OPEN, (int) DB::table('coupons')->where('id', 95006)->value('is_open'));
     }
 
+    public function test_batch_code_suffix_page_renders_coupon_suffix_form_and_preview(): void
+    {
+        $this->seedCouponFixture(95006, 'XIGUA-SUFFIX-1', '测试商品 I');
+        $this->seedCouponFixture(95007, 'XIGUA-SUFFIX-2', '测试商品 J');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/coupon/batch-code-suffix?ids=95006,95007');
+
+        $response->assertOk();
+        $response->assertSee('批量添加优惠码后缀');
+        $response->assertSee('目标后缀');
+        $response->assertSee('XIGUA-SUFFIX-1');
+        $response->assertSee('XIGUA-SUFFIX-2');
+    }
+
+    public function test_batch_code_suffix_page_can_add_coupon_suffix_with_mixed_separators(): void
+    {
+        $this->seedCouponFixture(95006, 'XIGUA-SUFFIX-1', '测试商品 I');
+        $this->seedCouponFixture(95007, 'XIGUA-SUFFIX-2', '测试商品 J');
+        $beforeDiscount = (string) DB::table('coupons')->where('id', 95006)->value('discount');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/coupon/batch-code-suffix', [
+                'ids_text' => "95006, 95007\n95008",
+                'suffix' => '-SPRING',
+            ]);
+
+        $response->assertRedirect('/admin/v2/coupon/batch-code-suffix?ids=95006,95007,95008');
+        $response->assertSessionHas('status', '已批量为 2 个优惠码添加后缀');
+
+        $this->assertSame('XIGUA-SUFFIX-1-SPRING', (string) DB::table('coupons')->where('id', 95006)->value('coupon'));
+        $this->assertSame('XIGUA-SUFFIX-2-SPRING', (string) DB::table('coupons')->where('id', 95007)->value('coupon'));
+        $this->assertSame($beforeDiscount, (string) DB::table('coupons')->where('id', 95006)->value('discount'));
+        $this->assertSame(1, (int) DB::table('coupons')->where('id', 95006)->value('ret'));
+        $this->assertSame(\App\Models\Coupon::STATUS_OPEN, (int) DB::table('coupons')->where('id', 95006)->value('is_open'));
+    }
+
     public function test_index_can_export_coupon_text_with_current_filters(): void
     {
         $this->seedCouponFixture(95001, 'XIGUA-STATE-1', '测试商品 D');

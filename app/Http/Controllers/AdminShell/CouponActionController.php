@@ -139,6 +139,11 @@ class CouponActionController extends Controller
         return $this->renderBatchCodePrefixPage($request);
     }
 
+    public function editBatchCodeSuffix(Request $request)
+    {
+        return $this->renderBatchCodeSuffixPage($request);
+    }
+
     public function updateBatchRet(Request $request)
     {
         return $this->storeBatchRet($request);
@@ -162,6 +167,11 @@ class CouponActionController extends Controller
     public function updateBatchCodePrefix(Request $request)
     {
         return $this->storeBatchCodePrefix($request);
+    }
+
+    public function updateBatchCodeSuffix(Request $request)
+    {
+        return $this->storeBatchCodeSuffix($request);
     }
 
     private function validatePayload(Request $request): array
@@ -372,6 +382,30 @@ class CouponActionController extends Controller
         ]);
     }
 
+    private function renderBatchCodeSuffixPage(Request $request)
+    {
+        $couponIds = $this->couponActionService->parseCouponIds((string) $request->query('ids', $request->input('ids_text', '')));
+        $defaults = $this->couponActionService->batchCodeSuffixDefaults($couponIds);
+
+        return view('admin-shell.coupon.batch-code-suffix', [
+            'title' => '批量添加优惠码后缀 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量添加优惠码后缀',
+                'description' => '这是后台壳中的低风险批量动作页。当前只承接优惠码内容的运营后缀补充，不改折扣、可用次数、启用状态、使用状态和关联商品。',
+                'meta' => '适合活动结束标记、渠道批次归档或临时测试后缀。支持换行、逗号或空格分隔的 ID 输入。',
+                'actions' => [
+                    ['label' => '返回优惠码概览', 'href' => admin_url('v2/coupon')],
+                    ['label' => '批量添加优惠码前缀', 'href' => admin_url('v2/coupon/batch-code-prefix'), 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/coupon/batch-code-suffix'),
+            'submitLabel' => '执行批量后缀更新',
+            'defaults' => $defaults,
+            'context' => $this->couponActionService->batchStatusContext($couponIds),
+        ]);
+    }
+
     private function storeBatchRet(Request $request)
     {
         $payload = $request->validate([
@@ -484,6 +518,27 @@ class CouponActionController extends Controller
 
         return redirect(admin_url('v2/coupon/batch-code-prefix?ids='.implode(',', $couponIds)))
             ->with('status', '已批量为 '.$affected.' 个优惠码添加前缀');
+    }
+
+    private function storeBatchCodeSuffix(Request $request)
+    {
+        $payload = $request->validate([
+            'ids_text' => ['required', 'string'],
+            'suffix' => ['required', 'string', 'max:64'],
+        ]);
+
+        $couponIds = $this->couponActionService->parseCouponIds($payload['ids_text']);
+        if (empty($couponIds)) {
+            return redirect()
+                ->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的优惠码 ID。'])
+                ->withInput();
+        }
+
+        $affected = $this->couponActionService->addCodeSuffix($couponIds, $payload['suffix']);
+
+        return redirect(admin_url('v2/coupon/batch-code-suffix?ids='.implode(',', $couponIds)))
+            ->with('status', '已批量为 '.$affected.' 个优惠码添加后缀');
     }
 
     private function isBatchMode(Request $request): bool

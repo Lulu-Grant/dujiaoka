@@ -95,6 +95,14 @@ class CouponActionService
         ];
     }
 
+    public function batchCodeSuffixDefaults(array $couponIds = []): array
+    {
+        return [
+            'ids_text' => implode("\n", $couponIds),
+            'suffix' => '',
+        ];
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -250,6 +258,48 @@ class CouponActionService
             ) {
                 $attempts++;
                 $nextCode = $normalizedPrefix.$baseCode.'-'.$attempts;
+            }
+
+            $coupon->coupon = $nextCode;
+            $coupon->updated_at = now();
+            $coupon->save();
+            $updated++;
+        }
+
+        return $updated;
+    }
+
+    public function addCodeSuffix(array $couponIds, ?string $suffix): int
+    {
+        if (empty($couponIds)) {
+            return 0;
+        }
+
+        $normalizedSuffix = trim((string) $suffix);
+        if ($normalizedSuffix === '') {
+            return 0;
+        }
+
+        $coupons = Coupon::query()
+            ->whereIn('id', $couponIds)
+            ->orderBy('id')
+            ->get();
+
+        $updated = 0;
+
+        foreach ($coupons as $coupon) {
+            $baseCode = (string) $coupon->coupon;
+            $nextCode = $baseCode.$normalizedSuffix;
+            $attempts = 0;
+
+            while (
+                Coupon::query()
+                    ->where('coupon', $nextCode)
+                    ->where('id', '!=', $coupon->id)
+                    ->exists()
+            ) {
+                $attempts++;
+                $nextCode = $baseCode.$normalizedSuffix.'-'.$attempts;
             }
 
             $coupon->coupon = $nextCode;

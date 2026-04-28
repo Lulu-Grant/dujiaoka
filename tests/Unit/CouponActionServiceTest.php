@@ -48,6 +48,14 @@ class CouponActionServiceTest extends TestCase
         $this->assertSame('', $defaults['prefix']);
     }
 
+    public function test_batch_code_suffix_defaults_start_empty_for_safe_review(): void
+    {
+        $defaults = app(CouponActionService::class)->batchCodeSuffixDefaults([1, 2]);
+
+        $this->assertSame("1\n2", $defaults['ids_text']);
+        $this->assertSame('', $defaults['suffix']);
+    }
+
     public function test_create_batch_creates_multiple_coupons_with_shared_payload(): void
     {
         DB::table('goods')->updateOrInsert(
