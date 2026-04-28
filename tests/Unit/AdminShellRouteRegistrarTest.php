@@ -73,6 +73,8 @@ class AdminShellRouteRegistrarTest extends TestCase
         $this->assertRouteExists($routes, 'v2/coupon/batch-code-suffix', 'POST', 'admin-shell.coupon.batch-code-suffix.update');
         $this->assertRouteExists($routes, 'v2/coupon/batch-code-replace', 'GET', 'admin-shell.coupon.batch-code-replace');
         $this->assertRouteExists($routes, 'v2/coupon/batch-code-replace', 'POST', 'admin-shell.coupon.batch-code-replace.update');
+        $this->assertRouteExists($routes, 'v2/coupon/batch-code-trim', 'GET', 'admin-shell.coupon.batch-code-trim');
+        $this->assertRouteExists($routes, 'v2/coupon/batch-code-trim', 'POST', 'admin-shell.coupon.batch-code-trim.update');
         $this->assertRouteExists($routes, 'v2/carmis/import', 'GET', 'admin-shell.carmis.import');
         $this->assertRouteExists($routes, 'v2/system-setting/base', 'POST', 'admin-shell.system-setting.base.update');
         $this->assertRouteExists($routes, 'v2/email-test/send', 'POST', 'admin-shell.email-test.send.store');

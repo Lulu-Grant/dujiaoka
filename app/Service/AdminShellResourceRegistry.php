@@ -156,6 +156,8 @@ class AdminShellResourceRegistry
                     ['method' => 'post', 'uri' => 'batch-code-suffix', 'action' => 'updateBatchCodeSuffix', 'name' => 'batch-code-suffix.update', 'controller' => \App\Http\Controllers\AdminShell\CouponActionController::class],
                     ['method' => 'get', 'uri' => 'batch-code-replace', 'action' => 'editBatchCodeReplace', 'name' => 'batch-code-replace', 'controller' => \App\Http\Controllers\AdminShell\CouponActionController::class],
                     ['method' => 'post', 'uri' => 'batch-code-replace', 'action' => 'updateBatchCodeReplace', 'name' => 'batch-code-replace.update', 'controller' => \App\Http\Controllers\AdminShell\CouponActionController::class],
+                    ['method' => 'get', 'uri' => 'batch-code-trim', 'action' => 'editBatchCodeTrim', 'name' => 'batch-code-trim', 'controller' => \App\Http\Controllers\AdminShell\CouponActionController::class],
+                    ['method' => 'post', 'uri' => 'batch-code-trim', 'action' => 'updateBatchCodeTrim', 'name' => 'batch-code-trim.update', 'controller' => \App\Http\Controllers\AdminShell\CouponActionController::class],
                     ['method' => 'get', 'uri' => '{id}/edit', 'action' => 'edit', 'name' => 'edit', 'controller' => \App\Http\Controllers\AdminShell\CouponActionController::class],
                     ['method' => 'post', 'uri' => '{id}/edit', 'action' => 'update', 'name' => 'update', 'controller' => \App\Http\Controllers\AdminShell\CouponActionController::class],
                 ],

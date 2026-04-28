@@ -15,7 +15,7 @@ class AdminShellCouponControllerTest extends TestCase
             DB::table('coupons_goods')->whereIn('coupons_id', $batchIds)->delete();
         }
         DB::table('coupons')->where('coupon', 'like', 'XIGUA-BATCH-%')->delete();
-        DB::table('coupons')->whereIn('id', [95001, 95002, 95003, 95004, 95005, 95006, 95007, 95008])->delete();
+        DB::table('coupons')->whereIn('id', [95001, 95002, 95003, 95004, 95005, 95006, 95007, 95008, 95009])->delete();
         DB::table('coupons_goods')->whereIn('coupons_id', [94001, 94002, 94003])->delete();
         DB::table('coupons')->whereIn('id', [94001, 94002, 94003])->delete();
         DB::table('coupons')->whereIn('coupon', ['XIGUA-5', 'XIGUA-DETAIL', 'XIGUA-CREATE', 'XIGUA-EDIT'])->delete();
@@ -446,6 +446,44 @@ class AdminShellCouponControllerTest extends TestCase
 
         $this->assertSame('XIGUA-NEW-1', (string) DB::table('coupons')->where('id', 95006)->value('coupon'));
         $this->assertSame('XIGUA-NEW-2', (string) DB::table('coupons')->where('id', 95007)->value('coupon'));
+        $this->assertSame($beforeDiscount, (string) DB::table('coupons')->where('id', 95006)->value('discount'));
+        $this->assertSame(1, (int) DB::table('coupons')->where('id', 95006)->value('ret'));
+        $this->assertSame(\App\Models\Coupon::STATUS_OPEN, (int) DB::table('coupons')->where('id', 95006)->value('is_open'));
+        $this->assertSame(\App\Models\Coupon::STATUS_UNUSED, (int) DB::table('coupons')->where('id', 95006)->value('is_use'));
+        $this->assertTrue(DB::table('coupons_goods')->where('coupons_id', 95006)->where('goods_id', 95006)->exists());
+    }
+
+    public function test_batch_code_trim_page_renders_coupon_trim_form_and_preview(): void
+    {
+        $this->seedCouponFixture(95006, '  XIGUA-TRIM-1  ', '测试商品 I');
+        $this->seedCouponFixture(95007, 'XIGUA-TRIM-2', '测试商品 J');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/coupon/batch-code-trim?ids=95006,95007');
+
+        $response->assertOk();
+        $response->assertSee('批量清理优惠码内容空格');
+        $response->assertSee('执行内容空格清理');
+        $response->assertSee('XIGUA-TRIM-1');
+        $response->assertSee('XIGUA-TRIM-2');
+    }
+
+    public function test_batch_code_trim_page_can_trim_coupon_codes_without_touching_coupon_config(): void
+    {
+        $this->seedCouponFixture(95006, '  XIGUA-TRIM-1  ', '测试商品 I');
+        $this->seedCouponFixture(95007, 'XIGUA-TRIM-2', '测试商品 J');
+        $beforeDiscount = (string) DB::table('coupons')->where('id', 95006)->value('discount');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/coupon/batch-code-trim', [
+                'ids_text' => "95006, 95007\n95008",
+            ]);
+
+        $response->assertRedirect('/admin/v2/coupon/batch-code-trim?ids=95006,95007,95008');
+        $response->assertSessionHas('status', '已批量清理 1 个优惠码的内容空格');
+
+        $this->assertSame('XIGUA-TRIM-1', (string) DB::table('coupons')->where('id', 95006)->value('coupon'));
+        $this->assertSame('XIGUA-TRIM-2', (string) DB::table('coupons')->where('id', 95007)->value('coupon'));
         $this->assertSame($beforeDiscount, (string) DB::table('coupons')->where('id', 95006)->value('discount'));
         $this->assertSame(1, (int) DB::table('coupons')->where('id', 95006)->value('ret'));
         $this->assertSame(\App\Models\Coupon::STATUS_OPEN, (int) DB::table('coupons')->where('id', 95006)->value('is_open'));
