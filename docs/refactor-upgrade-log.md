@@ -4646,6 +4646,32 @@
 
 - 继续沿着后台壳扩容主线推进，优先补齐 `pay / order / coupon` 的下一批低风险批量动作
 
+### 176. 商品管理接入批量设置关键字页
+
+摘要：
+
+- 商品管理现在新增了 [batch-keywords.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/goods/batch-keywords.blade.php)，可以通过 `/admin/v2/goods/create?mode=batch-keywords` 先预览命中的商品，再统一更新商品关键字。
+- [GoodsActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/GoodsActionController.php) 新增了 `batch-keywords` 模式的页面渲染和提交处理，把这条低风险批量动作接进现有商品动作控制器。
+- [GoodsActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/GoodsActionService.php) 新增了批量关键字默认值、预览上下文和 `gd_keywords` 批量更新逻辑，继续把写入边界压在服务层。
+- [AdminShellGoodsPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellGoodsPageService.php) 已在商品概览页头补上“批量设置关键字”入口。
+- [AdminShellGoodsControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellGoodsControllerTest.php)、[GoodsActionServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/GoodsActionServiceTest.php)、[AdminShellPageStructureTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellPageStructureTest.php) 和 [tests/Browser/admin-shell-smoke.sh](/Users/apple/Documents/dujiaoshuka/tests/Browser/admin-shell-smoke.sh) 已把这条动作的展示、默认值、页头合同和页面巡检护栏补齐。
+
+影响范围：
+
+- 商品壳页从“启停 + 切换分类 + 限购维护 + 销量维护 + 排序 + 购买提示 + 商品说明 + 导出”继续推进到了“又一条真实低风险批量动作”。
+- 后台壳在商品运营维护线上的能力更完整了，适合活动检索词、后台识别标签和 SEO 关键字统一维护。
+- 当前这条动作只更新 `gd_keywords`，不改 `actual_price`、`in_stock`、`group_id`、`type`、`sales_volume`、`ord`、`buy_prompt`、`description` 和 `is_open`。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellGoodsControllerTest.php tests/Unit/GoodsActionServiceTest.php tests/Unit/AdminShellPageStructureTest.php` 通过
+- `./scripts/php74 vendor/bin/phpunit` 通过
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过
+
+下一步：
+
+- 继续沿着后台壳扩容主线推进，优先补齐 `goods / pay / order / coupon` 的下一批低风险批量动作
+
 ### 175. 支付通道接入批量添加名称后缀页
 
 摘要：

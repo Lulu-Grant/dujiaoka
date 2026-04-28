@@ -87,6 +87,7 @@ assert_page "/admin/v2/goods/create?mode=batch-sales-volume" "批量设置销量
 assert_page "/admin/v2/goods/create?mode=batch-ord" "批量设置排序 - 后台壳样板" "目标排序"
 assert_page "/admin/v2/goods/create?mode=batch-buy-prompt" "批量设置购买提示 - 后台壳样板" "目标购买提示"
 assert_page "/admin/v2/goods/create?mode=batch-description" "批量设置商品说明 - 后台壳样板" "目标商品说明"
+assert_page "/admin/v2/goods/create?mode=batch-keywords" "批量设置商品关键字 - 后台壳样板" "目标商品关键字"
 assert_page "/admin/v2/coupon/batch-ret" "批量设置优惠码可用次数 - 后台壳样板" "目标可用次数"
 assert_page "/admin/v2/coupon/batch-code" "批量重生成优惠码内容 - 后台壳样板" "目标前缀"
 assert_page "/admin/v2/coupon/batch-code-prefix" "批量添加优惠码前缀 - 后台壳样板" "目标前缀"

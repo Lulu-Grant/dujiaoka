@@ -29,6 +29,10 @@ class GoodsActionController extends Controller
 
     public function create(Request $request)
     {
+        if ($this->isBatchKeywordsMode($request)) {
+            return $this->renderBatchKeywordsPage($request);
+        }
+
         if ($this->isBatchDescriptionMode($request)) {
             return $this->renderBatchDescriptionPage($request);
         }
@@ -98,6 +102,10 @@ class GoodsActionController extends Controller
 
     public function store(Request $request)
     {
+        if ($this->isBatchKeywordsMode($request)) {
+            return $this->submitBatchKeywords($request);
+        }
+
         if ($this->isBatchDescriptionMode($request)) {
             return $this->submitBatchDescription($request);
         }
@@ -287,6 +295,11 @@ class GoodsActionController extends Controller
         return (string) $request->query('mode', $request->input('mode', '')) === 'batch-description';
     }
 
+    private function isBatchKeywordsMode(Request $request): bool
+    {
+        return (string) $request->query('mode', $request->input('mode', '')) === 'batch-keywords';
+    }
+
     private function renderBatchBuyLimitPage(Request $request)
     {
         $goodsIds = $this->goodsActionService->parseGoodsIds((string) $request->query('ids', ''));
@@ -407,6 +420,30 @@ class GoodsActionController extends Controller
         ]);
     }
 
+    private function renderBatchKeywordsPage(Request $request)
+    {
+        $goodsIds = $this->goodsActionService->parseGoodsIds((string) $request->query('ids', ''));
+        $defaults = $this->goodsActionService->batchKeywordsDefaults($goodsIds);
+
+        return view('admin-shell.goods.batch-keywords', [
+            'title' => '批量设置商品关键字 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量设置商品关键字',
+                'description' => '这是后台壳中的低风险批量动作页。当前只承接商品关键字的统一调整，不触碰价格、库存、分类、商品类型、销量、排序和启用状态。',
+                'meta' => '适合活动期统一补充检索词、后台识别标签或 SEO 关键字。输入商品 ID 即可执行，支持换行、逗号和空格混输。',
+                'actions' => [
+                    ['label' => '返回商品概览', 'href' => admin_url('v2/goods')],
+                    ['label' => '批量设置商品说明', 'href' => admin_url('v2/goods/create').'?mode=batch-description', 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/goods/create').'?mode=batch-keywords',
+            'submitLabel' => '执行商品关键字更新',
+            'defaults' => $defaults,
+            'context' => $this->goodsActionService->batchKeywordsContext($goodsIds),
+        ]);
+    }
+
     private function submitBatchBuyLimit(Request $request)
     {
         $validated = $request->validate([
@@ -508,6 +545,26 @@ class GoodsActionController extends Controller
 
         return redirect(admin_url('v2/goods/create').'?mode=batch-description&ids='.implode(',', $goodsIds))
             ->with('status', '已批量设置 '.$affected.' 个商品的商品说明');
+    }
+
+    private function submitBatchKeywords(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+            'gd_keywords' => ['required', 'string', 'max:255'],
+        ]);
+
+        $goodsIds = $this->goodsActionService->parseGoodsIds($validated['ids_text']);
+        if (empty($goodsIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的商品 ID。'])
+                ->withInput();
+        }
+
+        $affected = $this->goodsActionService->updateKeywords($goodsIds, $validated['gd_keywords']);
+
+        return redirect(admin_url('v2/goods/create').'?mode=batch-keywords&ids='.implode(',', $goodsIds))
+            ->with('status', '已批量设置 '.$affected.' 个商品的商品关键字');
     }
 
     private function renderBatchGroupPage(Request $request)

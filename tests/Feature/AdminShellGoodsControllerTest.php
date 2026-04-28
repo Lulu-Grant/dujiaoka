@@ -359,6 +359,42 @@ class AdminShellGoodsControllerTest extends TestCase
         $this->assertSame('发货后请先保存卡密并核对商品说明', DB::table('goods')->where('id', 96004)->value('description'));
     }
 
+    public function test_batch_keywords_page_renders_goods_preview(): void
+    {
+        $this->seedGoodsFixture();
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/goods/create?mode=batch-keywords&ids=96001,96004,99999');
+
+        $response->assertOk();
+        $response->assertSee('批量设置商品关键字');
+        $response->assertSee('测试商品 Shell');
+        $response->assertSee('测试商品 Shell B');
+        $response->assertSee('99999');
+        $response->assertSee('测试关键字');
+        $response->assertSee('测试关键字 B');
+    }
+
+    public function test_batch_keywords_page_can_update_goods(): void
+    {
+        $this->seedGoodsFixture();
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/goods/create?mode=batch-keywords', [
+                'mode' => 'batch-keywords',
+                'ids_text' => "96001, 96004\n99999",
+                'gd_keywords' => '西瓜版,自动发货,活动专区',
+            ]);
+
+        $response->assertRedirect('/admin/v2/goods/create?mode=batch-keywords&ids=96001,96004,99999');
+        $response->assertSessionHas('status', '已批量设置 2 个商品的商品关键字');
+
+        $this->assertSame('西瓜版,自动发货,活动专区', DB::table('goods')->where('id', 96001)->value('gd_keywords'));
+        $this->assertSame('西瓜版,自动发货,活动专区', DB::table('goods')->where('id', 96004)->value('gd_keywords'));
+        $this->assertSame('商品说明', DB::table('goods')->where('id', 96001)->value('description'));
+        $this->assertSame('商品说明 B', DB::table('goods')->where('id', 96004)->value('description'));
+    }
+
     public function test_index_can_export_goods_text(): void
     {
         $this->seedGoodsFixture();

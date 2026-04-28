@@ -81,6 +81,15 @@ class GoodsActionService
         ];
     }
 
+    public function batchKeywordsDefaults(array $goodsIds = []): array
+    {
+        return [
+            'goods_ids' => $goodsIds,
+            'ids_text' => implode("\n", $goodsIds),
+            'gd_keywords' => '',
+        ];
+    }
+
     public function batchBuyLimitContext(array $goodsIds): array
     {
         $goods = Goods::query()
@@ -253,6 +262,33 @@ class GoodsActionService
         ];
     }
 
+    public function batchKeywordsContext(array $goodsIds): array
+    {
+        $goods = Goods::query()
+            ->whereIn('id', $goodsIds)
+            ->orderBy('id')
+            ->get(['id', 'gd_name', 'type', 'is_open', 'gd_keywords']);
+
+        $matchedIds = $goods->pluck('id')->map(function ($id) {
+            return (int) $id;
+        })->all();
+
+        return [
+            'requestedCount' => count($goodsIds),
+            'matchedCount' => $goods->count(),
+            'missingIds' => array_values(array_diff($goodsIds, $matchedIds)),
+            'items' => $goods->map(function (Goods $goods) {
+                return [
+                    'id' => $goods->id,
+                    'name' => $goods->gd_name,
+                    'type' => $this->catalogTypeLabel((int) $goods->type),
+                    'status' => (int) $goods->is_open === Goods::STATUS_OPEN ? '已启用' : '已停用',
+                    'gd_keywords' => (string) $goods->gd_keywords,
+                ];
+            })->all(),
+        ];
+    }
+
     public function updateOpenStatus(array $goodsIds, int $isOpen): int
     {
         if (empty($goodsIds)) {
@@ -347,6 +383,20 @@ class GoodsActionService
             ->whereIn('id', $goodsIds)
             ->update([
                 'description' => $description,
+                'updated_at' => now(),
+            ]);
+    }
+
+    public function updateKeywords(array $goodsIds, string $keywords): int
+    {
+        if (empty($goodsIds)) {
+            return 0;
+        }
+
+        return Goods::query()
+            ->whereIn('id', $goodsIds)
+            ->update([
+                'gd_keywords' => $keywords,
                 'updated_at' => now(),
             ]);
     }
