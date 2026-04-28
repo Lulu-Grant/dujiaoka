@@ -29,6 +29,10 @@ class GoodsActionController extends Controller
 
     public function create(Request $request)
     {
+        if ($this->isBatchKeywordsSuffixMode($request)) {
+            return $this->renderBatchKeywordsSuffixPage($request);
+        }
+
         if ($this->isBatchKeywordsMode($request)) {
             return $this->renderBatchKeywordsPage($request);
         }
@@ -102,6 +106,10 @@ class GoodsActionController extends Controller
 
     public function store(Request $request)
     {
+        if ($this->isBatchKeywordsSuffixMode($request)) {
+            return $this->submitBatchKeywordsSuffix($request);
+        }
+
         if ($this->isBatchKeywordsMode($request)) {
             return $this->submitBatchKeywords($request);
         }
@@ -300,6 +308,11 @@ class GoodsActionController extends Controller
         return (string) $request->query('mode', $request->input('mode', '')) === 'batch-keywords';
     }
 
+    private function isBatchKeywordsSuffixMode(Request $request): bool
+    {
+        return (string) $request->query('mode', $request->input('mode', '')) === 'batch-keywords-suffix';
+    }
+
     private function renderBatchBuyLimitPage(Request $request)
     {
         $goodsIds = $this->goodsActionService->parseGoodsIds((string) $request->query('ids', ''));
@@ -444,6 +457,30 @@ class GoodsActionController extends Controller
         ]);
     }
 
+    private function renderBatchKeywordsSuffixPage(Request $request)
+    {
+        $goodsIds = $this->goodsActionService->parseGoodsIds((string) $request->query('ids', ''));
+        $defaults = $this->goodsActionService->batchKeywordsSuffixDefaults($goodsIds);
+
+        return view('admin-shell.goods.batch-keywords-suffix', [
+            'title' => '批量添加商品关键字后缀 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量添加商品关键字后缀',
+                'description' => '这是后台壳中的低风险批量动作页。当前只承接商品关键字尾部标签追加，不触碰价格、库存、分类、商品类型、销量、排序和启用状态。',
+                'meta' => '适合活动期给已有关键字追加检索标签或运营标记。提交后只把目标后缀追加到当前商品关键字末尾。',
+                'actions' => [
+                    ['label' => '返回商品概览', 'href' => admin_url('v2/goods')],
+                    ['label' => '批量设置关键字', 'href' => admin_url('v2/goods/create').'?mode=batch-keywords', 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/goods/create').'?mode=batch-keywords-suffix',
+            'submitLabel' => '执行关键字后缀追加',
+            'defaults' => $defaults,
+            'context' => $this->goodsActionService->batchKeywordsContext($goodsIds),
+        ]);
+    }
+
     private function submitBatchBuyLimit(Request $request)
     {
         $validated = $request->validate([
@@ -565,6 +602,33 @@ class GoodsActionController extends Controller
 
         return redirect(admin_url('v2/goods/create').'?mode=batch-keywords&ids='.implode(',', $goodsIds))
             ->with('status', '已批量设置 '.$affected.' 个商品的商品关键字');
+    }
+
+    private function submitBatchKeywordsSuffix(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+            'keywords_suffix' => ['required', 'string', 'max:100'],
+        ]);
+
+        $goodsIds = $this->goodsActionService->parseGoodsIds($validated['ids_text']);
+        if (empty($goodsIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的商品 ID。'])
+                ->withInput();
+        }
+
+        $suffix = trim($validated['keywords_suffix']);
+        if ($suffix === '') {
+            return redirect()->back()
+                ->withErrors(['keywords_suffix' => '请填写需要追加的商品关键字后缀。'])
+                ->withInput();
+        }
+
+        $affected = $this->goodsActionService->addKeywordsSuffix($goodsIds, $suffix);
+
+        return redirect(admin_url('v2/goods/create').'?mode=batch-keywords-suffix&ids='.implode(',', $goodsIds))
+            ->with('status', '已批量为 '.$affected.' 个商品添加关键字后缀');
     }
 
     private function renderBatchGroupPage(Request $request)

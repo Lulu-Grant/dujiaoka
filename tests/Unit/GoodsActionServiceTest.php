@@ -51,6 +51,15 @@ class GoodsActionServiceTest extends TestCase
         $this->assertSame('', $defaults['gd_keywords']);
     }
 
+    public function test_batch_keywords_suffix_defaults_start_empty_for_safe_review(): void
+    {
+        $defaults = app(GoodsActionService::class)->batchKeywordsSuffixDefaults([96101, 96102]);
+
+        $this->assertSame([96101, 96102], $defaults['goods_ids']);
+        $this->assertSame("96101\n96102", $defaults['ids_text']);
+        $this->assertSame('', $defaults['keywords_suffix']);
+    }
+
     private function seedGoodsFixture(): Goods
     {
         DB::table('goods_group')->insert([

@@ -395,6 +395,51 @@ class AdminShellGoodsControllerTest extends TestCase
         $this->assertSame('商品说明 B', DB::table('goods')->where('id', 96004)->value('description'));
     }
 
+    public function test_batch_keywords_suffix_page_renders_goods_preview(): void
+    {
+        $this->seedGoodsFixture();
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/goods/create?mode=batch-keywords-suffix&ids=96001,96004,99999');
+
+        $response->assertOk();
+        $response->assertSee('批量添加商品关键字后缀');
+        $response->assertSee('目标关键字后缀');
+        $response->assertSee('测试商品 Shell');
+        $response->assertSee('测试商品 Shell B');
+        $response->assertSee('99999');
+        $response->assertSee('测试关键字');
+        $response->assertSee('测试关键字 B');
+    }
+
+    public function test_batch_keywords_suffix_page_can_update_goods(): void
+    {
+        $this->seedGoodsFixture();
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/goods/create?mode=batch-keywords-suffix', [
+                'mode' => 'batch-keywords-suffix',
+                'ids_text' => "96001, 96004\n99999",
+                'keywords_suffix' => ',春季活动',
+            ]);
+
+        $response->assertRedirect('/admin/v2/goods/create?mode=batch-keywords-suffix&ids=96001,96004,99999');
+        $response->assertSessionHas('status', '已批量为 2 个商品添加关键字后缀');
+
+        $record = DB::table('goods')->where('id', 96001)->first();
+        $this->assertSame('测试关键字,春季活动', $record->gd_keywords);
+        $this->assertSame('测试商品 Shell', $record->gd_name);
+        $this->assertSame('测试商品简介', $record->gd_description);
+        $this->assertSame('99.00', (string) $record->retail_price);
+        $this->assertSame('79.00', (string) $record->actual_price);
+        $this->assertSame(20, $record->in_stock);
+        $this->assertSame(5, $record->sales_volume);
+        $this->assertSame(2, $record->ord);
+        $this->assertSame(1, $record->is_open);
+        $this->assertSame('商品说明', $record->description);
+        $this->assertSame('测试关键字 B,春季活动', DB::table('goods')->where('id', 96004)->value('gd_keywords'));
+    }
+
     public function test_index_can_export_goods_text(): void
     {
         $this->seedGoodsFixture();

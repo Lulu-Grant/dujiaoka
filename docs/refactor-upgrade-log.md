@@ -11,6 +11,28 @@
 
 ## 2026-04-12 阶段日志
 
+### 180. 商品接入批量添加关键字后缀页
+
+摘要：
+
+- 在后台壳商品线新增 [batch-keywords-suffix.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/goods/batch-keywords-suffix.blade.php)，支持按商品 ID 预览命中商品并批量追加商品关键字后缀。
+- 扩展 [GoodsActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/GoodsActionService.php) 与 [GoodsActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/GoodsActionController.php)，新增 `batchKeywordsSuffixDefaults`、`addKeywordsSuffix` 和 `batch-keywords-suffix` 模式。
+- 同步把“批量添加关键字后缀”加入商品列表头部动作和后台壳 smoke 检查。
+
+影响范围：
+
+- 只更新 `goods.gd_keywords` 尾部追加的运营检索标签
+- 不触碰商品名称、简介、价格、库存、分类、类型、销量、排序、启用状态和商品说明
+
+验证：
+
+- 新增定向 PHPUnit 覆盖服务默认值、页面渲染、批量提交和商品页头部动作结构
+- 本轮继续执行定向测试、全量 PHPUnit 与后台壳 smoke
+
+下一步：
+
+- 继续沿 goods 线补齐只改展示/运营辅助字段的动作页，逐步替换旧 Dcat 批量维护入口
+
 ### 179. 支付通道接入批量替换名称片段页
 
 摘要：

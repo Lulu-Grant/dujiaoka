@@ -90,6 +90,15 @@ class GoodsActionService
         ];
     }
 
+    public function batchKeywordsSuffixDefaults(array $goodsIds = []): array
+    {
+        return [
+            'goods_ids' => $goodsIds,
+            'ids_text' => implode("\n", $goodsIds),
+            'keywords_suffix' => '',
+        ];
+    }
+
     public function batchBuyLimitContext(array $goodsIds): array
     {
         $goods = Goods::query()
@@ -399,6 +408,29 @@ class GoodsActionService
                 'gd_keywords' => $keywords,
                 'updated_at' => now(),
             ]);
+    }
+
+    public function addKeywordsSuffix(array $goodsIds, string $suffix): int
+    {
+        if (empty($goodsIds)) {
+            return 0;
+        }
+
+        $goods = Goods::query()
+            ->whereIn('id', $goodsIds)
+            ->orderBy('id')
+            ->get(['id', 'gd_keywords']);
+
+        $updated = 0;
+
+        foreach ($goods as $item) {
+            $item->gd_keywords = ((string) $item->gd_keywords).$suffix;
+            $item->updated_at = now();
+            $item->save();
+            $updated++;
+        }
+
+        return $updated;
     }
 
     public function createDefaults(): array
