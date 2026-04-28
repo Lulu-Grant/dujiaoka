@@ -43,6 +43,15 @@ class OrderActionService
         ];
     }
 
+    public function batchTitlePrefixDefaults(array $orderIds = []): array
+    {
+        return [
+            'order_ids' => $orderIds,
+            'ids_text' => implode("\n", $orderIds),
+            'title_prefix' => '',
+        ];
+    }
+
     public function batchStatusContext(array $orderIds): array
     {
         $orders = Order::query()
@@ -191,6 +200,32 @@ class OrderActionService
 
         foreach ($orders as $order) {
             $order->title = $title;
+
+            Order::withoutEvents(function () use ($order) {
+                $order->save();
+            });
+
+            $updated++;
+        }
+
+        return $updated;
+    }
+
+    public function addTitlePrefix(array $orderIds, string $prefix): int
+    {
+        if (empty($orderIds)) {
+            return 0;
+        }
+
+        $orders = Order::query()
+            ->whereIn('id', $orderIds)
+            ->orderBy('id')
+            ->get();
+
+        $updated = 0;
+
+        foreach ($orders as $order) {
+            $order->title = $prefix.$order->title;
 
             Order::withoutEvents(function () use ($order) {
                 $order->save();

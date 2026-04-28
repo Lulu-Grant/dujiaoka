@@ -44,6 +44,10 @@ class AdminShellOrderControllerTest extends TestCase
             98032,
             98033,
             98034,
+            98041,
+            98042,
+            98043,
+            98044,
         ])->delete();
         DB::table('admin_users')->where('username', 'admin-shell-tester')->delete();
 
@@ -403,6 +407,47 @@ class AdminShellOrderControllerTest extends TestCase
         $this->assertSame('2026 春季活动人工复核单', $second->title);
         $this->assertSame('batch-98033', $first->search_pwd);
         $this->assertSame('batch-98034', $second->search_pwd);
+        $this->assertSame(Order::STATUS_COMPLETED, (int) $first->status);
+        $this->assertSame(Order::STATUS_COMPLETED, (int) $second->status);
+    }
+
+    public function test_batch_title_prefix_page_renders_matching_preview(): void
+    {
+        $this->seedBatchOrderFixture(98041, 'batch-98041', '订单批量测试 98041');
+        $this->seedBatchOrderFixture(98042, 'batch-98042', '订单批量测试 98042');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/order/batch-title-prefix?ids='.urlencode("98041,\n98042,98049"));
+
+        $response->assertOk();
+        $response->assertSee('批量添加订单标题前缀');
+        $response->assertSee('目标标题前缀');
+        $response->assertSee('订单批量测试 98041');
+        $response->assertSee('订单批量测试 98042');
+        $response->assertSee('98049');
+    }
+
+    public function test_batch_title_prefix_can_update_order_titles_without_touching_status_or_search_password(): void
+    {
+        $this->seedBatchOrderFixture(98043, 'batch-98043', '订单批量测试 98043');
+        $this->seedBatchOrderFixture(98044, 'batch-98044', '订单批量测试 98044');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/order/batch-title-prefix', [
+                'ids_text' => "98043\n98044,98050",
+                'title_prefix' => '[人工复核]-',
+            ]);
+
+        $response->assertRedirect('/admin/v2/order/batch-title-prefix?ids=98043,98044,98050');
+        $response->assertSessionHas('status', '已批量为 2 个订单标题添加前缀');
+
+        $first = Order::query()->findOrFail(98043);
+        $second = Order::query()->findOrFail(98044);
+
+        $this->assertSame('[人工复核]-订单批量测试 98043', $first->title);
+        $this->assertSame('[人工复核]-订单批量测试 98044', $second->title);
+        $this->assertSame('batch-98043', $first->search_pwd);
+        $this->assertSame('batch-98044', $second->search_pwd);
         $this->assertSame(Order::STATUS_COMPLETED, (int) $first->status);
         $this->assertSame(Order::STATUS_COMPLETED, (int) $second->status);
     }

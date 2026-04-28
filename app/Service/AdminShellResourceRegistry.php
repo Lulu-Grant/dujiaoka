@@ -67,6 +67,8 @@ class AdminShellResourceRegistry
                     ['method' => 'post', 'uri' => 'batch-info', 'action' => 'updateBatchInfo', 'name' => 'batch-info.update', 'controller' => \App\Http\Controllers\AdminShell\OrderActionController::class],
                     ['method' => 'get', 'uri' => 'batch-title', 'action' => 'editBatchTitle', 'name' => 'batch-title', 'controller' => \App\Http\Controllers\AdminShell\OrderActionController::class],
                     ['method' => 'post', 'uri' => 'batch-title', 'action' => 'updateBatchTitle', 'name' => 'batch-title.update', 'controller' => \App\Http\Controllers\AdminShell\OrderActionController::class],
+                    ['method' => 'get', 'uri' => 'batch-title-prefix', 'action' => 'editBatchTitlePrefix', 'name' => 'batch-title-prefix', 'controller' => \App\Http\Controllers\AdminShell\OrderActionController::class],
+                    ['method' => 'post', 'uri' => 'batch-title-prefix', 'action' => 'updateBatchTitlePrefix', 'name' => 'batch-title-prefix.update', 'controller' => \App\Http\Controllers\AdminShell\OrderActionController::class],
                     ['method' => 'get', 'uri' => 'batch-reset-search-pwd', 'action' => 'batchResetSearchPassword', 'name' => 'batch-reset-search-pwd', 'controller' => \App\Http\Controllers\AdminShell\OrderActionController::class],
                     ['method' => 'post', 'uri' => 'batch-reset-search-pwd', 'action' => 'updateBatchResetSearchPassword', 'name' => 'batch-reset-search-pwd.update', 'controller' => \App\Http\Controllers\AdminShell\OrderActionController::class],
                     ['method' => 'get', 'uri' => '{id}/edit', 'action' => 'edit', 'name' => 'edit', 'controller' => \App\Http\Controllers\AdminShell\OrderActionController::class],

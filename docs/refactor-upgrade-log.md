@@ -4646,6 +4646,32 @@
 
 - 继续沿着后台壳扩容主线推进，优先补齐 `pay / order / coupon` 的下一批低风险批量动作
 
+### 178. 订单管理接入批量添加标题前缀页
+
+摘要：
+
+- 订单管理现在新增了 [batch-title-prefix.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/order/batch-title-prefix.blade.php)，可以通过 `/admin/v2/order/batch-title-prefix` 先预览命中的订单，再统一给订单标题添加前缀。
+- [OrderActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/OrderActionController.php) 新增了 `batch-title-prefix` 的页面渲染和提交处理，把这条低风险批量动作接进现有订单动作控制器。
+- [OrderActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/OrderActionService.php) 新增了批量标题前缀默认值和 `title` 前缀补充逻辑，继续使用 `Order::withoutEvents()` 保持无事件写入。
+- [AdminShellOrderPageService.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellOrderPageService.php) 已在订单概览页头补上“批量添加标题前缀”入口。
+- [AdminShellResourceRegistry.php](/Users/apple/Documents/dujiaoshuka/app/Service/AdminShellResourceRegistry.php)、[AdminShellOrderControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellOrderControllerTest.php)、[OrderActionServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/OrderActionServiceTest.php)、[AdminShellPageStructureTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellPageStructureTest.php)、[AdminShellRouteRegistrarTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellRouteRegistrarTest.php) 和 [tests/Browser/admin-shell-smoke.sh](/Users/apple/Documents/dujiaoshuka/tests/Browser/admin-shell-smoke.sh) 已把这条动作的路由、展示、默认值、页头合同和页面巡检护栏补齐。
+
+影响范围：
+
+- 订单壳页从“状态 + 类型 + 附加信息 + 标题 + 查询密码重置 + 导出”继续推进到了“又一条真实低风险批量动作”。
+- 后台壳在订单人工维护线上的能力更完整了，适合统一补充活动标签、售后复核标记或历史订单整理标识。
+- 当前这条动作只更新 `title`，不改 `status`、`type`、`info`、`search_pwd`、`trade_no` 和支付、履约、通知链相关字段。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellOrderControllerTest.php tests/Unit/OrderActionServiceTest.php tests/Unit/AdminShellPageStructureTest.php tests/Unit/AdminShellRouteRegistrarTest.php` 通过
+- `./scripts/php74 vendor/bin/phpunit` 通过
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过
+
+下一步：
+
+- 继续沿着后台壳扩容主线推进，优先补齐 `goods / pay / order / coupon` 的下一批低风险批量动作
+
 ### 177. 优惠码管理接入批量添加后缀页
 
 摘要：
