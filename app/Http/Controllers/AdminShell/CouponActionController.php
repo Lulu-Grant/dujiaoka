@@ -144,6 +144,11 @@ class CouponActionController extends Controller
         return $this->renderBatchCodeSuffixPage($request);
     }
 
+    public function editBatchCodeReplace(Request $request)
+    {
+        return $this->renderBatchCodeReplacePage($request);
+    }
+
     public function updateBatchRet(Request $request)
     {
         return $this->storeBatchRet($request);
@@ -172,6 +177,11 @@ class CouponActionController extends Controller
     public function updateBatchCodeSuffix(Request $request)
     {
         return $this->storeBatchCodeSuffix($request);
+    }
+
+    public function updateBatchCodeReplace(Request $request)
+    {
+        return $this->storeBatchCodeReplace($request);
     }
 
     private function validatePayload(Request $request): array
@@ -406,6 +416,30 @@ class CouponActionController extends Controller
         ]);
     }
 
+    private function renderBatchCodeReplacePage(Request $request)
+    {
+        $couponIds = $this->couponActionService->parseCouponIds((string) $request->query('ids', $request->input('ids_text', '')));
+        $defaults = $this->couponActionService->batchCodeReplaceDefaults($couponIds);
+
+        return view('admin-shell.coupon.batch-code-replace', [
+            'title' => '批量替换优惠码内容片段 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量替换优惠码内容片段',
+                'description' => '这是后台壳中的低风险批量动作页。当前只承接优惠码内容片段替换，不改折扣、可用次数、启用状态、使用状态和关联商品。',
+                'meta' => '适合活动期替换渠道标记、测试批次或历史命名片段。若替换后撞码，系统会自动追加序号避免唯一性冲突。',
+                'actions' => [
+                    ['label' => '返回优惠码概览', 'href' => admin_url('v2/coupon')],
+                    ['label' => '批量添加优惠码后缀', 'href' => admin_url('v2/coupon/batch-code-suffix'), 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/coupon/batch-code-replace'),
+            'submitLabel' => '执行批量片段替换',
+            'defaults' => $defaults,
+            'context' => $this->couponActionService->batchStatusContext($couponIds),
+        ]);
+    }
+
     private function storeBatchRet(Request $request)
     {
         $payload = $request->validate([
@@ -539,6 +573,37 @@ class CouponActionController extends Controller
 
         return redirect(admin_url('v2/coupon/batch-code-suffix?ids='.implode(',', $couponIds)))
             ->with('status', '已批量为 '.$affected.' 个优惠码添加后缀');
+    }
+
+    private function storeBatchCodeReplace(Request $request)
+    {
+        $payload = $request->validate([
+            'ids_text' => ['required', 'string'],
+            'search_text' => ['required', 'string', 'max:100'],
+            'replace_text' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $couponIds = $this->couponActionService->parseCouponIds($payload['ids_text']);
+        if (empty($couponIds)) {
+            return redirect()
+                ->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的优惠码 ID。'])
+                ->withInput();
+        }
+
+        $search = trim($payload['search_text']);
+        if ($search === '') {
+            return redirect()
+                ->back()
+                ->withErrors(['search_text' => '请填写需要查找的优惠码内容片段。'])
+                ->withInput();
+        }
+
+        $replacement = trim($payload['replace_text'] ?? '');
+        $affected = $this->couponActionService->replaceCodeSegment($couponIds, $search, $replacement);
+
+        return redirect(admin_url('v2/coupon/batch-code-replace?ids='.implode(',', $couponIds)))
+            ->with('status', '已批量替换 '.$affected.' 个优惠码的内容片段');
     }
 
     private function isBatchMode(Request $request): bool

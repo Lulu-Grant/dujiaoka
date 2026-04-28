@@ -11,6 +11,28 @@
 
 ## 2026-04-12 阶段日志
 
+### 181. 优惠码接入批量替换内容片段页
+
+摘要：
+
+- 在后台壳优惠码线新增 [batch-code-replace.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/coupon/batch-code-replace.blade.php)，支持按优惠码 ID 预览并批量替换优惠码内容片段。
+- 扩展 [CouponActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/CouponActionService.php) 与 [CouponActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/CouponActionController.php)，新增 `batchCodeReplaceDefaults`、`replaceCodeSegment` 和对应 GET/POST 动作。
+- 同步把 `/admin/v2/coupon/batch-code-replace` 注册到后台壳资源注册表、优惠码列表头部动作和 smoke 检查。
+
+影响范围：
+
+- 只更新 `coupons.coupon` 中命中的文本片段，并保留撞码时自动追加序号的唯一性保护
+- 不触碰折扣、可用次数、启停状态、使用状态和关联商品
+
+验证：
+
+- 新增定向 PHPUnit 覆盖服务默认值、页面渲染、批量提交、路由注册和列表动作结构
+- 本轮继续执行定向测试、全量 PHPUnit 与后台壳 smoke
+
+下一步：
+
+- 继续沿 coupon 或 carmis 线补齐低风险批量维护动作，保持后台壳迁移节奏小步稳定
+
 ### 180. 商品接入批量添加关键字后缀页
 
 摘要：

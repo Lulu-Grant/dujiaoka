@@ -103,6 +103,15 @@ class CouponActionService
         ];
     }
 
+    public function batchCodeReplaceDefaults(array $couponIds = []): array
+    {
+        return [
+            'ids_text' => implode("\n", $couponIds),
+            'search_text' => '',
+            'replace_text' => '',
+        ];
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -300,6 +309,47 @@ class CouponActionService
             ) {
                 $attempts++;
                 $nextCode = $baseCode.$normalizedSuffix.'-'.$attempts;
+            }
+
+            $coupon->coupon = $nextCode;
+            $coupon->updated_at = now();
+            $coupon->save();
+            $updated++;
+        }
+
+        return $updated;
+    }
+
+    public function replaceCodeSegment(array $couponIds, string $search, string $replacement): int
+    {
+        if (empty($couponIds) || $search === '') {
+            return 0;
+        }
+
+        $coupons = Coupon::query()
+            ->whereIn('id', $couponIds)
+            ->orderBy('id')
+            ->get();
+
+        $updated = 0;
+
+        foreach ($coupons as $coupon) {
+            $baseCode = (string) $coupon->coupon;
+            $nextCode = str_replace($search, $replacement, $baseCode);
+
+            if ($nextCode === $baseCode) {
+                continue;
+            }
+
+            $attempts = 0;
+            while (
+                Coupon::query()
+                    ->where('coupon', $nextCode)
+                    ->where('id', '!=', $coupon->id)
+                    ->exists()
+            ) {
+                $attempts++;
+                $nextCode = str_replace($search, $replacement, $baseCode).'-'.$attempts;
             }
 
             $coupon->coupon = $nextCode;

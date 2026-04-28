@@ -413,6 +413,46 @@ class AdminShellCouponControllerTest extends TestCase
         $this->assertSame(\App\Models\Coupon::STATUS_OPEN, (int) DB::table('coupons')->where('id', 95006)->value('is_open'));
     }
 
+    public function test_batch_code_replace_page_renders_coupon_replace_form_and_preview(): void
+    {
+        $this->seedCouponFixture(95006, 'XIGUA-OLD-1', '测试商品 I');
+        $this->seedCouponFixture(95007, 'XIGUA-OLD-2', '测试商品 J');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/coupon/batch-code-replace?ids=95006,95007');
+
+        $response->assertOk();
+        $response->assertSee('批量替换优惠码内容片段');
+        $response->assertSee('目标替换内容');
+        $response->assertSee('XIGUA-OLD-1');
+        $response->assertSee('XIGUA-OLD-2');
+    }
+
+    public function test_batch_code_replace_page_can_replace_coupon_segment_with_mixed_separators(): void
+    {
+        $this->seedCouponFixture(95006, 'XIGUA-OLD-1', '测试商品 I');
+        $this->seedCouponFixture(95007, 'XIGUA-OLD-2', '测试商品 J');
+        $beforeDiscount = (string) DB::table('coupons')->where('id', 95006)->value('discount');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/coupon/batch-code-replace', [
+                'ids_text' => "95006, 95007\n95008",
+                'search_text' => 'OLD',
+                'replace_text' => 'NEW',
+            ]);
+
+        $response->assertRedirect('/admin/v2/coupon/batch-code-replace?ids=95006,95007,95008');
+        $response->assertSessionHas('status', '已批量替换 2 个优惠码的内容片段');
+
+        $this->assertSame('XIGUA-NEW-1', (string) DB::table('coupons')->where('id', 95006)->value('coupon'));
+        $this->assertSame('XIGUA-NEW-2', (string) DB::table('coupons')->where('id', 95007)->value('coupon'));
+        $this->assertSame($beforeDiscount, (string) DB::table('coupons')->where('id', 95006)->value('discount'));
+        $this->assertSame(1, (int) DB::table('coupons')->where('id', 95006)->value('ret'));
+        $this->assertSame(\App\Models\Coupon::STATUS_OPEN, (int) DB::table('coupons')->where('id', 95006)->value('is_open'));
+        $this->assertSame(\App\Models\Coupon::STATUS_UNUSED, (int) DB::table('coupons')->where('id', 95006)->value('is_use'));
+        $this->assertTrue(DB::table('coupons_goods')->where('coupons_id', 95006)->where('goods_id', 95006)->exists());
+    }
+
     public function test_index_can_export_coupon_text_with_current_filters(): void
     {
         $this->seedCouponFixture(95001, 'XIGUA-STATE-1', '测试商品 D');

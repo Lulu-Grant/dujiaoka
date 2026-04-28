@@ -391,6 +391,7 @@ class AdminShellPageStructureTest extends TestCase
         $this->assertSame('批量重生成优惠码', $header['actions'][7]['label']);
         $this->assertSame('批量添加优惠码前缀', $header['actions'][8]['label']);
         $this->assertSame('批量添加优惠码后缀', $header['actions'][9]['label']);
+        $this->assertSame('批量替换优惠码片段', $header['actions'][10]['label']);
         $this->assertSame('XIGUA', $requestFilters['coupon']);
         $this->assertSame('商品 ID', $filters['fields'][2]['label']);
         $this->assertSame('优惠码详情', $showHeader['title']);
