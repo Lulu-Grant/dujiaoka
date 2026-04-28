@@ -11,6 +11,28 @@
 
 ## 2026-04-12 阶段日志
 
+### 179. 支付通道接入批量替换名称片段页
+
+摘要：
+
+- 在后台壳支付通道线新增 [batch-name-replace.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/pay/batch-name-replace.blade.php)，支持按 ID 预览支付通道并批量替换展示名称中的指定片段。
+- 扩展 [PayActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PayActionService.php) 与 [PayActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/PayActionController.php)，新增 `batchNameReplaceDefaults`、`replaceNameSegment` 和对应 GET/POST 动作。
+- 同步把 `/admin/v2/pay/batch-name-replace` 注册到后台壳资源注册表、支付列表页头部动作和 smoke 检查。
+
+影响范围：
+
+- 只更新 `pays.pay_name` 中命中的文本片段
+- 不触碰支付标识、商户密钥、支付场景、支付方式、回调路由和启用状态
+
+验证：
+
+- 新增定向 PHPUnit 覆盖服务默认值、页面渲染、批量提交和路由注册
+- 本轮继续执行定向测试、全量 PHPUnit 与后台壳 smoke
+
+下一步：
+
+- 继续沿支付通道低风险动作线补齐更多可回滚、可预览的后台壳操作，逐步降低旧 Dcat 依赖
+
 ### 148. 第二批旧 Dcat 壳文件清理
 
 摘要：

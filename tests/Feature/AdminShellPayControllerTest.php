@@ -12,7 +12,7 @@ class AdminShellPayControllerTest extends TestCase
 {
     protected function tearDown(): void
     {
-        DB::table('pays')->whereIn('id', [93001, 93002, 93003, 93004, 93005, 93006, 93011, 93012, 93013, 93014, 93015, 93016, 93017, 93018, 93019, 93020, 93021, 93022, 93029, 93030, 93031, 93032, 93033, 93035, 93036, 93037])->delete();
+        DB::table('pays')->whereIn('id', [93001, 93002, 93003, 93004, 93005, 93006, 93011, 93012, 93013, 93014, 93015, 93016, 93017, 93018, 93019, 93020, 93021, 93022, 93023, 93024, 93025, 93026, 93027, 93028, 93029, 93030, 93031, 93032, 93033, 93034, 93035, 93036, 93037, 93038, 93039, 93040, 93041, 93042, 93043])->delete();
         DB::table('pays')->whereIn('pay_check', ['stripe', 'paypal', 'wechat-shell', 'alipay-shell', 'copy-shell-clone'])->delete();
         DB::table('admin_users')->where('username', 'admin-shell-tester')->delete();
 
@@ -930,6 +930,116 @@ class AdminShellPayControllerTest extends TestCase
 
         $this->assertSame('后缀样板 A- 春季活动', DB::table('pays')->where('id', 93035)->value('pay_name'));
         $this->assertSame('后缀样板 B- 春季活动', DB::table('pays')->where('id', 93036)->value('pay_name'));
+    }
+
+    public function test_batch_name_replace_page_renders_pay_preview(): void
+    {
+        DB::table('pays')
+            ->whereIn('id', [93038, 93039])
+            ->orWhereIn('pay_check', ['batch-replace-a', 'batch-replace-b'])
+            ->delete();
+
+        DB::table('pays')->insert([
+            'id' => 93038,
+            'pay_name' => '替换样板 A - 旧标签',
+            'merchant_id' => 'batch-replace-a',
+            'merchant_key' => 'batch-replace-a-key',
+            'merchant_pem' => 'batch-replace-a-pem',
+            'pay_check' => 'batch-replace-a',
+            'pay_client' => 1,
+            'pay_handleroute' => '/pay/batch-replace-a',
+            'pay_method' => 1,
+            'is_open' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+        DB::table('pays')->insert([
+            'id' => 93039,
+            'pay_name' => '替换样板 B - 旧标签',
+            'merchant_id' => 'batch-replace-b',
+            'merchant_key' => 'batch-replace-b-key',
+            'merchant_pem' => 'batch-replace-b-pem',
+            'pay_check' => 'batch-replace-b',
+            'pay_client' => 2,
+            'pay_handleroute' => '/pay/batch-replace-b',
+            'pay_method' => 2,
+            'is_open' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/pay/batch-name-replace?ids=93038,93039,93040');
+
+        $response->assertOk();
+        $response->assertSee('批量替换支付名称片段');
+        $response->assertSee('目标替换内容');
+        $response->assertSee('待处理通道数');
+        $response->assertSee('替换样板 A - 旧标签');
+        $response->assertSee('替换样板 B - 旧标签');
+        $response->assertSee('93040');
+        $response->assertSee('未匹配 ID 数');
+    }
+
+    public function test_batch_name_replace_page_can_update_pay_channels(): void
+    {
+        DB::table('pays')
+            ->whereIn('id', [93041, 93042])
+            ->orWhereIn('pay_check', ['batch-replace-update-a', 'batch-replace-update-b'])
+            ->delete();
+
+        DB::table('pays')->insert([
+            'id' => 93041,
+            'pay_name' => '替换样板 A - 旧标签',
+            'merchant_id' => 'batch-replace-a',
+            'merchant_key' => 'batch-replace-a-key',
+            'merchant_pem' => 'batch-replace-a-pem',
+            'pay_check' => 'batch-replace-update-a',
+            'pay_client' => 1,
+            'pay_handleroute' => '/pay/batch-replace-update-a',
+            'pay_method' => 1,
+            'is_open' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+        DB::table('pays')->insert([
+            'id' => 93042,
+            'pay_name' => '替换样板 B - 旧标签',
+            'merchant_id' => 'batch-replace-b',
+            'merchant_key' => 'batch-replace-b-key',
+            'merchant_pem' => 'batch-replace-b-pem',
+            'pay_check' => 'batch-replace-update-b',
+            'pay_client' => 2,
+            'pay_handleroute' => '/pay/batch-replace-update-b',
+            'pay_method' => 2,
+            'is_open' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/pay/batch-name-replace', [
+                'ids_text' => "93041\n93042\n93043",
+                'search_text' => '旧标签',
+                'replace_text' => '新标签',
+            ]);
+
+        $response->assertRedirect('/admin/v2/pay/batch-name-replace?ids=93041,93042,93043');
+        $response->assertSessionHas('status', '已批量替换 2 个支付通道的名称片段');
+
+        $record = DB::table('pays')->where('id', 93041)->first();
+        $this->assertSame('替换样板 A - 新标签', $record->pay_name);
+        $this->assertSame('batch-replace-update-a', $record->pay_check);
+        $this->assertSame('batch-replace-a-key', $record->merchant_key);
+        $this->assertSame('/pay/batch-replace-update-a', $record->pay_handleroute);
+        $this->assertSame(1, $record->pay_client);
+        $this->assertSame(1, $record->pay_method);
+        $this->assertSame(1, $record->is_open);
+        $this->assertSame('替换样板 B - 新标签', DB::table('pays')->where('id', 93042)->value('pay_name'));
     }
 
     public function test_edit_page_can_update_pay_channel(): void

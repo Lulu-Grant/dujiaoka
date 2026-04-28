@@ -111,6 +111,16 @@ class PayActionService
         ];
     }
 
+    public function batchNameReplaceDefaults(array $payIds = []): array
+    {
+        return [
+            'pay_ids' => $payIds,
+            'ids_text' => implode("\n", $payIds),
+            'search_text' => '',
+            'replace_text' => '',
+        ];
+    }
+
     public function batchClientContext(array $payIds): array
     {
         $pays = Pay::query()
@@ -237,6 +247,35 @@ class PayActionService
 
         foreach ($pays as $pay) {
             $pay->pay_name = $pay->pay_name.$suffix;
+            $pay->updated_at = now();
+            $pay->save();
+            $updated++;
+        }
+
+        return $updated;
+    }
+
+    public function replaceNameSegment(array $payIds, string $search, string $replacement): int
+    {
+        if (empty($payIds) || $search === '') {
+            return 0;
+        }
+
+        $pays = Pay::query()
+            ->whereIn('id', $payIds)
+            ->orderBy('id')
+            ->get();
+
+        $updated = 0;
+
+        foreach ($pays as $pay) {
+            $nextName = str_replace($search, $replacement, (string) $pay->pay_name);
+
+            if ($nextName === $pay->pay_name) {
+                continue;
+            }
+
+            $pay->pay_name = $nextName;
             $pay->updated_at = now();
             $pay->save();
             $updated++;

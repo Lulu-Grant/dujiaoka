@@ -237,6 +237,30 @@ class PayActionController extends Controller
         ]);
     }
 
+    public function editBatchNameReplace(Request $request)
+    {
+        $payIds = $this->payActionService->parsePayIds((string) $request->query('ids', ''));
+        $defaults = $this->payActionService->batchNameReplaceDefaults($payIds);
+
+        return view('admin-shell.pay.batch-name-replace', [
+            'title' => '批量替换支付名称片段 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量替换支付名称片段',
+                'description' => '这是后台壳中的低风险批量动作页。当前只承接支付通道展示名称片段替换，不触碰支付标识、商户密钥、场景、方式和回调路由。',
+                'meta' => '适合统一替换活动标签、渠道别名或历史命名片段。提交后只更新支付名称字段中命中的文本。',
+                'actions' => [
+                    ['label' => '返回支付通道概览', 'href' => admin_url('v2/pay')],
+                    ['label' => '批量添加名称后缀', 'href' => admin_url('v2/pay/batch-name-suffix'), 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/pay/batch-name-replace'),
+            'submitLabel' => '执行批量片段替换',
+            'defaults' => $defaults,
+            'context' => $this->payActionService->batchClientContext($payIds),
+        ]);
+    }
+
     public function updateBatchStatus(Request $request)
     {
         $validated = $request->validate([
@@ -363,6 +387,35 @@ class PayActionController extends Controller
 
         return redirect(admin_url('v2/pay/batch-name-suffix').'?ids='.implode(',', $payIds))
             ->with('status', '已批量为 '.$affected.' 个支付通道添加名称后缀');
+    }
+
+    public function updateBatchNameReplace(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+            'search_text' => ['required', 'string', 'max:100'],
+            'replace_text' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $payIds = $this->payActionService->parsePayIds($validated['ids_text']);
+        if (empty($payIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的支付通道 ID。'])
+                ->withInput();
+        }
+
+        $search = trim($validated['search_text']);
+        if ($search === '') {
+            return redirect()->back()
+                ->withErrors(['search_text' => '请填写需要查找的名称片段。'])
+                ->withInput();
+        }
+
+        $replacement = trim($validated['replace_text'] ?? '');
+        $affected = $this->payActionService->replaceNameSegment($payIds, $search, $replacement);
+
+        return redirect(admin_url('v2/pay/batch-name-replace').'?ids='.implode(',', $payIds))
+            ->with('status', '已批量替换 '.$affected.' 个支付通道的名称片段');
     }
 
     private function validatePayload(Request $request, bool $isCreate, ?Pay $pay = null): array
