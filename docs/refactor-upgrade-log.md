@@ -11,6 +11,28 @@
 
 ## 2026-04-12 阶段日志
 
+### 186. 订单接入批量清理标题空格页
+
+摘要：
+
+- 在后台壳订单线新增 [batch-title-trim.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/order/batch-title-trim.blade.php)，支持按订单 ID 预览并批量清理订单标题首尾空格。
+- 扩展 [OrderActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/OrderActionService.php) 与 [OrderActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/OrderActionController.php)，新增 `batchTitleTrimDefaults`、`trimTitles` 和对应 GET/POST 动作。
+- 同步把 `/admin/v2/order/batch-title-trim` 注册到后台壳资源注册表、订单列表头部动作和 smoke 检查。
+
+影响范围：
+
+- 只更新 `orders.title` 的首尾空格，并只统计实际发生变化的订单
+- 不触碰订单状态机、支付、履约、通知链、查询密码、订单类型和交易信息
+
+验证：
+
+- 新增定向 PHPUnit 覆盖服务默认值、页面渲染、批量提交、路由注册和列表动作结构
+- 本轮继续执行定向测试、全量 PHPUnit 与后台壳 smoke
+
+下一步：
+
+- 继续沿 order/carmis/pay 线补齐只改展示或人工维护辅助字段的低风险批量动作，保持后台壳迁移节奏稳定
+
 ### 185. 优惠码接入批量清理内容空格页
 
 摘要：

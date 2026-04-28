@@ -222,6 +222,31 @@ class OrderActionController extends Controller
         ]);
     }
 
+    public function editBatchTitleTrim(Request $request)
+    {
+        $orderIds = $this->orderActionService->parseOrderIds((string) $request->query('ids', ''));
+        $defaults = $this->orderActionService->batchTitleTrimDefaults($orderIds);
+        $context = $this->orderActionService->batchStatusContext($orderIds);
+
+        return view('admin-shell.order.batch-title-trim', [
+            'title' => '批量清理订单标题空格 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量清理订单标题空格',
+                'description' => '这是后台壳中的低风险批量动作页。当前只清理订单标题首尾空格，不触碰状态机、支付、履约和通知链。',
+                'meta' => '适合导入、人工维护或历史订单整理后的标题规范化。提交后只更新订单标题字段，并保持无事件写入。',
+                'actions' => [
+                    ['label' => '返回订单概览', 'href' => admin_url('v2/order')],
+                    ['label' => '批量添加标题后缀', 'href' => admin_url('v2/order/batch-title-suffix'), 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/order/batch-title-trim'),
+            'submitLabel' => '执行标题空格清理',
+            'defaults' => $defaults,
+            'context' => $context,
+        ]);
+    }
+
     public function updateBatchStatus(Request $request)
     {
         $validated = $request->validate([
@@ -386,6 +411,31 @@ class OrderActionController extends Controller
 
         return redirect(admin_url('v2/order/batch-title-suffix').'?ids='.implode(',', $orderIds))
             ->with('status', '已批量为 '.$updated.' 个订单标题添加后缀');
+    }
+
+    public function updateBatchTitleTrim(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+        ]);
+
+        $orderIds = $this->orderActionService->parseOrderIds($validated['ids_text']);
+
+        if (empty($orderIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的订单 ID。'])
+                ->withInput();
+        }
+
+        $updated = $this->orderActionService->trimTitles($orderIds);
+
+        if ($updated === 0) {
+            return redirect(admin_url('v2/order/batch-title-trim').'?ids='.implode(',', $orderIds))
+                ->with('status', '没有订单标题需要清理空格');
+        }
+
+        return redirect(admin_url('v2/order/batch-title-trim').'?ids='.implode(',', $orderIds))
+            ->with('status', '已批量清理 '.$updated.' 个订单标题的空格');
     }
 
     public function batchResetSearchPassword(Request $request)

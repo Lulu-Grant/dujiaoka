@@ -52,6 +52,10 @@ class AdminShellOrderControllerTest extends TestCase
             98052,
             98053,
             98054,
+            98061,
+            98062,
+            98063,
+            98064,
         ])->delete();
         DB::table('admin_users')->where('username', 'admin-shell-tester')->delete();
 
@@ -495,6 +499,48 @@ class AdminShellOrderControllerTest extends TestCase
         $this->assertSame('batch-98054', $second->search_pwd);
         $this->assertSame(Order::STATUS_COMPLETED, (int) $first->status);
         $this->assertSame(Order::STATUS_COMPLETED, (int) $second->status);
+    }
+
+    public function test_batch_title_trim_page_renders_matching_preview(): void
+    {
+        $this->seedBatchOrderFixture(98061, 'batch-98061', '  订单批量测试 98061  ');
+        $this->seedBatchOrderFixture(98062, 'batch-98062', '订单批量测试 98062');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/order/batch-title-trim?ids='.urlencode("98061,\n98062,98069"));
+
+        $response->assertOk();
+        $response->assertSee('批量清理订单标题空格');
+        $response->assertSee('执行标题空格清理');
+        $response->assertSee('订单批量测试 98061');
+        $response->assertSee('订单批量测试 98062');
+        $response->assertSee('98069');
+    }
+
+    public function test_batch_title_trim_can_update_order_titles_without_touching_status_or_search_password(): void
+    {
+        $this->seedBatchOrderFixture(98063, 'batch-98063', '  订单批量测试 98063  ');
+        $this->seedBatchOrderFixture(98064, 'batch-98064', '订单批量测试 98064');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/order/batch-title-trim', [
+                'ids_text' => "98063\n98064,98070",
+            ]);
+
+        $response->assertRedirect('/admin/v2/order/batch-title-trim?ids=98063,98064,98070');
+        $response->assertSessionHas('status', '已批量清理 1 个订单标题的空格');
+
+        $first = Order::query()->findOrFail(98063);
+        $second = Order::query()->findOrFail(98064);
+
+        $this->assertSame('订单批量测试 98063', $first->title);
+        $this->assertSame('订单批量测试 98064', $second->title);
+        $this->assertSame('batch-98063', $first->search_pwd);
+        $this->assertSame('batch-98064', $second->search_pwd);
+        $this->assertSame(Order::STATUS_COMPLETED, (int) $first->status);
+        $this->assertSame(Order::STATUS_COMPLETED, (int) $second->status);
+        $this->assertSame(Order::AUTOMATIC_DELIVERY, (int) $first->type);
+        $this->assertSame('trade-no-batch-98063', $first->trade_no);
     }
 
     public function test_batch_reset_can_refresh_search_passwords_for_matched_orders(): void

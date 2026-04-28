@@ -58,6 +58,15 @@ class OrderActionServiceTest extends TestCase
         $this->assertSame('', $defaults['title_suffix']);
     }
 
+    public function test_batch_title_trim_defaults_only_require_ids_for_safe_review(): void
+    {
+        $defaults = app(OrderActionService::class)->batchTitleTrimDefaults([98001, 98002]);
+
+        $this->assertSame([98001, 98002], $defaults['order_ids']);
+        $this->assertSame("98001\n98002", $defaults['ids_text']);
+        $this->assertArrayNotHasKey('title', $defaults);
+    }
+
     private function seedOrderFixture(int $id): Order
     {
         DB::table('orders')->where('id', $id)->delete();
