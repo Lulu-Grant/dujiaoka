@@ -285,6 +285,30 @@ class PayActionController extends Controller
         ]);
     }
 
+    public function editBatchNameCollapseSpaces(Request $request)
+    {
+        $payIds = $this->payActionService->parsePayIds((string) $request->query('ids', ''));
+        $defaults = $this->payActionService->batchNameCollapseSpacesDefaults($payIds);
+
+        return view('admin-shell.pay.batch-name-collapse-spaces', [
+            'title' => '批量压缩支付名称连续空格 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量压缩支付名称连续空格',
+                'description' => '这是后台壳中的低风险批量动作页。当前只压缩支付通道展示名称里的连续空格，不触碰支付标识、商户密钥、场景、方式、回调路由和启停状态。',
+                'meta' => '适合清理导入或人工维护时误粘贴的多个空格。提交后只更新实际发生变化的支付名称。',
+                'actions' => [
+                    ['label' => '返回支付通道概览', 'href' => admin_url('v2/pay')],
+                    ['label' => '批量清理名称空格', 'href' => admin_url('v2/pay/batch-name-trim'), 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/pay/batch-name-collapse-spaces'),
+            'submitLabel' => '执行名称连续空格压缩',
+            'defaults' => $defaults,
+            'context' => $this->payActionService->batchClientContext($payIds),
+        ]);
+    }
+
     public function updateBatchStatus(Request $request)
     {
         $validated = $request->validate([
@@ -459,6 +483,25 @@ class PayActionController extends Controller
 
         return redirect(admin_url('v2/pay/batch-name-trim').'?ids='.implode(',', $payIds))
             ->with('status', '已批量清理 '.$affected.' 个支付通道的名称空格');
+    }
+
+    public function updateBatchNameCollapseSpaces(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+        ]);
+
+        $payIds = $this->payActionService->parsePayIds($validated['ids_text']);
+        if (empty($payIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的支付通道 ID。'])
+                ->withInput();
+        }
+
+        $affected = $this->payActionService->collapseNameSpaces($payIds);
+
+        return redirect(admin_url('v2/pay/batch-name-collapse-spaces').'?ids='.implode(',', $payIds))
+            ->with('status', '已批量压缩 '.$affected.' 个支付通道的名称连续空格');
     }
 
     private function validatePayload(Request $request, bool $isCreate, ?Pay $pay = null): array

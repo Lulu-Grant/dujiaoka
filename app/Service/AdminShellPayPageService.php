@@ -136,6 +136,11 @@ class AdminShellPayPageService extends AbstractAdminShellPageService
             'variant' => 'secondary',
         ];
         $header['actions'][] = [
+            'label' => '批量压缩名称空格',
+            'href' => admin_url('v2/pay/batch-name-collapse-spaces'),
+            'variant' => 'secondary',
+        ];
+        $header['actions'][] = [
             'label' => '新建支付通道',
             'href' => admin_url('v2/pay/create'),
             'variant' => 'primary',

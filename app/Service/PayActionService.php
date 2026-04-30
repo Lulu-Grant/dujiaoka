@@ -129,6 +129,14 @@ class PayActionService
         ];
     }
 
+    public function batchNameCollapseSpacesDefaults(array $payIds = []): array
+    {
+        return [
+            'pay_ids' => $payIds,
+            'ids_text' => implode("\n", $payIds),
+        ];
+    }
+
     public function batchClientContext(array $payIds): array
     {
         $pays = Pay::query()
@@ -309,6 +317,35 @@ class PayActionService
             $nextName = trim((string) $pay->pay_name);
 
             if ($nextName === $pay->pay_name) {
+                continue;
+            }
+
+            $pay->pay_name = $nextName;
+            $pay->updated_at = now();
+            $pay->save();
+            $updated++;
+        }
+
+        return $updated;
+    }
+
+    public function collapseNameSpaces(array $payIds): int
+    {
+        if (empty($payIds)) {
+            return 0;
+        }
+
+        $pays = Pay::query()
+            ->whereIn('id', $payIds)
+            ->orderBy('id')
+            ->get();
+
+        $updated = 0;
+
+        foreach ($pays as $pay) {
+            $nextName = preg_replace('/[ \t\x{3000}]+/u', ' ', (string) $pay->pay_name);
+
+            if ($nextName === null || $nextName === $pay->pay_name) {
                 continue;
             }
 

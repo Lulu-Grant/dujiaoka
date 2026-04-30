@@ -12,7 +12,7 @@ class AdminShellPayControllerTest extends TestCase
 {
     protected function tearDown(): void
     {
-        DB::table('pays')->whereIn('id', [93001, 93002, 93003, 93004, 93005, 93006, 93011, 93012, 93013, 93014, 93015, 93016, 93017, 93018, 93019, 93020, 93021, 93022, 93023, 93024, 93025, 93026, 93027, 93028, 93029, 93030, 93031, 93032, 93033, 93034, 93035, 93036, 93037, 93038, 93039, 93040, 93041, 93042, 93043, 93044, 93045, 93046, 93047, 93048, 93049])->delete();
+        DB::table('pays')->whereIn('id', [93001, 93002, 93003, 93004, 93005, 93006, 93011, 93012, 93013, 93014, 93015, 93016, 93017, 93018, 93019, 93020, 93021, 93022, 93023, 93024, 93025, 93026, 93027, 93028, 93029, 93030, 93031, 93032, 93033, 93034, 93035, 93036, 93037, 93038, 93039, 93040, 93041, 93042, 93043, 93044, 93045, 93046, 93047, 93048, 93049, 93050, 93051, 93052, 93053, 93054, 93055])->delete();
         DB::table('pays')->whereIn('pay_check', ['stripe', 'paypal', 'wechat-shell', 'alipay-shell', 'copy-shell-clone'])->delete();
         DB::table('admin_users')->where('username', 'admin-shell-tester')->delete();
 
@@ -1147,6 +1147,113 @@ class AdminShellPayControllerTest extends TestCase
         $this->assertSame(1, $record->pay_method);
         $this->assertSame(1, $record->is_open);
         $this->assertSame('清理空格样板 B', DB::table('pays')->where('id', 93048)->value('pay_name'));
+    }
+
+    public function test_batch_name_collapse_spaces_page_renders_pay_preview(): void
+    {
+        DB::table('pays')
+            ->whereIn('id', [93050, 93051])
+            ->orWhereIn('pay_check', ['batch-collapse-a', 'batch-collapse-b'])
+            ->delete();
+
+        DB::table('pays')->insert([
+            'id' => 93050,
+            'pay_name' => '压缩  空格   样板 A',
+            'merchant_id' => 'batch-collapse-a',
+            'merchant_key' => 'batch-collapse-a-key',
+            'merchant_pem' => 'batch-collapse-a-pem',
+            'pay_check' => 'batch-collapse-a',
+            'pay_client' => 1,
+            'pay_handleroute' => '/pay/batch-collapse-a',
+            'pay_method' => 1,
+            'is_open' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+        DB::table('pays')->insert([
+            'id' => 93051,
+            'pay_name' => '压缩空格样板 B',
+            'merchant_id' => 'batch-collapse-b',
+            'merchant_key' => 'batch-collapse-b-key',
+            'merchant_pem' => 'batch-collapse-b-pem',
+            'pay_check' => 'batch-collapse-b',
+            'pay_client' => 2,
+            'pay_handleroute' => '/pay/batch-collapse-b',
+            'pay_method' => 2,
+            'is_open' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/pay/batch-name-collapse-spaces?ids=93050,93051,93052');
+
+        $response->assertOk();
+        $response->assertSee('批量压缩支付名称连续空格');
+        $response->assertSee('待处理通道数');
+        $response->assertSee('压缩  空格   样板 A');
+        $response->assertSee('压缩空格样板 B');
+        $response->assertSee('93052');
+        $response->assertSee('未匹配 ID 数');
+    }
+
+    public function test_batch_name_collapse_spaces_page_can_update_pay_names_without_touching_payment_config(): void
+    {
+        DB::table('pays')
+            ->whereIn('id', [93053, 93054])
+            ->orWhereIn('pay_check', ['batch-collapse-update-a', 'batch-collapse-update-b'])
+            ->delete();
+
+        DB::table('pays')->insert([
+            'id' => 93053,
+            'pay_name' => '压缩  空格   样板 A',
+            'merchant_id' => 'batch-collapse-a',
+            'merchant_key' => 'batch-collapse-a-key',
+            'merchant_pem' => 'batch-collapse-a-pem',
+            'pay_check' => 'batch-collapse-update-a',
+            'pay_client' => 1,
+            'pay_handleroute' => '/pay/batch-collapse-update-a',
+            'pay_method' => 1,
+            'is_open' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+        DB::table('pays')->insert([
+            'id' => 93054,
+            'pay_name' => '压缩空格样板 B',
+            'merchant_id' => 'batch-collapse-b',
+            'merchant_key' => 'batch-collapse-b-key',
+            'merchant_pem' => 'batch-collapse-b-pem',
+            'pay_check' => 'batch-collapse-update-b',
+            'pay_client' => 2,
+            'pay_handleroute' => '/pay/batch-collapse-update-b',
+            'pay_method' => 2,
+            'is_open' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/pay/batch-name-collapse-spaces', [
+                'ids_text' => "93053\n93054\n93055",
+            ]);
+
+        $response->assertRedirect('/admin/v2/pay/batch-name-collapse-spaces?ids=93053,93054,93055');
+        $response->assertSessionHas('status', '已批量压缩 1 个支付通道的名称连续空格');
+
+        $record = DB::table('pays')->where('id', 93053)->first();
+        $this->assertSame('压缩 空格 样板 A', $record->pay_name);
+        $this->assertSame('batch-collapse-update-a', $record->pay_check);
+        $this->assertSame('batch-collapse-a-key', $record->merchant_key);
+        $this->assertSame('/pay/batch-collapse-update-a', $record->pay_handleroute);
+        $this->assertSame(1, $record->pay_client);
+        $this->assertSame(1, $record->pay_method);
+        $this->assertSame(1, $record->is_open);
+        $this->assertSame('压缩空格样板 B', DB::table('pays')->where('id', 93054)->value('pay_name'));
     }
 
     public function test_edit_page_can_update_pay_channel(): void

@@ -138,4 +138,15 @@ class PayActionServiceTest extends TestCase
         $this->assertSame([601, 602], $defaults['pay_ids']);
         $this->assertSame("601\n602", $defaults['ids_text']);
     }
+
+    public function test_batch_name_collapse_spaces_defaults_only_require_ids_for_safe_review(): void
+    {
+        $service = $this->app->make(PayActionService::class);
+
+        $defaults = $service->batchNameCollapseSpacesDefaults([701, 702]);
+
+        $this->assertSame([701, 702], $defaults['pay_ids']);
+        $this->assertSame("701\n702", $defaults['ids_text']);
+        $this->assertArrayNotHasKey('pay_name', $defaults);
+    }
 }

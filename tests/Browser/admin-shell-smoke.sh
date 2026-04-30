@@ -102,6 +102,7 @@ assert_page "/admin/v2/pay/batch-name-prefix" "批量添加支付名称前缀 - 
 assert_page "/admin/v2/pay/batch-name-suffix" "批量添加支付名称后缀 - 后台壳样板" "目标后缀"
 assert_page "/admin/v2/pay/batch-name-replace" "批量替换支付名称片段 - 后台壳样板" "目标替换内容"
 assert_page "/admin/v2/pay/batch-name-trim" "批量清理支付名称空格 - 后台壳样板" "执行名称空格清理"
+assert_page "/admin/v2/pay/batch-name-collapse-spaces" "批量压缩支付名称连续空格 - 后台壳样板" "执行名称连续空格压缩"
 assert_page "/admin/v2/order/batch-info" "批量设置订单附加信息 - 后台壳样板" "目标附加信息"
 assert_page "/admin/v2/order/batch-title" "批量设置订单标题 - 后台壳样板" "目标标题"
 assert_page "/admin/v2/order/batch-title-prefix" "批量添加订单标题前缀 - 后台壳样板" "目标标题前缀"
