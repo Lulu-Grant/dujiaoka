@@ -1,6 +1,6 @@
 # 当前进度总汇
 
-更新时间：2026-04-15
+更新时间：2026-05-19
 
 ## 一句话总览
 
@@ -8,8 +8,8 @@
 
 ## 当前数字
 
-- 总体进度估算：`68%`
-- PHPUnit：`OK (284 tests, 1505 assertions)`
+- 总体进度估算：`72%`
+- PHPUnit：`OK (355 tests, 2027 assertions)`
 - 当前主分支：`master`
 - 当前默认后台落点：`/admin -> /admin/v2/dashboard`
 - 当前后台主入口：
@@ -84,11 +84,11 @@
 已完成真实动作页：
 
 - 商品分类：`create / edit`
-- 商品：`create / edit / clone / batch-status / batch-buy-limit-num / batch-group / export`
-- 订单：`edit / reset search password / batch-status / batch-reset-search-pwd / export`
+- 商品：`create / edit / clone / batch-status / batch-buy-limit-num / batch-group / batch-sales-volume / batch-ord / batch-buy-prompt / batch-description / batch-keywords / batch-keywords-suffix / batch-keywords-trim / export`
+- 订单：`edit / reset search password / batch-status / batch-type / batch-info / batch-title / batch-title-prefix / batch-title-suffix / batch-title-trim / batch-reset-search-pwd / export`
 - 邮件模板：`create / edit / preview / copy / export summary`
-- 支付通道：`create / edit / copy / batch-status / batch-client / batch-method / export`
-- 优惠码：`create / edit / batch generate / batch-status / batch-ret / export`
+- 支付通道：`create / edit / copy / batch-status / batch-client / batch-method / batch-name / batch-name-prefix / batch-name-suffix / batch-name-replace / batch-name-trim / batch-name-collapse-spaces / export`
+- 优惠码：`create / edit / batch generate / batch-status / batch-use / batch-discount / batch-ret / batch-code / batch-code-prefix / batch-code-suffix / batch-code-replace / batch-code-trim / export`
 - 卡密：`create / edit / import / export / batch-loop`
 - 邮件测试：`send`
 - 系统设置：`base / branding / mail / order / push / experience`
@@ -150,6 +150,7 @@
 ## 当前文档入口
 
 - [当前基线审计](docs/current-baseline-audit.md)
+- [剩余执行计划](docs/remaining-execution-plan.md)
 - [重构升级日志](docs/refactor-upgrade-log.md)
 - [大整改执行方案](docs/rectification-execution-plan.md)
 - [现代化路线图](docs/modernization-roadmap.md)

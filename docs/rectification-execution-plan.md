@@ -238,6 +238,8 @@
 4. 安全治理专项清理
 5. 升级前清障
 
+更细的剩余任务拆解、退出标准和近期 10 个可直接执行任务，统一维护在 [remaining-execution-plan.md](/Users/apple/Documents/dujiaoshuka/docs/remaining-execution-plan.md)。
+
 ---
 
 ## 当前执行批次
