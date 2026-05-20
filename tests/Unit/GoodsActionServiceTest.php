@@ -42,6 +42,15 @@ class GoodsActionServiceTest extends TestCase
         $this->assertSame('', $defaults['description']);
     }
 
+    public function test_batch_buy_prompt_trim_defaults_only_require_ids_for_safe_review(): void
+    {
+        $defaults = app(GoodsActionService::class)->batchBuyPromptTrimDefaults([96101, 96102]);
+
+        $this->assertSame([96101, 96102], $defaults['goods_ids']);
+        $this->assertSame("96101\n96102", $defaults['ids_text']);
+        $this->assertArrayNotHasKey('buy_prompt', $defaults);
+    }
+
     public function test_batch_keywords_defaults_start_empty_for_safe_review(): void
     {
         $defaults = app(GoodsActionService::class)->batchKeywordsDefaults([96101, 96102]);

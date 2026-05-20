@@ -53,6 +53,10 @@ class GoodsActionController extends Controller
             return $this->renderBatchDescriptionPage($request);
         }
 
+        if ($this->isBatchBuyPromptTrimMode($request)) {
+            return $this->renderBatchBuyPromptTrimPage($request);
+        }
+
         if ($this->isBatchBuyPromptMode($request)) {
             return $this->renderBatchBuyPromptPage($request);
         }
@@ -140,6 +144,10 @@ class GoodsActionController extends Controller
 
         if ($this->isBatchDescriptionMode($request)) {
             return $this->submitBatchDescription($request);
+        }
+
+        if ($this->isBatchBuyPromptTrimMode($request)) {
+            return $this->submitBatchBuyPromptTrim($request);
         }
 
         if ($this->isBatchBuyPromptMode($request)) {
@@ -322,6 +330,11 @@ class GoodsActionController extends Controller
         return (string) $request->query('mode', $request->input('mode', '')) === 'batch-buy-prompt';
     }
 
+    private function isBatchBuyPromptTrimMode(Request $request): bool
+    {
+        return (string) $request->query('mode', $request->input('mode', '')) === 'batch-buy-prompt-trim';
+    }
+
     private function isBatchDescriptionMode(Request $request): bool
     {
         return (string) $request->query('mode', $request->input('mode', '')) === 'batch-description';
@@ -443,6 +456,31 @@ class GoodsActionController extends Controller
             ],
             'formAction' => admin_url('v2/goods/create').'?mode=batch-buy-prompt',
             'submitLabel' => '执行购买提示更新',
+            'defaults' => $defaults,
+            'context' => $this->goodsActionService->batchBuyPromptContext($goodsIds),
+        ]);
+    }
+
+    private function renderBatchBuyPromptTrimPage(Request $request)
+    {
+        $goodsIds = $this->goodsActionService->parseGoodsIds((string) $request->query('ids', ''));
+        $defaults = $this->goodsActionService->batchBuyPromptTrimDefaults($goodsIds);
+
+        return view('admin-shell.goods.batch-buy-prompt-trim', [
+            'title' => '批量清理购买提示空格 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量清理购买提示空格',
+                'description' => '这是后台壳中的低风险批量动作页。当前只清理商品购买提示首尾空格，不触碰价格、库存、分类、商品类型、销量、排序、启用状态和履约配置。',
+                'meta' => '适合导入后整理前台购买提示或售后提醒。提交后只会对购买提示执行 trim，并且只统计实际发生变化的商品。',
+                'actions' => [
+                    ['label' => '返回商品概览', 'href' => admin_url('v2/goods')],
+                    ['label' => '批量设置购买提示', 'href' => admin_url('v2/goods/create').'?mode=batch-buy-prompt', 'variant' => 'secondary'],
+                    ['label' => '批量清理商品简介空格', 'href' => admin_url('v2/goods/create').'?mode=batch-description-trim', 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/goods/create').'?mode=batch-buy-prompt-trim',
+            'submitLabel' => '执行购买提示空格清理',
             'defaults' => $defaults,
             'context' => $this->goodsActionService->batchBuyPromptContext($goodsIds),
         ]);
@@ -674,6 +712,25 @@ class GoodsActionController extends Controller
 
         return redirect(admin_url('v2/goods/create').'?mode=batch-buy-prompt&ids='.implode(',', $goodsIds))
             ->with('status', '已批量设置 '.$affected.' 个商品的购买提示');
+    }
+
+    private function submitBatchBuyPromptTrim(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+        ]);
+
+        $goodsIds = $this->goodsActionService->parseGoodsIds($validated['ids_text']);
+        if (empty($goodsIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的商品 ID。'])
+                ->withInput();
+        }
+
+        $affected = $this->goodsActionService->trimBuyPrompts($goodsIds);
+
+        return redirect(admin_url('v2/goods/create').'?mode=batch-buy-prompt-trim&ids='.implode(',', $goodsIds))
+            ->with('status', '已批量清理 '.$affected.' 个商品的购买提示空格');
     }
 
     private function submitBatchDescription(Request $request)

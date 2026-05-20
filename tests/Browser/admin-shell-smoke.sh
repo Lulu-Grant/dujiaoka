@@ -86,6 +86,7 @@ assert_page "/admin/v2/goods/create?mode=batch-buy-limit-num" "批量设置限�
 assert_page "/admin/v2/goods/create?mode=batch-sales-volume" "批量设置销量 - 后台壳样板" "目标销量"
 assert_page "/admin/v2/goods/create?mode=batch-ord" "批量设置排序 - 后台壳样板" "目标排序"
 assert_page "/admin/v2/goods/create?mode=batch-buy-prompt" "批量设置购买提示 - 后台壳样板" "目标购买提示"
+assert_page "/admin/v2/goods/create?mode=batch-buy-prompt-trim" "批量清理购买提示空格 - 后台壳样板" "执行购买提示空格清理"
 assert_page "/admin/v2/goods/create?mode=batch-description" "批量设置商品说明 - 后台壳样板" "目标商品说明"
 assert_page "/admin/v2/goods/create?mode=batch-description-trim" "批量清理商品简介空格 - 后台壳样板" "执行简介空格清理"
 assert_page "/admin/v2/goods/create?mode=batch-keywords" "批量设置商品关键字 - 后台壳样板" "目标商品关键字"

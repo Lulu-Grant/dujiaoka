@@ -72,6 +72,14 @@ class GoodsActionService
         ];
     }
 
+    public function batchBuyPromptTrimDefaults(array $goodsIds = []): array
+    {
+        return [
+            'goods_ids' => $goodsIds,
+            'ids_text' => implode("\n", $goodsIds),
+        ];
+    }
+
     public function batchDescriptionDefaults(array $goodsIds = []): array
     {
         return [
@@ -532,6 +540,34 @@ class GoodsActionService
             }
 
             $item->gd_description = $nextDescription;
+            $item->updated_at = now();
+            $item->save();
+            $updated++;
+        }
+
+        return $updated;
+    }
+
+    public function trimBuyPrompts(array $goodsIds): int
+    {
+        if (empty($goodsIds)) {
+            return 0;
+        }
+
+        $goods = Goods::query()
+            ->whereIn('id', $goodsIds)
+            ->orderBy('id')
+            ->get(['id', 'buy_prompt']);
+
+        $updated = 0;
+
+        foreach ($goods as $item) {
+            $nextPrompt = trim((string) $item->buy_prompt);
+            if ($nextPrompt === (string) $item->buy_prompt) {
+                continue;
+            }
+
+            $item->buy_prompt = $nextPrompt;
             $item->updated_at = now();
             $item->save();
             $updated++;

@@ -325,6 +325,53 @@ class AdminShellGoodsControllerTest extends TestCase
         $this->assertSame('购买后请先查看发货说明', DB::table('goods')->where('id', 96004)->value('buy_prompt'));
     }
 
+    public function test_batch_buy_prompt_trim_page_renders_goods_preview(): void
+    {
+        $this->seedGoodsFixture();
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/goods/create?mode=batch-buy-prompt-trim&ids=96001,96004,99999');
+
+        $response->assertOk();
+        $response->assertSee('批量清理购买提示空格');
+        $response->assertSee('执行购买提示空格清理');
+        $response->assertSee('测试商品 Shell');
+        $response->assertSee('测试商品 Shell B');
+        $response->assertSee('99999');
+        $response->assertSee('购买提示');
+        $response->assertSee('购买提示 B');
+    }
+
+    public function test_batch_buy_prompt_trim_page_can_update_goods_without_touching_commercial_fields(): void
+    {
+        $this->seedGoodsFixture();
+
+        DB::table('goods')->where('id', 96001)->update(['buy_prompt' => '  购买提示  ']);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/goods/create?mode=batch-buy-prompt-trim', [
+                'mode' => 'batch-buy-prompt-trim',
+                'ids_text' => "96001, 96004\n99999",
+            ]);
+
+        $response->assertRedirect('/admin/v2/goods/create?mode=batch-buy-prompt-trim&ids=96001,96004,99999');
+        $response->assertSessionHas('status', '已批量清理 1 个商品的购买提示空格');
+
+        $record = DB::table('goods')->where('id', 96001)->first();
+        $this->assertSame('购买提示', $record->buy_prompt);
+        $this->assertSame('测试商品 Shell', $record->gd_name);
+        $this->assertSame('测试商品简介', $record->gd_description);
+        $this->assertSame('测试关键字', $record->gd_keywords);
+        $this->assertSame('99.00', (string) $record->retail_price);
+        $this->assertSame('79.00', (string) $record->actual_price);
+        $this->assertSame(20, $record->in_stock);
+        $this->assertSame(5, $record->sales_volume);
+        $this->assertSame(2, $record->ord);
+        $this->assertSame(1, $record->is_open);
+        $this->assertSame('商品说明', $record->description);
+        $this->assertSame('购买提示 B', DB::table('goods')->where('id', 96004)->value('buy_prompt'));
+    }
+
     public function test_batch_description_page_renders_goods_preview(): void
     {
         $this->seedGoodsFixture();

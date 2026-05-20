@@ -11,6 +11,29 @@
 
 ## 2026-04-12 阶段日志
 
+### 191. 商品管理接入批量清理购买提示空格页
+
+摘要：
+
+- 在后台壳商品线新增 [batch-buy-prompt-trim.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/goods/batch-buy-prompt-trim.blade.php)，支持通过 `/admin/v2/goods/create?mode=batch-buy-prompt-trim` 先预览命中的商品，再批量清理购买提示首尾空格。
+- 扩展 [GoodsActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/GoodsActionController.php) 与 [GoodsActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/GoodsActionService.php)，新增 `batchBuyPromptTrimDefaults` 和 `trimBuyPrompts`。
+- 同步把入口接入商品列表页头、后台壳 smoke 和文档动作清单。
+
+影响范围：
+
+- 只更新 `goods.buy_prompt` 的首尾空格，并只统计实际发生变化的商品。
+- 不触碰商品价格、库存、分类、商品类型、销量、排序、启用状态、商品简介、商品关键字、长商品说明、履约配置和优惠码关联。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellGoodsControllerTest.php tests/Unit/GoodsActionServiceTest.php tests/Unit/AdminShellPageStructureTest.php` 通过，结果为 `OK (36 tests, 283 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (364 tests, 2106 assertions)`。
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过。
+
+下一步：
+
+- 按执行基线切入 `carmis` 线，优先补卡密内容首尾空格清理。
+
 ### 190. 商品管理接入批量压缩关键字连续空格页
 
 摘要：
