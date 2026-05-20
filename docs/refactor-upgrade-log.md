@@ -11,6 +11,27 @@
 
 ## 2026-04-12 阶段日志
 
+### 188. 将剩余计划升级为执行基线文件
+
+摘要：
+
+- 新增 [execution-baseline.md](/Users/apple/Documents/dujiaoshuka/docs/execution-baseline.md)，将剩余五条主线、四批执行顺序、近期 10 个任务、暂不建议事项和常驻监控判断规则合并为后续默认执行锚点。
+- 保留 [remaining-execution-plan.md](/Users/apple/Documents/dujiaoshuka/docs/remaining-execution-plan.md) 作为兼容入口，避免 README、历史日志或外部链接中的旧入口失效。
+- 同步更新 [README.md](/Users/apple/Documents/dujiaoshuka/README.md)、[current-progress-super-summary.md](/Users/apple/Documents/dujiaoshuka/docs/current-progress-super-summary.md)、[current-baseline-audit.md](/Users/apple/Documents/dujiaoshuka/docs/current-baseline-audit.md) 与 [rectification-execution-plan.md](/Users/apple/Documents/dujiaoshuka/docs/rectification-execution-plan.md)，把“下一步默认按什么推进”的入口统一到执行基线。
+
+影响范围：
+
+- 本轮只调整文档与基线入口，不改变业务代码、路由、配置、测试或安装流程。
+- 后续静默开发和常驻基线监控默认优先读取执行基线，减少“总纲、审计、计划”多入口造成的判断分叉。
+
+验证：
+
+- 完成文档入口与旧链接兼容检查。
+
+下一步：
+
+- 按执行基线回到 `goods` 线，优先推进只修改展示/描述类字段的低风险后台壳批量动作。
+
 ### 187. 支付通道接入批量压缩名称连续空格页
 
 摘要：

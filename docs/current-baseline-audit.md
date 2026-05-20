@@ -278,6 +278,8 @@
 
 ## 推荐下一步
 
+后续连续执行时，以 [execution-baseline.md](/Users/apple/Documents/dujiaoshuka/docs/execution-baseline.md) 作为默认执行锚点；本审计文件只负责记录当前状态，不承担逐轮任务排序。
+
 建议后续默认顺序：
 
 1. 继续后台壳扩容

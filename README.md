@@ -46,7 +46,7 @@
 
 - [重构升级日志](docs/refactor-upgrade-log.md)
 - [现代化路线图](docs/modernization-roadmap.md)
-- [剩余执行计划](docs/remaining-execution-plan.md)
+- [执行基线](docs/execution-baseline.md)
 - [无守护进程改造清单](docs/no-daemon-migration-checklist.md)
 - [安装流程现代化状态](docs/installer-modernization-status.md)
 
@@ -176,7 +176,7 @@ OK (355 tests, 2027 assertions)
 
 - [当前基线审计](docs/current-baseline-audit.md)
 - [当前进度总汇](docs/current-progress-super-summary.md)
-- [剩余执行计划](docs/remaining-execution-plan.md)
+- [执行基线](docs/execution-baseline.md)
 - [重构升级日志](docs/refactor-upgrade-log.md)
 - [大整改执行方案](docs/rectification-execution-plan.md)
 
@@ -190,7 +190,7 @@ OK (355 tests, 2027 assertions)
 - [安装流程现代化状态](docs/installer-modernization-status.md)
 - [数据库现代化拆解计划](docs/database-modernization-plan.md)
 - [后台替换评估](docs/admin-replacement-assessment.md)
-- [剩余执行计划](docs/remaining-execution-plan.md)
+- [执行基线](docs/execution-baseline.md)
 - [升级前清障清单](docs/upgrade-readiness-checklist.md)
 - [支付迁移计划](docs/paypal-stripe-transition-plan.md)
 - [本地快速拉站](docs/local-dev-quickstart.md)
