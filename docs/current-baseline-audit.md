@@ -195,13 +195,20 @@
 
 当前状态：
 
-- 已压掉目录和大量旧壳，但还没有完全收尾
+- 已压掉目录和大量旧壳，旧 `/admin/*` 入口本轮复查后确认只剩兼容跳转职责
 
 还没完成的点：
 
 - `config/admin.php` 中仍保留 Dcat 兼容配置
-- `routes/admin/routes.php` 仍承担旧 `/admin/*` 兼容跳转
+- `routes/admin/routes.php` 仍承担 Dcat 登录/认证路由、后台壳挂载和旧 `/admin/*` 兼容跳转
 - 少量旧后台运行时依赖还没彻底移出主链
+
+本轮复查结论：
+
+- `app/Admin` 目录无残留，旧 `App\\Admin\\Controllers` 不再承载业务逻辑
+- 旧资源入口 `goods / goods-group / carmis / coupon / emailtpl / pay / order` 只通过 [LegacyAdminShellRedirectService.php](/Users/apple/Documents/dujiaoshuka/app/Service/LegacyAdminShellRedirectService.php) 跳转到 `/admin/v2/*`
+- `import-carmis / system-setting / email-test` 三个历史入口仍保留兼容跳转
+- 暂不删除 [config/admin.php](/Users/apple/Documents/dujiaoshuka/config/admin.php) 与 [routes/admin/routes.php](/Users/apple/Documents/dujiaoshuka/routes/admin/routes.php)，避免破坏登录、认证中间件和后台可达性
 
 ### C. 支付层现代化收口
 

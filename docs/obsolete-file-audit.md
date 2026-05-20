@@ -142,6 +142,27 @@
 - 旧后台主承载层现在只剩 `config/admin.php` 和 `routes/admin/routes.php` 这组兼容配置
 - 后续如果继续压缩 Dcat 依赖，优先目标会是后台兼容配置本身，而不再是 `app/Admin` 文件清理
 
+## 2026-05-21 旧 `/admin/*` 兼容跳转复查
+
+### 本轮结论
+
+- `app/Admin` 目录仍然不存在，仓库里没有旧 `App\\Admin\\Controllers` 业务控制器残留。
+- `routes/admin/routes.php` 当前只做三件事：注册 Dcat 登录/认证路由、挂载 `/admin/v2/*` 后台壳、把旧 `/admin/*` 资源入口 302 到对应 `/admin/v2/*`。
+- 旧资源入口覆盖 `goods / goods-group / carmis / coupon / emailtpl / pay / order` 的 index、create、show、edit，以及 `import-carmis / system-setting / email-test` 三个历史入口。
+- `LegacyAdminShellRedirectService` 会保留 query string，因此旧筛选链接可以平滑跳转到新后台壳。
+
+### 暂不删除
+
+- [config/admin.php](/Users/apple/Documents/dujiaoshuka/config/admin.php)
+- [routes/admin/routes.php](/Users/apple/Documents/dujiaoshuka/routes/admin/routes.php)
+- [LegacyAdminShellRedirectService.php](/Users/apple/Documents/dujiaoshuka/app/Service/LegacyAdminShellRedirectService.php)
+
+### 依据
+
+- 当前后台登录、认证中间件和账号设置仍依赖 Dcat 基础设施，删除 `config/admin.php` 或 `routes/admin/routes.php` 会直接破坏后台可达性。
+- 旧 `/admin/*` 入口已经没有业务承载，只是过渡期兼容跳转；下一轮要压缩时，应先补齐覆盖所有旧入口的跳转测试，再分批移除无外链依赖的别名。
+- 现阶段更合理的动作是继续禁止业务逻辑写回旧兼容层，而不是立刻删除兼容入口。
+
 ## 2026-04-12 第二批已执行清理
 
 ### 已删除
@@ -177,7 +198,7 @@
 
 ### 依据
 
-- 旧 `/admin/*` 兼容跳转已直接收进 `app/Admin/routes.php`
+- 旧 `/admin/*` 兼容跳转已从旧控制器迁出，现由 `routes/admin/routes.php` 中的闭包和 `LegacyAdminShellRedirectService` 承担
 - 这些控制器删除前已不包含任何业务逻辑，只负责把旧入口转向 `/admin/v2/*`
 - 上述文件在删除前只剩测试引用或互相弱引用，没有生产控制器、路由、页面服务继续调用
 - `/admin` 已经直接重定向到 `/admin/v2/dashboard`，旧 Dcat dashboard 不再承担主入口职责

@@ -11,6 +11,28 @@
 
 ## 2026-04-12 阶段日志
 
+### 196. 旧 `/admin/*` 兼容跳转复查并同步基线
+
+摘要：
+
+- 复查 [routes/admin/routes.php](/Users/apple/Documents/dujiaoshuka/routes/admin/routes.php)、[config/admin.php](/Users/apple/Documents/dujiaoshuka/config/admin.php) 和 [LegacyAdminShellRedirectService.php](/Users/apple/Documents/dujiaoshuka/app/Service/LegacyAdminShellRedirectService.php)，确认旧后台生产目录仍已退场。
+- 更新 [obsolete-file-audit.md](/Users/apple/Documents/dujiaoshuka/docs/obsolete-file-audit.md)、[current-baseline-audit.md](/Users/apple/Documents/dujiaoshuka/docs/current-baseline-audit.md)、[current-progress-super-summary.md](/Users/apple/Documents/dujiaoshuka/docs/current-progress-super-summary.md) 和 [execution-baseline.md](/Users/apple/Documents/dujiaoshuka/docs/execution-baseline.md)，把旧 `/admin/*` 的定位统一为“兼容跳转清单”。
+- 执行基线已移除“审计旧 `/admin/*` 跳转”这一已完成项，后续只在补齐跳转测试缺口后再评估是否分批移除别名。
+
+影响范围：
+
+- 本轮不删除路由和配置，只收口文档口径。
+- `routes/admin/routes.php` 继续负责 Dcat 登录/认证路由、后台壳挂载和旧入口 302；业务逻辑仍不得回写旧兼容层。
+
+验证：
+
+- `rg` 复查确认生产侧旧后台目录只剩 `routes/admin/routes.php`，`app/Admin` 无残留。
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/LegacyAdminShellRedirectControllerTest.php` 通过，结果为 `OK (6 tests, 62 assertions)`。
+
+下一步：
+
+- 按执行基线切入支付安全线，优先补 Stripe webhook 重复通知和金额不一致测试。
+
 ### 195. 优惠码管理接入批量压缩内容连续空格页
 
 摘要：

@@ -99,6 +99,7 @@
 - 旧后台兼容层只剩：
   - [config/admin.php](/Users/apple/Documents/dujiaoshuka/config/admin.php)
   - [routes/admin/routes.php](/Users/apple/Documents/dujiaoshuka/routes/admin/routes.php)
+- 旧 `/admin/*` 入口已复查为兼容跳转清单，不再承载业务逻辑；`LegacyAdminShellRedirectService` 负责保留 query string 并跳转到 `/admin/v2/*`
 
 ## 当前主线在哪里
 
@@ -119,7 +120,7 @@
 
 而且当前最值得持续投入的子方向依然是：
 
-- `goods / order / pay / coupon / carmis` 这些高频资源的低风险批量动作
+- 旧 Dcat 最小兼容层的口径收口，以及 `goods / order / pay / coupon / carmis` 这些高频资源的低风险批量动作
 
 ## 还剩哪些大块工作
 
