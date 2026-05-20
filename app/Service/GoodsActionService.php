@@ -107,6 +107,14 @@ class GoodsActionService
         ];
     }
 
+    public function batchDescriptionTrimDefaults(array $goodsIds = []): array
+    {
+        return [
+            'goods_ids' => $goodsIds,
+            'ids_text' => implode("\n", $goodsIds),
+        ];
+    }
+
     public function batchBuyLimitContext(array $goodsIds): array
     {
         $goods = Goods::query()
@@ -306,6 +314,33 @@ class GoodsActionService
         ];
     }
 
+    public function batchDescriptionTrimContext(array $goodsIds): array
+    {
+        $goods = Goods::query()
+            ->whereIn('id', $goodsIds)
+            ->orderBy('id')
+            ->get(['id', 'gd_name', 'type', 'is_open', 'gd_description']);
+
+        $matchedIds = $goods->pluck('id')->map(function ($id) {
+            return (int) $id;
+        })->all();
+
+        return [
+            'requestedCount' => count($goodsIds),
+            'matchedCount' => $goods->count(),
+            'missingIds' => array_values(array_diff($goodsIds, $matchedIds)),
+            'items' => $goods->map(function (Goods $goods) {
+                return [
+                    'id' => $goods->id,
+                    'name' => $goods->gd_name,
+                    'type' => $this->catalogTypeLabel((int) $goods->type),
+                    'status' => (int) $goods->is_open === Goods::STATUS_OPEN ? '已启用' : '已停用',
+                    'gd_description' => (string) $goods->gd_description,
+                ];
+            })->all(),
+        ];
+    }
+
     public function updateOpenStatus(array $goodsIds, int $isOpen): int
     {
         if (empty($goodsIds)) {
@@ -461,6 +496,34 @@ class GoodsActionService
             }
 
             $item->gd_keywords = $nextKeywords;
+            $item->updated_at = now();
+            $item->save();
+            $updated++;
+        }
+
+        return $updated;
+    }
+
+    public function trimGdDescriptions(array $goodsIds): int
+    {
+        if (empty($goodsIds)) {
+            return 0;
+        }
+
+        $goods = Goods::query()
+            ->whereIn('id', $goodsIds)
+            ->orderBy('id')
+            ->get(['id', 'gd_description']);
+
+        $updated = 0;
+
+        foreach ($goods as $item) {
+            $nextDescription = trim((string) $item->gd_description);
+            if ($nextDescription === (string) $item->gd_description) {
+                continue;
+            }
+
+            $item->gd_description = $nextDescription;
             $item->updated_at = now();
             $item->save();
             $updated++;

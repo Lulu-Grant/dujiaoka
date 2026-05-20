@@ -69,6 +69,15 @@ class GoodsActionServiceTest extends TestCase
         $this->assertArrayNotHasKey('gd_keywords', $defaults);
     }
 
+    public function test_batch_description_trim_defaults_only_require_ids_for_safe_review(): void
+    {
+        $defaults = app(GoodsActionService::class)->batchDescriptionTrimDefaults([96101, 96102]);
+
+        $this->assertSame([96101, 96102], $defaults['goods_ids']);
+        $this->assertSame("96101\n96102", $defaults['ids_text']);
+        $this->assertArrayNotHasKey('gd_description', $defaults);
+    }
+
     private function seedGoodsFixture(): Goods
     {
         DB::table('goods_group')->insert([

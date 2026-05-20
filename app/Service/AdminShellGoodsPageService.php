@@ -176,6 +176,11 @@ class AdminShellGoodsPageService extends AbstractAdminShellPageService
                 'variant' => 'secondary',
             ],
             [
+                'label' => '批量清理简介空格',
+                'href' => admin_url('v2/goods/create').'?mode=batch-description-trim',
+                'variant' => 'secondary',
+            ],
+            [
                 'label' => '批量设置关键字',
                 'href' => admin_url('v2/goods/create').'?mode=batch-keywords',
                 'variant' => 'secondary',

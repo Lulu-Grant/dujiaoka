@@ -29,6 +29,10 @@ class GoodsActionController extends Controller
 
     public function create(Request $request)
     {
+        if ($this->isBatchDescriptionTrimMode($request)) {
+            return $this->renderBatchDescriptionTrimPage($request);
+        }
+
         if ($this->isBatchKeywordsTrimMode($request)) {
             return $this->renderBatchKeywordsTrimPage($request);
         }
@@ -110,6 +114,10 @@ class GoodsActionController extends Controller
 
     public function store(Request $request)
     {
+        if ($this->isBatchDescriptionTrimMode($request)) {
+            return $this->submitBatchDescriptionTrim($request);
+        }
+
         if ($this->isBatchKeywordsTrimMode($request)) {
             return $this->submitBatchKeywordsTrim($request);
         }
@@ -326,6 +334,11 @@ class GoodsActionController extends Controller
         return (string) $request->query('mode', $request->input('mode', '')) === 'batch-keywords-trim';
     }
 
+    private function isBatchDescriptionTrimMode(Request $request): bool
+    {
+        return (string) $request->query('mode', $request->input('mode', '')) === 'batch-description-trim';
+    }
+
     private function renderBatchBuyLimitPage(Request $request)
     {
         $goodsIds = $this->goodsActionService->parseGoodsIds((string) $request->query('ids', ''));
@@ -518,6 +531,31 @@ class GoodsActionController extends Controller
         ]);
     }
 
+    private function renderBatchDescriptionTrimPage(Request $request)
+    {
+        $goodsIds = $this->goodsActionService->parseGoodsIds((string) $request->query('ids', ''));
+        $defaults = $this->goodsActionService->batchDescriptionTrimDefaults($goodsIds);
+
+        return view('admin-shell.goods.batch-description-trim', [
+            'title' => '批量清理商品简介空格 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量清理商品简介空格',
+                'description' => '这是后台壳中的低风险批量动作页。当前只清理商品简介首尾空格，不触碰价格、库存、分类、商品类型、销量、排序、启用状态和履约配置。',
+                'meta' => '适合导入后整理前台列表简介或 SEO 摘要。提交后只会对商品简介执行 trim，并且只统计实际发生变化的商品。',
+                'actions' => [
+                    ['label' => '返回商品概览', 'href' => admin_url('v2/goods')],
+                    ['label' => '批量设置商品说明', 'href' => admin_url('v2/goods/create').'?mode=batch-description', 'variant' => 'secondary'],
+                    ['label' => '批量清理关键字空格', 'href' => admin_url('v2/goods/create').'?mode=batch-keywords-trim', 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/goods/create').'?mode=batch-description-trim',
+            'submitLabel' => '执行简介空格清理',
+            'defaults' => $defaults,
+            'context' => $this->goodsActionService->batchDescriptionTrimContext($goodsIds),
+        ]);
+    }
+
     private function submitBatchBuyLimit(Request $request)
     {
         $validated = $request->validate([
@@ -685,6 +723,25 @@ class GoodsActionController extends Controller
 
         return redirect(admin_url('v2/goods/create').'?mode=batch-keywords-trim&ids='.implode(',', $goodsIds))
             ->with('status', '已批量清理 '.$affected.' 个商品的关键字空格');
+    }
+
+    private function submitBatchDescriptionTrim(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+        ]);
+
+        $goodsIds = $this->goodsActionService->parseGoodsIds($validated['ids_text']);
+        if (empty($goodsIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的商品 ID。'])
+                ->withInput();
+        }
+
+        $affected = $this->goodsActionService->trimGdDescriptions($goodsIds);
+
+        return redirect(admin_url('v2/goods/create').'?mode=batch-description-trim&ids='.implode(',', $goodsIds))
+            ->with('status', '已批量清理 '.$affected.' 个商品的简介空格');
     }
 
     private function renderBatchGroupPage(Request $request)
