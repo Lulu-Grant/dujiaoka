@@ -9,7 +9,7 @@
 ## 当前数字
 
 - 总体进度估算：`72%`
-- PHPUnit：`OK (382 tests, 2225 assertions)`
+- PHPUnit：`OK (383 tests, 2228 assertions)`
 - 当前主分支：`master`
 - 当前默认后台落点：`/admin -> /admin/v2/dashboard`
 - 当前后台主入口：
@@ -38,6 +38,7 @@
 - `install.sql` 已退出安装主路径
 - `install.sql` 已退出 CI
 - `install.sql` 已从仓库删除
+- 默认账号、默认密钥和安装默认值已完成复查并固化到 [安全基线审计](/Users/apple/Documents/dujiaoshuka/docs/security-baseline-audit.md)
 
 ### 4. 订单与支付第一轮重构
 

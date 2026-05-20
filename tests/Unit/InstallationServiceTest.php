@@ -12,6 +12,15 @@ class InstallationServiceTest extends TestCase
 {
     use DatabaseTransactions;
 
+    public function test_install_view_does_not_prefill_predictable_admin_account(): void
+    {
+        $html = view('common/install')->render();
+
+        $this->assertStringContainsString('name="admin_username"', $html);
+        $this->assertStringNotContainsString('name="admin_username" value="admin"', $html);
+        $this->assertStringNotContainsString('admin/admin', $html);
+    }
+
     public function test_create_admin_account_creates_user_and_role_binding(): void
     {
         DB::table('admin_users')->delete();

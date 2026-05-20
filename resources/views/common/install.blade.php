@@ -200,7 +200,7 @@
             <div class="form-group">
                 <div class="form-field">
                     <label>管理员账号</label>
-                    <input name="admin_username" value="admin" required="" placeholder="请输入后台管理员账号">
+                    <input name="admin_username" value="" required="" placeholder="请输入后台管理员账号">
                 </div>
 
                 <div class="form-field">

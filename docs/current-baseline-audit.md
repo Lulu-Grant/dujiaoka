@@ -34,7 +34,7 @@
 
 ## 当前基线数字
 
-- PHPUnit：`OK (382 tests, 2225 assertions)`
+- PHPUnit：`OK (383 tests, 2228 assertions)`
 - 当前分支：`master`
 - 当前后台默认落点：`/admin -> /admin/v2/dashboard`
 - 当前后台主入口：
@@ -97,6 +97,8 @@
 - migration / seed 分层建立完成
 - bootstrap / sample / forbidden 策略形成
 - `install.sql` 已退出安装主路径、退出 CI，并已从仓库删除
+- 默认账号、默认密钥和安装默认值已形成 [安全基线审计](/Users/apple/Documents/dujiaoshuka/docs/security-baseline-audit.md)
+- 安装页不再预填可预测管理员账号，首个管理员必须显式填写
 
 影响：
 

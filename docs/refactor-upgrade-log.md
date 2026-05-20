@@ -11,6 +11,32 @@
 
 ## 2026-04-12 阶段日志
 
+### 198. 默认账号、默认密钥与安装默认值复查
+
+摘要：
+
+- 新增 [security-baseline-audit.md](/Users/apple/Documents/dujiaoshuka/docs/security-baseline-audit.md)，集中记录 `.env.example`、`.env.local.example`、安装表单、安装服务、bootstrap seed、本地脚本和测试库脚本的安全边界。
+- [install.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/common/install.blade.php) 不再预填 `admin` 作为首个管理员账号，避免继续给新安装环境提供可预测默认账号暗示。
+- [InstallationServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/InstallationServiceTest.php) 新增安装页回归测试，确保安装页不恢复默认 `admin` 账号和 `admin/admin` 口径。
+- README、当前基线审计、进度总汇和执行基线已同步安全基线审计入口。
+
+影响范围：
+
+- 生产安装仍保持 `migrate + bootstrap seed + 显式创建首个管理员`。
+- `APP_KEY` 仍由安装服务随机生成，`.env.example` 只保留 `{app_key}` 占位符，`.env.local.example` 保持空 key 并由本地准备脚本生成。
+- 本轮不修改测试 fixture 中的局部假密钥，只在文档中明确它们不是生产默认值。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/InstallationServiceTest.php` 通过，结果为 `OK (2 tests, 6 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/StripeCheckoutServiceTest.php` 通过，结果为 `OK (2 tests, 5 assertions)`。
+- `git grep` 复查可提交文件中无硬编码 Laravel `APP_KEY` 真实值、Stripe 测试/正式 key 前缀、restricted key 或 webhook secret 真实形态密钥；仅剩本地脚本中的动态生成判断语句。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (383 tests, 2228 assertions)`。
+
+下一步：
+
+- 按执行基线切入升级线，刷新依赖阻塞矩阵并标记仍阻塞项。
+
 ### 197. 支付完成层补强 Stripe 重复通知与金额不一致护栏
 
 摘要：

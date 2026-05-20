@@ -49,6 +49,7 @@
 - [执行基线](docs/execution-baseline.md)
 - [无守护进程改造清单](docs/no-daemon-migration-checklist.md)
 - [安装流程现代化状态](docs/installer-modernization-status.md)
+- [安全基线审计](docs/security-baseline-audit.md)
 
 ## 已完成阶段
 
@@ -133,7 +134,7 @@
 当前主线测试结果基线：
 
 ```bash
-OK (382 tests, 2225 assertions)
+OK (383 tests, 2228 assertions)
 ```
 
 当前仓库也已经补上 GitHub Actions 基线工作流：
@@ -188,6 +189,7 @@ OK (382 tests, 2225 assertions)
 - [遗留运行时基线说明](docs/legacy-runtime-baseline.md)
 - [运行时兼容阻塞点](docs/runtime-compatibility-blockers.md)
 - [安装流程现代化状态](docs/installer-modernization-status.md)
+- [安全基线审计](docs/security-baseline-audit.md)
 - [数据库现代化拆解计划](docs/database-modernization-plan.md)
 - [后台替换评估](docs/admin-replacement-assessment.md)
 - [执行基线](docs/execution-baseline.md)

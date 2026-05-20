@@ -138,8 +138,8 @@ class StripeCheckoutServiceTest extends TestCase
             'pay_check' => 'stripe-checkout-' . strtolower($orderSn),
             'pay_method' => Pay::METHOD_JUMP,
             'pay_client' => Pay::PAY_CLIENT_PC,
-            'merchant_id' => 'pk_test_stripe',
-            'merchant_pem' => 'sk_test_stripe',
+            'merchant_id' => 'stripe-public-key-fixture',
+            'merchant_pem' => 'stripe-secret-key-fixture',
             'pay_handleroute' => '/pay/stripe',
             'is_open' => BaseModel::STATUS_OPEN,
         ]);
