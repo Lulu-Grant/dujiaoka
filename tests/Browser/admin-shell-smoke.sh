@@ -91,6 +91,7 @@ assert_page "/admin/v2/goods/create?mode=batch-description-trim" "批量清理�
 assert_page "/admin/v2/goods/create?mode=batch-keywords" "批量设置商品关键字 - 后台壳样板" "目标商品关键字"
 assert_page "/admin/v2/goods/create?mode=batch-keywords-suffix" "批量添加商品关键字后缀 - 后台壳样板" "目标关键字后缀"
 assert_page "/admin/v2/goods/create?mode=batch-keywords-trim" "批量清理商品关键字空格 - 后台壳样板" "执行关键字空格清理"
+assert_page "/admin/v2/goods/create?mode=batch-keywords-collapse-spaces" "批量压缩商品关键字连续空格 - 后台壳样板" "执行关键字连续空格压缩"
 assert_page "/admin/v2/coupon/batch-ret" "批量设置优惠码可用次数 - 后台壳样板" "目标可用次数"
 assert_page "/admin/v2/coupon/batch-code" "批量重生成优惠码内容 - 后台壳样板" "目标前缀"
 assert_page "/admin/v2/coupon/batch-code-prefix" "批量添加优惠码前缀 - 后台壳样板" "目标前缀"

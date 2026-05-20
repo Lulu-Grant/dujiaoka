@@ -107,6 +107,14 @@ class GoodsActionService
         ];
     }
 
+    public function batchKeywordsCollapseSpacesDefaults(array $goodsIds = []): array
+    {
+        return [
+            'goods_ids' => $goodsIds,
+            'ids_text' => implode("\n", $goodsIds),
+        ];
+    }
+
     public function batchDescriptionTrimDefaults(array $goodsIds = []): array
     {
         return [
@@ -524,6 +532,34 @@ class GoodsActionService
             }
 
             $item->gd_description = $nextDescription;
+            $item->updated_at = now();
+            $item->save();
+            $updated++;
+        }
+
+        return $updated;
+    }
+
+    public function collapseKeywordSpaces(array $goodsIds): int
+    {
+        if (empty($goodsIds)) {
+            return 0;
+        }
+
+        $goods = Goods::query()
+            ->whereIn('id', $goodsIds)
+            ->orderBy('id')
+            ->get(['id', 'gd_keywords']);
+
+        $updated = 0;
+
+        foreach ($goods as $item) {
+            $nextKeywords = preg_replace('/[ \t\x{3000}]+/u', ' ', (string) $item->gd_keywords);
+            if ($nextKeywords === null || $nextKeywords === (string) $item->gd_keywords) {
+                continue;
+            }
+
+            $item->gd_keywords = $nextKeywords;
             $item->updated_at = now();
             $item->save();
             $updated++;

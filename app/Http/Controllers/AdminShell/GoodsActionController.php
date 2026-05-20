@@ -33,6 +33,10 @@ class GoodsActionController extends Controller
             return $this->renderBatchDescriptionTrimPage($request);
         }
 
+        if ($this->isBatchKeywordsCollapseSpacesMode($request)) {
+            return $this->renderBatchKeywordsCollapseSpacesPage($request);
+        }
+
         if ($this->isBatchKeywordsTrimMode($request)) {
             return $this->renderBatchKeywordsTrimPage($request);
         }
@@ -116,6 +120,10 @@ class GoodsActionController extends Controller
     {
         if ($this->isBatchDescriptionTrimMode($request)) {
             return $this->submitBatchDescriptionTrim($request);
+        }
+
+        if ($this->isBatchKeywordsCollapseSpacesMode($request)) {
+            return $this->submitBatchKeywordsCollapseSpaces($request);
         }
 
         if ($this->isBatchKeywordsTrimMode($request)) {
@@ -332,6 +340,11 @@ class GoodsActionController extends Controller
     private function isBatchKeywordsTrimMode(Request $request): bool
     {
         return (string) $request->query('mode', $request->input('mode', '')) === 'batch-keywords-trim';
+    }
+
+    private function isBatchKeywordsCollapseSpacesMode(Request $request): bool
+    {
+        return (string) $request->query('mode', $request->input('mode', '')) === 'batch-keywords-collapse-spaces';
     }
 
     private function isBatchDescriptionTrimMode(Request $request): bool
@@ -556,6 +569,30 @@ class GoodsActionController extends Controller
         ]);
     }
 
+    private function renderBatchKeywordsCollapseSpacesPage(Request $request)
+    {
+        $goodsIds = $this->goodsActionService->parseGoodsIds((string) $request->query('ids', ''));
+        $defaults = $this->goodsActionService->batchKeywordsCollapseSpacesDefaults($goodsIds);
+
+        return view('admin-shell.goods.batch-keywords-collapse-spaces', [
+            'title' => '批量压缩商品关键字连续空格 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量压缩商品关键字连续空格',
+                'description' => '这是后台壳中的低风险批量动作页。当前只压缩商品关键字里的连续空格，不触碰价格、库存、分类、商品类型、销量、排序、启用状态和履约配置。',
+                'meta' => '适合导入后整理检索标签或运营关键字。提交后只会把连续半角空格、Tab 和全角空格压成一个空格，并且只统计实际发生变化的商品。',
+                'actions' => [
+                    ['label' => '返回商品概览', 'href' => admin_url('v2/goods')],
+                    ['label' => '批量清理关键字空格', 'href' => admin_url('v2/goods/create').'?mode=batch-keywords-trim', 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/goods/create').'?mode=batch-keywords-collapse-spaces',
+            'submitLabel' => '执行关键字连续空格压缩',
+            'defaults' => $defaults,
+            'context' => $this->goodsActionService->batchKeywordsContext($goodsIds),
+        ]);
+    }
+
     private function submitBatchBuyLimit(Request $request)
     {
         $validated = $request->validate([
@@ -742,6 +779,25 @@ class GoodsActionController extends Controller
 
         return redirect(admin_url('v2/goods/create').'?mode=batch-description-trim&ids='.implode(',', $goodsIds))
             ->with('status', '已批量清理 '.$affected.' 个商品的简介空格');
+    }
+
+    private function submitBatchKeywordsCollapseSpaces(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+        ]);
+
+        $goodsIds = $this->goodsActionService->parseGoodsIds($validated['ids_text']);
+        if (empty($goodsIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的商品 ID。'])
+                ->withInput();
+        }
+
+        $affected = $this->goodsActionService->collapseKeywordSpaces($goodsIds);
+
+        return redirect(admin_url('v2/goods/create').'?mode=batch-keywords-collapse-spaces&ids='.implode(',', $goodsIds))
+            ->with('status', '已批量压缩 '.$affected.' 个商品的关键字连续空格');
     }
 
     private function renderBatchGroupPage(Request $request)
