@@ -48,6 +48,14 @@ class CarmiActionService
         ];
     }
 
+    public function batchCollapseSpacesDefaults(array $carmiIds = []): array
+    {
+        return [
+            'carmi_ids' => $carmiIds,
+            'ids_text' => implode("\n", $carmiIds),
+        ];
+    }
+
     public function batchLoopContext(array $carmiIds): array
     {
         return $this->batchContext($carmiIds);
@@ -121,6 +129,34 @@ class CarmiActionService
         foreach ($carmis as $carmi) {
             $nextCarmi = trim((string) $carmi->carmi);
             if ($nextCarmi === (string) $carmi->carmi) {
+                continue;
+            }
+
+            $carmi->carmi = $nextCarmi;
+            $carmi->updated_at = now();
+            $carmi->save();
+            $updated++;
+        }
+
+        return $updated;
+    }
+
+    public function collapseCarmiSpaces(array $carmiIds): int
+    {
+        if (empty($carmiIds)) {
+            return 0;
+        }
+
+        $carmis = Carmis::query()
+            ->whereIn('id', $carmiIds)
+            ->orderBy('id')
+            ->get(['id', 'carmi']);
+
+        $updated = 0;
+
+        foreach ($carmis as $carmi) {
+            $nextCarmi = preg_replace('/[ \t\x{3000}]+/u', ' ', (string) $carmi->carmi);
+            if ($nextCarmi === null || $nextCarmi === (string) $carmi->carmi) {
                 continue;
             }
 

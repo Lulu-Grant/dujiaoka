@@ -187,6 +187,52 @@ class CarmiActionController extends Controller
             ->with('status', '已批量清理 '.$affected.' 条卡密的内容空格');
     }
 
+    public function editBatchCollapseSpaces(Request $request)
+    {
+        $carmiIds = $this->carmiActionService->parseCarmiIds((string) $request->query('ids', ''));
+        $defaults = $this->carmiActionService->batchCollapseSpacesDefaults($carmiIds);
+        $context = $this->carmiActionService->batchTrimContext($carmiIds);
+
+        return view('admin-shell.carmis.batch-collapse-spaces', [
+            'title' => '批量压缩卡密内容连续空格 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量压缩卡密内容连续空格',
+                'description' => '这是后台壳中的低风险批量动作页。当前只压缩卡密内容里的连续空格，不触碰销售状态、循环使用标记、商品归属和订单关联。',
+                'meta' => '适合导入后整理卡密内容格式。提交后只会把连续半角空格、Tab 和全角空格压成一个空格，并且只统计实际发生变化的卡密。',
+                'actions' => [
+                    ['label' => '返回卡密概览', 'href' => admin_url('v2/carmis')],
+                    ['label' => '批量清理内容空格', 'href' => admin_url('v2/carmis/batch-trim'), 'variant' => 'secondary'],
+                    ['label' => '导入卡密', 'href' => admin_url('v2/carmis/import'), 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/carmis/batch-collapse-spaces'),
+            'submitLabel' => '执行卡密内容连续空格压缩',
+            'defaults' => $defaults,
+            'context' => $context,
+        ]);
+    }
+
+    public function updateBatchCollapseSpaces(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+        ]);
+
+        $carmiIds = $this->carmiActionService->parseCarmiIds($validated['ids_text']);
+
+        if (empty($carmiIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的卡密 ID。'])
+                ->withInput();
+        }
+
+        $affected = $this->carmiActionService->collapseCarmiSpaces($carmiIds);
+
+        return redirect(admin_url('v2/carmis/batch-collapse-spaces').'?ids='.implode(',', $carmiIds))
+            ->with('status', '已批量压缩 '.$affected.' 条卡密的内容连续空格');
+    }
+
     private function validatePayload(Request $request): array
     {
         $payload = $request->validate([

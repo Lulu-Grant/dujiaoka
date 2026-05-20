@@ -11,6 +11,29 @@
 
 ## 2026-04-12 阶段日志
 
+### 193. 卡密管理接入批量压缩内容连续空格页
+
+摘要：
+
+- 在后台壳卡密线新增 [batch-collapse-spaces.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/carmis/batch-collapse-spaces.blade.php)，支持通过 `/admin/v2/carmis/batch-collapse-spaces` 先预览命中的卡密，再批量压缩卡密内容里的连续空格。
+- 扩展 [CarmiActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/CarmiActionController.php) 与 [CarmiActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/CarmiActionService.php)，新增 `batchCollapseSpacesDefaults` 和 `collapseCarmiSpaces`。
+- 同步把入口接入卡密列表页头、后台壳资源注册表、后台壳 smoke 和文档动作清单。
+
+影响范围：
+
+- 只更新 `carmis.carmi` 中连续半角空格、Tab 和全角空格的展示格式，并只统计实际发生变化的卡密。
+- 不触碰销售状态、循环使用标记、商品归属、订单关联、库存扣减和履约链。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellCarmisControllerTest.php tests/Unit/CarmiActionServiceTest.php tests/Unit/AdminShellPageStructureTest.php tests/Unit/AdminShellRouteRegistrarTest.php` 通过，结果为 `OK (18 tests, 103 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (372 tests, 2160 assertions)`。
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过。
+
+下一步：
+
+- 按执行基线切入 `order` 线，优先补订单标题连续空格压缩。
+
 ### 192. 卡密管理接入批量清理内容空格页
 
 摘要：
