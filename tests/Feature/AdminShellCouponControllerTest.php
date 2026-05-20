@@ -15,7 +15,7 @@ class AdminShellCouponControllerTest extends TestCase
             DB::table('coupons_goods')->whereIn('coupons_id', $batchIds)->delete();
         }
         DB::table('coupons')->where('coupon', 'like', 'XIGUA-BATCH-%')->delete();
-        DB::table('coupons')->whereIn('id', [95001, 95002, 95003, 95004, 95005, 95006, 95007, 95008, 95009])->delete();
+        DB::table('coupons')->whereIn('id', [95001, 95002, 95003, 95004, 95005, 95006, 95007, 95008, 95009, 95010, 95011, 95012])->delete();
         DB::table('coupons_goods')->whereIn('coupons_id', [94001, 94002, 94003])->delete();
         DB::table('coupons')->whereIn('id', [94001, 94002, 94003])->delete();
         DB::table('coupons')->whereIn('coupon', ['XIGUA-5', 'XIGUA-DETAIL', 'XIGUA-CREATE', 'XIGUA-EDIT'])->delete();
@@ -489,6 +489,44 @@ class AdminShellCouponControllerTest extends TestCase
         $this->assertSame(\App\Models\Coupon::STATUS_OPEN, (int) DB::table('coupons')->where('id', 95006)->value('is_open'));
         $this->assertSame(\App\Models\Coupon::STATUS_UNUSED, (int) DB::table('coupons')->where('id', 95006)->value('is_use'));
         $this->assertTrue(DB::table('coupons_goods')->where('coupons_id', 95006)->where('goods_id', 95006)->exists());
+    }
+
+    public function test_batch_code_collapse_spaces_page_renders_coupon_collapse_form_and_preview(): void
+    {
+        $this->seedCouponFixture(95010, 'XIGUA  COLLAPSE  1', '测试商品 K');
+        $this->seedCouponFixture(95011, 'XIGUA COLLAPSE 2', '测试商品 L');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/coupon/batch-code-collapse-spaces?ids=95010,95011');
+
+        $response->assertOk();
+        $response->assertSee('批量压缩优惠码内容连续空格');
+        $response->assertSee('执行内容连续空格压缩');
+        $response->assertSee('XIGUA  COLLAPSE  1');
+        $response->assertSee('XIGUA COLLAPSE 2');
+    }
+
+    public function test_batch_code_collapse_spaces_can_update_coupon_codes_without_touching_coupon_config(): void
+    {
+        $this->seedCouponFixture(95010, "XIGUA  COLLAPSE\t1", '测试商品 K');
+        $this->seedCouponFixture(95011, 'XIGUA COLLAPSE 2', '测试商品 L');
+        $beforeDiscount = (string) DB::table('coupons')->where('id', 95010)->value('discount');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/coupon/batch-code-collapse-spaces', [
+                'ids_text' => "95010, 95011\n95012",
+            ]);
+
+        $response->assertRedirect('/admin/v2/coupon/batch-code-collapse-spaces?ids=95010,95011,95012');
+        $response->assertSessionHas('status', '已批量压缩 1 个优惠码的内容连续空格');
+
+        $this->assertSame('XIGUA COLLAPSE 1', (string) DB::table('coupons')->where('id', 95010)->value('coupon'));
+        $this->assertSame('XIGUA COLLAPSE 2', (string) DB::table('coupons')->where('id', 95011)->value('coupon'));
+        $this->assertSame($beforeDiscount, (string) DB::table('coupons')->where('id', 95010)->value('discount'));
+        $this->assertSame(1, (int) DB::table('coupons')->where('id', 95010)->value('ret'));
+        $this->assertSame(\App\Models\Coupon::STATUS_OPEN, (int) DB::table('coupons')->where('id', 95010)->value('is_open'));
+        $this->assertSame(\App\Models\Coupon::STATUS_UNUSED, (int) DB::table('coupons')->where('id', 95010)->value('is_use'));
+        $this->assertTrue(DB::table('coupons_goods')->where('coupons_id', 95010)->where('goods_id', 95010)->exists());
     }
 
     public function test_index_can_export_coupon_text_with_current_filters(): void

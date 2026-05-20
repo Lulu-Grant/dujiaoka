@@ -27,7 +27,7 @@
 - 支付层现代化：中后期，Stripe 已稳定，旧落后通道已退役，PayPal 与保留通道仍需继续收口
 - 安全治理与升级前清障：中前期，已有清单但还没成为主推进阶段
 
-最近一轮后台壳已经连续补齐 `goods / order / pay / coupon / carmis` 多组低风险批量动作，当前 PHPUnit 基线已推进到 `375 tests / 2183 assertions`，后台壳 smoke 覆盖也持续扩展。
+最近一轮后台壳已经连续补齐 `goods / order / pay / coupon / carmis` 多组低风险批量动作，当前 PHPUnit 基线已推进到 `378 tests / 2203 assertions`，后台壳 smoke 覆盖也持续扩展。
 
 ## 剩余主线
 
@@ -164,16 +164,16 @@
 
 ## 近期 10 个可直接执行的任务
 
-1. 优惠码线：批量压缩优惠码内容连续空格，只动 `coupons.coupon`
-2. 文档线：同步 README 与当前基线审计里的动作页清单
-3. 兼容层线：审计旧 `/admin/*` 跳转中是否还有可删除入口
-4. 支付安全线：补一轮 Stripe webhook 重复通知和金额不一致测试
-5. 安全线：复查默认账号、默认密钥、`.env.example` 和安装默认值
-6. 升级线：刷新依赖阻塞矩阵并标记仍阻塞项
-7. 后台壳线：复查 `goods / order / pay / coupon / carmis` 动作页 smoke 覆盖缺口
-8. 支付线：复查 PayPal / Stripe 生命周期文档与代码边界
-9. 兼容层线：确认无旧 `app/Admin` 引用残留
-10. Release 线：更新第二个测试版 release 候选清单
+1. 文档线：同步 README 与当前基线审计里的动作页清单
+2. 兼容层线：审计旧 `/admin/*` 跳转中是否还有可删除入口
+3. 支付安全线：补一轮 Stripe webhook 重复通知和金额不一致测试
+4. 安全线：复查默认账号、默认密钥、`.env.example` 和安装默认值
+5. 升级线：刷新依赖阻塞矩阵并标记仍阻塞项
+6. 后台壳线：复查 `goods / order / pay / coupon / carmis` 动作页 smoke 覆盖缺口
+7. 支付线：复查 PayPal / Stripe 生命周期文档与代码边界
+8. 兼容层线：确认无旧 `app/Admin` 引用残留
+9. Release 线：更新第二个测试版 release 候选清单
+10. 后台壳线：汇总文本类批量动作的字段边界与回滚说明
 
 ## 暂不建议做的任务
 

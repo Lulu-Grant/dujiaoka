@@ -99,6 +99,7 @@ assert_page "/admin/v2/coupon/batch-code-prefix" "批量添加优惠码前缀 - 
 assert_page "/admin/v2/coupon/batch-code-suffix" "批量添加优惠码后缀 - 后台壳样板" "目标后缀"
 assert_page "/admin/v2/coupon/batch-code-replace" "批量替换优惠码内容片段 - 后台壳样板" "目标替换内容"
 assert_page "/admin/v2/coupon/batch-code-trim" "批量清理优惠码内容空格 - 后台壳样板" "执行内容空格清理"
+assert_page "/admin/v2/coupon/batch-code-collapse-spaces" "批量压缩优惠码内容连续空格 - 后台壳样板" "执行内容连续空格压缩"
 assert_page "/admin/v2/pay/batch-method" "批量切换支付方式 - 后台壳样板" "目标支付方式"
 assert_page "/admin/v2/pay/batch-name" "批量设置支付名称 - 后台壳样板" "目标支付名称"
 assert_page "/admin/v2/pay/batch-name-prefix" "批量添加支付名称前缀 - 后台壳样板" "目标前缀"

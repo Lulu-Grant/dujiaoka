@@ -11,6 +11,29 @@
 
 ## 2026-04-12 阶段日志
 
+### 195. 优惠码管理接入批量压缩内容连续空格页
+
+摘要：
+
+- 在后台壳优惠码线新增 [batch-code-collapse-spaces.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/coupon/batch-code-collapse-spaces.blade.php)，支持通过 `/admin/v2/coupon/batch-code-collapse-spaces` 先预览命中的优惠码，再批量压缩优惠码内容里的连续空格。
+- 扩展 [CouponActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/CouponActionController.php) 与 [CouponActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/CouponActionService.php)，新增 `batchCodeCollapseSpacesDefaults` 和 `collapseCodeSpaces`，并保留优惠码唯一性冲突保护。
+- 同步把入口接入优惠码列表页头、后台壳资源注册表、后台壳 smoke 和文档动作清单。
+
+影响范围：
+
+- 只更新 `coupons.coupon` 中连续半角空格、Tab 和全角空格的展示格式，并只统计实际发生变化的优惠码。
+- 不触碰折扣、可用次数、启用状态、使用状态和关联商品。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellCouponControllerTest.php tests/Unit/CouponActionServiceTest.php tests/Unit/AdminShellPageStructureTest.php tests/Unit/AdminShellRouteRegistrarTest.php` 通过，结果为 `OK (30 tests, 215 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (378 tests, 2203 assertions)`。
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过。
+
+下一步：
+
+- 按执行基线切入文档/兼容层收口，优先同步动作页清单并审计旧 `/admin/*` 跳转残留。
+
 ### 194. 订单管理接入批量压缩标题连续空格页
 
 摘要：

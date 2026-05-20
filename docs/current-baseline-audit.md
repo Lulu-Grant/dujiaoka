@@ -34,7 +34,7 @@
 
 ## 当前基线数字
 
-- PHPUnit：`OK (375 tests, 2183 assertions)`
+- PHPUnit：`OK (378 tests, 2203 assertions)`
 - 当前分支：`master`
 - 当前后台默认落点：`/admin -> /admin/v2/dashboard`
 - 当前后台主入口：
@@ -152,7 +152,7 @@
 - 订单：`edit / reset search password / batch-status / batch-type / batch-info / batch-title / batch-title-prefix / batch-title-suffix / batch-title-trim / batch-title-collapse-spaces / batch-reset-search-pwd / export`
 - 邮件模板：`create / edit / preview / copy / export summary`
 - 支付通道：`create / edit / copy / batch-status / batch-client / batch-method / batch-name / batch-name-prefix / batch-name-suffix / batch-name-replace / batch-name-trim / batch-name-collapse-spaces / export`
-- 优惠码：`create / edit / batch generate / batch-status / batch-use / batch-discount / batch-ret / batch-code / batch-code-prefix / batch-code-suffix / batch-code-replace / batch-code-trim / export`
+- 优惠码：`create / edit / batch generate / batch-status / batch-use / batch-discount / batch-ret / batch-code / batch-code-prefix / batch-code-suffix / batch-code-replace / batch-code-trim / batch-code-collapse-spaces / export`
 - 卡密：`create / edit / import / export / batch-loop / batch-trim / batch-collapse-spaces`
 - 邮件测试：`send`
 - 系统设置：`base / branding / mail / order / push / experience`

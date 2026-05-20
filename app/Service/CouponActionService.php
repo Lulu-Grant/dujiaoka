@@ -119,6 +119,13 @@ class CouponActionService
         ];
     }
 
+    public function batchCodeCollapseSpacesDefaults(array $couponIds = []): array
+    {
+        return [
+            'ids_text' => implode("\n", $couponIds),
+        ];
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -398,6 +405,48 @@ class CouponActionService
             ) {
                 $attempts++;
                 $nextCode = trim($baseCode).'-'.$attempts;
+            }
+
+            $coupon->coupon = $nextCode;
+            $coupon->updated_at = now();
+            $coupon->save();
+            $updated++;
+        }
+
+        return $updated;
+    }
+
+    public function collapseCodeSpaces(array $couponIds): int
+    {
+        if (empty($couponIds)) {
+            return 0;
+        }
+
+        $coupons = Coupon::query()
+            ->whereIn('id', $couponIds)
+            ->orderBy('id')
+            ->get();
+
+        $updated = 0;
+
+        foreach ($coupons as $coupon) {
+            $baseCode = (string) $coupon->coupon;
+            $collapsedCode = preg_replace('/[ \t\x{3000}]+/u', ' ', $baseCode);
+            $nextCode = $collapsedCode === null ? $baseCode : $collapsedCode;
+
+            if ($nextCode === $baseCode) {
+                continue;
+            }
+
+            $attempts = 0;
+            while (
+                Coupon::query()
+                    ->where('coupon', $nextCode)
+                    ->where('id', '!=', $coupon->id)
+                    ->exists()
+            ) {
+                $attempts++;
+                $nextCode = $collapsedCode.'-'.$attempts;
             }
 
             $coupon->coupon = $nextCode;

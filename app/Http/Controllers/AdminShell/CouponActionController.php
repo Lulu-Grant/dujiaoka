@@ -154,6 +154,11 @@ class CouponActionController extends Controller
         return $this->renderBatchCodeTrimPage($request);
     }
 
+    public function editBatchCodeCollapseSpaces(Request $request)
+    {
+        return $this->renderBatchCodeCollapseSpacesPage($request);
+    }
+
     public function updateBatchRet(Request $request)
     {
         return $this->storeBatchRet($request);
@@ -192,6 +197,11 @@ class CouponActionController extends Controller
     public function updateBatchCodeTrim(Request $request)
     {
         return $this->storeBatchCodeTrim($request);
+    }
+
+    public function updateBatchCodeCollapseSpaces(Request $request)
+    {
+        return $this->storeBatchCodeCollapseSpaces($request);
     }
 
     private function validatePayload(Request $request): array
@@ -474,6 +484,30 @@ class CouponActionController extends Controller
         ]);
     }
 
+    private function renderBatchCodeCollapseSpacesPage(Request $request)
+    {
+        $couponIds = $this->couponActionService->parseCouponIds((string) $request->query('ids', $request->input('ids_text', '')));
+        $defaults = $this->couponActionService->batchCodeCollapseSpacesDefaults($couponIds);
+
+        return view('admin-shell.coupon.batch-code-collapse-spaces', [
+            'title' => '批量压缩优惠码内容连续空格 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量压缩优惠码内容连续空格',
+                'description' => '这是后台壳中的低风险批量动作页。当前只压缩优惠码内容里的连续半角空格、Tab 和全角空格，不改折扣、可用次数、启用状态、使用状态和关联商品。',
+                'meta' => '适合导入或人工录入后整理优惠码内容。提交后只会对优惠码内容做连续空格压缩，并且只统计实际发生变化的优惠码。',
+                'actions' => [
+                    ['label' => '返回优惠码概览', 'href' => admin_url('v2/coupon')],
+                    ['label' => '批量清理优惠码空格', 'href' => admin_url('v2/coupon/batch-code-trim'), 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/coupon/batch-code-collapse-spaces'),
+            'submitLabel' => '执行内容连续空格压缩',
+            'defaults' => $defaults,
+            'context' => $this->couponActionService->batchStatusContext($couponIds),
+        ]);
+    }
+
     private function storeBatchRet(Request $request)
     {
         $payload = $request->validate([
@@ -658,6 +692,26 @@ class CouponActionController extends Controller
 
         return redirect(admin_url('v2/coupon/batch-code-trim?ids='.implode(',', $couponIds)))
             ->with('status', '已批量清理 '.$affected.' 个优惠码的内容空格');
+    }
+
+    private function storeBatchCodeCollapseSpaces(Request $request)
+    {
+        $payload = $request->validate([
+            'ids_text' => ['required', 'string'],
+        ]);
+
+        $couponIds = $this->couponActionService->parseCouponIds($payload['ids_text']);
+        if (empty($couponIds)) {
+            return redirect()
+                ->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的优惠码 ID。'])
+                ->withInput();
+        }
+
+        $affected = $this->couponActionService->collapseCodeSpaces($couponIds);
+
+        return redirect(admin_url('v2/coupon/batch-code-collapse-spaces?ids='.implode(',', $couponIds)))
+            ->with('status', '已批量压缩 '.$affected.' 个优惠码的内容连续空格');
     }
 
     private function isBatchMode(Request $request): bool
