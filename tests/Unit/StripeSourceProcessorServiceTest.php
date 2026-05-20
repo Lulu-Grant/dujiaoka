@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Exceptions\PaymentGatewayException;
 use App\Models\BaseModel;
 use App\Models\Goods;
 use App\Models\GoodsGroup;
@@ -65,6 +66,33 @@ class StripeSourceProcessorServiceTest extends TestCase
         $this->assertSame('success', $response);
         $this->assertSame(Order::STATUS_PENDING, $order->status);
         $this->assertSame('SRC-CONSUMED-002', $order->trade_no);
+    }
+
+    public function test_process_return_rejects_source_amount_mismatch_without_completing_order(): void
+    {
+        [$order, $payGateway] = $this->createStripeContext('STRIPE-SOURCE-MISMATCH-001');
+
+        $sdk = \Mockery::mock(StripeGatewayClientInterface::class);
+        $sdk->shouldReceive('setApiKey')->once()->with('stripe-secret-key');
+        $sdk->shouldReceive('retrieveSource')->once()->with('SRC-MISMATCH-001')->andReturn((object) [
+            'status' => 'consumed',
+            'id' => 'SRC-MISMATCH-001',
+            'amount' => 900,
+            'owner' => (object) ['name' => 'STRIPE-SOURCE-MISMATCH-001'],
+        ]);
+        app()->instance(StripeGatewayClientInterface::class, $sdk);
+
+        $this->expectException(PaymentGatewayException::class);
+        $this->expectExceptionMessage('Stripe return handling failed.');
+
+        try {
+            app(StripeSourceProcessorService::class)->processReturn($order, $payGateway, 'SRC-MISMATCH-001');
+        } finally {
+            $order->refresh();
+
+            $this->assertSame(Order::STATUS_WAIT_PAY, $order->status);
+            $this->assertSame('', (string) $order->trade_no);
+        }
     }
 
     private function createStripeContext(string $orderSn): array

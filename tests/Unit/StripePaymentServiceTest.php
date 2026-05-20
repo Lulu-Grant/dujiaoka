@@ -69,6 +69,35 @@ class StripePaymentServiceTest extends TestCase
         $this->assertSame('SRC-CONSUMED-001', $order->trade_no);
     }
 
+    public function test_handle_source_check_is_idempotent_for_duplicate_consumed_source(): void
+    {
+        $order = $this->createStripeOrder('STRIPE-CHECK-DUPLICATE-001');
+        $goods = $order->goods;
+
+        $sdk = \Mockery::mock(StripeGatewayClientInterface::class);
+        $sdk->shouldReceive('setApiKey')->twice()->with('stripe-secret-key');
+        $sdk->shouldReceive('retrieveSource')->twice()->with('SRC-CONSUMED-DUPLICATE-001')->andReturn((object) [
+            'status' => 'consumed',
+            'id' => 'SRC-CONSUMED-DUPLICATE-001',
+            'owner' => (object) ['name' => 'STRIPE-CHECK-DUPLICATE-001'],
+        ]);
+        app()->instance(StripeGatewayClientInterface::class, $sdk);
+
+        $service = app(StripePaymentService::class);
+
+        $firstResponse = $service->handleSourceCheck($order->order_sn, 'SRC-CONSUMED-DUPLICATE-001');
+        $secondResponse = $service->handleSourceCheck($order->order_sn, 'SRC-CONSUMED-DUPLICATE-001');
+
+        $goods->refresh();
+        $order->refresh();
+
+        $this->assertSame('success', $firstResponse);
+        $this->assertSame('success', $secondResponse);
+        $this->assertSame(Order::STATUS_PENDING, $order->status);
+        $this->assertSame('SRC-CONSUMED-DUPLICATE-001', $order->trade_no);
+        $this->assertSame(1, $goods->sales_volume);
+    }
+
     public function test_handle_card_charge_completes_successful_charge(): void
     {
         $order = $this->createStripeOrder('STRIPE-CHARGE-001');

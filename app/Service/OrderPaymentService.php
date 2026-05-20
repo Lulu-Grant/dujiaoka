@@ -39,7 +39,11 @@ class OrderPaymentService
      */
     public function completePayment(string $orderSN, float $actualPrice, string $tradeNo = ''): Order
     {
-        $order = $this->validateCompletableOrder($orderSN, $actualPrice);
+        $order = $this->validateCompletableOrder($orderSN, $actualPrice, $tradeNo);
+        if ((int) $order->status !== Order::STATUS_WAIT_PAY) {
+            return $order;
+        }
+
         $this->applyPaymentResult($order, $actualPrice, $tradeNo);
         $completedOrder = $this->orderFulfillmentService->fulfill($order);
         $this->goodsService->salesVolumeIncr($completedOrder->goods_id, $completedOrder->buy_amount);
@@ -52,20 +56,25 @@ class OrderPaymentService
      *
      * @param string $orderSN
      * @param float $actualPrice
+     * @param string $tradeNo
      * @return Order
      * @throws \Exception
      */
-    public function validateCompletableOrder(string $orderSN, float $actualPrice): Order
+    public function validateCompletableOrder(string $orderSN, float $actualPrice, string $tradeNo = ''): Order
     {
         $order = $this->orderService->detailOrderSN($orderSN);
         if (!$order) {
             throw new \Exception(__('dujiaoka.prompt.order_does_not_exist'));
         }
-        if ($order->status == Order::STATUS_COMPLETED) {
-            throw new \Exception(__('dujiaoka.prompt.order_status_completed'));
-        }
         if (bccomp($order->actual_price, $actualPrice, 2) != 0) {
             throw new \Exception(__('dujiaoka.prompt.order_inconsistent_amounts'));
+        }
+        if ((int) $order->status !== Order::STATUS_WAIT_PAY
+            && $tradeNo !== ''
+            && (string) $order->trade_no !== ''
+            && (string) $order->trade_no !== $tradeNo
+        ) {
+            throw new \Exception(__('dujiaoka.prompt.order_status_completed'));
         }
 
         return $order;

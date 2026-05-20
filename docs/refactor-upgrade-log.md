@@ -11,6 +11,32 @@
 
 ## 2026-04-12 阶段日志
 
+### 197. 支付完成层补强 Stripe 重复通知与金额不一致护栏
+
+摘要：
+
+- [OrderPaymentService.php](/Users/apple/Documents/dujiaoshuka/app/Service/OrderPaymentService.php) 现在只允许 `wait_pay` 订单进入真实履约、销量累加和通知副作用；已处理订单收到同一交易的重复通知时直接返回当前订单，避免人工处理订单重复累加销量。
+- [StripePaymentServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/StripePaymentServiceTest.php) 新增 Stripe source consumed 重复检查场景，确认重复通知不会重复触发商品销量副作用。
+- [StripeSourceProcessorServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/StripeSourceProcessorServiceTest.php) 新增 Stripe return source 金额不一致场景，确认金额不匹配时订单仍停留在待支付状态。
+- [OrderPaymentServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/OrderPaymentServiceTest.php) 补通用支付完成层的重复通知幂等和金额不一致测试。
+
+影响范围：
+
+- 影响所有支付通道共享的支付完成入口，目标是让重复回调不重复履约、不重复加销量、不重复派发副作用。
+- 金额不一致仍优先失败，避免已处理状态掩盖异常金额通知。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/OrderPaymentServiceTest.php` 通过，结果为 `OK (3 tests, 13 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/StripePaymentServiceTest.php` 通过，结果为 `OK (4 tests, 20 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/StripeSourceProcessorServiceTest.php` 通过，结果为 `OK (2 tests, 11 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/PaymentCallbackServiceTest.php` 通过，结果为 `OK (2 tests, 4 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (382 tests, 2225 assertions)`。
+
+下一步：
+
+- 按执行基线切入安全线，优先复查默认账号、默认密钥、`.env.example` 和安装默认值。
+
 ### 196. 旧 `/admin/*` 兼容跳转复查并同步基线
 
 摘要：
