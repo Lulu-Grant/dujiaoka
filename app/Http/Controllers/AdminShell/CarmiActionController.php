@@ -233,6 +233,58 @@ class CarmiActionController extends Controller
             ->with('status', '已批量压缩 '.$affected.' 条卡密的内容连续空格');
     }
 
+    public function editBatchReplace(Request $request)
+    {
+        $carmiIds = $this->carmiActionService->parseCarmiIds((string) $request->query('ids', ''));
+        $defaults = $this->carmiActionService->batchReplaceDefaults($carmiIds);
+        $context = $this->carmiActionService->batchReplaceContext($carmiIds);
+
+        return view('admin-shell.carmis.batch-replace', [
+            'title' => '批量替换卡密内容片段 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量替换卡密内容片段',
+                'description' => '这是后台壳中的低风险批量动作页。当前只替换卡密内容中的指定文本片段，不触碰销售状态、循环使用标记、商品归属和订单关联。',
+                'meta' => '适合导入后统一整理卡密内容格式。提交后只会处理命中的卡密内容，并且只统计实际发生变化的卡密。',
+                'actions' => [
+                    ['label' => '返回卡密概览', 'href' => admin_url('v2/carmis')],
+                    ['label' => '批量压缩内容空格', 'href' => admin_url('v2/carmis/batch-collapse-spaces'), 'variant' => 'secondary'],
+                    ['label' => '导入卡密', 'href' => admin_url('v2/carmis/import'), 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/carmis/batch-replace'),
+            'submitLabel' => '执行卡密内容片段替换',
+            'defaults' => $defaults,
+            'context' => $context,
+        ]);
+    }
+
+    public function updateBatchReplace(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+            'search_text' => ['required', 'string'],
+            'replace_text' => ['nullable', 'string'],
+        ]);
+
+        $carmiIds = $this->carmiActionService->parseCarmiIds($validated['ids_text']);
+
+        if (empty($carmiIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的卡密 ID。'])
+                ->withInput();
+        }
+
+        $affected = $this->carmiActionService->replaceCarmiSegment(
+            $carmiIds,
+            $validated['search_text'],
+            (string) ($validated['replace_text'] ?? '')
+        );
+
+        return redirect(admin_url('v2/carmis/batch-replace').'?ids='.implode(',', $carmiIds))
+            ->with('status', '已批量替换 '.$affected.' 条卡密的内容片段');
+    }
+
     private function validatePayload(Request $request): array
     {
         $payload = $request->validate([

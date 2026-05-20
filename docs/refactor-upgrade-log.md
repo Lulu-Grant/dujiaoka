@@ -11,6 +11,29 @@
 
 ## 2026-04-12 阶段日志
 
+### 199. 卡密管理接入批量替换内容片段页
+
+摘要：
+
+- 在后台壳卡密线新增 [batch-replace.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/carmis/batch-replace.blade.php)，支持通过 `/admin/v2/carmis/batch-replace` 先预览命中的卡密，再批量替换卡密内容中的指定文本片段。
+- 扩展 [CarmiActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/CarmiActionController.php) 与 [CarmiActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/CarmiActionService.php)，新增 `batchReplaceDefaults`、`batchReplaceContext` 和 `replaceCarmiSegment`。
+- 同步把新动作注册到后台壳资源注册表、卡密列表头部动作、route registrar 测试和 smoke 检查。
+
+影响范围：
+
+- 只更新 `carmis.carmi` 中命中的文本片段，并只统计实际发生变化的卡密。
+- 不触碰卡密销售状态、循环使用标记、商品归属、订单关联、库存扣减或履约链。
+- 继续沿 `carmis` 低风险维护动作推进后台壳主承载，不回写旧 Dcat 业务逻辑。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellCarmisControllerTest.php tests/Unit/CarmiActionServiceTest.php tests/Unit/AdminShellPageStructureTest.php tests/Unit/AdminShellRouteRegistrarTest.php` 通过，结果为 `OK (20 tests, 118 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (387 tests, 2256 assertions)`。
+
+下一步：
+
+- 按执行基线切入升级线，刷新依赖阻塞矩阵并标记仍阻塞项。
+
 ### 198. 默认账号、默认密钥与安装默认值复查
 
 摘要：

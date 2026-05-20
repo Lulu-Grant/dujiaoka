@@ -109,6 +109,7 @@ assert_page "/admin/v2/pay/batch-name-trim" "批量清理支付名称空格 - �
 assert_page "/admin/v2/pay/batch-name-collapse-spaces" "批量压缩支付名称连续空格 - 后台壳样板" "执行名称连续空格压缩"
 assert_page "/admin/v2/carmis/batch-trim" "批量清理卡密内容空格 - 后台壳样板" "执行卡密内容空格清理"
 assert_page "/admin/v2/carmis/batch-collapse-spaces" "批量压缩卡密内容连续空格 - 后台壳样板" "执行卡密内容连续空格压缩"
+assert_page "/admin/v2/carmis/batch-replace" "批量替换卡密内容片段 - 后台壳样板" "执行卡密内容片段替换"
 assert_page "/admin/v2/order/batch-info" "批量设置订单附加信息 - 后台壳样板" "目标附加信息"
 assert_page "/admin/v2/order/batch-title" "批量设置订单标题 - 后台壳样板" "目标标题"
 assert_page "/admin/v2/order/batch-title-prefix" "批量添加订单标题前缀 - 后台壳样板" "目标标题前缀"

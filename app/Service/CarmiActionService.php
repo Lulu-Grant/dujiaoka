@@ -56,12 +56,27 @@ class CarmiActionService
         ];
     }
 
+    public function batchReplaceDefaults(array $carmiIds = []): array
+    {
+        return [
+            'carmi_ids' => $carmiIds,
+            'ids_text' => implode("\n", $carmiIds),
+            'search_text' => '',
+            'replace_text' => '',
+        ];
+    }
+
     public function batchLoopContext(array $carmiIds): array
     {
         return $this->batchContext($carmiIds);
     }
 
     public function batchTrimContext(array $carmiIds): array
+    {
+        return $this->batchContext($carmiIds);
+    }
+
+    public function batchReplaceContext(array $carmiIds): array
     {
         return $this->batchContext($carmiIds);
     }
@@ -157,6 +172,34 @@ class CarmiActionService
         foreach ($carmis as $carmi) {
             $nextCarmi = preg_replace('/[ \t\x{3000}]+/u', ' ', (string) $carmi->carmi);
             if ($nextCarmi === null || $nextCarmi === (string) $carmi->carmi) {
+                continue;
+            }
+
+            $carmi->carmi = $nextCarmi;
+            $carmi->updated_at = now();
+            $carmi->save();
+            $updated++;
+        }
+
+        return $updated;
+    }
+
+    public function replaceCarmiSegment(array $carmiIds, string $searchText, string $replaceText): int
+    {
+        if (empty($carmiIds) || $searchText === '') {
+            return 0;
+        }
+
+        $carmis = Carmis::query()
+            ->whereIn('id', $carmiIds)
+            ->orderBy('id')
+            ->get(['id', 'carmi']);
+
+        $updated = 0;
+
+        foreach ($carmis as $carmi) {
+            $nextCarmi = str_replace($searchText, $replaceText, (string) $carmi->carmi);
+            if ($nextCarmi === (string) $carmi->carmi) {
                 continue;
             }
 

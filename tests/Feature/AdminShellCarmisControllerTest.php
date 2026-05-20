@@ -238,6 +238,49 @@ class AdminShellCarmisControllerTest extends TestCase
         $this->assertSame(2, (int) DB::table('carmis')->where('id', 95002)->value('status'));
     }
 
+    public function test_batch_replace_page_renders_matching_preview(): void
+    {
+        $this->seedCarmiFixture(95001, '测试商品卡密 A', 'CARD-OLD-001');
+        $this->seedCarmiFixture(95002, '测试商品卡密 B', 'CARD-BBB-002');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/carmis/batch-replace?ids=95001,95002,95999');
+
+        $response->assertOk();
+        $response->assertSee('批量替换卡密内容片段');
+        $response->assertSee('测试商品卡密 A');
+        $response->assertSee('测试商品卡密 B');
+        $response->assertSee('CARD-OLD-001');
+        $response->assertSee('95999');
+    }
+
+    public function test_batch_replace_page_can_update_carmis_without_touching_status_or_relations(): void
+    {
+        $this->seedCarmiFixture(95001, '测试商品卡密 A', 'CARD-OLD-001');
+        $this->seedCarmiFixture(95002, '测试商品卡密 B', 'CARD-BBB-002', 2);
+
+        DB::table('carmis')->where('id', 95001)->update(['is_loop' => 1]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/carmis/batch-replace', [
+                'ids_text' => "95001\n95002,95999",
+                'search_text' => 'OLD',
+                'replace_text' => 'NEW',
+            ]);
+
+        $response->assertRedirect('/admin/v2/carmis/batch-replace?ids=95001,95002,95999');
+        $response->assertSessionHas('status', '已批量替换 1 条卡密的内容片段');
+
+        $record = DB::table('carmis')->where('id', 95001)->first();
+        $this->assertSame('CARD-NEW-001', $record->carmi);
+        $this->assertSame(1, (int) $record->status);
+        $this->assertSame(1, (int) $record->is_loop);
+        $this->assertSame(95001, (int) $record->goods_id);
+
+        $this->assertSame('CARD-BBB-002', DB::table('carmis')->where('id', 95002)->value('carmi'));
+        $this->assertSame(2, (int) DB::table('carmis')->where('id', 95002)->value('status'));
+    }
+
     public function test_create_page_can_store_carmi(): void
     {
         $this->seedCarmiFixture(95001, '测试商品卡密 A', 'CARD-AAA-001');

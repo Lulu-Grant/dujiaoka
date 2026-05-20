@@ -34,6 +34,16 @@ class CarmiActionServiceTest extends TestCase
         $this->assertArrayNotHasKey('carmi', $defaults);
     }
 
+    public function test_batch_replace_defaults_start_empty_for_safe_review(): void
+    {
+        $defaults = app(CarmiActionService::class)->batchReplaceDefaults([96201, 96202]);
+
+        $this->assertSame([96201, 96202], $defaults['carmi_ids']);
+        $this->assertSame("96201\n96202", $defaults['ids_text']);
+        $this->assertSame('', $defaults['search_text']);
+        $this->assertSame('', $defaults['replace_text']);
+    }
+
     public function test_trim_carmis_only_updates_changed_carmi_content(): void
     {
         $this->seedCarmis();
@@ -58,6 +68,22 @@ class CarmiActionServiceTest extends TestCase
 
         $this->assertSame(1, $affected);
         $this->assertSame('CARD TRIM 001', DB::table('carmis')->where('id', 96201)->value('carmi'));
+        $this->assertSame('CARD-PLAIN-002', DB::table('carmis')->where('id', 96202)->value('carmi'));
+        $this->assertSame(1, (int) DB::table('carmis')->where('id', 96201)->value('status'));
+        $this->assertSame(1, (int) DB::table('carmis')->where('id', 96201)->value('is_loop'));
+        $this->assertSame(96201, (int) DB::table('carmis')->where('id', 96201)->value('goods_id'));
+    }
+
+    public function test_replace_carmi_segment_only_updates_changed_carmi_content(): void
+    {
+        $this->seedCarmis();
+
+        DB::table('carmis')->where('id', 96201)->update(['carmi' => 'CARD-OLD-001']);
+
+        $affected = app(CarmiActionService::class)->replaceCarmiSegment([96201, 96202], 'OLD', 'NEW');
+
+        $this->assertSame(1, $affected);
+        $this->assertSame('CARD-NEW-001', DB::table('carmis')->where('id', 96201)->value('carmi'));
         $this->assertSame('CARD-PLAIN-002', DB::table('carmis')->where('id', 96202)->value('carmi'));
         $this->assertSame(1, (int) DB::table('carmis')->where('id', 96201)->value('status'));
         $this->assertSame(1, (int) DB::table('carmis')->where('id', 96201)->value('is_loop'));

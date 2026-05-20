@@ -88,6 +88,8 @@ class AdminShellRouteRegistrarTest extends TestCase
         $this->assertRouteExists($routes, 'v2/carmis/batch-trim', 'POST', 'admin-shell.carmis.batch-trim.update');
         $this->assertRouteExists($routes, 'v2/carmis/batch-collapse-spaces', 'GET', 'admin-shell.carmis.batch-collapse-spaces');
         $this->assertRouteExists($routes, 'v2/carmis/batch-collapse-spaces', 'POST', 'admin-shell.carmis.batch-collapse-spaces.update');
+        $this->assertRouteExists($routes, 'v2/carmis/batch-replace', 'GET', 'admin-shell.carmis.batch-replace');
+        $this->assertRouteExists($routes, 'v2/carmis/batch-replace', 'POST', 'admin-shell.carmis.batch-replace.update');
         $this->assertRouteExists($routes, 'v2/system-setting/base', 'POST', 'admin-shell.system-setting.base.update');
         $this->assertRouteExists($routes, 'v2/email-test/send', 'POST', 'admin-shell.email-test.send.store');
     }

@@ -122,6 +122,11 @@ class AdminShellCarmisPageService extends AbstractAdminShellPageService
             'variant' => 'secondary',
         ];
         $header['actions'][] = [
+            'label' => '批量替换内容片段',
+            'href' => admin_url('v2/carmis/batch-replace'),
+            'variant' => 'secondary',
+        ];
+        $header['actions'][] = [
             'label' => '导出 CSV',
             'href' => $this->exportUrl($filters, 'csv'),
             'variant' => 'secondary',
