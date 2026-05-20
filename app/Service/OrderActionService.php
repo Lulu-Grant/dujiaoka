@@ -69,6 +69,14 @@ class OrderActionService
         ];
     }
 
+    public function batchTitleCollapseSpacesDefaults(array $orderIds = []): array
+    {
+        return [
+            'order_ids' => $orderIds,
+            'ids_text' => implode("\n", $orderIds),
+        ];
+    }
+
     public function batchStatusContext(array $orderIds): array
     {
         $orders = Order::query()
@@ -296,6 +304,37 @@ class OrderActionService
         foreach ($orders as $order) {
             $nextTitle = trim((string) $order->title);
             if ($nextTitle === (string) $order->title) {
+                continue;
+            }
+
+            $order->title = $nextTitle;
+
+            Order::withoutEvents(function () use ($order) {
+                $order->save();
+            });
+
+            $updated++;
+        }
+
+        return $updated;
+    }
+
+    public function collapseTitleSpaces(array $orderIds): int
+    {
+        if (empty($orderIds)) {
+            return 0;
+        }
+
+        $orders = Order::query()
+            ->whereIn('id', $orderIds)
+            ->orderBy('id')
+            ->get();
+
+        $updated = 0;
+
+        foreach ($orders as $order) {
+            $nextTitle = preg_replace('/[ \t\x{3000}]+/u', ' ', (string) $order->title);
+            if ($nextTitle === null || $nextTitle === (string) $order->title) {
                 continue;
             }
 

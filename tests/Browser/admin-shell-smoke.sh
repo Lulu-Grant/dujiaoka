@@ -113,6 +113,7 @@ assert_page "/admin/v2/order/batch-title" "批量设置订单标题 - 后台壳�
 assert_page "/admin/v2/order/batch-title-prefix" "批量添加订单标题前缀 - 后台壳样板" "目标标题前缀"
 assert_page "/admin/v2/order/batch-title-suffix" "批量添加订单标题后缀 - 后台壳样板" "目标标题后缀"
 assert_page "/admin/v2/order/batch-title-trim" "批量清理订单标题空格 - 后台壳样板" "执行标题空格清理"
+assert_page "/admin/v2/order/batch-title-collapse-spaces" "批量压缩订单标题连续空格 - 后台壳样板" "执行标题连续空格压缩"
 assert_page "/admin/v2/order/batch-type" "批量设置订单类型 - 后台壳样板" "目标类型"
 assert_page "/admin/v2/order/batch-reset-search-pwd" "批量重置订单查询密码 - 后台壳样板" "批量重置订单查询密码"
 assert_page "/admin/v2/emailtpl/create" "新建邮件模板 - 后台壳样板" "创建邮件模板"

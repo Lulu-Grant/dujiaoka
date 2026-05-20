@@ -543,6 +543,48 @@ class AdminShellOrderControllerTest extends TestCase
         $this->assertSame('trade-no-batch-98063', $first->trade_no);
     }
 
+    public function test_batch_title_collapse_spaces_page_renders_matching_preview(): void
+    {
+        $this->seedBatchOrderFixture(98071, 'batch-98071', '订单  批量　测试 98071');
+        $this->seedBatchOrderFixture(98072, 'batch-98072', '订单批量测试 98072');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/order/batch-title-collapse-spaces?ids='.urlencode("98071,\n98072,98079"));
+
+        $response->assertOk();
+        $response->assertSee('批量压缩订单标题连续空格');
+        $response->assertSee('执行标题连续空格压缩');
+        $response->assertSee('订单  批量');
+        $response->assertSee('订单批量测试 98072');
+        $response->assertSee('98079');
+    }
+
+    public function test_batch_title_collapse_spaces_can_update_order_titles_without_touching_status_or_search_password(): void
+    {
+        $this->seedBatchOrderFixture(98073, 'batch-98073', '订单  批量　测试 98073');
+        $this->seedBatchOrderFixture(98074, 'batch-98074', '订单批量测试 98074');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/order/batch-title-collapse-spaces', [
+                'ids_text' => "98073\n98074,98080",
+            ]);
+
+        $response->assertRedirect('/admin/v2/order/batch-title-collapse-spaces?ids=98073,98074,98080');
+        $response->assertSessionHas('status', '已批量压缩 1 个订单标题的连续空格');
+
+        $first = Order::query()->findOrFail(98073);
+        $second = Order::query()->findOrFail(98074);
+
+        $this->assertSame('订单 批量 测试 98073', $first->title);
+        $this->assertSame('订单批量测试 98074', $second->title);
+        $this->assertSame('batch-98073', $first->search_pwd);
+        $this->assertSame('batch-98074', $second->search_pwd);
+        $this->assertSame(Order::STATUS_COMPLETED, (int) $first->status);
+        $this->assertSame(Order::STATUS_COMPLETED, (int) $second->status);
+        $this->assertSame(Order::AUTOMATIC_DELIVERY, (int) $first->type);
+        $this->assertSame('trade-no-batch-98073', $first->trade_no);
+    }
+
     public function test_batch_reset_can_refresh_search_passwords_for_matched_orders(): void
     {
         $this->seedBatchOrderFixture(98004, 'batch-98004', '订单批量测试 98004');

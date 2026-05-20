@@ -247,6 +247,31 @@ class OrderActionController extends Controller
         ]);
     }
 
+    public function editBatchTitleCollapseSpaces(Request $request)
+    {
+        $orderIds = $this->orderActionService->parseOrderIds((string) $request->query('ids', ''));
+        $defaults = $this->orderActionService->batchTitleCollapseSpacesDefaults($orderIds);
+        $context = $this->orderActionService->batchStatusContext($orderIds);
+
+        return view('admin-shell.order.batch-title-collapse-spaces', [
+            'title' => '批量压缩订单标题连续空格 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量压缩订单标题连续空格',
+                'description' => '这是后台壳中的低风险批量动作页。当前只压缩订单标题里的连续空格，不触碰状态机、支付、履约和通知链。',
+                'meta' => '适合导入、人工维护或历史订单整理后的标题规范化。提交后只更新订单标题字段，并保持无事件写入。',
+                'actions' => [
+                    ['label' => '返回订单概览', 'href' => admin_url('v2/order')],
+                    ['label' => '批量清理标题空格', 'href' => admin_url('v2/order/batch-title-trim'), 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/order/batch-title-collapse-spaces'),
+            'submitLabel' => '执行标题连续空格压缩',
+            'defaults' => $defaults,
+            'context' => $context,
+        ]);
+    }
+
     public function updateBatchStatus(Request $request)
     {
         $validated = $request->validate([
@@ -436,6 +461,31 @@ class OrderActionController extends Controller
 
         return redirect(admin_url('v2/order/batch-title-trim').'?ids='.implode(',', $orderIds))
             ->with('status', '已批量清理 '.$updated.' 个订单标题的空格');
+    }
+
+    public function updateBatchTitleCollapseSpaces(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+        ]);
+
+        $orderIds = $this->orderActionService->parseOrderIds($validated['ids_text']);
+
+        if (empty($orderIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的订单 ID。'])
+                ->withInput();
+        }
+
+        $updated = $this->orderActionService->collapseTitleSpaces($orderIds);
+
+        if ($updated === 0) {
+            return redirect(admin_url('v2/order/batch-title-collapse-spaces').'?ids='.implode(',', $orderIds))
+                ->with('status', '没有订单标题需要压缩连续空格');
+        }
+
+        return redirect(admin_url('v2/order/batch-title-collapse-spaces').'?ids='.implode(',', $orderIds))
+            ->with('status', '已批量压缩 '.$updated.' 个订单标题的连续空格');
     }
 
     public function batchResetSearchPassword(Request $request)

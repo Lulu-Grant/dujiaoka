@@ -95,7 +95,7 @@
 
 - 商品分类 `create / edit`
 - 商品 `create / edit / clone / batch-status / batch-buy-limit-num / batch-group / batch-sales-volume / batch-ord / batch-buy-prompt / batch-buy-prompt-trim / batch-description / batch-description-trim / batch-keywords / batch-keywords-suffix / batch-keywords-trim / batch-keywords-collapse-spaces / export`
-- 订单 `edit / reset search password / batch-status / batch-type / batch-info / batch-title / batch-title-prefix / batch-title-suffix / batch-title-trim / batch-reset-search-pwd / export`
+- 订单 `edit / reset search password / batch-status / batch-type / batch-info / batch-title / batch-title-prefix / batch-title-suffix / batch-title-trim / batch-title-collapse-spaces / batch-reset-search-pwd / export`
 - 优惠码 `create / edit / batch generate / batch-status / batch-use / batch-discount / batch-ret / batch-code / batch-code-prefix / batch-code-suffix / batch-code-replace / batch-code-trim / export`
 - 支付通道 `create / edit / copy / batch-status / batch-client / batch-method / batch-name / batch-name-prefix / batch-name-suffix / batch-name-replace / batch-name-trim / batch-name-collapse-spaces / export`
 - 卡密 `create / edit / import / export / batch-loop / batch-trim / batch-collapse-spaces`
@@ -133,7 +133,7 @@
 当前主线测试结果基线：
 
 ```bash
-OK (372 tests, 2160 assertions)
+OK (375 tests, 2183 assertions)
 ```
 
 当前仓库也已经补上 GitHub Actions 基线工作流：

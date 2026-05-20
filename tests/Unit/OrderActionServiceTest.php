@@ -67,6 +67,15 @@ class OrderActionServiceTest extends TestCase
         $this->assertArrayNotHasKey('title', $defaults);
     }
 
+    public function test_batch_title_collapse_spaces_defaults_only_require_ids_for_safe_review(): void
+    {
+        $defaults = app(OrderActionService::class)->batchTitleCollapseSpacesDefaults([98001, 98002]);
+
+        $this->assertSame([98001, 98002], $defaults['order_ids']);
+        $this->assertSame("98001\n98002", $defaults['ids_text']);
+        $this->assertArrayNotHasKey('title', $defaults);
+    }
+
     private function seedOrderFixture(int $id): Order
     {
         DB::table('orders')->where('id', $id)->delete();

@@ -11,6 +11,29 @@
 
 ## 2026-04-12 阶段日志
 
+### 194. 订单管理接入批量压缩标题连续空格页
+
+摘要：
+
+- 在后台壳订单线新增 [batch-title-collapse-spaces.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/order/batch-title-collapse-spaces.blade.php)，支持通过 `/admin/v2/order/batch-title-collapse-spaces` 先预览命中的订单，再批量压缩订单标题里的连续空格。
+- 扩展 [OrderActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/OrderActionController.php) 与 [OrderActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/OrderActionService.php)，新增 `batchTitleCollapseSpacesDefaults` 和 `collapseTitleSpaces`。
+- 同步把入口接入订单列表页头、后台壳资源注册表、后台壳 smoke 和文档动作清单。
+
+影响范围：
+
+- 只更新 `orders.title` 中连续半角空格、Tab 和全角空格的展示格式，并只统计实际发生变化的订单。
+- 不触碰订单状态、订单类型、附加信息、查询密码、交易号、支付、履约和通知链。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellOrderControllerTest.php tests/Unit/OrderActionServiceTest.php tests/Unit/AdminShellPageStructureTest.php tests/Unit/AdminShellRouteRegistrarTest.php` 通过，结果为 `OK (27 tests, 224 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (375 tests, 2183 assertions)`。
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过。
+
+下一步：
+
+- 按执行基线切入 `coupon` 线，优先补优惠码内容连续空格压缩，并保留唯一性保护。
+
 ### 193. 卡密管理接入批量压缩内容连续空格页
 
 摘要：

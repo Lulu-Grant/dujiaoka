@@ -131,6 +131,11 @@ class AdminShellOrderPageService extends AbstractAdminShellPageService
             'variant' => 'secondary',
         ];
         $header['actions'][] = [
+            'label' => '批量压缩标题空格',
+            'href' => admin_url('v2/order/batch-title-collapse-spaces'),
+            'variant' => 'secondary',
+        ];
+        $header['actions'][] = [
             'label' => '批量重置查询密码',
             'href' => admin_url('v2/order/batch-reset-search-pwd'),
             'variant' => 'secondary',
