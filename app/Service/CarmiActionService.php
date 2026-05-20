@@ -40,7 +40,25 @@ class CarmiActionService
         ];
     }
 
+    public function batchTrimDefaults(array $carmiIds = []): array
+    {
+        return [
+            'carmi_ids' => $carmiIds,
+            'ids_text' => implode("\n", $carmiIds),
+        ];
+    }
+
     public function batchLoopContext(array $carmiIds): array
+    {
+        return $this->batchContext($carmiIds);
+    }
+
+    public function batchTrimContext(array $carmiIds): array
+    {
+        return $this->batchContext($carmiIds);
+    }
+
+    private function batchContext(array $carmiIds): array
     {
         $carmis = Carmis::query()
             ->with('goods:id,gd_name')
@@ -85,6 +103,34 @@ class CarmiActionService
                 'is_loop' => $isLoop,
                 'updated_at' => now(),
             ]);
+    }
+
+    public function trimCarmis(array $carmiIds): int
+    {
+        if (empty($carmiIds)) {
+            return 0;
+        }
+
+        $carmis = Carmis::query()
+            ->whereIn('id', $carmiIds)
+            ->orderBy('id')
+            ->get(['id', 'carmi']);
+
+        $updated = 0;
+
+        foreach ($carmis as $carmi) {
+            $nextCarmi = trim((string) $carmi->carmi);
+            if ($nextCarmi === (string) $carmi->carmi) {
+                continue;
+            }
+
+            $carmi->carmi = $nextCarmi;
+            $carmi->updated_at = now();
+            $carmi->save();
+            $updated++;
+        }
+
+        return $updated;
     }
 
     public function createDefaults(): array

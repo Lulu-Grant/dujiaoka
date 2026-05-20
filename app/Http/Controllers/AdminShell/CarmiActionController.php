@@ -141,6 +141,52 @@ class CarmiActionController extends Controller
             ->with('status', '已批量'.$label.' '.$affected.' 条卡密');
     }
 
+    public function editBatchTrim(Request $request)
+    {
+        $carmiIds = $this->carmiActionService->parseCarmiIds((string) $request->query('ids', ''));
+        $defaults = $this->carmiActionService->batchTrimDefaults($carmiIds);
+        $context = $this->carmiActionService->batchTrimContext($carmiIds);
+
+        return view('admin-shell.carmis.batch-trim', [
+            'title' => '批量清理卡密内容空格 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量清理卡密内容空格',
+                'description' => '这是后台壳中的低风险批量动作页。当前只清理卡密内容首尾空格，不触碰销售状态、循环使用标记、商品归属和订单关联。',
+                'meta' => '适合导入后整理卡密内容格式。提交后只会对卡密内容执行 trim，并且只统计实际发生变化的卡密。',
+                'actions' => [
+                    ['label' => '返回卡密概览', 'href' => admin_url('v2/carmis')],
+                    ['label' => '批量设置循环使用', 'href' => admin_url('v2/carmis/batch-loop'), 'variant' => 'secondary'],
+                    ['label' => '导入卡密', 'href' => admin_url('v2/carmis/import'), 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/carmis/batch-trim'),
+            'submitLabel' => '执行卡密内容空格清理',
+            'defaults' => $defaults,
+            'context' => $context,
+        ]);
+    }
+
+    public function updateBatchTrim(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+        ]);
+
+        $carmiIds = $this->carmiActionService->parseCarmiIds($validated['ids_text']);
+
+        if (empty($carmiIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的卡密 ID。'])
+                ->withInput();
+        }
+
+        $affected = $this->carmiActionService->trimCarmis($carmiIds);
+
+        return redirect(admin_url('v2/carmis/batch-trim').'?ids='.implode(',', $carmiIds))
+            ->with('status', '已批量清理 '.$affected.' 条卡密的内容空格');
+    }
+
     private function validatePayload(Request $request): array
     {
         $payload = $request->validate([
