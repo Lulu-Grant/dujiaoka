@@ -189,6 +189,8 @@ class AdminShellResourceRegistry
                     ['method' => 'post', 'uri' => 'batch-collapse-spaces', 'action' => 'updateBatchCollapseSpaces', 'name' => 'batch-collapse-spaces.update', 'controller' => \App\Http\Controllers\AdminShell\CarmiActionController::class],
                     ['method' => 'get', 'uri' => 'batch-replace', 'action' => 'editBatchReplace', 'name' => 'batch-replace', 'controller' => \App\Http\Controllers\AdminShell\CarmiActionController::class],
                     ['method' => 'post', 'uri' => 'batch-replace', 'action' => 'updateBatchReplace', 'name' => 'batch-replace.update', 'controller' => \App\Http\Controllers\AdminShell\CarmiActionController::class],
+                    ['method' => 'get', 'uri' => 'batch-suffix', 'action' => 'editBatchSuffix', 'name' => 'batch-suffix', 'controller' => \App\Http\Controllers\AdminShell\CarmiActionController::class],
+                    ['method' => 'post', 'uri' => 'batch-suffix', 'action' => 'updateBatchSuffix', 'name' => 'batch-suffix.update', 'controller' => \App\Http\Controllers\AdminShell\CarmiActionController::class],
                     ['method' => 'get', 'uri' => 'create', 'action' => 'create', 'name' => 'create', 'controller' => \App\Http\Controllers\AdminShell\CarmiActionController::class],
                     ['method' => 'post', 'uri' => 'create', 'action' => 'store', 'name' => 'store', 'controller' => \App\Http\Controllers\AdminShell\CarmiActionController::class],
                     ['method' => 'get', 'uri' => '{id}/edit', 'action' => 'edit', 'name' => 'edit', 'controller' => \App\Http\Controllers\AdminShell\CarmiActionController::class],

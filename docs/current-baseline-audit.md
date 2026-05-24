@@ -1,6 +1,6 @@
 # 当前基线审计
 
-更新时间：2026-05-19
+更新时间：2026-05-24
 
 ## 审计结论
 
@@ -34,7 +34,7 @@
 
 ## 当前基线数字
 
-- PHPUnit：`OK (387 tests, 2256 assertions)`
+- PHPUnit：`OK (391 tests, 2287 assertions)`
 - 当前分支：`master`
 - 当前后台默认落点：`/admin -> /admin/v2/dashboard`
 - 当前后台主入口：
@@ -155,7 +155,7 @@
 - 邮件模板：`create / edit / preview / copy / export summary`
 - 支付通道：`create / edit / copy / batch-status / batch-client / batch-method / batch-name / batch-name-prefix / batch-name-suffix / batch-name-replace / batch-name-trim / batch-name-collapse-spaces / export`
 - 优惠码：`create / edit / batch generate / batch-status / batch-use / batch-discount / batch-ret / batch-code / batch-code-prefix / batch-code-suffix / batch-code-replace / batch-code-trim / batch-code-collapse-spaces / export`
-- 卡密：`create / edit / import / export / batch-loop / batch-trim / batch-collapse-spaces`
+- 卡密：`create / edit / import / export / batch-loop / batch-trim / batch-collapse-spaces / batch-replace / batch-suffix`
 - 邮件测试：`send`
 - 系统设置：`base / branding / mail / order / push / experience`
 
@@ -228,7 +228,7 @@
 
 当前状态：
 
-- 已经有清单，但还没进入真正主阶段
+- 已经有清单，并开始按 `v3.0.0-beta.1` 候选要求整理后台批量动作、支付异常路径、输入面和升级阻塞矩阵
 
 还没完成的点：
 
@@ -236,6 +236,13 @@
 - 支付回调安全专项
 - 后台安全边界盘点
 - PHP / Laravel 升级前残余阻塞清理
+
+当前 beta.1 收口口径：
+
+- 后台壳日常运营动作基本可用，新增动作必须保持预览、显式提交和低风险字段边界。
+- Dcat 保留为登录、认证、中间件和旧入口兼容层，不再新增业务承载。
+- 支付关键异常路径以测试护栏为准，重点是重复通知、签名失败、金额不一致和已完成订单重复推进。
+- 升级前清障以依赖阻塞矩阵和实验分支验证清单为准，不直接跳 Laravel / PHP 大版本。
 
 ## 当前剩余重点进度
 

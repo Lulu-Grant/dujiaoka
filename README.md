@@ -99,7 +99,7 @@
 - 订单 `edit / reset search password / batch-status / batch-type / batch-info / batch-title / batch-title-prefix / batch-title-suffix / batch-title-trim / batch-title-collapse-spaces / batch-reset-search-pwd / export`
 - 优惠码 `create / edit / batch generate / batch-status / batch-use / batch-discount / batch-ret / batch-code / batch-code-prefix / batch-code-suffix / batch-code-replace / batch-code-trim / batch-code-collapse-spaces / export`
 - 支付通道 `create / edit / copy / batch-status / batch-client / batch-method / batch-name / batch-name-prefix / batch-name-suffix / batch-name-replace / batch-name-trim / batch-name-collapse-spaces / export`
-- 卡密 `create / edit / import / export / batch-loop / batch-trim / batch-collapse-spaces`
+- 卡密 `create / edit / import / export / batch-loop / batch-trim / batch-collapse-spaces / batch-replace / batch-suffix`
 - 邮件模板 `create / edit / preview / copy / export summary`
 - 邮件测试发送
 - 系统设置 `base / branding / mail / order / push / experience`
@@ -114,6 +114,7 @@
 - 持续压缩旧 `Dcat Admin` 在高频后台页上的业务承载
 - 继续收口支付层保留通道
 - 为后续 PHP / Laravel 升级继续清障
+- 推进 `v3.0.0-beta.1` 候选收口：后台壳主承载、Dcat 兼容层、支付安全、安全治理和升级阻塞矩阵同步收敛
 
 ## 当前品牌与定位
 
@@ -134,7 +135,7 @@
 当前主线测试结果基线：
 
 ```bash
-OK (387 tests, 2256 assertions)
+OK (391 tests, 2287 assertions)
 ```
 
 当前仓库也已经补上 GitHub Actions 基线工作流：
@@ -198,6 +199,8 @@ OK (387 tests, 2256 assertions)
 - [本地快速拉站](docs/local-dev-quickstart.md)
 - [当前基线审计](docs/current-baseline-audit.md)
 - [当前进度总汇](docs/current-progress-super-summary.md)
+- [后台壳动作边界矩阵](docs/admin-shell-action-boundary-matrix.md)
+- [发布稳定路线图](docs/release-stabilization-roadmap.md)
 
 ## 说明
 

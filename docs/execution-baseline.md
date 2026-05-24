@@ -1,6 +1,6 @@
 # 执行基线
 
-更新时间：2026-05-20
+更新时间：2026-05-24
 
 ## 文件定位
 
@@ -13,6 +13,8 @@
 - [refactor-upgrade-log.md](/Users/apple/Documents/dujiaoshuka/docs/refactor-upgrade-log.md) 记录已经发生的事实
 - [current-baseline-audit.md](/Users/apple/Documents/dujiaoshuka/docs/current-baseline-audit.md) 记录当前状态盘点
 - [rectification-execution-plan.md](/Users/apple/Documents/dujiaoshuka/docs/rectification-execution-plan.md) 记录长期整改总纲
+- [admin-shell-action-boundary-matrix.md](/Users/apple/Documents/dujiaoshuka/docs/admin-shell-action-boundary-matrix.md) 记录后台壳动作字段边界
+- [release-stabilization-roadmap.md](/Users/apple/Documents/dujiaoshuka/docs/release-stabilization-roadmap.md) 记录 beta.1、beta.2、RC 和稳定版路线
 - 本文件负责约束接下来连续执行的默认顺序、边界和退出标准
 
 ## 当前结论
@@ -27,7 +29,7 @@
 - 支付层现代化：中后期，Stripe 已稳定，旧落后通道已退役，PayPal 与保留通道仍需继续收口
 - 安全治理与升级前清障：中前期，已有清单但还没成为主推进阶段
 
-最近一轮后台壳已经连续补齐 `goods / order / pay / coupon / carmis` 多组低风险批量动作，并补强 Stripe 支付回调幂等、金额校验和安装默认值安全护栏；`carmis` 线已新增只更新卡密内容片段的批量替换页并纳入 smoke 覆盖，当前 PHPUnit 基线已推进到 `387 tests / 2256 assertions`。
+最近一轮后台壳已经连续补齐 `goods / order / pay / coupon / carmis` 多组低风险批量动作，并补强 Stripe 支付回调幂等、金额校验和安装默认值安全护栏；`carmis` 线已新增只更新卡密内容片段的批量替换页，并将批量追加卡密内容后缀页纳入第一批 beta.1 收口任务，当前 PHPUnit 基线已推进到 `391 tests / 2287 assertions`。
 
 ## 剩余主线
 
@@ -135,11 +137,12 @@
 
 ### 第一批：后台壳收口
 
-1. 商品线补展示/描述类低风险批量动作
-2. 卡密线补导入后维护动作和低风险批量入口
-3. 订单线补人工维护/展示辅助动作
-4. 优惠码和支付线只继续补文本展示类动作
-5. 同步 README、当前基线审计和 smoke 覆盖清单
+1. 卡密线先收口 `batch-suffix`：视图、路由、列表入口、Feature / Unit / smoke 和日志全部补齐
+2. 商品线补展示/描述类低风险批量动作
+3. 卡密线继续补导入后维护动作和低风险批量入口
+4. 订单线补人工维护/展示辅助动作
+5. 优惠码和支付线只继续补文本展示类动作
+6. 同步 README、当前基线审计和 smoke 覆盖清单
 
 ### 第二批：兼容层与文档收口
 
@@ -161,6 +164,13 @@
 2. 设计 PHP / Laravel 分步升级路线
 3. 建立升级实验分支验证清单
 4. 进入第一轮升级试跑
+
+### 第五批：v3.0.0-beta.1 候选
+
+1. 新增并维护 `docs/releases/v3.0.0-beta.1.md`
+2. 汇总后台壳、Dcat 兼容层、支付安全、安全治理和升级阻塞矩阵状态
+3. 冻结新增功能，只接受阻断级 bug、文档口径修正和测试补强
+4. 发布候选前每批都跑全量 PHPUnit 与后台壳 smoke
 
 ## 近期 10 个可直接执行的任务
 

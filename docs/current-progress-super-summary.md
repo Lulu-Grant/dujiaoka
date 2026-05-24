@@ -1,6 +1,6 @@
 # 当前进度总汇
 
-更新时间：2026-05-19
+更新时间：2026-05-24
 
 ## 一句话总览
 
@@ -9,7 +9,7 @@
 ## 当前数字
 
 - 总体进度估算：`72%`
-- PHPUnit：`OK (387 tests, 2256 assertions)`
+- PHPUnit：`OK (391 tests, 2287 assertions)`
 - 当前主分支：`master`
 - 当前默认后台落点：`/admin -> /admin/v2/dashboard`
 - 当前后台主入口：
@@ -90,7 +90,7 @@
 - 邮件模板：`create / edit / preview / copy / export summary`
 - 支付通道：`create / edit / copy / batch-status / batch-client / batch-method / batch-name / batch-name-prefix / batch-name-suffix / batch-name-replace / batch-name-trim / batch-name-collapse-spaces / export`
 - 优惠码：`create / edit / batch generate / batch-status / batch-use / batch-discount / batch-ret / batch-code / batch-code-prefix / batch-code-suffix / batch-code-replace / batch-code-trim / batch-code-collapse-spaces / export`
-- 卡密：`create / edit / import / export / batch-loop / batch-trim / batch-collapse-spaces`
+- 卡密：`create / edit / import / export / batch-loop / batch-trim / batch-collapse-spaces / batch-replace / batch-suffix`
 - 邮件测试：`send`
 - 系统设置：`base / branding / mail / order / push / experience`
 
@@ -118,6 +118,7 @@
 2. 旧 Dcat 继续降耦合
 3. 支付层继续收口
 4. 再进入安全专项与升级前清障
+5. 以 `v3.0.0-beta.1` 为下一阶段候选终点，同步收拢 release 文档和验证清单
 
 而且当前最值得持续投入的子方向依然是：
 

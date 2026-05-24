@@ -9,6 +9,34 @@
 
 ---
 
+## 2026-05-24 阶段日志
+
+### 200. v3 beta.1 收口规划落地并补齐卡密后缀批量页
+
+摘要：
+
+- 在后台壳卡密线新增 [batch-suffix.blade.php](/Users/apple/Documents/dujiaoshuka/resources/views/admin-shell/carmis/batch-suffix.blade.php)，支持通过 `/admin/v2/carmis/batch-suffix` 先预览命中的卡密，再批量追加卡密内容后缀。
+- 扩展 [CarmiActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/CarmiActionController.php)、[CarmiActionService.php](/Users/apple/Documents/dujiaoshuka/app/Service/CarmiActionService.php)、后台壳资源注册表和卡密列表头部动作，把当前未完成的 `batch-suffix` 现场收口到完整页面链路。
+- 新增 [v3.0.0-beta.1.md](/Users/apple/Documents/dujiaoshuka/docs/releases/v3.0.0-beta.1.md)，并同步 README、当前进度总汇、当前基线审计、执行基线、安全基线、支付网关整改清单和依赖阻塞矩阵的 beta.1 收口口径。
+- 新增 [admin-shell-action-boundary-matrix.md](/Users/apple/Documents/dujiaoshuka/docs/admin-shell-action-boundary-matrix.md) 与 [release-stabilization-roadmap.md](/Users/apple/Documents/dujiaoshuka/docs/release-stabilization-roadmap.md)，把 beta.1、beta.2、RC 和稳定版前置要求落成后续执行锚点。
+
+影响范围：
+
+- 当前动作只更新 `carmis.carmi` 文本后缀，不触碰销售状态、循环使用标记、商品归属、订单关联、库存扣减或履约链。
+- Dcat 仍保持最小兼容层定位，不新增旧后台业务承载。
+- beta.1 候选口径明确为后台壳主承载、Dcat 兼容层、支付安全、安全治理和升级前清障同步收敛。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellCarmisControllerTest.php tests/Unit/CarmiActionServiceTest.php tests/Unit/AdminShellPageStructureTest.php tests/Unit/AdminShellRouteRegistrarTest.php` 通过，结果为 `OK (22 tests, 133 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/LegacyAdminShellRedirectControllerTest.php` 通过，结果为 `OK (6 tests, 66 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (391 tests, 2287 assertions)`。
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过，已覆盖 `/admin/v2/carmis/batch-suffix`。
+
+下一步：
+
+- 继续按 beta.1 候选顺序推进 Dcat 兼容层、支付安全、安全治理和升级前清障收口。
+
 ## 2026-04-12 阶段日志
 
 ### 199. 卡密管理接入批量替换内容片段页

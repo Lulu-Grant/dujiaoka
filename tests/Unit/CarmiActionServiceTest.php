@@ -44,6 +44,15 @@ class CarmiActionServiceTest extends TestCase
         $this->assertSame('', $defaults['replace_text']);
     }
 
+    public function test_batch_suffix_defaults_start_empty_for_safe_review(): void
+    {
+        $defaults = app(CarmiActionService::class)->batchSuffixDefaults([96201, 96202]);
+
+        $this->assertSame([96201, 96202], $defaults['carmi_ids']);
+        $this->assertSame("96201\n96202", $defaults['ids_text']);
+        $this->assertSame('', $defaults['suffix']);
+    }
+
     public function test_trim_carmis_only_updates_changed_carmi_content(): void
     {
         $this->seedCarmis();
@@ -85,6 +94,20 @@ class CarmiActionServiceTest extends TestCase
         $this->assertSame(1, $affected);
         $this->assertSame('CARD-NEW-001', DB::table('carmis')->where('id', 96201)->value('carmi'));
         $this->assertSame('CARD-PLAIN-002', DB::table('carmis')->where('id', 96202)->value('carmi'));
+        $this->assertSame(1, (int) DB::table('carmis')->where('id', 96201)->value('status'));
+        $this->assertSame(1, (int) DB::table('carmis')->where('id', 96201)->value('is_loop'));
+        $this->assertSame(96201, (int) DB::table('carmis')->where('id', 96201)->value('goods_id'));
+    }
+
+    public function test_add_carmi_suffix_only_updates_carmi_content(): void
+    {
+        $this->seedCarmis();
+
+        $affected = app(CarmiActionService::class)->addCarmiSuffix([96201, 96202], '-END');
+
+        $this->assertSame(2, $affected);
+        $this->assertSame('  CARD-TRIM-001  -END', DB::table('carmis')->where('id', 96201)->value('carmi'));
+        $this->assertSame('CARD-PLAIN-002-END', DB::table('carmis')->where('id', 96202)->value('carmi'));
         $this->assertSame(1, (int) DB::table('carmis')->where('id', 96201)->value('status'));
         $this->assertSame(1, (int) DB::table('carmis')->where('id', 96201)->value('is_loop'));
         $this->assertSame(96201, (int) DB::table('carmis')->where('id', 96201)->value('goods_id'));

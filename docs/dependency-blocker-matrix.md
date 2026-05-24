@@ -17,15 +17,15 @@
 
 | 依赖 | 当前用途 | 阻塞级别 | 当前状态 | 建议动作 | 备注 |
 | --- | --- | --- | --- | --- | --- |
-| `dcat/laravel-admin 2.*` | 后台控制台核心框架 | P0 | 深度耦合 | 保留过渡、最终替换 | 当前不能先硬拔，应先降耦合 |
-| `dcat/easy-excel` | 后台导入导出辅助 | P2 | 依赖 Dcat 生态 | 观察、后续替换 | 随后台壳替换一起处理更合理 |
+| `dcat/laravel-admin 2.*` | 后台控制台核心框架 | P0 | 保留过渡 | 继续降耦合、最终替换 | 当前只承担兼容、认证和旧入口跳转，不新增业务承载 |
+| `dcat/easy-excel` | 后台导入导出辅助 | P2 | 保留过渡 | 后续替换 | 随后台壳导入导出能力成熟后统一处理 |
 | `germey/geetest ^3.1` | 行为验证 | P0 | 已从主锁文件移除 | 已处理 | 已退出前台下单主路径、路由、中间件与后台设置入口 |
 | `simplesoftwareio/simple-qrcode 2.0.0` | 二维码生成 | P0 | 已从主锁文件移除 | 已处理 | 已改为前端本地 JS 生成二维码 |
 | `bacon/bacon-qr-code 1.0.3` | QRCode 底层依赖 | P0 | 已随上层退出 | 已处理 | 已随 `simple-qrcode` 一起移除 |
-| `paypal/rest-api-sdk-php ^1.14` | PayPal 支付 | P1 | 历史 SDK，已收敛到接口绑定的单点服务 | 替换 | 已抽出 `PaypalSdkService` 与 `PaypalGatewayClientInterface` |
-| `stripe/stripe-php ^20.0` | Stripe 支付 | P1 | 已升到当前 20.x 基线，但仍需继续清理残余耦合 | 继续收口接入方式 | 已抽出 `StripeSdkService` 与 `StripeGatewayClientInterface` |
+| `paypal/rest-api-sdk-php ^1.14` | PayPal 支付 | P1 | 需替换 | 制定保留 / 替换 / 退场决策 | 已抽出 `PaypalSdkService` 与 `PaypalGatewayClientInterface` |
+| `stripe/stripe-php ^20.0` | Stripe 支付 | P1 | 保留并继续收口 | 稳定 20.x 接入边界 | 已抽出 `StripeSdkService` 与 `StripeGatewayClientInterface` |
 | `xhat/payjs-laravel ^1.6` | PayJS 支付 | P2 | 已从主锁文件移除 | 已处理 | 已随 PayJS 通道退役退出新版本 |
-| `yansongda/pay ^2.10` | 支付宝 / 微信支付 | P2 | 可运行 | 观察后升级 | 当前不是第一阻塞点 |
+| `yansongda/pay ^2.10` | 支付宝 / 微信支付 | P2 | 保留过渡 | 观察后升级 | 当前不是第一阻塞点，先以回调安全测试护栏约束 |
 | `phpspec/prophecy 1.13.0` | 测试依赖链 | P0 | 已从主锁文件移除 | 已处理 | 已通过升级 `phpunit/phpunit` 到 9.6.34 退出主依赖链 |
 
 ---
@@ -168,3 +168,11 @@
 3. 其余遗留包的兼容性复盘
 
 在剩余高优先级链路被处理前，不建议直接发起正式 Laravel / PHP 跨版本升级。
+
+## beta.1 升级实验分支验证清单
+
+- 安装依赖：使用当前锁文件和 PHP 7.4 基线确认可重复安装。
+- 数据库：执行 migration / bootstrap seed / 测试库准备脚本，不恢复 `install.sql`。
+- 回归：执行全量 PHPUnit 和后台壳 smoke。
+- 支付：执行 Stripe、PayPal、统一通知型网关的关键路径与异常路径测试。
+- 兼容层：确认 `/admin`、后台登录、账号设置和旧 `/admin/*` 跳转仍可达。

@@ -12,7 +12,7 @@ class AdminShellCarmisControllerTest extends TestCase
     protected function tearDown(): void
     {
         DB::table('carmis')->whereIn('id', [95001, 95002, 95003, 95004])->delete();
-        DB::table('carmis')->whereIn('carmi', ['CARD-AAA-001', 'CARD-BBB-002', 'CARD-CREATE-001', 'CARD-EDIT-002', 'CARD-NEW-001', 'CARD-NEW-002', 'CARD-UP-001', 'CARD-UP-002', 'CARD-SOLD-003', 'CARD-EXPORT-001', 'CARD-EXPORT-002'])->delete();
+        DB::table('carmis')->whereIn('carmi', ['CARD-AAA-001', 'CARD-BBB-002', 'CARD-CREATE-001', 'CARD-EDIT-002', 'CARD-NEW-001', 'CARD-NEW-002', 'CARD-UP-001', 'CARD-UP-002', 'CARD-SOLD-003', 'CARD-EXPORT-001', 'CARD-EXPORT-002', 'CARD-AAA-001-SUFFIX'])->delete();
         DB::table('goods')->whereIn('id', [95001, 95002, 95003])->delete();
         DB::table('admin_users')->where('username', 'admin-shell-tester')->delete();
 
@@ -278,6 +278,48 @@ class AdminShellCarmisControllerTest extends TestCase
         $this->assertSame(95001, (int) $record->goods_id);
 
         $this->assertSame('CARD-BBB-002', DB::table('carmis')->where('id', 95002)->value('carmi'));
+        $this->assertSame(2, (int) DB::table('carmis')->where('id', 95002)->value('status'));
+    }
+
+    public function test_batch_suffix_page_renders_matching_preview(): void
+    {
+        $this->seedCarmiFixture(95001, '测试商品卡密 A', 'CARD-AAA-001');
+        $this->seedCarmiFixture(95002, '测试商品卡密 B', 'CARD-BBB-002');
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->get('/admin/v2/carmis/batch-suffix?ids=95001,95002,95999');
+
+        $response->assertOk();
+        $response->assertSee('批量追加卡密内容后缀');
+        $response->assertSee('测试商品卡密 A');
+        $response->assertSee('测试商品卡密 B');
+        $response->assertSee('CARD-AAA-001');
+        $response->assertSee('95999');
+    }
+
+    public function test_batch_suffix_page_can_update_carmis_without_touching_status_or_relations(): void
+    {
+        $this->seedCarmiFixture(95001, '测试商品卡密 A', 'CARD-AAA-001');
+        $this->seedCarmiFixture(95002, '测试商品卡密 B', 'CARD-BBB-002', 2);
+
+        DB::table('carmis')->where('id', 95001)->update(['is_loop' => 1]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->post('/admin/v2/carmis/batch-suffix', [
+                'ids_text' => "95001\n95002,95999",
+                'suffix' => '-SUFFIX',
+            ]);
+
+        $response->assertRedirect('/admin/v2/carmis/batch-suffix?ids=95001,95002,95999');
+        $response->assertSessionHas('status', '已批量追加 2 条卡密的内容后缀');
+
+        $record = DB::table('carmis')->where('id', 95001)->first();
+        $this->assertSame('CARD-AAA-001-SUFFIX', $record->carmi);
+        $this->assertSame(1, (int) $record->status);
+        $this->assertSame(1, (int) $record->is_loop);
+        $this->assertSame(95001, (int) $record->goods_id);
+
+        $this->assertSame('CARD-BBB-002-SUFFIX', DB::table('carmis')->where('id', 95002)->value('carmi'));
         $this->assertSame(2, (int) DB::table('carmis')->where('id', 95002)->value('status'));
     }
 

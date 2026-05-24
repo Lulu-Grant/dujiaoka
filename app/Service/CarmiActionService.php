@@ -66,6 +66,15 @@ class CarmiActionService
         ];
     }
 
+    public function batchSuffixDefaults(array $carmiIds = []): array
+    {
+        return [
+            'carmi_ids' => $carmiIds,
+            'ids_text' => implode("\n", $carmiIds),
+            'suffix' => '',
+        ];
+    }
+
     public function batchLoopContext(array $carmiIds): array
     {
         return $this->batchContext($carmiIds);
@@ -77,6 +86,11 @@ class CarmiActionService
     }
 
     public function batchReplaceContext(array $carmiIds): array
+    {
+        return $this->batchContext($carmiIds);
+    }
+
+    public function batchSuffixContext(array $carmiIds): array
     {
         return $this->batchContext($carmiIds);
     }
@@ -199,6 +213,34 @@ class CarmiActionService
 
         foreach ($carmis as $carmi) {
             $nextCarmi = str_replace($searchText, $replaceText, (string) $carmi->carmi);
+            if ($nextCarmi === (string) $carmi->carmi) {
+                continue;
+            }
+
+            $carmi->carmi = $nextCarmi;
+            $carmi->updated_at = now();
+            $carmi->save();
+            $updated++;
+        }
+
+        return $updated;
+    }
+
+    public function addCarmiSuffix(array $carmiIds, string $suffix): int
+    {
+        if (empty($carmiIds) || $suffix === '') {
+            return 0;
+        }
+
+        $carmis = Carmis::query()
+            ->whereIn('id', $carmiIds)
+            ->orderBy('id')
+            ->get(['id', 'carmi']);
+
+        $updated = 0;
+
+        foreach ($carmis as $carmi) {
+            $nextCarmi = (string) $carmi->carmi.$suffix;
             if ($nextCarmi === (string) $carmi->carmi) {
                 continue;
             }

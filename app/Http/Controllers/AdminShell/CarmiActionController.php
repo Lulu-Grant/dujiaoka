@@ -285,6 +285,53 @@ class CarmiActionController extends Controller
             ->with('status', '已批量替换 '.$affected.' 条卡密的内容片段');
     }
 
+    public function editBatchSuffix(Request $request)
+    {
+        $carmiIds = $this->carmiActionService->parseCarmiIds((string) $request->query('ids', ''));
+        $defaults = $this->carmiActionService->batchSuffixDefaults($carmiIds);
+        $context = $this->carmiActionService->batchSuffixContext($carmiIds);
+
+        return view('admin-shell.carmis.batch-suffix', [
+            'title' => '批量追加卡密内容后缀 - 后台壳样板',
+            'header' => [
+                'kicker' => 'Admin Shell Batch',
+                'title' => '批量追加卡密内容后缀',
+                'description' => '这是后台壳中的低风险批量动作页。当前只给卡密内容追加固定后缀，不触碰销售状态、循环使用标记、商品归属和订单关联。',
+                'meta' => '适合导入后统一补充卡密内容标记。提交后只会处理命中的卡密内容，并且只统计实际发生变化的卡密。',
+                'actions' => [
+                    ['label' => '返回卡密概览', 'href' => admin_url('v2/carmis')],
+                    ['label' => '批量替换内容片段', 'href' => admin_url('v2/carmis/batch-replace'), 'variant' => 'secondary'],
+                    ['label' => '导入卡密', 'href' => admin_url('v2/carmis/import'), 'variant' => 'secondary'],
+                ],
+            ],
+            'formAction' => admin_url('v2/carmis/batch-suffix'),
+            'submitLabel' => '执行卡密内容后缀追加',
+            'defaults' => $defaults,
+            'context' => $context,
+        ]);
+    }
+
+    public function updateBatchSuffix(Request $request)
+    {
+        $validated = $request->validate([
+            'ids_text' => ['required', 'string'],
+            'suffix' => ['required', 'string'],
+        ]);
+
+        $carmiIds = $this->carmiActionService->parseCarmiIds($validated['ids_text']);
+
+        if (empty($carmiIds)) {
+            return redirect()->back()
+                ->withErrors(['ids_text' => '请至少填写一个有效的卡密 ID。'])
+                ->withInput();
+        }
+
+        $affected = $this->carmiActionService->addCarmiSuffix($carmiIds, $validated['suffix']);
+
+        return redirect(admin_url('v2/carmis/batch-suffix').'?ids='.implode(',', $carmiIds))
+            ->with('status', '已批量追加 '.$affected.' 条卡密的内容后缀');
+    }
+
     private function validatePayload(Request $request): array
     {
         $payload = $request->validate([

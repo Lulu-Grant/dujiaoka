@@ -459,8 +459,9 @@ class AdminShellPageStructureTest extends TestCase
         $this->assertSame('批量清理内容空格', $header['actions'][4]['label']);
         $this->assertSame('批量压缩内容空格', $header['actions'][5]['label']);
         $this->assertSame('批量替换内容片段', $header['actions'][6]['label']);
-        $this->assertSame('导出 CSV', $header['actions'][7]['label']);
-        $this->assertSame('导出当前筛选', $header['actions'][8]['label']);
+        $this->assertSame('批量追加内容后缀', $header['actions'][7]['label']);
+        $this->assertSame('导出 CSV', $header['actions'][8]['label']);
+        $this->assertSame('导出当前筛选', $header['actions'][9]['label']);
         $this->assertStringContainsString('?scope=trashed', $showHeader['actions'][0]['href']);
         $this->assertSame('关联商品', $table['headers'][1]);
         $this->assertStringContainsString('自动发货商品', $table['rows'][0][1]);

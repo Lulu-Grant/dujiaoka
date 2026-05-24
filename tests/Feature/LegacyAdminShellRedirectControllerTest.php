@@ -90,6 +90,10 @@ class LegacyAdminShellRedirectControllerTest extends TestCase
             ->assertRedirect('/admin/v2/pay/create');
 
         $this->actingAs($admin, 'admin')
+            ->get('/admin/pay?scope=legacy')
+            ->assertRedirect('/admin/v2/pay?scope=legacy');
+
+        $this->actingAs($admin, 'admin')
             ->get('/admin/coupon/456/edit')
             ->assertRedirect('/admin/v2/coupon/456/edit');
 
@@ -146,6 +150,10 @@ class LegacyAdminShellRedirectControllerTest extends TestCase
         $this->actingAs($admin, 'admin')
             ->get('/admin/import-carmis')
             ->assertRedirect('/admin/v2/carmis/import');
+
+        $this->actingAs($admin, 'admin')
+            ->get('/admin/import-carmis?goods_id=95001')
+            ->assertRedirect('/admin/v2/carmis/import?goods_id=95001');
     }
 
     public function test_configuration_legacy_routes_preserve_query_strings(): void

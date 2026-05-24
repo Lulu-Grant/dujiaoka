@@ -127,6 +127,11 @@ class AdminShellCarmisPageService extends AbstractAdminShellPageService
             'variant' => 'secondary',
         ];
         $header['actions'][] = [
+            'label' => '批量追加内容后缀',
+            'href' => admin_url('v2/carmis/batch-suffix'),
+            'variant' => 'secondary',
+        ];
+        $header['actions'][] = [
             'label' => '导出 CSV',
             'href' => $this->exportUrl($filters, 'csv'),
             'variant' => 'secondary',
