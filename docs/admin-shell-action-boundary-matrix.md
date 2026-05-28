@@ -23,6 +23,22 @@
 | 卡密 `carmis` | `carmi` 文本及 trim、collapse、replace、suffix 等导入后维护动作 | `status`、`is_loop`、`goods_id`、订单关联、库存扣减、履约链 | 用卡密 ID 列表恢复原文本；已售状态和订单关联不批量改 | 只改 `carmis.carmi`、缺失 ID 预览、smoke 覆盖入口 |
 | 系统设置 | 分组表单中的显式配置项 | 无保护批量更新、密钥批量替换、运行时敏感项静默写入 | 通过单项配置表单恢复；敏感项必须显式保存 | 表单校验、权限中间件、敏感示例值不进文档 |
 
+## 现存动作分级
+
+以下分级用于 beta.1 收口，不表示鼓励继续扩展高风险动作。
+
+| 分级 | 当前动作 | beta.1 处理 |
+| --- | --- | --- |
+| 低风险文本整理 | 商品说明/简介/购买提示/关键字整理，订单标题/附加信息整理，支付名称整理，优惠码内容整理，卡密内容整理 | 允许继续补齐缺口，但必须遵守准入清单 |
+| 保留型运营动作 | 商品启停、商品分类、销量、排序、限购，订单类型、查询密码重置，支付启停/场景/方式，优惠码启停/使用状态/折扣/次数 | 已存在的入口保留并继续测试，不在 beta.1 扩展同类新动作 |
+| 禁止新增动作 | 价格、库存、支付密钥、支付回调路由、订单支付完成、订单履约、通知副作用、卡密销售状态和订单关联 | 不进入后台壳批量动作；需要单独规划和验收 |
+
+## smoke 覆盖护栏
+
+- 所有注册到 `AdminShellResourceRegistry` 的静态 `batch` GET 路由，都必须在 [tests/Browser/admin-shell-smoke.sh](/Users/apple/Documents/dujiaoshuka/tests/Browser/admin-shell-smoke.sh) 中有 `assert_page` 覆盖。
+- [AdminShellRouteRegistrarTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellRouteRegistrarTest.php) 会自动检查这条规则。
+- 通过 `mode=` 挂在创建页上的批量动作不在注册表静态路由检查范围内，仍需手工维护 smoke 覆盖。
+
 ## 新动作准入清单
 
 新增任何后台壳动作前必须确认：

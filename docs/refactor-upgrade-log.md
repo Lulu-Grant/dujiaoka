@@ -11,6 +11,29 @@
 
 ## 2026-05-24 阶段日志
 
+### 201. 后台壳批量动作 smoke 覆盖护栏
+
+摘要：
+
+- 扩展 [AdminShellRouteRegistrarTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellRouteRegistrarTest.php)，自动检查 `AdminShellResourceRegistry` 中所有静态 `batch` GET 路由都已进入后台壳 smoke。
+- 补齐 [admin-shell-smoke.sh](/Users/apple/Documents/dujiaoshuka/tests/Browser/admin-shell-smoke.sh) 中遗漏的商品、订单、支付和优惠码批量入口巡检。
+- 更新 [admin-shell-action-boundary-matrix.md](/Users/apple/Documents/dujiaoshuka/docs/admin-shell-action-boundary-matrix.md)，把现存批量动作分成低风险文本整理、保留型运营动作和禁止新增动作。
+
+影响范围：
+
+- 本轮不新增业务动作，只补测试护栏和文档边界。
+- 后续新增注册表里的批量 GET 动作时，如果未同步 smoke，会直接触发单元测试失败。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/AdminShellRouteRegistrarTest.php` 通过，结果为 `OK (2 tests, 104 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (392 tests, 2322 assertions)`。
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过，已覆盖注册表中的静态批量 GET 路由。
+
+下一步：
+
+- 继续推进 Dcat 兼容层审计和旧入口瘦身评估。
+
 ### 200. v3 beta.1 收口规划落地并补齐卡密后缀批量页
 
 摘要：

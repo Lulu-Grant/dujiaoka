@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Service\AdminShellRouteRegistrar;
+use App\Service\AdminShellResourceRegistry;
 use Illuminate\Routing\Router;
 use Tests\TestCase;
 
@@ -94,6 +95,32 @@ class AdminShellRouteRegistrarTest extends TestCase
         $this->assertRouteExists($routes, 'v2/carmis/batch-suffix', 'POST', 'admin-shell.carmis.batch-suffix.update');
         $this->assertRouteExists($routes, 'v2/system-setting/base', 'POST', 'admin-shell.system-setting.base.update');
         $this->assertRouteExists($routes, 'v2/email-test/send', 'POST', 'admin-shell.email-test.send.store');
+    }
+
+    public function test_registered_batch_get_routes_are_covered_by_admin_shell_smoke(): void
+    {
+        $smokeScript = file_get_contents(base_path('tests/Browser/admin-shell-smoke.sh'));
+        $this->assertIsString($smokeScript);
+
+        foreach (AdminShellResourceRegistry::definitions() as $definition) {
+            foreach ($definition['actions'] ?? [] as $action) {
+                if (($action['method'] ?? '') !== 'get') {
+                    continue;
+                }
+
+                $uri = (string) ($action['uri'] ?? '');
+                if (strpos($uri, 'batch') === false || strpos($uri, '{') !== false) {
+                    continue;
+                }
+
+                $path = '/admin/'.$definition['uri'].'/'.$uri;
+                $this->assertStringContainsString(
+                    '"'.$path.'"',
+                    $smokeScript,
+                    'Registered batch route '.$path.' must be covered by tests/Browser/admin-shell-smoke.sh.'
+                );
+            }
+        }
     }
 
     /**
