@@ -9,6 +9,33 @@
 
 ---
 
+## 2026-05-30 阶段日志
+
+### 202. Dcat 最小兼容层审计与旧入口覆盖补强
+
+摘要：
+
+- 新增 [dcat-compatibility-layer-audit.md](/Users/apple/Documents/dujiaoshuka/docs/dcat-compatibility-layer-audit.md)，明确 `config/admin.php`、`routes/admin/routes.php` 和 `LegacyAdminShellRedirectService` 的保留原因、职责边界、旧入口清单和删除条件。
+- 扩展 [LegacyAdminShellRedirectControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/LegacyAdminShellRedirectControllerTest.php)，系统性覆盖 `goods / goods-group / carmis / coupon / emailtpl / pay / order` 旧资源别名、特殊别名和 query string 保留。
+- 给 [admin-replacement-assessment.md](/Users/apple/Documents/dujiaoshuka/docs/admin-replacement-assessment.md) 与 [admin-first-batch-migration-contracts.md](/Users/apple/Documents/dujiaoshuka/docs/admin-first-batch-migration-contracts.md) 补充历史快照说明，避免后续误把已删除的 `app/Admin` 文件当作当前状态。
+- 更新 README、执行基线、当前基线审计、当前进度总汇和升级前清障清单，把口径统一为“后台壳是主承载，Dcat 是登录、认证、中间件、权限白名单和旧入口兼容层”。
+
+影响范围：
+
+- 本轮不新增后台业务动作，也不删除 Dcat 关键兼容文件。
+- 旧 `/admin/*` 链接继续 302 到 `/admin/v2/*`，并保留 query string。
+- `app/Admin` 不再作为兼容层运行前提；测试固定 `config('admin.directory')` 指向 `routes/admin`。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/LegacyAdminShellRedirectControllerTest.php` 通过，结果为 `OK (8 tests, 133 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (394 tests, 2389 assertions)`。
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过。
+
+下一步：
+
+- 继续按 beta.1 收口顺序推进支付异常路径测试、安全专项清单和升级阻塞矩阵刷新。
+
 ## 2026-05-24 阶段日志
 
 ### 201. 后台壳批量动作 smoke 覆盖护栏

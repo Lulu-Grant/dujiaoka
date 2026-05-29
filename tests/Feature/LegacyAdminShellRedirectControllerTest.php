@@ -169,6 +169,29 @@ class LegacyAdminShellRedirectControllerTest extends TestCase
             ->assertRedirect('/admin/v2/email-test?keyword=config');
     }
 
+    public function test_all_legacy_resource_aliases_preserve_query_strings(): void
+    {
+        $admin = $this->makeAdmin();
+
+        foreach ($this->legacyResourceRedirectCases() as [$source, $target]) {
+            $this->actingAs($admin, 'admin')
+                ->get($source.'?legacy_marker=1')
+                ->assertRedirect($target.'?legacy_marker=1');
+        }
+    }
+
+    public function test_dcat_compatibility_layer_keeps_route_bootstrap_without_app_admin_directory(): void
+    {
+        $this->assertDirectoryDoesNotExist(base_path('app/Admin'));
+        $this->assertFileExists(base_path('routes/admin/routes.php'));
+        $this->assertSame(base_path('routes/admin'), config('admin.directory'));
+        $this->assertSame('admin', config('admin.route.prefix'));
+        $this->assertSame(
+            \App\Http\Controllers\AdminShell\AuthShellController::class,
+            config('admin.auth.controller')
+        );
+    }
+
     public function test_admin_root_redirects_to_admin_shell_dashboard(): void
     {
         $admin = $this->makeAdmin();
@@ -176,6 +199,10 @@ class LegacyAdminShellRedirectControllerTest extends TestCase
         $this->actingAs($admin, 'admin')
             ->get('/admin')
             ->assertRedirect('/admin/v2/dashboard');
+
+        $this->actingAs($admin, 'admin')
+            ->get('/admin?from=legacy')
+            ->assertRedirect('/admin/v2/dashboard?from=legacy');
     }
 
     private function makeAdmin(): Administrator
@@ -199,5 +226,47 @@ class LegacyAdminShellRedirectControllerTest extends TestCase
         );
 
         return Administrator::query()->where('username', 'admin-shell-redirect-tester')->firstOrFail();
+    }
+
+    private function legacyResourceRedirectCases(): array
+    {
+        $cases = [];
+
+        foreach ([
+            'goods' => ['index', 'create', 'show', 'edit'],
+            'goods-group' => ['index', 'create', 'show', 'edit'],
+            'carmis' => ['index', 'create', 'show', 'edit'],
+            'coupon' => ['index', 'create', 'show', 'edit'],
+            'emailtpl' => ['index', 'create', 'show', 'edit'],
+            'pay' => ['index', 'create', 'show', 'edit'],
+            'order' => ['index', 'show', 'edit'],
+        ] as $resource => $actions) {
+            foreach ($actions as $action) {
+                if ($action === 'index') {
+                    $cases[] = ['/admin/'.$resource, '/admin/v2/'.$resource];
+                    continue;
+                }
+
+                if ($action === 'create') {
+                    $cases[] = ['/admin/'.$resource.'/create', '/admin/v2/'.$resource.'/create'];
+                    continue;
+                }
+
+                if ($action === 'show') {
+                    $cases[] = ['/admin/'.$resource.'/123', '/admin/v2/'.$resource.'/123'];
+                    continue;
+                }
+
+                if ($action === 'edit') {
+                    $cases[] = ['/admin/'.$resource.'/123/edit', '/admin/v2/'.$resource.'/123/edit'];
+                }
+            }
+        }
+
+        return array_merge($cases, [
+            ['/admin/import-carmis', '/admin/v2/carmis/import'],
+            ['/admin/system-setting', '/admin/v2/system-setting'],
+            ['/admin/email-test', '/admin/v2/email-test'],
+        ]);
     }
 }

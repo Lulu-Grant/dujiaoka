@@ -1,5 +1,11 @@
 # 后台第一批迁移合同
 
+## 2026-05-30 状态补充
+
+本文是第一批后台迁移时从旧 Dcat 页面反推字段合同的历史文档。
+
+当前 `app/Admin` 生产目录已经退场，下面的旧控制器链接只代表当时的反推来源，不代表当前仍有这些文件。后续新增后台壳动作应以 `AdminShellResourceRegistry`、对应 `AdminShell*PageService`、动作服务和 [后台壳动作边界矩阵](/Users/apple/Documents/dujiaoshuka/docs/admin-shell-action-boundary-matrix.md) 为准。
+
 ## 目标
 
 这份文档用于固定第一批后台迁移页面的最小合同，避免后续新后台壳开发时再从 Dcat 控制器反推字段、筛选、列表列和页面行为。

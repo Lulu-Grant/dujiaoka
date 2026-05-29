@@ -1,6 +1,6 @@
 # 执行基线
 
-更新时间：2026-05-24
+更新时间：2026-05-30
 
 ## 文件定位
 
@@ -14,6 +14,7 @@
 - [current-baseline-audit.md](/Users/apple/Documents/dujiaoshuka/docs/current-baseline-audit.md) 记录当前状态盘点
 - [rectification-execution-plan.md](/Users/apple/Documents/dujiaoshuka/docs/rectification-execution-plan.md) 记录长期整改总纲
 - [admin-shell-action-boundary-matrix.md](/Users/apple/Documents/dujiaoshuka/docs/admin-shell-action-boundary-matrix.md) 记录后台壳动作字段边界
+- [dcat-compatibility-layer-audit.md](/Users/apple/Documents/dujiaoshuka/docs/dcat-compatibility-layer-audit.md) 记录 Dcat 最小兼容层保留原因、旧入口清单和删除条件
 - [release-stabilization-roadmap.md](/Users/apple/Documents/dujiaoshuka/docs/release-stabilization-roadmap.md) 记录 beta.1、beta.2、RC 和稳定版路线
 - 本文件负责约束接下来连续执行的默认顺序、边界和退出标准
 
@@ -29,7 +30,9 @@
 - 支付层现代化：中后期，Stripe 已稳定，旧落后通道已退役，PayPal 与保留通道仍需继续收口
 - 安全治理与升级前清障：中前期，已有清单但还没成为主推进阶段
 
-最近一轮后台壳已经连续补齐 `goods / order / pay / coupon / carmis` 多组低风险批量动作，并补强 Stripe 支付回调幂等、金额校验和安装默认值安全护栏；`carmis` 线已新增只更新卡密内容片段的批量替换页，并将批量追加卡密内容后缀页纳入第一批 beta.1 收口任务，当前 PHPUnit 基线已推进到 `392 tests / 2322 assertions`。
+最近一轮后台壳已经连续补齐 `goods / order / pay / coupon / carmis` 多组低风险批量动作，并补强 Stripe 支付回调幂等、金额校验和安装默认值安全护栏；`carmis` 线已新增只更新卡密内容片段的批量替换页，并将批量追加卡密内容后缀页纳入第一批 beta.1 收口任务，当前 PHPUnit 基线已推进到 `394 tests / 2389 assertions`。
+
+兼容层本轮已建立 [Dcat 最小兼容层审计](/Users/apple/Documents/dujiaoshuka/docs/dcat-compatibility-layer-audit.md)，明确 `config/admin.php` 和 `routes/admin/routes.php` 仍因登录、认证、中间件、权限白名单、后台壳挂载和旧入口跳转保留；旧 `/admin/*` 入口必须保留 query string，且不得回写业务逻辑。
 
 ## 剩余主线
 
@@ -147,9 +150,9 @@
 ### 第二批：兼容层与文档收口
 
 1. 清理旧 Dcat 兼容口径
-2. 审计 `config/admin.php` 与 `routes/admin/routes.php`
+2. 审计 `config/admin.php` 与 `routes/admin/routes.php`，维护 [Dcat 最小兼容层审计](/Users/apple/Documents/dujiaoshuka/docs/dcat-compatibility-layer-audit.md)
 3. 更新当前基线审计、进度总汇、后台迁移优先级清单
-4. 确认无旧 `app/Admin` 引用残留
+4. 确认无旧 `app/Admin` 生产目录残留，历史文档引用必须标注为历史快照
 
 ### 第三批：支付与安全专项
 

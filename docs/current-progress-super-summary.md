@@ -1,6 +1,6 @@
 # 当前进度总汇
 
-更新时间：2026-05-24
+更新时间：2026-05-30
 
 ## 一句话总览
 
@@ -9,7 +9,7 @@
 ## 当前数字
 
 - 总体进度估算：`72%`
-- PHPUnit：`OK (392 tests, 2322 assertions)`
+- PHPUnit：`OK (394 tests, 2389 assertions)`
 - 当前主分支：`master`
 - 当前默认后台落点：`/admin -> /admin/v2/dashboard`
 - 当前后台主入口：
@@ -101,6 +101,7 @@
   - [config/admin.php](/Users/apple/Documents/dujiaoshuka/config/admin.php)
   - [routes/admin/routes.php](/Users/apple/Documents/dujiaoshuka/routes/admin/routes.php)
 - 旧 `/admin/*` 入口已复查为兼容跳转清单，不再承载业务逻辑；`LegacyAdminShellRedirectService` 负责保留 query string 并跳转到 `/admin/v2/*`
+- Dcat 最小兼容层职责、旧入口清单和删除条件已整理到 [Dcat 最小兼容层审计](docs/dcat-compatibility-layer-audit.md)
 
 ## 当前主线在哪里
 
@@ -122,7 +123,7 @@
 
 而且当前最值得持续投入的子方向依然是：
 
-- 旧 Dcat 最小兼容层的口径收口，以及 `goods / order / pay / coupon / carmis` 这些高频资源的低风险批量动作
+- 旧 Dcat 最小兼容层的测试护栏维护，以及 `goods / order / pay / coupon / carmis` 这些高频资源的低风险批量动作
 
 ## 还剩哪些大块工作
 

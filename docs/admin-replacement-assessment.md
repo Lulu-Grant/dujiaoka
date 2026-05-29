@@ -1,5 +1,19 @@
 # 后台替换评估
 
+## 2026-05-30 状态补充
+
+本文主体保留了 2026-04-02 的历史评估口径，用于说明当时为什么要启动后台壳替换。
+
+当前真实状态已经变化：
+
+- `app/Admin` 生产目录已退场。
+- 后台壳已经成为后台主承载。
+- Dcat 兼容层只剩 [config/admin.php](/Users/apple/Documents/dujiaoshuka/config/admin.php) 与 [routes/admin/routes.php](/Users/apple/Documents/dujiaoshuka/routes/admin/routes.php)。
+- 兼容层当前职责是登录认证、后台中间件、权限白名单、后台壳挂载和旧 `/admin/*` 入口跳转。
+- 最新保留原因、旧入口清单和删除条件以 [Dcat 最小兼容层审计](/Users/apple/Documents/dujiaoshuka/docs/dcat-compatibility-layer-audit.md) 为准。
+
+下面的 `app/Admin` 文件数量和旧 Dcat 控制器引用是历史快照，不代表当前工作区仍存在这些文件。
+
 ## 背景
 
 当前项目后台依赖 `Dcat Admin 2.x`，并与 Laravel 6 遗留栈深度耦合。

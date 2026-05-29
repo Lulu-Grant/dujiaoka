@@ -1,6 +1,6 @@
 # 当前基线审计
 
-更新时间：2026-05-24
+更新时间：2026-05-30
 
 ## 审计结论
 
@@ -34,7 +34,7 @@
 
 ## 当前基线数字
 
-- PHPUnit：`OK (392 tests, 2322 assertions)`
+- PHPUnit：`OK (394 tests, 2389 assertions)`
 - 当前分支：`master`
 - 当前后台默认落点：`/admin -> /admin/v2/dashboard`
 - 当前后台主入口：
@@ -173,6 +173,7 @@
 - Dcat 兼容层只剩：
   - [config/admin.php](/Users/apple/Documents/dujiaoshuka/config/admin.php)
   - [routes/admin/routes.php](/Users/apple/Documents/dujiaoshuka/routes/admin/routes.php)
+- 兼容层保留原因和旧入口清单已整理到 [Dcat 最小兼容层审计](/Users/apple/Documents/dujiaoshuka/docs/dcat-compatibility-layer-audit.md)
 
 影响：
 
@@ -210,6 +211,7 @@
 - `app/Admin` 目录无残留，旧 `App\\Admin\\Controllers` 不再承载业务逻辑
 - 旧资源入口 `goods / goods-group / carmis / coupon / emailtpl / pay / order` 只通过 [LegacyAdminShellRedirectService.php](/Users/apple/Documents/dujiaoshuka/app/Service/LegacyAdminShellRedirectService.php) 跳转到 `/admin/v2/*`
 - `import-carmis / system-setting / email-test` 三个历史入口仍保留兼容跳转
+- 旧入口跳转测试已系统性覆盖资源别名、特殊别名和 query string 保留
 - 暂不删除 [config/admin.php](/Users/apple/Documents/dujiaoshuka/config/admin.php) 与 [routes/admin/routes.php](/Users/apple/Documents/dujiaoshuka/routes/admin/routes.php)，避免破坏登录、认证中间件和后台可达性
 
 ### C. 支付层现代化收口
