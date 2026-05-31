@@ -190,6 +190,30 @@
 
 - 继续做 RC 搜索复核和文档一致性检查，准备进入 `v3.0.0-rc.1` 候选冻结。
 
+### 210. RC 搜索复核与后台支付入口防回流
+
+摘要：
+
+- 执行 RC 搜索复核，确认退役支付通道未回到路由、Composer、样例种子或当前支付实现文件；`app/Admin`、`install.sql` 和密钥形态命中均属于历史记录、动态生成逻辑、安全审计说明或防回流测试。
+- [Pay.php](/Users/apple/Documents/dujiaoshuka/app/Models/Pay.php) 固化当前维护支付入口，只允许 `/pay/alipay`、`/pay/wepay`、`/pay/yipay`、`/pay/epusdt` 作为后台新增/编辑支付路由。
+- [PayActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/PayActionController.php) 在后台支付新增/编辑入口拒绝退役支付标识和非维护支付路由。
+- 扩展 [AdminShellPayControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellPayControllerTest.php)、[PayLifecycleTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/PayLifecycleTest.php)、[PaymentGatewayRetirementReadinessTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/PaymentGatewayRetirementReadinessTest.php) 和 [ReleaseReadinessDocumentationTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/ReleaseReadinessDocumentationTest.php)，固定支付入口范围、退役通道防回流和 RC 文档密钥扫描。
+
+影响范围：
+
+- 本轮不恢复任何退役支付通道，不新增公开前台 API。
+- 既有历史退役支付记录仍可被生命周期逻辑识别并在前台入口阻断。
+- 后台支付新增/编辑不能再写入 PayPal、Stripe、Coinbase、Mapay、TokenPay、PayJS、Vpay、Paysapi 等退役标识或对应旧路由。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellPayControllerTest.php tests/Unit/PayLifecycleTest.php tests/Unit/PaymentGatewayRetirementReadinessTest.php tests/Unit/ReleaseReadinessDocumentationTest.php` 通过，结果为 `OK (33 tests, 239 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (390 tests, 2513 assertions)`。
+
+下一步：
+
+- 执行 Composer install、后台 smoke 和 `git diff --check`，完成 RC 前支付入口防回流批次提交。
+
 ## 2026-05-30 阶段日志
 
 ### 202. Dcat 最小兼容层审计与旧入口覆盖补强

@@ -30,7 +30,7 @@
 - 支付层现代化：中后期，当前维护范围已收敛为官方支付宝、官方微信、易支付和 Epusdt，其余非核心支付通道已进入退役范围
 - 安全治理与升级前清障：中前期，已有清单但还没成为主推进阶段
 
-最近一轮后台壳已经连续补齐 `goods / order / pay / coupon / carmis` 多组低风险批量动作，并补强支付回调幂等、签名失败、金额校验、已完成订单重复推进、上传与模板输入边界、release 文档冻结护栏和 PHP 7.4 Composer 工具链护栏；支付范围已裁剪到官方支付宝、官方微信、易支付和 Epusdt，当前 PHPUnit 基线为 `387 tests / 2490 assertions`。
+最近一轮后台壳已经连续补齐 `goods / order / pay / coupon / carmis` 多组低风险批量动作，并补强支付回调幂等、签名失败、金额校验、已完成订单重复推进、上传与模板输入边界、后台支付入口防回流、release 文档冻结护栏和 PHP 7.4 Composer 工具链护栏；支付范围已裁剪到官方支付宝、官方微信、易支付和 Epusdt，当前 PHPUnit 基线为 `390 tests / 2513 assertions`。
 
 兼容层本轮已建立 [Dcat 最小兼容层审计](/Users/apple/Documents/dujiaoshuka/docs/dcat-compatibility-layer-audit.md)，明确 `config/admin.php` 和 `routes/admin/routes.php` 仍因登录、认证、中间件、权限白名单、后台壳挂载和旧入口跳转保留；旧 `/admin/*` 入口必须保留 query string，且不得回写业务逻辑。
 

@@ -12,8 +12,8 @@ class AdminShellPayControllerTest extends TestCase
 {
     protected function tearDown(): void
     {
-        DB::table('pays')->whereIn('id', [93001, 93002, 93003, 93004, 93005, 93006, 93011, 93012, 93013, 93014, 93015, 93016, 93017, 93018, 93019, 93020, 93021, 93022, 93023, 93024, 93025, 93026, 93027, 93028, 93029, 93030, 93031, 93032, 93033, 93034, 93035, 93036, 93037, 93038, 93039, 93040, 93041, 93042, 93043, 93044, 93045, 93046, 93047, 93048, 93049, 93050, 93051, 93052, 93053, 93054, 93055])->delete();
-        DB::table('pays')->whereIn('pay_check', ['epusdt', 'wechat-shell', 'alipay-shell', 'copy-shell-clone'])->delete();
+        DB::table('pays')->whereIn('id', [93001, 93002, 93003, 93004, 93005, 93006, 93011, 93012, 93013, 93014, 93015, 93016, 93017, 93018, 93019, 93020, 93021, 93022, 93023, 93024, 93025, 93026, 93027, 93028, 93029, 93030, 93031, 93032, 93033, 93034, 93035, 93036, 93037, 93038, 93039, 93040, 93041, 93042, 93043, 93044, 93045, 93046, 93047, 93048, 93049, 93050, 93051, 93052, 93053, 93054, 93055, 93056])->delete();
+        DB::table('pays')->whereIn('pay_check', ['epusdt', 'wechat-shell', 'alipay-shell', 'copy-shell-clone', 'retired-paypal-shell', 'unsupported-route-shell'])->delete();
         DB::table('admin_users')->where('username', 'admin-shell-tester')->delete();
 
         parent::tearDown();
@@ -290,7 +290,7 @@ class AdminShellPayControllerTest extends TestCase
                 'pay_check' => 'copy-shell-clone',
                 'pay_client' => 2,
                 'pay_method' => 1,
-                'pay_handleroute' => '/pay/copy-shell-clone',
+                'pay_handleroute' => '/pay/yipay',
                 'is_open' => '1',
             ]);
 
@@ -302,7 +302,7 @@ class AdminShellPayControllerTest extends TestCase
         $this->assertSame('copy-merchant', $record->merchant_id);
         $this->assertSame('new-copy-key', $record->merchant_key);
         $this->assertSame('new-copy-pem', $record->merchant_pem);
-        $this->assertSame('/pay/copy-shell-clone', $record->pay_handleroute);
+        $this->assertSame('/pay/yipay', $record->pay_handleroute);
         $this->assertSame(2, $record->pay_client);
         $this->assertSame(1, $record->pay_method);
         $this->assertSame(1, $record->is_open);
@@ -319,7 +319,7 @@ class AdminShellPayControllerTest extends TestCase
                 'pay_check' => 'wechat-shell',
                 'pay_client' => 1,
                 'pay_method' => 2,
-                'pay_handleroute' => '/pay/wechat-shell',
+                'pay_handleroute' => '/pay/wepay',
                 'is_open' => '1',
             ]);
 
@@ -327,6 +327,27 @@ class AdminShellPayControllerTest extends TestCase
         $this->assertNotNull($record);
         $response->assertRedirect('/admin/v2/pay/'.$record->id.'/edit');
         $response->assertSessionHas('status', '支付通道已创建');
+    }
+
+    public function test_create_page_rejects_retired_gateway_and_unsupported_route(): void
+    {
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->from('/admin/v2/pay/create')
+            ->post('/admin/v2/pay/create', [
+                'pay_name' => '退役通道样板',
+                'merchant_id' => 'retired-merchant',
+                'merchant_key' => 'merchant-key',
+                'merchant_pem' => 'merchant-pem',
+                'pay_check' => 'paypal',
+                'pay_client' => 1,
+                'pay_method' => 1,
+                'pay_handleroute' => '/pay/paypal',
+                'is_open' => '1',
+            ]);
+
+        $response->assertRedirect('/admin/v2/pay/create');
+        $response->assertSessionHasErrors(['pay_check', 'pay_handleroute']);
+        $this->assertNull(DB::table('pays')->where('pay_check', 'paypal')->first());
     }
 
     public function test_edit_page_renders_pay_action_form(): void
@@ -1283,7 +1304,7 @@ class AdminShellPayControllerTest extends TestCase
                 'pay_check' => 'alipay-shell',
                 'pay_client' => 2,
                 'pay_method' => 2,
-                'pay_handleroute' => '/pay/alipay-shell-updated',
+                'pay_handleroute' => '/pay/alipay',
                 'is_open' => '0',
             ]);
 
@@ -1295,10 +1316,52 @@ class AdminShellPayControllerTest extends TestCase
         $this->assertSame('ali-id-updated', $record->merchant_id);
         $this->assertSame('ali-key-updated', $record->merchant_key);
         $this->assertSame('ali-pem-updated', $record->merchant_pem);
-        $this->assertSame('/pay/alipay-shell-updated', $record->pay_handleroute);
+        $this->assertSame('/pay/alipay', $record->pay_handleroute);
         $this->assertSame(2, $record->pay_client);
         $this->assertSame(2, $record->pay_method);
         $this->assertSame(0, $record->is_open);
+    }
+
+    public function test_edit_page_rejects_retired_gateway_without_overwriting(): void
+    {
+        DB::table('pays')->insert([
+            'id' => 93056,
+            'pay_name' => '支付安全样板',
+            'merchant_id' => 'safe-id',
+            'merchant_key' => 'safe-key',
+            'merchant_pem' => 'safe-pem',
+            'pay_check' => 'unsupported-route-shell',
+            'pay_client' => 1,
+            'pay_handleroute' => '/pay/yipay',
+            'pay_method' => 1,
+            'is_open' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->from('/admin/v2/pay/93056/edit')
+            ->post('/admin/v2/pay/93056/edit', [
+                'pay_name' => '支付安全样板已覆盖',
+                'merchant_id' => 'safe-id-updated',
+                'merchant_key' => 'safe-key-updated',
+                'merchant_pem' => 'safe-pem-updated',
+                'pay_check' => 'stripe',
+                'pay_client' => 2,
+                'pay_method' => 2,
+                'pay_handleroute' => '/pay/stripe',
+                'is_open' => '0',
+            ]);
+
+        $response->assertRedirect('/admin/v2/pay/93056/edit');
+        $response->assertSessionHasErrors(['pay_check', 'pay_handleroute']);
+
+        $record = DB::table('pays')->where('id', 93056)->first();
+        $this->assertSame('支付安全样板', $record->pay_name);
+        $this->assertSame('safe-key', $record->merchant_key);
+        $this->assertSame('/pay/yipay', $record->pay_handleroute);
+        $this->assertSame(1, $record->is_open);
     }
 
     public function test_edit_page_keeps_existing_secrets_when_left_blank(): void
@@ -1328,7 +1391,7 @@ class AdminShellPayControllerTest extends TestCase
                 'pay_check' => 'wechat-shell-blank',
                 'pay_client' => 2,
                 'pay_method' => 1,
-                'pay_handleroute' => '/pay/wechat-shell-updated',
+                'pay_handleroute' => '/pay/wepay',
                 'is_open' => '0',
             ]);
 
@@ -1340,7 +1403,7 @@ class AdminShellPayControllerTest extends TestCase
         $this->assertSame('wechat-id-updated', $record->merchant_id);
         $this->assertSame('wechat-key', $record->merchant_key);
         $this->assertSame('wechat-pem', $record->merchant_pem);
-        $this->assertSame('/pay/wechat-shell-updated', $record->pay_handleroute);
+        $this->assertSame('/pay/wepay', $record->pay_handleroute);
         $this->assertSame(2, $record->pay_client);
         $this->assertSame(1, $record->pay_method);
         $this->assertSame(0, $record->is_open);

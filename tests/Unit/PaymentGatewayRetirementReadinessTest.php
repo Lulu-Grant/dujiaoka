@@ -17,6 +17,9 @@ class PaymentGatewayRetirementReadinessTest extends TestCase
             'pay/coinbase',
             'pay/mapay',
             'pay/tokenpay',
+            'pay/payjs',
+            'pay/vpay',
+            'pay/paysapi',
             'paypal/rest-api-sdk-php',
             'stripe/stripe-php',
         ] as $needle) {

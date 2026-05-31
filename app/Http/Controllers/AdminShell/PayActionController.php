@@ -506,7 +506,7 @@ class PayActionController extends Controller
 
     private function validatePayload(Request $request, bool $isCreate, ?Pay $pay = null): array
     {
-        $payCheckRules = ['required', 'string', 'max:255'];
+        $payCheckRules = ['required', 'string', 'max:255', Rule::notIn(Pay::RETIRED_GATEWAYS)];
 
         if ($isCreate) {
             $payCheckRules[] = Rule::unique('pays', 'pay_check');
@@ -522,7 +522,7 @@ class PayActionController extends Controller
             'pay_check' => $payCheckRules,
             'pay_client' => ['required', 'integer'],
             'pay_method' => ['required', 'integer'],
-            'pay_handleroute' => ['required', 'string', 'max:255'],
+            'pay_handleroute' => ['required', 'string', 'max:255', Rule::in(Pay::MAINTAINED_HANDLEROUTES)],
         ]);
 
         return array_merge($payload, [

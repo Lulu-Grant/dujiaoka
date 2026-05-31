@@ -45,6 +45,7 @@ class ReleaseReadinessDocumentationTest extends TestCase
             'docs/releases/v3.0.0-beta.1.md',
             'docs/releases/v3.0.0-beta.2.md',
             'docs/releases/v3.0.0-rc.md',
+            'docs/releases/v3.0.0-rc.1.md',
             'docs/releases/v3.0.0-stable-readiness.md',
             '.env.example',
             '.env.local.example',

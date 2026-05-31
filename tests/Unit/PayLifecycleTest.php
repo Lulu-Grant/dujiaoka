@@ -26,4 +26,14 @@ class PayLifecycleTest extends TestCase
         $this->assertFalse(Pay::isLegacyGateway('alipay'));
         $this->assertSame(admin_trans('pay.fields.lifecycle_active'), Pay::getLifecycleLabel('alipay'));
     }
+
+    public function test_maintained_payment_routes_are_limited_to_current_scope(): void
+    {
+        $this->assertSame([
+            '/pay/alipay',
+            '/pay/wepay',
+            '/pay/yipay',
+            '/pay/epusdt',
+        ], Pay::MAINTAINED_HANDLEROUTES);
+    }
 }

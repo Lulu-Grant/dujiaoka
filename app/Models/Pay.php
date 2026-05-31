@@ -38,6 +38,16 @@ class Pay extends BaseModel
     const PAY_CLIENT_ALL = 3;
 
     /**
+     * 新版本继续维护的公开支付入口
+     */
+    const MAINTAINED_HANDLEROUTES = [
+        '/pay/alipay',
+        '/pay/wepay',
+        '/pay/yipay',
+        '/pay/epusdt',
+    ];
+
+    /**
      * 新版本已退役、不再维护的支付通道
      */
     const RETIRED_GATEWAYS = [
