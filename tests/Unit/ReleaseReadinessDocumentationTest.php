@@ -63,9 +63,34 @@ class ReleaseReadinessDocumentationTest extends TestCase
             '退役通道防回流测试',
             '本地 smoke 凭据边界测试',
             '依赖阻塞矩阵',
-            'OK (399 tests, 2610 assertions)',
+            'OK (400 tests, 2625 assertions)',
         ] as $requiredStatus) {
             $this->assertStringContainsString($requiredStatus, $rc1);
+        }
+    }
+
+    public function test_stable_readiness_document_keeps_current_state_and_legacy_boundaries(): void
+    {
+        $stable = file_get_contents(base_path('docs/releases/v3.0.0-stable-readiness.md'));
+
+        foreach ([
+            '当前 stable-ready 状态',
+            'OK (400 tests, 2625 assertions)',
+            '后台 smoke',
+            'git diff --check',
+            'CI',
+            '保留的遗留边界',
+            'PHP 7.4 + Laravel 6.20',
+            'Dcat Admin',
+            'config/admin.php',
+            'routes/admin/routes.php',
+            'Yansongda Pay',
+            'swiftmailer/swiftmailer',
+            'symfony/debug',
+            'PayPal、Stripe、Coinbase、Mapay、TokenPay、PayJS、Vpay、Paysapi 不恢复',
+            './scripts/composer74 install --no-interaction --no-progress',
+        ] as $requiredStatus) {
+            $this->assertStringContainsString($requiredStatus, $stable);
         }
     }
 

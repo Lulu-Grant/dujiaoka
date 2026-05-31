@@ -331,6 +331,29 @@
 
 - 执行 `git diff --check`、Composer install 和后台 smoke，完成 RC.1 验收状态批次提交。
 
+### 216. stable-ready 遗留边界固化
+
+摘要：
+
+- [v3.0.0-stable-readiness.md](/Users/apple/Documents/dujiaoshuka/docs/releases/v3.0.0-stable-readiness.md) 新增当前 stable-ready 状态表，记录本地 PHPUnit、后台 smoke、`git diff --check`、CI、安全专项、支付通道和升级实验状态。
+- 同一文档新增保留遗留边界表，明确 PHP 7.4 + Laravel 6.20、Dcat Admin、Dcat easy-excel、Yansongda Pay、Composer abandoned 包和退役支付通道的 stable-ready 处理方式。
+- 扩展 [ReleaseReadinessDocumentationTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/ReleaseReadinessDocumentationTest.php)，固定 stable-ready 文档必须保留当前状态、遗留边界和 Composer install 验证命令。
+- README、当前进度总汇、当前基线审计、执行基线、RC.1 文档和发布稳定路线图同步最新测试数字。
+
+影响范围：
+
+- 本轮只补 stable-ready 文档与测试护栏，不新增功能，不升级 Laravel / PHP。
+- CI 仍明确要求以最终发版分支上的 GitHub Actions 为准。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/ReleaseReadinessDocumentationTest.php` 通过，结果为 `OK (6 tests, 81 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (400 tests, 2625 assertions)`。
+
+下一步：
+
+- 执行 `git diff --check`、Composer install 和后台 smoke，完成 stable-ready 遗留边界批次提交。
+
 ## 2026-05-30 阶段日志
 
 ### 202. Dcat 最小兼容层审计与旧入口覆盖补强
