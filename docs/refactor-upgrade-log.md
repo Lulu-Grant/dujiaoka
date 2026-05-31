@@ -528,10 +528,10 @@
 
 摘要：
 
-- 远端 `master` CI 已通过，GitHub Actions run 为 `26716123234`，提交为 `ce6665f6cc06139a3369740095904711dd5a318d`。
-- 更新 [v3.0.0-stable-readiness.md](/Users/apple/Documents/dujiaoshuka/docs/releases/v3.0.0-stable-readiness.md)，把 CI 状态从“最终发版分支待复查”调整为已通过，并记录 run 链接。
+- 远端 `master` CI 已通过，GitHub Actions `CI` 工作流返回 success。
+- 更新 [v3.0.0-stable-readiness.md](/Users/apple/Documents/dujiaoshuka/docs/releases/v3.0.0-stable-readiness.md)，把 CI 状态从“最终发版分支待复查”调整为已通过，并避免硬编码会因后续证据提交而过期的 run id。
 - 更新 [v3.0.0-rc.1.md](/Users/apple/Documents/dujiaoshuka/docs/releases/v3.0.0-rc.1.md) 与 [release-stabilization-roadmap.md](/Users/apple/Documents/dujiaoshuka/docs/release-stabilization-roadmap.md)，同步远端 CI 已验证状态。
-- 扩展 [ReleaseReadinessDocumentationTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/ReleaseReadinessDocumentationTest.php)，固定 RC.1 和 stable-ready 文档必须保留远端 CI run 证据。
+- 扩展 [ReleaseReadinessDocumentationTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/ReleaseReadinessDocumentationTest.php)，固定 RC.1 和 stable-ready 文档必须保留远端 CI 通过口径。
 
 影响范围：
 
@@ -540,9 +540,9 @@
 
 验证：
 
-- `gh run view 26716123234 --json status,conclusion,headSha,displayTitle,workflowName,createdAt,updatedAt,url` 返回 `conclusion=success`。
-- `./scripts/php74 vendor/bin/phpunit tests/Unit/ReleaseReadinessDocumentationTest.php` 通过，结果为 `OK (6 tests, 85 assertions)`。
-- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (407 tests, 4201 assertions)`。
+- `gh run watch 26716194595 --exit-status` 通过，远端 `master` 的 `CI` 工作流返回 success。
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/ReleaseReadinessDocumentationTest.php` 通过，结果为 `OK (6 tests, 84 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (407 tests, 4200 assertions)`。
 - `git diff --check` 通过。
 - `./scripts/composer74 install --no-interaction --no-progress` 通过。
 - `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过。
