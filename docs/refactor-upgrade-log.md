@@ -35,6 +35,28 @@
 
 - 执行后台 smoke 和发布候选前文档搜索复核，然后进入 beta.1 release candidate 汇总提交。
 
+### 204. release candidate 文档冻结护栏
+
+摘要：
+
+- 新增 [ReleaseReadinessDocumentationTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/ReleaseReadinessDocumentationTest.php)，把 beta.1、RC 和 stable-ready 文档中的 `git diff --check`、全量 PHPUnit、后台 smoke 验证命令固定为测试护栏。
+- 同一测试固定 beta.1 / beta.2 / RC / stable-ready 的冻结边界，包括不直接升级 Laravel / PHP、不删除 Dcat 兼容关键入口、不新增高风险批量动作。
+- 对 README、release 文档、安全基线和 env 示例做真实密钥形态扫描，避免 `APP_KEY=base64:*`、Stripe live key、restricted key 或 webhook secret 形态进入发布材料。
+
+影响范围：
+
+- 本轮不改业务逻辑，只补 release candidate 文档质量门。
+- 后续 release 文档删掉关键验证命令或冻结边界时，单元测试会失败。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/ReleaseReadinessDocumentationTest.php` 通过，结果为 `OK (3 tests, 47 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (401 tests, 2619 assertions)`。
+
+下一步：
+
+- 跑后台 smoke 和 `git diff --check`，提交 release 文档冻结护栏。
+
 ## 2026-05-30 阶段日志
 
 ### 202. Dcat 最小兼容层审计与旧入口覆盖补强
