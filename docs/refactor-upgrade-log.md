@@ -260,6 +260,29 @@
 
 - 继续做 RC 前最终文档一致性搜索，确认 README、当前审计、进度总汇、执行基线、release notes 和升级阻塞矩阵使用同一阶段口径。
 
+### 213. RC 前 release 文档一致性收口
+
+摘要：
+
+- README 和 [current-progress-super-summary.md](/Users/apple/Documents/dujiaoshuka/docs/current-progress-super-summary.md) 的当前目标从 `v3.0.0-beta.1` 候选收口更新为 `v3.0.0-rc.1` 候选冻结。
+- [v3.0.0-beta.2.md](/Users/apple/Documents/dujiaoshuka/docs/releases/v3.0.0-beta.2.md) 的升级实验 Composer 命令对齐依赖阻塞矩阵，统一为 `./scripts/composer74 install --no-interaction --no-progress`。
+- [release-stabilization-roadmap.md](/Users/apple/Documents/dujiaoshuka/docs/release-stabilization-roadmap.md) 更新到 2026-05-31，并补入 RC.1 当前状态、测试基线和支付范围冻结说明。
+- 扩展 [ReleaseReadinessDocumentationTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/ReleaseReadinessDocumentationTest.php)，固定 beta.2 release 文档必须保留升级实验命令集。
+
+影响范围：
+
+- 本轮只做 release 文档一致性和测试护栏，不新增功能。
+- RC 前阶段口径统一为候选冻结，只接受回归、安全、测试和文档修正。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/ReleaseReadinessDocumentationTest.php` 通过，结果为 `OK (4 tests, 58 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (396 tests, 2588 assertions)`。
+
+下一步：
+
+- 执行 `git diff --check`、Composer install 和后台 smoke，完成 RC 前文档一致性批次提交。
+
 ## 2026-05-30 阶段日志
 
 ### 202. Dcat 最小兼容层审计与旧入口覆盖补强

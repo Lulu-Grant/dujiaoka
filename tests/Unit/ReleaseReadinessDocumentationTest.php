@@ -37,6 +37,20 @@ class ReleaseReadinessDocumentationTest extends TestCase
         $this->assertStringContainsString('删除 Dcat 兼容关键入口', $stable);
     }
 
+    public function test_beta2_release_document_keeps_upgrade_experiment_commands_aligned(): void
+    {
+        $beta2 = file_get_contents(base_path('docs/releases/v3.0.0-beta.2.md'));
+
+        foreach ([
+            './scripts/composer74 install --no-interaction --no-progress',
+            './scripts/php74 artisan migrate:status',
+            './scripts/php74 vendor/bin/phpunit',
+            'ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell',
+        ] as $command) {
+            $this->assertStringContainsString($command, $beta2);
+        }
+    }
+
     public function test_release_and_security_documents_do_not_contain_real_secret_shapes(): void
     {
         foreach ([
