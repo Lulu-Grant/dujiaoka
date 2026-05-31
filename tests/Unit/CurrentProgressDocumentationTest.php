@@ -14,7 +14,7 @@ class CurrentProgressDocumentationTest extends TestCase
             $this->assertStringContainsString('90%', $contents, $relativePath);
             $this->assertStringContainsString('RC', $contents, $relativePath);
             $this->assertStringContainsString('stable-ready', $contents, $relativePath);
-            $this->assertMatchesRegularExpression('/405 tests[, \/]+2674 assertions/', $contents, $relativePath);
+            $this->assertMatchesRegularExpression('/406 tests[, \/]+2682 assertions/', $contents, $relativePath);
         }
     }
 
@@ -30,6 +30,27 @@ class CurrentProgressDocumentationTest extends TestCase
                 '后台替换中后期',
                 '升级前清障中前期',
                 'v3.0.0-beta.1 候选',
+            ] as $stalePhrase) {
+                $this->assertStringNotContainsString($stalePhrase, $contents, $relativePath);
+            }
+        }
+    }
+
+    public function test_current_planning_documents_do_not_reintroduce_retired_stripe_or_install_sql_language(): void
+    {
+        $documents = [
+            'docs/parallel-development-plan.md',
+            'docs/modernization-roadmap.md',
+        ];
+
+        foreach ($documents as $relativePath) {
+            $contents = file_get_contents(base_path($relativePath));
+
+            foreach ([
+                '`upgrade-stripe`：优先给支付通道线使用',
+                '`stripe-best-practices`：优先给支付通道线使用',
+                '`install.sql` is now kept as a legacy reference file',
+                'legacy PayPal SDK',
             ] as $stalePhrase) {
                 $this->assertStringNotContainsString($stalePhrase, $contents, $relativePath);
             }

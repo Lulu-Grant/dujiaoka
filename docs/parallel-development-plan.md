@@ -26,8 +26,8 @@
 
 - `frontend-design`：优先给后台壳共享 UI 线、页面壳层线和 Dashboard 线使用，提升视觉一致性和页面完成度。
 - `webapp-testing`：优先给后台壳各资源页、动作页和 Dashboard 做浏览器烟雾测试，补足 PHPUnit 之外的页面验证。
-- `upgrade-stripe`：优先给支付通道线使用，处理 Stripe 相关 SDK、API 和升级切口。
-- `stripe-best-practices`：优先给支付通道线使用，约束支付配置、安全边界和 Stripe 集成方式。
+- 支付线当前只保留官方支付宝、官方微信、易支付和 Epusdt；PayPal、Stripe、Coinbase、Mapay、TokenPay、PayJS、Vpay、Paysapi 均为退役通道，不再作为并行开发默认工作面。
+- 如未来重新接入 Stripe 或 PayPal，必须单独开新支付通道专项，不从本并行计划直接恢复旧实现。
 
 ## 子代理运行协议
 

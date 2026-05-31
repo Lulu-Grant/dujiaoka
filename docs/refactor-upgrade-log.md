@@ -424,6 +424,30 @@
 
 - 保持 RC / stable-ready 冻结维护，后续只接收回归、安全、文档一致性和测试补强。
 
+### 220. 当前规划文档移除 Stripe 与 install.sql 旧口径
+
+摘要：
+
+- 更新 [parallel-development-plan.md](/Users/apple/Documents/dujiaoshuka/docs/parallel-development-plan.md)，不再把 Stripe 相关技能列为支付线默认并行开发工具，明确 PayPal、Stripe、Coinbase、Mapay、TokenPay、PayJS、Vpay、Paysapi 均为退役通道。
+- 更新 [modernization-roadmap.md](/Users/apple/Documents/dujiaoshuka/docs/modernization-roadmap.md)，把 `install.sql` 状态改为已从仓库主路径移除，并把升级阻塞口径从旧 PayPal SDK 调整为 Dcat、Dcat easy-excel、Yansongda Pay、保留支付通道遗留实现和退役通道防回流。
+- 扩展 [CurrentProgressDocumentationTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/CurrentProgressDocumentationTest.php)，禁止当前规划文档重新出现 Stripe 默认开发工具、`install.sql` 保留参考文件和 legacy PayPal SDK 旧口径。
+- README、当前进度、当前基线、执行基线、RC.1、stable-ready 和发布稳定路线图同步最新 PHPUnit 基线。
+
+影响范围：
+
+- 本轮仍然只修改文档和文档护栏测试，不修改支付实现、后台路由或安装逻辑。
+- 当前规划文档与支付退役范围、安装现代化完成状态保持一致。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/CurrentProgressDocumentationTest.php` 通过，结果为 `OK (3 tests, 38 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (406 tests, 2682 assertions)`。
+- `git diff --check` 通过。
+
+下一步：
+
+- 继续保持 RC / stable-ready 冻结维护，优先处理文档一致性、测试护栏和最终发版前验证。
+
 ## 2026-05-30 阶段日志
 
 ### 202. Dcat 最小兼容层审计与旧入口覆盖补强

@@ -207,7 +207,7 @@ Status update:
 
 - this phase is already in active execution on the maintenance branch
 - install path has been switched to migrations, bootstrap seed, and explicit admin creation
-- `install.sql` is now kept as a legacy reference file rather than the active install entrypoint
+- `install.sql` has been removed from the repository main path; historical references remain only in audit documents
 
 ### Phase 5: Framework and Toolchain Upgrade
 
@@ -224,9 +224,10 @@ Suggested sequence:
 Known upgrade blockers:
 
 - Dcat Admin version compatibility
-- legacy PayPal SDK
-- old controller patterns and facades used by payment code
+- Dcat easy-excel and Yansongda Pay transition planning
+- old controller patterns and facades still present in maintained payment code
 - installer assumptions tied to old config structure
+- retired payment gateways must stay out of routes, sample seeders, and Composer dependencies
 
 Exit criteria:
 
