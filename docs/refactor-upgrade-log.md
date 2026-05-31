@@ -376,6 +376,29 @@
 
 - 执行 `git diff --check`、Composer install 和后台 smoke，完成 CI 工作流护栏批次提交。
 
+### 218. 支付回调安全状态改为维护期
+
+摘要：
+
+- 更新 [dependency-blocker-matrix.md](/Users/apple/Documents/dujiaoshuka/docs/dependency-blocker-matrix.md)，将保留支付通道回调安全从“继续补测试”调整为“已有测试护栏，后续改动继续维护”。
+- 更新 [current-baseline-audit.md](/Users/apple/Documents/dujiaoshuka/docs/current-baseline-audit.md)，把支付层剩余重点改为维护期口径：保留通道已有异常路径测试，退役通道继续防回流。
+- 扩展 [DependencyBlockerMatrixTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/DependencyBlockerMatrixTest.php)，固定依赖矩阵不得重新表述为仍缺签名失败、金额不一致、重复通知和已完成订单重复推进测试。
+- README、当前进度总汇、执行基线、RC.1、stable-ready 和发布稳定路线图同步最新测试数字。
+
+影响范围：
+
+- 本轮只更新支付安全状态文档和测试护栏，不改支付业务逻辑。
+- 保留支付通道后续任何回调改动仍必须同步异常路径测试。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/DependencyBlockerMatrixTest.php` 通过，结果为 `OK (4 tests, 32 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (403 tests, 2644 assertions)`。
+
+下一步：
+
+- 执行 `git diff --check`、Composer install 和后台 smoke，完成支付回调安全状态收口提交。
+
 ## 2026-05-30 阶段日志
 
 ### 202. Dcat 最小兼容层审计与旧入口覆盖补强

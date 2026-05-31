@@ -67,4 +67,14 @@ class DependencyBlockerMatrixTest extends TestCase
             $this->assertStringContainsString($commandOrFinding, $contents);
         }
     }
+
+    public function test_dependency_matrix_marks_payment_callback_security_as_maintenance(): void
+    {
+        $contents = file_get_contents(base_path('docs/dependency-blocker-matrix.md'));
+
+        $this->assertStringContainsString('回调异常路径已经有测试护栏', $contents);
+        $this->assertStringContainsString('继续维护保留支付通道', $contents);
+        $this->assertStringContainsString('异常不触发履约测试', $contents);
+        $this->assertStringNotContainsString('继续补签名失败、金额不一致、重复通知、已完成订单重复推进测试', $contents);
+    }
 }
