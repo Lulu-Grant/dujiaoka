@@ -28,6 +28,16 @@
 | `yansongda/pay ^2.10` | 支付宝 / 微信支付 | P2 | 保留过渡 | 观察后升级 | 当前不是第一阻塞点，先以回调安全测试护栏约束 |
 | `phpspec/prophecy 1.13.0` | 测试依赖链 | P0 | 已从主锁文件移除 | 已处理 | 已通过升级 `phpunit/phpunit` 到 9.6.34 退出主依赖链 |
 
+## beta.2 阻塞状态口径
+
+| 依赖 | beta.2 状态 | 第一动作 | 退出条件 |
+| --- | --- | --- | --- |
+| `dcat/laravel-admin` | 保留过渡 | 继续保持后台壳主承载，Dcat 只做登录、认证、中间件、权限白名单和旧入口兼容 | 后台认证、中间件、权限白名单有替代实现后，再评估删除 |
+| `dcat/easy-excel` | 保留过渡 | 跟随后台导入导出能力统一替换，不单独抢跑 | 导入导出服务边界完全脱离 Dcat 后再替换 |
+| `paypal/rest-api-sdk-php` | 需替换或退役 | 维持 `PaypalGatewayClientInterface` / `PaypalSdkService` 单一 SDK 边界，先形成替换决策 | `composer why paypal/rest-api-sdk-php` 不再返回当前项目依赖链 |
+| `stripe/stripe-php` | 保留并观察 | 保持 `StripePaymentService`、`StripeCheckoutService`、`StripeSdkService`、`StripeGatewayClientInterface` 边界 | 控制器不直连 SDK，关键路径测试通过 |
+| `yansongda/pay` | 保留过渡 | 以 Alipay / Wepay 通知测试约束回调安全，不在 beta.2 直接替换 | 支付宝 / 微信回调异常路径测试覆盖后再决定升级或替换 |
+
 ---
 
 ## 按优先级拆解
@@ -176,3 +186,22 @@
 - 回归：执行全量 PHPUnit 和后台壳 smoke。
 - 支付：执行 Stripe、PayPal、统一通知型网关的关键路径与异常路径测试。
 - 兼容层：确认 `/admin`、后台登录、账号设置和旧 `/admin/*` 跳转仍可达。
+
+## beta.2 升级实验分支最小命令集
+
+实验分支只验证升级可行性，不把升级结果直接混入 beta.1 / RC：
+
+```bash
+./scripts/composer74 install
+./scripts/php74 artisan migrate:status
+./scripts/php74 vendor/bin/phpunit
+ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell
+```
+
+失败回滚条件：
+
+- Composer 无法在当前锁文件下稳定安装。
+- Laravel 启动期因 Dcat、支付 SDK 或旧 helper 直接崩溃。
+- migration / 测试库准备失败。
+- 支付关键路径或后台 smoke 失败。
+- 需要跨越 Laravel / PHP 大版本才能继续时，停止实验并单独规划桥接版本。

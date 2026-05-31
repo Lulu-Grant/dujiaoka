@@ -86,6 +86,33 @@ class PaymentCallbackServiceTest extends TestCase
         $this->assertSame('TRADE-CALLBACK-001', $order->trade_no);
     }
 
+    public function test_handle_signed_notification_rejects_invalid_signature_without_completing_order(): void
+    {
+        $order = $this->createOrder('CALLBACK-SERVICE-SIGNATURE-001', '/pay/test');
+        $goods = $order->goods;
+
+        $response = app(PaymentCallbackService::class)->handleSignedNotification(
+            $order->order_sn,
+            '/pay/test',
+            function () {
+                return false;
+            },
+            10.00,
+            'TRADE-CALLBACK-SIGNATURE-001',
+            'error',
+            'signature-fail',
+            'success'
+        );
+
+        $order->refresh();
+        $goods->refresh();
+
+        $this->assertSame('signature-fail', $response);
+        $this->assertSame(Order::STATUS_WAIT_PAY, $order->status);
+        $this->assertSame('', (string) $order->trade_no);
+        $this->assertSame(0, $goods->sales_volume);
+    }
+
     private function createOrder(string $orderSn, string $handlerRoute): Order
     {
         $group = GoodsGroup::query()->create([

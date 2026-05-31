@@ -9,6 +9,32 @@
 
 ---
 
+## 2026-05-31 阶段日志
+
+### 203. beta.1 支付安全与发布后续规划并行收口
+
+摘要：
+
+- [PaymentCallbackServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/PaymentCallbackServiceTest.php) 新增签名失败场景，确认统一签名通知不推进订单、不写 trade no、不增加销量。
+- [OrderPaymentServiceTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/OrderPaymentServiceTest.php) 新增已完成订单收到不同第三方交易号时的拒绝场景，确认不会重复推进副作用。
+- 新增 [PaymentSdkBoundaryTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/PaymentSdkBoundaryTest.php)，固定支付控制器不得直接引用 PayPal / Stripe SDK，PayPal 旧 SDK 只能留在 `PaypalSdkService`。
+- 更新 [security-baseline-audit.md](/Users/apple/Documents/dujiaoshuka/docs/security-baseline-audit.md)、[dependency-blocker-matrix.md](/Users/apple/Documents/dujiaoshuka/docs/dependency-blocker-matrix.md)、[paypal-stripe-transition-plan.md](/Users/apple/Documents/dujiaoshuka/docs/paypal-stripe-transition-plan.md) 和 beta.1 / beta.2 / RC / stable-ready release 文档，补齐安全专项状态、升级实验命令集和 PayPal / Stripe 决策口径。
+
+影响范围：
+
+- 本轮不改支付业务实现，只补测试护栏和发布规划文档。
+- 支付异常路径覆盖推进到重复通知、签名失败、金额不一致、已完成订单重复推进和异常不触发副作用。
+- beta.2 仍不直接升级 Laravel / PHP 大版本，只准备升级实验分支。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/PaymentSdkBoundaryTest.php && ./scripts/php74 vendor/bin/phpunit tests/Unit/OrderPaymentServiceTest.php && ./scripts/php74 vendor/bin/phpunit tests/Unit/PaymentCallbackServiceTest.php` 通过。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (398 tests, 2572 assertions)`。
+
+下一步：
+
+- 执行后台 smoke 和发布候选前文档搜索复核，然后进入 beta.1 release candidate 汇总提交。
+
 ## 2026-05-30 阶段日志
 
 ### 202. Dcat 最小兼容层审计与旧入口覆盖补强

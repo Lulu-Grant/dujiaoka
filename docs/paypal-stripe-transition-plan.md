@@ -7,6 +7,7 @@
 - `PayPal` 优先级高于 `Stripe`
 - 原因不是业务占比，而是 `paypal/rest-api-sdk-php` 的历史包袱更重
 - `Stripe` 当前虽然版本偏旧，但边界已经比 `PayPal` 更清晰
+- beta.2 前不替换 SDK；先冻结业务入口与 SDK 边界，避免升级实验时扩大改动面
 
 ## 当前状态
 
@@ -56,6 +57,35 @@
 
 1. 先处理 `PayPal`
 2. 再处理 `Stripe`
+
+## beta.2 决策
+
+### PayPal
+
+当前决策：`保留过渡，准备替换或退场`。
+
+执行约束：
+
+- 旧 SDK 只能通过 [PaypalSdkService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalSdkService.php) 访问。
+- 业务服务只能依赖 [PaypalGatewayClientInterface.php](/Users/apple/Documents/dujiaoshuka/app/Service/Contracts/PaypalGatewayClientInterface.php)。
+- 控制器不得直接引用 `PayPal\*` SDK 类型。
+- 同步 return 主链暂保留，webhook 仍按占位入口处理，是否补全异步通知需要单独决策。
+
+后续二选一：
+
+- 替换：实现新的 `PaypalGatewayClientInterface`，保持现有 `PaypalCheckoutService` / `PaypalReturnService` 调用面不变。
+- 退场：移除 PayPal 支付入口、后台配置启用路径和 `paypal/rest-api-sdk-php` 依赖，并提供迁移说明。
+
+### Stripe
+
+当前决策：`保留 20.x，稳定边界`。
+
+执行约束：
+
+- 控制器只能调用 `StripeCheckoutService`、`StripePaymentService` 和输入 / 金额辅助服务。
+- SDK 访问只能通过 [StripeSdkService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripeSdkService.php) 与 [StripeGatewayClientInterface.php](/Users/apple/Documents/dujiaoshuka/app/Service/Contracts/StripeGatewayClientInterface.php)。
+- 不在 beta.2 切换 Stripe 支付模型，继续保持现有 source / charge 兼容逻辑和测试护栏。
+- 控制器不得直接引用 `Stripe\*` SDK 类型。
 
 ## PayPal 退场路径
 

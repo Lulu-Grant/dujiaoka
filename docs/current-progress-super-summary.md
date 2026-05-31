@@ -1,6 +1,6 @@
 # 当前进度总汇
 
-更新时间：2026-05-30
+更新时间：2026-05-31
 
 ## 一句话总览
 
@@ -9,7 +9,7 @@
 ## 当前数字
 
 - 总体进度估算：`72%`
-- PHPUnit：`OK (394 tests, 2389 assertions)`
+- PHPUnit：`OK (398 tests, 2572 assertions)`
 - 当前主分支：`master`
 - 当前默认后台落点：`/admin -> /admin/v2/dashboard`
 - 当前后台主入口：

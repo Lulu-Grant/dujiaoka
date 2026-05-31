@@ -147,6 +147,60 @@ class OrderPaymentServiceTest extends TestCase
         $this->assertSame(1, $goods->sales_volume);
     }
 
+    public function test_complete_payment_rejects_completed_order_with_different_trade_number_before_side_effects(): void
+    {
+        $group = GoodsGroup::query()->create([
+            'gp_name' => 'Completed Duplicate Payment Group',
+            'is_open' => BaseModel::STATUS_OPEN,
+            'ord' => 1,
+        ]);
+
+        $goods = Goods::query()->create([
+            'group_id' => $group->id,
+            'gd_name' => 'Completed Duplicate Payment Product',
+            'gd_description' => 'Completed Duplicate Payment Product Description',
+            'gd_keywords' => 'payment,completed',
+            'actual_price' => 11.00,
+            'in_stock' => 5,
+            'sales_volume' => 3,
+            'type' => BaseModel::MANUAL_PROCESSING,
+            'is_open' => BaseModel::STATUS_OPEN,
+        ]);
+
+        $order = Order::query()->create([
+            'order_sn' => 'PAYMENTSERVICE004',
+            'goods_id' => $goods->id,
+            'title' => 'Completed Duplicate Payment Product x 1',
+            'type' => BaseModel::MANUAL_PROCESSING,
+            'goods_price' => 11.00,
+            'buy_amount' => 1,
+            'coupon_discount_price' => 0,
+            'wholesale_discount_price' => 0,
+            'total_price' => 11.00,
+            'actual_price' => 11.00,
+            'search_pwd' => '',
+            'email' => 'buyer@example.com',
+            'info' => '',
+            'buy_ip' => '127.0.0.1',
+            'status' => Order::STATUS_COMPLETED,
+            'trade_no' => 'TRADE-PAY-004-ORIGINAL',
+        ]);
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage(__('dujiaoka.prompt.order_status_completed'));
+
+        try {
+            app(OrderPaymentService::class)->completePayment($order->order_sn, 11.00, 'TRADE-PAY-004-DIFFERENT');
+        } finally {
+            $goods->refresh();
+            $order->refresh();
+
+            $this->assertSame(Order::STATUS_COMPLETED, $order->status);
+            $this->assertSame('TRADE-PAY-004-ORIGINAL', $order->trade_no);
+            $this->assertSame(3, $goods->sales_volume);
+        }
+    }
+
     public function test_complete_payment_rejects_inconsistent_amount_before_side_effects(): void
     {
         $group = GoodsGroup::query()->create([
