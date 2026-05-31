@@ -63,7 +63,7 @@ class ReleaseReadinessDocumentationTest extends TestCase
             '退役通道防回流测试',
             '本地 smoke 凭据边界测试',
             '依赖阻塞矩阵',
-            'OK (400 tests, 2625 assertions)',
+            'OK (402 tests, 2640 assertions)',
         ] as $requiredStatus) {
             $this->assertStringContainsString($requiredStatus, $rc1);
         }
@@ -75,7 +75,7 @@ class ReleaseReadinessDocumentationTest extends TestCase
 
         foreach ([
             '当前 stable-ready 状态',
-            'OK (400 tests, 2625 assertions)',
+            'OK (402 tests, 2640 assertions)',
             '后台 smoke',
             'git diff --check',
             'CI',

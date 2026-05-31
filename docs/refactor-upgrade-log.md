@@ -354,6 +354,28 @@
 
 - 执行 `git diff --check`、Composer install 和后台 smoke，完成 stable-ready 遗留边界批次提交。
 
+### 217. CI 工作流发布前护栏补齐
+
+摘要：
+
+- 新增 [CiWorkflowReadinessTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/CiWorkflowReadinessTest.php)，固定 GitHub Actions `CI` 工作流继续使用 PHP 7.4、MariaDB 10.5、Composer install、`scripts/prepare-test-db` 和 `vendor/bin/phpunit`。
+- 同一测试确认 CI 工作流不恢复 `install.sql`、`database/sql`、手写 `mysql <` 导入或 `admin/admin` 默认账号口径。
+- README、当前进度总汇、当前基线审计、执行基线、RC.1、stable-ready 和发布稳定路线图同步最新测试数字。
+
+影响范围：
+
+- 本轮只补 CI 发布前复查护栏，不修改 GitHub Actions 工作流本身。
+- 远端 CI 通过状态仍以最终发版分支上的 GitHub Actions 实际结果为准。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/CiWorkflowReadinessTest.php` 通过，结果为 `OK (2 tests, 15 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (402 tests, 2640 assertions)`。
+
+下一步：
+
+- 执行 `git diff --check`、Composer install 和后台 smoke，完成 CI 工作流护栏批次提交。
+
 ## 2026-05-30 阶段日志
 
 ### 202. Dcat 最小兼容层审计与旧入口覆盖补强
