@@ -13,7 +13,7 @@ class AdminShellPayControllerTest extends TestCase
     protected function tearDown(): void
     {
         DB::table('pays')->whereIn('id', [93001, 93002, 93003, 93004, 93005, 93006, 93011, 93012, 93013, 93014, 93015, 93016, 93017, 93018, 93019, 93020, 93021, 93022, 93023, 93024, 93025, 93026, 93027, 93028, 93029, 93030, 93031, 93032, 93033, 93034, 93035, 93036, 93037, 93038, 93039, 93040, 93041, 93042, 93043, 93044, 93045, 93046, 93047, 93048, 93049, 93050, 93051, 93052, 93053, 93054, 93055])->delete();
-        DB::table('pays')->whereIn('pay_check', ['stripe', 'paypal', 'wechat-shell', 'alipay-shell', 'copy-shell-clone'])->delete();
+        DB::table('pays')->whereIn('pay_check', ['epusdt', 'wechat-shell', 'alipay-shell', 'copy-shell-clone'])->delete();
         DB::table('admin_users')->where('username', 'admin-shell-tester')->delete();
 
         parent::tearDown();
@@ -23,13 +23,13 @@ class AdminShellPayControllerTest extends TestCase
     {
         DB::table('pays')->insert([
             'id' => 93001,
-            'pay_name' => 'Stripe 样板',
+            'pay_name' => 'Epusdt 样板',
             'merchant_id' => 'merchant-id',
             'merchant_key' => 'merchant-key',
             'merchant_pem' => 'merchant-pem',
-            'pay_check' => 'stripe',
+            'pay_check' => 'epusdt',
             'pay_client' => 1,
-            'pay_handleroute' => '/pay/stripe',
+            'pay_handleroute' => '/pay/epusdt',
             'pay_method' => 1,
             'is_open' => 1,
             'created_at' => now(),
@@ -42,7 +42,7 @@ class AdminShellPayControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('支付通道管理');
-        $response->assertSee('Stripe 样板');
+        $response->assertSee('Epusdt 样板');
         $response->assertSee('导出结构化 CSV');
         $response->assertSee('导出当前筛选');
     }

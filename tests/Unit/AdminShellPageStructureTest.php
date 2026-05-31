@@ -203,8 +203,8 @@ class AdminShellPageStructureTest extends TestCase
         $pay = new Pay();
         $pay->forceFill([
             'id' => 303,
-            'pay_name' => 'Stripe',
-            'pay_check' => 'stripe',
+            'pay_name' => 'Epusdt',
+            'pay_check' => 'epusdt',
             'merchant_id' => 'merchant-303',
             'merchant_key' => 'secret-key-303',
             'merchant_pem' => 'secret-pem-303',
@@ -222,12 +222,12 @@ class AdminShellPageStructureTest extends TestCase
             ['scope' => '']
         );
         $header = $service->buildHeader(new LengthAwarePaginator(collect([$pay]), 1, 15));
-        $filters = $service->buildFilters(['pay_check' => 'stripe', 'scope' => 'trashed']);
+        $filters = $service->buildFilters(['pay_check' => 'epusdt', 'scope' => 'trashed']);
         $showHeader = $service->buildShowHeader('trashed', $pay);
-        $indexPage = $service->buildIndexPageData(new LengthAwarePaginator(collect([$pay]), 1, 15), ['pay_check' => 'stripe', 'scope' => '']);
+        $indexPage = $service->buildIndexPageData(new LengthAwarePaginator(collect([$pay]), 1, 15), ['pay_check' => 'epusdt', 'scope' => '']);
         $showPage = $service->buildShowPageData($pay, 'trashed');
         $items = $service->detailItems($pay);
-        $requestFilters = $service->extractFilters(Request::create('/admin/v2/pay?pay_check=stripe&pay_name=Stripe&scope=trashed', 'GET'));
+        $requestFilters = $service->extractFilters(Request::create('/admin/v2/pay?pay_check=epusdt&pay_name=Epusdt&scope=trashed', 'GET'));
 
         $this->assertSame('支付通道管理', $header['title']);
         $this->assertSame('迁移合同', $header['actions'][0]['label']);
@@ -245,7 +245,7 @@ class AdminShellPageStructureTest extends TestCase
         $this->assertSame('导出当前筛选', $header['actions'][12]['label']);
         $this->assertStringContainsString('export=csv', $header['actions'][11]['href']);
         $this->assertStringContainsString('export=txt', $header['actions'][12]['href']);
-        $this->assertSame('Stripe', $requestFilters['pay_name']);
+        $this->assertSame('Epusdt', $requestFilters['pay_name']);
         $this->assertSame('支付标识', $filters['fields'][1]['label']);
         $this->assertSame('支付通道详情', $showHeader['title']);
         $this->assertStringContainsString('密钥字段已脱敏', $showHeader['meta']);
@@ -257,11 +257,11 @@ class AdminShellPageStructureTest extends TestCase
         $this->assertStringContainsString('?scope=trashed', $showHeader['actions'][0]['href']);
         $this->assertSame('编辑通道', $showHeader['actions'][1]['label']);
         $this->assertSame('支付名称', $table['headers'][1]);
-        $this->assertStringContainsString('Stripe', $table['rows'][0][1]);
+        $this->assertStringContainsString('Epusdt', $table['rows'][0][1]);
         $this->assertStringContainsString('编辑通道', $table['rows'][0][8]);
         $this->assertSame('当前条件下没有支付通道记录。', $table['empty_title']);
         $this->assertSame('支付名称', $items[1]['label']);
-        $this->assertSame('Stripe', $items[1]['value']);
+        $this->assertSame('Epusdt', $items[1]['value']);
         $this->assertSame('安全状态', $items[7]['label']);
         $this->assertStringContainsString('已脱敏', $items[7]['value']);
         $this->assertSame('商户 KEY', $items[10]['label']);
@@ -293,7 +293,7 @@ class AdminShellPageStructureTest extends TestCase
         ]);
         $order->setRelation('goods', (object) ['gd_name' => '订单商品']);
         $order->setRelation('coupon', (object) ['coupon' => 'XIGUA-350']);
-        $order->setRelation('pay', (object) ['pay_name' => 'Stripe']);
+        $order->setRelation('pay', (object) ['pay_name' => 'Epusdt']);
 
         $service = $this->app->make(AdminShellOrderPageService::class);
         $table = $service->buildTable(
@@ -322,7 +322,7 @@ class AdminShellPageStructureTest extends TestCase
         $this->assertSame('订单状态', $filters['fields'][2]['label']);
         $this->assertSame('订单详情', $showHeader['title']);
         $this->assertStringContainsString('基础：XIGUA-ORDER-350 / 已完成 / 自动发货', $showHeader['meta']);
-        $this->assertStringContainsString('交易：订单商品 / Stripe', $showHeader['meta']);
+        $this->assertStringContainsString('交易：订单商品 / Epusdt', $showHeader['meta']);
         $this->assertStringContainsString('金额：69 / 交易号 trade-350', $showHeader['meta']);
         $this->assertInstanceOf(AdminShellIndexPageData::class, $indexPage);
         $this->assertInstanceOf(AdminShellShowPageData::class, $showPage);
@@ -337,7 +337,7 @@ class AdminShellPageStructureTest extends TestCase
         $this->assertSame('基础信息', $items[0]['label']);
         $this->assertStringContainsString('订单号：XIGUA-ORDER-350', $items[0]['value']);
         $this->assertSame('商品与支付', $items[1]['label']);
-        $this->assertStringContainsString('支付通道：Stripe', $items[1]['value']);
+        $this->assertStringContainsString('支付通道：Epusdt', $items[1]['value']);
         $this->assertSame('金额与履约', $items[2]['label']);
         $this->assertStringContainsString('优惠码：XIGUA-350', $items[2]['value']);
         $this->assertSame('维护信息', $items[3]['label']);

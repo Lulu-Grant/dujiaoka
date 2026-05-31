@@ -504,7 +504,7 @@ class PayActionService
                         'name' => 'pay_name',
                         'value' => $pay ? $pay->pay_name.'（副本）' : '',
                         'required' => true,
-                        'placeholder' => '例如：Stripe 通道',
+                        'placeholder' => '例如：Epusdt 通道',
                         'hint' => '这是后台显示名称，便于维护人员快速识别。',
                     ],
                     [
@@ -512,7 +512,7 @@ class PayActionService
                         'name' => 'pay_check',
                         'value' => $pay ? '' : '',
                         'required' => true,
-                        'placeholder' => '例如：stripe',
+                        'placeholder' => '例如：epusdt',
                         'readonly' => ! $isCreate,
                         'hint' => $isCreate
                             ? ($pay ? '复制时需要重新填写唯一支付标识，避免与源通道冲突。' : '创建后应尽量保持稳定，避免影响已有回调和订单识别。')
@@ -595,7 +595,7 @@ class PayActionService
                         'name' => 'pay_handleroute',
                         'value' => $pay ? $pay->pay_handleroute : '',
                         'required' => true,
-                        'placeholder' => '例如：/pay/stripe',
+                        'placeholder' => '例如：/pay/epusdt',
                         'hint' => '只填写已经确认可用的回调地址。',
                     ],
                 ],

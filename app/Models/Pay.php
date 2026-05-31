@@ -44,14 +44,31 @@ class Pay extends BaseModel
         'paysapi',
         'vpay',
         'payjs',
+        'paypal',
+        'stripe',
+        'coinbase',
+        'mapay',
+        'mqq',
+        'mzfb',
+        'mwx',
+        'tokenpay',
+        'tokenpay-trx',
+        'tokenpay-usdt-trc',
+        'tokenpay-eth',
+        'tokenpay-usdt-eth',
+        'tokenpay-usdc-eth',
+        'tokenpay-bnb',
+        'tokenpay-usdt-bsc',
+        'tokenpay-usdc-bsc',
+        'tokenpay-matic',
+        'tokenpay-usdt-polygon',
+        'tokenpay-usdc-polygon',
     ];
 
     /**
      * 新版本仍保留，但属于后续优先替换的遗留支付通道
      */
     const LEGACY_GATEWAYS = [
-        'paypal',
-        'stripe',
     ];
 
     public static function isRetiredGateway(?string $payCheck): bool

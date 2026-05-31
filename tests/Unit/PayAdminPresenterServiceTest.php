@@ -12,7 +12,7 @@ class PayAdminPresenterServiceTest extends TestCase
         $service = app(PayAdminPresenterService::class);
 
         $this->assertStringContainsString('badge-danger', $service->lifecycleBadge('payjs'));
-        $this->assertStringContainsString('badge-warning', $service->lifecycleBadge('stripe'));
+        $this->assertStringContainsString('badge-danger', $service->lifecycleBadge('stripe'));
         $this->assertStringContainsString('badge-success', $service->lifecycleBadge('wepay'));
     }
 

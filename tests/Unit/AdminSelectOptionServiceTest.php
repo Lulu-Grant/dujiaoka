@@ -98,14 +98,14 @@ class AdminSelectOptionServiceTest extends TestCase
         ]);
         DB::table('pays')->insert([
             'id' => 3001,
-            'pay_name' => 'Stripe',
+            'pay_name' => 'Epusdt',
             'merchant_id' => 'mid',
             'merchant_key' => 'mkey',
             'merchant_pem' => 'mpem',
-            'pay_check' => 'stripe',
+            'pay_check' => 'epusdt',
             'pay_client' => 1,
             'pay_method' => 1,
-            'pay_handleroute' => '/pay/stripe',
+            'pay_handleroute' => '/pay/epusdt',
             'is_open' => 1,
             'created_at' => now(),
             'updated_at' => now(),
@@ -117,7 +117,7 @@ class AdminSelectOptionServiceTest extends TestCase
         $this->assertSame(['3001' => 'Auto Product', '3002' => 'Manual Product'], $service->goodsOptions());
         $this->assertSame(['3001' => 'Auto Product'], $service->automaticGoodsOptions());
         $this->assertSame(['3001' => 'SAVE1'], $service->couponOptions());
-        $this->assertSame(['3001' => 'Stripe'], $service->payOptions());
+        $this->assertSame(['3001' => 'Epusdt'], $service->payOptions());
         $this->assertSame(['3001' => 'Group A'], $service->goodsGroupOptions());
     }
 }

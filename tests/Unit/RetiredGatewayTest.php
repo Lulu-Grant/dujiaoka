@@ -46,19 +46,19 @@ class RetiredGatewayTest extends TestCase
         ]);
 
         Pay::query()->create([
-            'pay_name' => 'Active Stripe',
-            'pay_check' => 'stripe',
+            'pay_name' => 'Active Epusdt',
+            'pay_check' => 'epusdt',
             'pay_method' => Pay::METHOD_JUMP,
             'pay_client' => Pay::PAY_CLIENT_PC,
-            'merchant_id' => 'stripe-pub',
-            'merchant_pem' => 'stripe-secret',
-            'pay_handleroute' => '/pay/stripe',
+            'merchant_id' => 'epusdt-api-key',
+            'merchant_pem' => 'https://epusdt.example',
+            'pay_handleroute' => '/pay/epusdt',
             'is_open' => BaseModel::STATUS_OPEN,
         ]);
 
         $gateways = app(PayService::class)->pays(Pay::PAY_CLIENT_PC);
 
-        $this->assertSame(['stripe'], array_values(array_column($gateways, 'pay_check')));
+        $this->assertSame(['epusdt'], array_values(array_column($gateways, 'pay_check')));
     }
 
     public function test_loading_retired_gateway_raises_retired_message(): void

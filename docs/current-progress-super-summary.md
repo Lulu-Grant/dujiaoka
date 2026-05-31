@@ -8,8 +8,8 @@
 
 ## 当前数字
 
-- 总体进度估算：`72%`
-- PHPUnit：`OK (403 tests, 2628 assertions)`
+- 总体进度估算：`82%`
+- PHPUnit：`OK (364 tests, 2370 assertions)`
 - 当前主分支：`master`
 - 当前默认后台落点：`/admin -> /admin/v2/dashboard`
 - 当前后台主入口：
@@ -44,8 +44,8 @@
 
 - 订单创建、查询、支付完成、履约、通知边界拆开
 - 多类支付回调和支付入口服务化
-- 退役 `Paysapi`、`Vpay`、`PayJS`
-- Stripe 已升级并继续稳定在现代 SDK 基线
+- 当前维护支付范围收敛为官方支付宝、官方微信、易支付和 Epusdt
+- PayPal、Stripe、Coinbase、Mapay、TokenPay、Paysapi、Vpay、PayJS 已进入退役范围
 
 ### 5. 前台与品牌统一
 
@@ -136,8 +136,8 @@
 ### 第二优先级
 
 - 支付保留通道继续收口
-- PayPal 生命周期与退场边界继续整理
-- Stripe 后续保持策略继续稳定
+- 退役通道保持不可新增、不可恢复、不可进入样例种子
+- 保留通道继续补回调异常路径护栏
 
 ### 第三优先级
 

@@ -100,6 +100,34 @@
 
 - 执行全量 PHPUnit、后台 smoke、release 搜索复核和 `git diff --check`，完成 beta.2 工具链收口提交。
 
+### 207. 裁剪非核心支付通道
+
+摘要：
+
+- 按当前维护范围只保留官方支付宝、官方微信、易支付和 Epusdt。
+- 退役 PayPal、Stripe、Coinbase、Mapay、TokenPay，并移除对应路由、控制器、服务、SDK 依赖、收银页资源和测试基线。
+- 更新 [PaySampleSeeder.php](/Users/apple/Documents/dujiaoshuka/database/seeds/PaySampleSeeder.php)，样例种子只保留当前维护通道。
+- 更新 [payment-gateway-remediation-inventory.md](/Users/apple/Documents/dujiaoshuka/docs/payment-gateway-remediation-inventory.md)、[paypal-stripe-transition-plan.md](/Users/apple/Documents/dujiaoshuka/docs/paypal-stripe-transition-plan.md)、[dependency-blocker-matrix.md](/Users/apple/Documents/dujiaoshuka/docs/dependency-blocker-matrix.md) 和当前基线文档，把 PayPal / Stripe 从“待替换”调整为“已退役”。
+
+影响范围：
+
+- 支付主线路由不再注册 PayPal、Stripe、Coinbase、Mapay 或 TokenPay。
+- Composer 主依赖不再包含 `paypal/rest-api-sdk-php` 与 `stripe/stripe-php`。
+- 后台支付管理仍可展示历史数据生命周期，但新版本不再灌入退役通道样例。
+
+验证：
+
+- `./scripts/composer74 why paypal/rest-api-sdk-php` 确认当前项目已找不到该包。
+- `./scripts/composer74 why stripe/stripe-php` 确认当前项目已找不到该包。
+- `./scripts/php74 artisan route:list` 复核支付路由只剩 `alipay / wepay / yipay / epusdt`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (364 tests, 2370 assertions)`。
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过。
+- `git diff --check` 通过。
+
+下一步：
+
+- 继续补保留通道的异常路径测试，并保持退役通道不恢复到路由、依赖或样例种子。
+
 ## 2026-05-30 阶段日志
 
 ### 202. Dcat 最小兼容层审计与旧入口覆盖补强

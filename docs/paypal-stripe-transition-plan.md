@@ -1,132 +1,32 @@
-# PayPal / Stripe 迁移方案
+# PayPal / Stripe 退场记录
 
-本文档用于承接升级前清障阶段里两条仍保留支付通道的后续动作：`PayPal` 与 `Stripe`。
+更新时间：2026-05-31
 
-## 当前结论
+本文档保留为历史迁移入口。当前结论已经从“继续替换 PayPal / Stripe”调整为“按维护范围退役”。
 
-- `PayPal` 优先级高于 `Stripe`
-- 原因不是业务占比，而是 `paypal/rest-api-sdk-php` 的历史包袱更重
-- `Stripe` 当前虽然版本偏旧，但边界已经比 `PayPal` 更清晰
-- beta.2 前不替换 SDK；先冻结业务入口与 SDK 边界，避免升级实验时扩大改动面
+## 当前决策
 
-## 当前状态
+- PayPal 不再作为新版本维护通道。
+- Stripe 不再作为新版本维护通道。
+- `paypal/rest-api-sdk-php` 与 `stripe/stripe-php` 已从 Composer 依赖中移除。
+- PayPal / Stripe 控制器、服务、SDK 边界、收银页资源和对应测试基线已移除。
+- 后续不再为 PayPal / Stripe 增加新功能、迁移 SDK 或补公开支付入口。
 
-### PayPal
+## 当前保留支付范围
 
-- 当前依赖：`paypal/rest-api-sdk-php ^1.14`
-- 当前运行模式：由 `DUJIAOKA_PAYPAL_MODE` 控制，默认 `live`
-- 当前币种假设：源币种与目标结算币种已配置化，默认 `CNY -> USD`
-- 当前异步通知状态：仅保留占位型 webhook 入口，实际完成支付仍以同步 return 主链为准
-- 当前异常边界：业务层与控制器层已改为只接触应用层 `PaymentGatewayException`
-- 当前回跳假设：PayPal 同步返回与取消回跳 URL 已收敛到独立服务，不再散落在 SDK 封装中，并对缺失命名路由的环境提供安全回退
-- 业务入口已收敛到：
-  - [PaypalCheckoutService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalCheckoutService.php)
-  - [PaypalReturnService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalReturnService.php)
-- webhook 占位入口已收敛到：
-  - [PaypalWebhookService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalWebhookService.php)
-- 回跳 URL 边界已收敛到：
-  - [PaypalCallbackUrlService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalCallbackUrlService.php)
-- SDK 访问已收敛到：
-  - [PaypalSdkService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalSdkService.php)
-- 业务层当前只依赖：
-  - [PaypalGatewayClientInterface.php](/Users/apple/Documents/dujiaoshuka/app/Service/Contracts/PaypalGatewayClientInterface.php)
+- 官方支付宝：`/pay/alipay`
+- 官方微信：`/pay/wepay`
+- 易支付：`/pay/yipay`
+- Epusdt：`/pay/epusdt`
 
-### Stripe
+## 退场验收口径
 
-- 当前依赖：`stripe/stripe-php ^20.0`，当前锁定 `v20.0.0`
-- 当前币种假设：源币种与目标结算币种已配置化，默认 `CNY -> USD`
-- 当前 URL 假设：结账页 return / check / charge / detail URL 已收敛到独立服务
-- 当前异常边界：控制器层已不再直接处理 SDK 异常，Stripe 支付服务改为抛出应用层 `PaymentGatewayException`
-- 当前状态处理边界：`source` 检索、扣款、归属校验、完成订单已开始从支付服务中拆出
-- 当前金额换算边界：结账页与卡片扣款所需的分单位金额已开始收敛到独立金额服务
-- 当前入口参数边界：`orderid / source / stripeToken` 已开始收敛到 Stripe 专用输入对象
-- 当前页面壳边界：Stripe 收银页已改为项目内本地 CSS/JS 资源，不再依赖外部前端 CDN 提供页面壳
-- 业务入口已收敛到：
-  - [StripeCheckoutService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripeCheckoutService.php)
-  - [StripePaymentService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripePaymentService.php)
-- URL 边界已收敛到：
-  - [StripeRouteService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripeRouteService.php)
-- 金额边界已收敛到：
-  - [StripeAmountService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripeAmountService.php)
-- SDK 访问已收敛到：
-  - [StripeSdkService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripeSdkService.php)
-- 业务层当前只依赖：
-  - [StripeGatewayClientInterface.php](/Users/apple/Documents/dujiaoshuka/app/Service/Contracts/StripeGatewayClientInterface.php)
+- `composer why paypal/rest-api-sdk-php` 不应返回当前项目依赖链。
+- `composer why stripe/stripe-php` 不应返回当前项目依赖链。
+- `routes/common/pay.php` 不再注册 PayPal / Stripe 路由。
+- `PaySampleSeeder` 不再写入 PayPal / Stripe 样例。
+- 当前 release 文档不再把 PayPal / Stripe 写成维护目标。
 
-## 默认执行顺序
+## 后续边界
 
-1. 先处理 `PayPal`
-2. 再处理 `Stripe`
-
-## beta.2 决策
-
-### PayPal
-
-当前决策：`保留过渡，准备替换或退场`。
-
-执行约束：
-
-- 旧 SDK 只能通过 [PaypalSdkService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaypalSdkService.php) 访问。
-- 业务服务只能依赖 [PaypalGatewayClientInterface.php](/Users/apple/Documents/dujiaoshuka/app/Service/Contracts/PaypalGatewayClientInterface.php)。
-- 控制器不得直接引用 `PayPal\*` SDK 类型。
-- 同步 return 主链暂保留，webhook 仍按占位入口处理，是否补全异步通知需要单独决策。
-
-后续二选一：
-
-- 替换：实现新的 `PaypalGatewayClientInterface`，保持现有 `PaypalCheckoutService` / `PaypalReturnService` 调用面不变。
-- 退场：移除 PayPal 支付入口、后台配置启用路径和 `paypal/rest-api-sdk-php` 依赖，并提供迁移说明。
-
-### Stripe
-
-当前决策：`保留 20.x，稳定边界`。
-
-执行约束：
-
-- 控制器只能调用 `StripeCheckoutService`、`StripePaymentService` 和输入 / 金额辅助服务。
-- SDK 访问只能通过 [StripeSdkService.php](/Users/apple/Documents/dujiaoshuka/app/Service/StripeSdkService.php) 与 [StripeGatewayClientInterface.php](/Users/apple/Documents/dujiaoshuka/app/Service/Contracts/StripeGatewayClientInterface.php)。
-- 不在 beta.2 切换 Stripe 支付模型，继续保持现有 source / charge 兼容逻辑和测试护栏。
-- 控制器不得直接引用 `Stripe\*` SDK 类型。
-
-## PayPal 退场路径
-
-1. 继续消除业务层对旧 SDK 类型的泄漏
-2. 保持运行模式、源币种、目标币种等接入假设配置化，不再散落在旧 SDK 封装内部
-3. 保持异常语义停留在应用层，避免新实现再次把 SDK 异常直接泄漏到控制器
-4. 保持同步返回、取消回跳等 URL 假设停留在独立服务层，而不是嵌在 SDK 实现内部
-5. 明确新接入方式的能力边界：
-   - 创建支付链接
-   - 同步返回确认
-   - 异步通知如何参与或退出
-   - 支付完成状态落单
-6. 在不改动业务服务调用面的前提下引入新实现
-7. 最后移除 `paypal/rest-api-sdk-php`
-
-## Stripe 升级路径
-
-1. 保持 `StripeCheckoutService` 与 `StripePaymentService` 为唯一主入口
-2. 保持币种与 URL 假设继续停留在配置 / 独立服务层，而不是散回控制器
-3. 保持异常语义停留在应用层，而不是继续让 SDK 错误直接泄漏到控制器
-4. 继续把 `source` 状态处理从支付服务中收拢成独立边界
-5. 继续把金额换算与分单位计算留在独立服务层，不再散回控制器
-6. 继续把入口参数解析从控制器原始数组访问收成明确输入对象
-7. 继续清掉旧的页面 / 回调内联耦合与外部 CDN 依赖
-8. 在当前 `20.x` 基线上继续清理剩余耦合点
-9. 验证 `charge / return / check` 三条路径后再收口旧兼容逻辑
-
-## 当前退出标准
-
-### PayPal
-
-- 业务服务不再依赖旧 SDK 暴露的类型
-- 运行模式与结算币种不再写死在旧 SDK 封装内部
-- 返回 / 取消回跳 URL 不再写死在旧 SDK 封装内部
-- 旧 SDK 被新实现替代
-- `composer why paypal/rest-api-sdk-php` 不再返回当前项目依赖链
-
-### Stripe
-
-- 当前 `20.x` 基线主链测试通过
-- 结账页 URL 与币种假设不再写死在控制器或 SDK 封装中
-- 控制器层不再直接依赖 Stripe SDK 异常语义
-- 控制器不再承担残余支付状态流转逻辑
-- 文档与后台生命周期状态同步更新
+如果未来需要重新接入 PayPal 或 Stripe，应作为新支付通道专项重新设计，单独建立配置模型、回调测试、安全审计和发布验收，不从本次退役代码中直接回滚恢复。

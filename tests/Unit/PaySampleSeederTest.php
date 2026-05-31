@@ -34,14 +34,25 @@ class PaySampleSeederTest extends TestCase
         $seeder = new \PaySampleSeeder();
         $seeder->run();
 
-        $this->assertSame(24, Pay::query()->count());
-        $this->assertNotNull(Pay::query()->where('pay_check', 'paypal')->first());
-        $this->assertNotNull(Pay::query()->where('pay_check', 'stripe')->first());
-        $this->assertNotNull(Pay::query()->where('pay_check', 'coinbase')->first());
+        $this->assertSame(7, Pay::query()->count());
+        $this->assertNotNull(Pay::query()->where('pay_check', 'zfbf2f')->first());
+        $this->assertNotNull(Pay::query()->where('pay_check', 'aliweb')->first());
+        $this->assertNotNull(Pay::query()->where('pay_check', 'wescan')->first());
+        $this->assertNotNull(Pay::query()->where('pay_check', 'alipay')->first());
+        $this->assertNotNull(Pay::query()->where('pay_check', 'wxpay')->first());
+        $this->assertNotNull(Pay::query()->where('pay_check', 'qqpay')->first());
+        $this->assertNotNull(Pay::query()->where('pay_check', 'epusdt')->first());
+        $this->assertNull(Pay::query()->where('pay_check', 'paypal')->first());
+        $this->assertNull(Pay::query()->where('pay_check', 'stripe')->first());
+        $this->assertNull(Pay::query()->where('pay_check', 'coinbase')->first());
+        $this->assertNull(Pay::query()->where('pay_check', 'mqq')->first());
+        $this->assertNull(Pay::query()->where('pay_check', 'tokenpay-trx')->first());
         $this->assertNull(Pay::query()->where('pay_check', 'pszfb')->first());
         $this->assertNull(Pay::query()->where('pay_check', 'payjswescan')->first());
         $this->assertNull(Pay::query()->where('pay_check', 'vzfb')->first());
-        $this->assertSame('/pay/paypal', Pay::query()->where('pay_check', 'paypal')->value('pay_handleroute'));
-        $this->assertSame('pay/tokenpay', Pay::query()->where('pay_check', 'tokenpay-trx')->value('pay_handleroute'));
+        $this->assertSame('/pay/alipay', Pay::query()->where('pay_check', 'zfbf2f')->value('pay_handleroute'));
+        $this->assertSame('/pay/wepay', Pay::query()->where('pay_check', 'wescan')->value('pay_handleroute'));
+        $this->assertSame('/pay/yipay', Pay::query()->where('pay_check', 'wxpay')->value('pay_handleroute'));
+        $this->assertSame('/pay/epusdt', Pay::query()->where('pay_check', 'epusdt')->value('pay_handleroute'));
     }
 }

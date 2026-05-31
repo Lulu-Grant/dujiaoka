@@ -13,10 +13,11 @@ class PayLifecycleTest extends TestCase
         $this->assertSame(admin_trans('pay.fields.lifecycle_retired'), Pay::getLifecycleLabel('payjs'));
     }
 
-    public function test_legacy_gateway_is_marked_as_legacy(): void
+    public function test_removed_gateway_is_marked_as_retired(): void
     {
-        $this->assertTrue(Pay::isLegacyGateway('paypal'));
-        $this->assertSame(admin_trans('pay.fields.lifecycle_legacy'), Pay::getLifecycleLabel('paypal'));
+        $this->assertTrue(Pay::isRetiredGateway('paypal'));
+        $this->assertFalse(Pay::isLegacyGateway('paypal'));
+        $this->assertSame(admin_trans('pay.fields.lifecycle_retired'), Pay::getLifecycleLabel('paypal'));
     }
 
     public function test_active_gateway_is_marked_as_active(): void

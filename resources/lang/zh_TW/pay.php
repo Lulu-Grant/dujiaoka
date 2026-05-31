@@ -24,7 +24,7 @@ return [
         'lifecycle_active' => '新版本維護中',
         'lifecycle_legacy' => '遺留待替換',
         'lifecycle_retired' => '已退役',
-        'pay_check_help' => '請避免繼續使用已退役通道標識；PayPal 與 Stripe 目前屬於遺留待替換通道。',
+        'pay_check_help' => '目前僅維護官方支付寶、官方微信、易支付與 Epusdt；其他歷史通道均按退役處理。',
     ],
     'options' => [
     ],

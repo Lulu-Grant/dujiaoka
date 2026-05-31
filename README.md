@@ -56,7 +56,7 @@
 - 恢复 PHP 7.4 遗留运行时基线，明确旧版本可验证路径
 - 建立订单、支付、安装、后台解耦相关 PHPUnit 回归测试
 - 将订单创建、支付完成、履约、通知拆成独立服务
-- 清理多条现代 PHP 阻塞依赖链，并将 `stripe/stripe-php` 升到 `^20.0`
+- 清理多条现代 PHP 阻塞依赖链，并按当前维护范围退役 PayPal、Stripe、Coinbase、Mapay、TokenPay 等非核心支付通道
 - 移除对常驻 `queue:work` / `supervisord` 的硬依赖
 - 更新 Docker / Debian / compose 部署说明
 - 将创建订单改造成明确的 DTO 输入模型
@@ -135,7 +135,7 @@
 当前主线测试结果基线：
 
 ```bash
-OK (403 tests, 2628 assertions)
+OK (364 tests, 2370 assertions)
 ```
 
 当前仓库也已经补上 GitHub Actions 基线工作流：
@@ -195,7 +195,7 @@ OK (403 tests, 2628 assertions)
 - [后台替换评估](docs/admin-replacement-assessment.md)
 - [执行基线](docs/execution-baseline.md)
 - [升级前清障清单](docs/upgrade-readiness-checklist.md)
-- [支付迁移计划](docs/paypal-stripe-transition-plan.md)
+- [支付通道退场记录](docs/paypal-stripe-transition-plan.md)
 - [本地快速拉站](docs/local-dev-quickstart.md)
 - [当前基线审计](docs/current-baseline-audit.md)
 - [当前进度总汇](docs/current-progress-super-summary.md)

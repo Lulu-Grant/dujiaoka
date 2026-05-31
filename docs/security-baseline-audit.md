@@ -34,7 +34,7 @@
 
 ## 风险边界
 
-- 测试中的 `secret123`、`stripe-secret-key`、`server-token` 等值仅作为 fixture 或 mock 使用，不是生产默认值。
+- 测试中的 `secret123`、`server-token` 等值仅作为 fixture 或 mock 使用，不是生产默认值。
 - 文档中的示例账号应明确写成“安装时自行创建”，不要再恢复 `admin/admin` 口径。
 - 本地 smoke 默认账号仅服务于开发环境，真实安装不应依赖它。
 - 如果 GitHub secret scanning 再次报告 Laravel `APP_KEY`，优先检查是否有硬编码 `base64:` 形态进入 `.github`、`phpunit.xml`、文档或示例文件。
@@ -51,7 +51,7 @@
 | 模板输入 | 邮件模板已进入后台壳 | 后置复核 | 复查模板内容边界、预览输出和错误提示 |
 | 邮件发送 | 邮件测试已进入后台壳 | 后置复核 | 复查收件人、异常提示和运行时邮件配置读取 |
 | 通知配置 | 推送配置仍作为系统设置分组维护 | 需人工配置 | 文档示例不得提供真实 token，生产 token 由部署方填写 |
-| secret scanning | 生产安装主路径不再写入真实密钥样例 | 已处理，继续维护 | 继续避免 `base64:` APP_KEY、真实 Stripe / webhook secret 形态进入文档或 fixture |
+| secret scanning | 生产安装主路径不再写入真实密钥样例 | 已处理，继续维护 | 继续避免 `base64:` APP_KEY、第三方支付 live key 或 webhook secret 形态进入文档或 fixture |
 | 支付回调异常路径 | 已补重复通知、金额不一致、签名失败、已完成订单重复推进和 SDK 边界测试 | 已处理，继续扩展 | 保留通道新增回调改动时必须同步异常路径测试 |
 
 ## 下一步
