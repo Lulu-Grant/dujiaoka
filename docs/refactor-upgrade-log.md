@@ -214,6 +214,29 @@
 
 - 执行 Composer install、后台 smoke 和 `git diff --check`，完成 RC 前支付入口防回流批次提交。
 
+### 211. 后台壳文本动作边界矩阵补齐
+
+摘要：
+
+- 更新 [admin-shell-action-boundary-matrix.md](/Users/apple/Documents/dujiaoshuka/docs/admin-shell-action-boundary-matrix.md)，按 `goods / order / pay / coupon / carmis` 汇总 RC 前继续允许维护的文本类动作、实际更新字段、明确禁止字段和回滚说明。
+- 新增 [AdminShellActionBoundaryMatrixTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellActionBoundaryMatrixTest.php)，固定当前文本类批量动作必须进入边界矩阵，并要求价格、库存、支付密钥、支付路由、订单交易号、折扣、次数、商品归属、库存扣减、履约和通知等高风险边界保持显式。
+- README、当前进度总汇、当前基线审计和执行基线同步最新测试数字。
+
+影响范围：
+
+- 本轮只补文档与测试护栏，不新增后台动作。
+- 后续新增或修改后台壳批量动作时，必须同步边界矩阵和对应测试。
+- 继续保持价格、库存、支付密钥、支付回调路由、订单支付完成、履约和通知链路不进入低风险批量动作范围。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/AdminShellActionBoundaryMatrixTest.php` 通过，结果为 `OK (2 tests, 43 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (392 tests, 2556 assertions)`。
+
+下一步：
+
+- 继续 RC 前文档一致性与候选冻结检查，优先保持 README、当前审计、进度总汇、release notes 和执行基线口径一致。
+
 ## 2026-05-30 阶段日志
 
 ### 202. Dcat 最小兼容层审计与旧入口覆盖补强

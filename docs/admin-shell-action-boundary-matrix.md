@@ -1,6 +1,6 @@
 # 后台壳动作边界矩阵
 
-更新时间：2026-05-24
+更新时间：2026-05-31
 
 ## 目标
 
@@ -22,6 +22,43 @@
 | 优惠码 `coupon` | `coupon` 文本及前缀、后缀、替换、空格整理 | `discount`、`ret`、`is_open`、`is_use`、商品关联 | 用优惠码 ID 列表恢复文本；折扣和次数不提供批量文本动作 | 唯一性保护、只改内容文本、不改状态和商品关联 |
 | 卡密 `carmis` | `carmi` 文本及 trim、collapse、replace、suffix 等导入后维护动作 | `status`、`is_loop`、`goods_id`、订单关联、库存扣减、履约链 | 用卡密 ID 列表恢复原文本；已售状态和订单关联不批量改 | 只改 `carmis.carmi`、缺失 ID 预览、smoke 覆盖入口 |
 | 系统设置 | 分组表单中的显式配置项 | 无保护批量更新、密钥批量替换、运行时敏感项静默写入 | 通过单项配置表单恢复；敏感项必须显式保存 | 表单校验、权限中间件、敏感示例值不进文档 |
+
+## 文本类动作明细
+
+下表只列 RC 前继续允许维护的低风险文本动作。已存在的启停、折扣、次数、状态、支付场景、支付方式等运营动作进入“保留型运营动作”，不作为继续扩容目标。
+
+| 资源 | 动作 | 实际更新字段 | 明确不更新字段 / 行为 | 回滚说明 |
+| --- | --- | --- | --- | --- |
+| 商品 `goods` | `batch-buy-prompt` | `buy_prompt` | 价格、库存、销量、状态、分组、排序、支付、履约 | 用同一 ID 列表重新写回原购买提示 |
+| 商品 `goods` | `batch-buy-prompt-trim` | `buy_prompt` | 同上 | 从导出或备份文本按 ID 重新写回 |
+| 商品 `goods` | `batch-description` | `gd_description` | 价格、库存、销量、状态、分组、排序、支付、履约 | 用同一 ID 列表重新写回原简介 |
+| 商品 `goods` | `batch-description-trim` | `gd_description` | 同上 | 从导出或备份文本按 ID 重新写回 |
+| 商品 `goods` | `batch-keywords` | `gd_keywords` | 价格、库存、销量、状态、分组、排序、支付、履约 | 用同一 ID 列表重新写回原关键字 |
+| 商品 `goods` | `batch-keywords-suffix` | `gd_keywords` | 同上 | 反向批量替换或重新写回原关键字 |
+| 商品 `goods` | `batch-keywords-trim` | `gd_keywords` | 同上 | 从导出或备份文本按 ID 重新写回 |
+| 商品 `goods` | `batch-keywords-collapse-spaces` | `gd_keywords` | 同上 | 从导出或备份文本按 ID 重新写回 |
+| 订单 `order` | `batch-info` | `info` | `status`、`trade_no`、支付完成、履约、通知、卡密交付 | 用同一订单 ID 列表重新写回原附加信息 |
+| 订单 `order` | `batch-title` | `title` | 状态机、支付、履约、通知、查询密码 | 用同一订单 ID 列表重新写回原标题 |
+| 订单 `order` | `batch-title-prefix` | `title` | 同上 | 反向批量替换或重新写回原标题 |
+| 订单 `order` | `batch-title-suffix` | `title` | 同上 | 反向批量替换或重新写回原标题 |
+| 订单 `order` | `batch-title-trim` | `title` | 同上 | 从导出或备份文本按 ID 重新写回 |
+| 订单 `order` | `batch-title-collapse-spaces` | `title` | 同上 | 从导出或备份文本按 ID 重新写回 |
+| 支付 `pay` | `batch-name` | `pay_name` | `pay_check`、`merchant_id`、`merchant_key`、`merchant_pem`、`pay_handleroute`、支付 SDK 配置 | 用同一支付 ID 列表重新写回原名称 |
+| 支付 `pay` | `batch-name-prefix` | `pay_name` | 同上 | 反向批量替换或重新写回原名称 |
+| 支付 `pay` | `batch-name-suffix` | `pay_name` | 同上 | 反向批量替换或重新写回原名称 |
+| 支付 `pay` | `batch-name-replace` | `pay_name` | 同上 | 用同一支付 ID 列表重新写回原名称 |
+| 支付 `pay` | `batch-name-trim` | `pay_name` | 同上 | 从导出或备份文本按 ID 重新写回 |
+| 支付 `pay` | `batch-name-collapse-spaces` | `pay_name` | 同上 | 从导出或备份文本按 ID 重新写回 |
+| 优惠码 `coupon` | `batch-code` | `coupon` | `discount`、`ret`、`is_open`、`is_use`、商品关联 | 用同一优惠码 ID 列表重新写回原内容，需保持唯一性 |
+| 优惠码 `coupon` | `batch-code-prefix` | `coupon` | 同上 | 反向批量替换或重新写回原内容，需保持唯一性 |
+| 优惠码 `coupon` | `batch-code-suffix` | `coupon` | 同上 | 反向批量替换或重新写回原内容，需保持唯一性 |
+| 优惠码 `coupon` | `batch-code-replace` | `coupon` | 同上 | 用同一优惠码 ID 列表重新写回原内容，需保持唯一性 |
+| 优惠码 `coupon` | `batch-code-trim` | `coupon` | 同上 | 从导出或备份文本按 ID 重新写回，需保持唯一性 |
+| 优惠码 `coupon` | `batch-code-collapse-spaces` | `coupon` | 同上 | 从导出或备份文本按 ID 重新写回，需保持唯一性 |
+| 卡密 `carmis` | `batch-trim` | `carmi` | `status`、`is_loop`、`goods_id`、订单关联、库存扣减、履约 | 用同一卡密 ID 列表重新写回原卡密内容 |
+| 卡密 `carmis` | `batch-collapse-spaces` | `carmi` | 同上 | 从导出或备份文本按 ID 重新写回 |
+| 卡密 `carmis` | `batch-replace` | `carmi` | 同上 | 用同一卡密 ID 列表重新写回原卡密内容 |
+| 卡密 `carmis` | `batch-suffix` | `carmi` | 同上 | 反向批量替换或重新写回原卡密内容 |
 
 ## 现存动作分级
 

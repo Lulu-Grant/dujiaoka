@@ -135,7 +135,7 @@
 当前主线测试结果基线：
 
 ```bash
-OK (390 tests, 2513 assertions)
+OK (392 tests, 2556 assertions)
 ```
 
 当前仓库也已经补上 GitHub Actions 基线工作流：
