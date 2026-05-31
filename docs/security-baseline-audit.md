@@ -31,12 +31,13 @@
 | `PaySampleSeeder` | 只在 sample/dev/test 场景使用 | 可保留 | 不进入安装 bootstrap |
 | `scripts/prepare-local-dev` | 本地生成 `.env`、随机 `APP_KEY` 和 `install.lock` | 可保留 | 仅本地开发 |
 | `scripts/prepare-test-db` | 使用本地测试库默认账号口径 | 可保留 | 仅测试库准备，不作为生产安装文档 |
+| `scripts/smoke-admin-shell` | 要求显式传入 `ADMIN_USERNAME` / `ADMIN_PASSWORD` | 已处理 | 只允许本地开发或测试专用后台账号 |
 
 ## 风险边界
 
 - 测试中的 `secret123`、`server-token` 等值仅作为 fixture 或 mock 使用，不是生产默认值。
 - 文档中的示例账号应明确写成“安装时自行创建”，不要再恢复 `admin/admin` 口径。
-- 本地 smoke 默认账号仅服务于开发环境，真实安装不应依赖它。
+- 本地 smoke 不再内置默认账号，必须显式传入本地开发或测试专用后台账号；真实安装不应依赖测试凭据。
 - 如果 GitHub secret scanning 再次报告 Laravel `APP_KEY`，优先检查是否有硬编码 `base64:` 形态进入 `.github`、`phpunit.xml`、文档或示例文件。
 
 ## beta.1 安全专项清单
@@ -57,4 +58,4 @@
 ## 下一步
 
 - 继续保持上传、模板输入、邮件发送和通知配置的定向测试随功能变更同步更新。
-- 将测试脚本中的本地默认账号说明继续限制为开发用途，避免误读为生产默认凭据。
+- 测试脚本中的本地账号说明已限制为开发 / 测试用途，避免误读为生产默认凭据。

@@ -2,8 +2,14 @@
 set -euo pipefail
 
 APP_URL="${APP_URL:-http://127.0.0.1:8020}"
-ADMIN_USERNAME="${ADMIN_USERNAME:-admin}"
-ADMIN_PASSWORD="${ADMIN_PASSWORD:-XiguaLocal@2026}"
+ADMIN_USERNAME="${ADMIN_USERNAME:-}"
+ADMIN_PASSWORD="${ADMIN_PASSWORD:-}"
+
+if [[ -z "$ADMIN_USERNAME" || -z "$ADMIN_PASSWORD" ]]; then
+  echo "ADMIN_USERNAME and ADMIN_PASSWORD are required for admin shell smoke."
+  echo "Use a local development or test-only admin account; production installs must create their own administrator."
+  exit 1
+fi
 
 CURLOPT_CURL="/usr/bin/curl"
 CURLOPT_PERL="/usr/bin/perl"

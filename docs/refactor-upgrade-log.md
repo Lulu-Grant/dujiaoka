@@ -283,6 +283,32 @@
 
 - 执行 `git diff --check`、Composer install 和后台 smoke，完成 RC 前文档一致性批次提交。
 
+### 214. 本地 smoke 凭据边界收紧
+
+摘要：
+
+- [admin-shell-smoke.sh](/Users/apple/Documents/dujiaoshuka/tests/Browser/admin-shell-smoke.sh) 不再内置 `admin / XiguaLocal@2026` 默认登录凭据，改为必须显式传入 `ADMIN_USERNAME` 和 `ADMIN_PASSWORD`。
+- README、[local-dev-quickstart.md](/Users/apple/Documents/dujiaoshuka/docs/local-dev-quickstart.md) 和 [security-baseline-audit.md](/Users/apple/Documents/dujiaoshuka/docs/security-baseline-audit.md) 同步说明 smoke 凭据只允许使用本地开发或测试专用后台账号，不是生产默认管理员。
+- 新增 [AdminShellSmokeCredentialBoundaryTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/AdminShellSmokeCredentialBoundaryTest.php)，固定 smoke 脚本不得恢复内置默认账号，并要求本地文档保留开发 / 测试用途说明。
+
+影响范围：
+
+- 本轮只收紧本地 smoke 凭据边界，不修改后台登录、认证或生产安装流程。
+- 后台 smoke 仍可通过显式传入 `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123` 执行。
+- 生产安装继续要求显式创建首个管理员账号。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/AdminShellSmokeCredentialBoundaryTest.php` 通过，结果为 `OK (2 tests, 14 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/ReleaseReadinessDocumentationTest.php` 通过，结果为 `OK (4 tests, 58 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/DependencyBlockerMatrixTest.php` 通过，结果为 `OK (3 tests, 28 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/AdminShellRouteRegistrarTest.php` 通过，结果为 `OK (2 tests, 104 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (398 tests, 2602 assertions)`。
+
+下一步：
+
+- 执行 `git diff --check`、Composer install 和后台 smoke，完成 RC 前安全凭据边界批次提交。
+
 ## 2026-05-30 阶段日志
 
 ### 202. Dcat 最小兼容层审计与旧入口覆盖补强

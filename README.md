@@ -135,7 +135,7 @@
 当前主线测试结果基线：
 
 ```bash
-OK (396 tests, 2588 assertions)
+OK (398 tests, 2602 assertions)
 ```
 
 当前仓库也已经补上 GitHub Actions 基线工作流：
@@ -151,7 +151,7 @@ OK (396 tests, 2588 assertions)
 ./scripts/php74 artisan --version
 ./scripts/php74 artisan route:list
 ./scripts/php74 -S 127.0.0.1:8020 -t public
-./scripts/smoke-admin-shell
+ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell
 ```
 
 说明：
@@ -164,7 +164,7 @@ OK (396 tests, 2588 assertions)
 - `.env` 不会进入版本控制
 - 当前这条本地启动路径已经完成真实 HTTP 验证，首页可返回 `200 OK`
 - 烟雾脚本会登录后台并巡检 `dashboard`、`auth/setting`、`goods/create`、`emailtpl/create`、`goods`、`order`
-- 烟雾脚本依赖有效后台账号，可通过 `ADMIN_USERNAME` / `ADMIN_PASSWORD` 覆盖默认登录凭据
+- 烟雾脚本必须显式传入 `ADMIN_USERNAME` / `ADMIN_PASSWORD`，且只应使用本地开发或测试专用后台账号
 
 更多环境说明请查看：
 
