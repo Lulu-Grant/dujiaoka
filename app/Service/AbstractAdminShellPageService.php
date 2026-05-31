@@ -69,6 +69,6 @@ abstract class AbstractAdminShellPageService implements AdminShellPageServiceInt
 
     protected function defaultHeaderActions(): array
     {
-        return [$this->migrationContractAction()];
+        return [];
     }
 }

@@ -1,0 +1,5 @@
+#!/bin/sh
+
+ROOT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
+
+exec "${ROOT_DIR}/scripts/php81-docker" tools/composer-2.2.phar "$@"

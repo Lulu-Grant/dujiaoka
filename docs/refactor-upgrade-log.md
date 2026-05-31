@@ -9,6 +9,65 @@
 
 ---
 
+## 2026-06-01 阶段日志
+
+### 220. PHP 8.1 小步兼容实验通过
+
+摘要：
+
+- 新增 [docker/php81-cli.Dockerfile](/Users/apple/Documents/dujiaoshuka/docker/php81-cli.Dockerfile)，固定 `php:8.1-cli` 并安装 `bcmath / gd / pdo_mysql / zip`。
+- 新增 [scripts/php81-docker](/Users/apple/Documents/dujiaoshuka/scripts/php81-docker) 和 [scripts/composer81-docker](/Users/apple/Documents/dujiaoshuka/scripts/composer81-docker)，用于 PHP 8.1 Composer、artisan 和 PHPUnit 验证。
+- 新增 [scripts/serve-php81-docker](/Users/apple/Documents/dujiaoshuka/scripts/serve-php81-docker)，用于在 `8031` 端口启动 PHP 8.1 内置 Web 服务并跑后台 smoke。
+- 新增 [phpunit.php81.xml](/Users/apple/Documents/dujiaoshuka/phpunit.php81.xml)，让容器通过 `host.docker.internal` 连接本地测试库并显式清空 `DB_SOCKET`。
+- 新增 [HandleExceptions.php](/Users/apple/Documents/dujiaoshuka/app/Foundation/Bootstrap/HandleExceptions.php)，在 PHP 8.1+ 下保留 Laravel 异常处理，同时避免 Laravel 6 / 旧依赖的弃用告警中断启动。
+- [scripts/php81](/Users/apple/Documents/dujiaoshuka/scripts/php81) 和 [scripts/composer81](/Users/apple/Documents/dujiaoshuka/scripts/composer81) 会拒绝误落到 PHP 8.5 等非 8.1 运行时。
+- [scripts/prepare-test-db](/Users/apple/Documents/dujiaoshuka/scripts/prepare-test-db) 支持 `TEST_PHP_BIN`，CI 已新增 `PHPUnit (PHP 8.1 experimental)`，但 PHP 7.4 job 仍是主基线。
+
+影响范围：
+
+- PHP 7.4 仍是当前本地生产基线。
+- PHP 8.1 作为升级实验工具链已经可以跑 Composer 平台检查、artisan 和全量 PHPUnit。
+- 不升级 Laravel 大版本，不改 vendor，不删除 Dcat 兼容层。
+
+验证：
+
+- `sh scripts/composer81-docker check-platform-reqs` 通过。
+- `sh scripts/php81-docker artisan migrate:status --no-ansi` 通过。
+- `sh scripts/php81-docker vendor/bin/phpunit --configuration phpunit.php81.xml` 通过，结果为 `OK (413 tests, 4245 assertions)`。
+- `APP_URL=http://127.0.0.1:8031 ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 在 PHP 8.1 Docker Web 服务下通过。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (413 tests, 4245 assertions)`。
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过。
+
+下一步：
+
+- 继续按 PHP 8.1 工具链复核后台 smoke 与支付关键路径，再设计 Laravel 桥接版本升级路线。
+
+### 221. Laravel 桥接升级 dry-run 阻塞固化
+
+摘要：
+
+- 新增 [laravel-bridge-upgrade-plan.md](/Users/apple/Documents/dujiaoshuka/docs/laravel-bridge-upgrade-plan.md)，记录 Laravel 7 / 8 dry-run 阻塞链和实验分支验收条件。
+- `composer why-not laravel/framework '7.*'` 与 Laravel 7 dry-run 显示：根项目 Laravel 6 约束、`facade/ignition 1.16.15`、`nunomaduro/collision v3.2.0`、Symfony 4.4 和 `vlucas/phpdotenv v3.6.10` 是第一批阻塞。
+- `composer why-not laravel/framework '8.*'` 与 Laravel 8 dry-run 显示：还需要处理 Symfony 5.4、`dragonmantank/cron-expression 3.x`、`ramsey/uuid 4.x` 和 `vlucas/phpdotenv 5.4+`。
+- 更新 [dependency-blocker-matrix.md](/Users/apple/Documents/dujiaoshuka/docs/dependency-blocker-matrix.md)、[upgrade-readiness-checklist.md](/Users/apple/Documents/dujiaoshuka/docs/upgrade-readiness-checklist.md) 和 [runtime-compatibility-blockers.md](/Users/apple/Documents/dujiaoshuka/docs/runtime-compatibility-blockers.md)。
+
+影响范围：
+
+- 本轮不升级 Laravel，不改锁文件。
+- 结论固定为先 Laravel 7 桥接实验，再评估 Laravel 8；不直接跳 Laravel 10。
+- Dcat 兼容关键文件、支付回调语义和退役支付通道边界继续保持冻结。
+
+验证：
+
+- `sh scripts/composer81-docker why-not laravel/framework '7.*'` 已记录阻塞。
+- `sh scripts/composer81-docker why-not laravel/framework '8.*'` 已记录阻塞。
+- `sh scripts/composer81-docker require laravel/framework:^7.30 --with-all-dependencies --dry-run --no-interaction --no-progress` 已记录阻塞。
+- `sh scripts/composer81-docker require laravel/framework:^8.83 --with-all-dependencies --dry-run --no-interaction --no-progress` 已记录阻塞。
+
+下一步：
+
+- 在独立实验分支中先处理 dev 工具链：`facade/ignition`、`nunomaduro/collision`、`fakerphp/faker`、`mockery/mockery`。
+
 ## 2026-05-31 阶段日志
 
 ### 203. beta.1 支付安全与发布后续规划并行收口

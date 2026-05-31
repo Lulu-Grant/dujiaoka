@@ -109,6 +109,6 @@ class AdminShellResourceRegistryTest extends TestCase
 
         $this->assertSame('商品分类管理', $goodsGroup['index_title']);
         $this->assertSame('商品分类详情', $goodsGroup['show_title']);
-        $this->assertSame('Admin Shell', AdminShellResourceRegistry::navigationSectionLabel());
+        $this->assertSame('管理菜单', AdminShellResourceRegistry::navigationSectionLabel());
     }
 }

@@ -22,7 +22,8 @@ class AdminAuthShellLoginTest extends TestCase
         $response->assertOk();
         $response->assertSee('独角数卡西瓜版');
         $response->assertSee('进入后台控制中心');
-        $response->assertSee('Admin Shell First');
+        $response->assertSee('登录');
+        $response->assertDontSee('统一后台');
     }
 
     public function test_admin_can_login_from_shell_login_page(): void

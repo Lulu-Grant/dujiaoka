@@ -82,9 +82,9 @@ assert_page() {
   printf 'OK %s -> %s\n' "$path" "$expected_title"
 }
 
-assert_page "/admin" "后台总览 - 后台壳样板" "今日支付成功率"
-assert_page "/admin/v2/dashboard" "后台总览 - 后台壳样板" "今日完成订单"
-assert_page "/admin/auth/setting" "账号设置 - 独角数卡西瓜版后台壳" "保存账号设置"
+assert_page "/admin" "后台总览 - 独角数卡西瓜版" "今日支付成功率"
+assert_page "/admin/v2/dashboard" "后台总览 - 独角数卡西瓜版" "今日完成订单"
+assert_page "/admin/auth/setting" "账号设置 - 独角数卡西瓜版" "保存账号设置"
 assert_page "/admin/v2/system-setting" "系统设置概览 - 后台壳样板" "编辑订单行为配置"
 assert_page "/admin/v2/goods" "商品管理 - 后台壳样板" "商品管理"
 assert_page "/admin/v2/goods/create" "新建商品 - 后台壳样板" "创建商品"

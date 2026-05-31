@@ -1,6 +1,6 @@
 # 依赖阻塞矩阵
 
-更新时间：2026-05-31
+更新时间：2026-06-01
 
 本文档用于把当前升级前最关键的依赖阻塞整理成一张可执行矩阵。
 
@@ -8,7 +8,9 @@
 
 | 依赖 | 当前用途 | 阻塞级别 | 当前状态 | 建议动作 | 备注 |
 | --- | --- | --- | --- | --- | --- |
-| `laravel/framework 6.20.*` | 应用主框架 | P0 | 保留运行时基线 | 先做 PHP 小步兼容实验，再设计 Laravel 桥接版本 | 不在 beta.2 / RC 直接跳大版本 |
+| `laravel/framework 6.20.*` | 应用主框架 | P0 | PHP 8.1 启动与测试已通过，仍保留框架升级阻塞 | 继续设计 Laravel 桥接版本 | 不在 beta.2 / RC 直接跳 Laravel 大版本 |
+| `facade/ignition 1.16.*` | 开发异常页 | P1 | 阻塞 Laravel 7/8 dry-run | 桥接实验分支升级到 2.x | 只影响 dev 依赖链，先于 Laravel 升级处理 |
+| `nunomaduro/collision 3.*` | 控制台异常输出 | P1 | 阻塞 Symfony 5 组件链 | 桥接实验分支升级 | 与 PHP 8.1 / Laravel 7+ 工具链绑定 |
 | `dcat/laravel-admin 2.*` | 后台控制台兼容层 | P0 | 保留过渡 | 继续降耦合、最终替换 | 当前只承担登录、认证、中间件、权限白名单和旧入口兼容 |
 | `dcat/easy-excel` | 后台导入导出辅助 | P2 | 保留过渡 | 后续替换 | 随后台壳导入导出能力成熟后统一处理 |
 | `yansongda/pay ^2.10` | 官方支付宝 / 官方微信支付 | P2 | 保留过渡 | 观察后升级 | 当前不是第一阻塞点，先以回调安全测试护栏约束 |
@@ -24,7 +26,7 @@
 
 | 依赖 | beta.2 状态 | 第一动作 | 退出条件 |
 | --- | --- | --- | --- |
-| `laravel/framework` | 保留运行时基线 | 不在 beta.2 直接升级，先验证 PHP 7.4 工具链和迁移 / 测试 / smoke 可重复执行 | PHP 小步实验完成并形成 Laravel 桥接版本方案 |
+| `laravel/framework` | PHP 8.1 小步实验已通过 | 保留 PHP 7.4 生产基线，同时用 PHP 8.1 Docker 工具链持续验证 | Laravel 桥接版本方案形成后再进入框架升级 |
 | `dcat/laravel-admin` | 保留过渡 | 继续保持后台壳主承载，Dcat 只做登录、认证、中间件、权限白名单和旧入口兼容 | 后台认证、中间件、权限白名单有替代实现后，再评估删除 |
 | `dcat/easy-excel` | 保留过渡 | 跟随后台导入导出能力统一替换，不单独抢跑 | 导入导出服务边界完全脱离 Dcat 后再替换 |
 | `yansongda/pay` | 保留过渡 | 以官方支付宝 / 官方微信通知测试约束回调安全，不在 beta.2 直接替换 | 支付宝 / 微信回调异常路径测试覆盖后再决定升级或替换 |
@@ -100,7 +102,17 @@
    - 官方微信
    - 易支付
    - Epusdt
-3. 设计 PHP / Laravel 分步升级路线。
+3. 基于 PHP 8.1 已通过的结果，设计 Laravel 桥接版本路线。
+
+## Laravel 桥接路线
+
+详见 [laravel-bridge-upgrade-plan.md](/Users/apple/Documents/dujiaoshuka/docs/laravel-bridge-upgrade-plan.md)。
+
+当前 dry-run 结论：
+
+- Laravel 7 第一阻塞链：根项目 `laravel/framework ^6.20.26`、`facade/ignition 1.16.15`、`nunomaduro/collision v3.2.0`、Symfony 4.4、`vlucas/phpdotenv v3.6.10`。
+- Laravel 8 额外阻塞链：Symfony 5.4、`dragonmantank/cron-expression 3.x`、`ramsey/uuid 4.x`、`vlucas/phpdotenv 5.4+`。
+- 当前不从 Laravel 6 直接跳 Laravel 10；先开实验分支验证 Laravel 7，再评估 Laravel 8。
 
 ## beta.2 升级实验分支最小命令集
 
@@ -110,8 +122,25 @@
 ./scripts/composer74 install --no-interaction --no-progress
 ./scripts/php74 artisan migrate:status
 ./scripts/php74 vendor/bin/phpunit
+sh scripts/composer81-docker check-platform-reqs
+sh scripts/php81-docker artisan migrate:status --no-ansi
+sh scripts/php81-docker vendor/bin/phpunit --configuration phpunit.php81.xml
+PHP81_DOCKER_PORT=8031 sh scripts/serve-php81-docker
+APP_URL=http://127.0.0.1:8031 ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell
 ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell
 ```
+
+2026-06-01 PHP 8.1 小步实验记录：
+
+- 新增 `docker/php81-cli.Dockerfile`，固定 `php:8.1-cli` 并安装 `bcmath / gd / pdo_mysql / zip`。
+- 新增 `scripts/php81-docker` 与 `scripts/composer81-docker`，用于不污染本机 PHP 7.4 基线的 PHP 8.1 验证。
+- 新增 `phpunit.php81.xml`，通过 `host.docker.internal` 连接本地 MySQL，避免容器误用宿主机 socket。
+- 新增 `App\Foundation\Bootstrap\HandleExceptions`，在 PHP 8.1+ 下屏蔽 Laravel 6 / 旧依赖的弃用告警进入异常路径。
+- CI 已新增 `PHPUnit (PHP 8.1 experimental)` job，并通过 `TEST_PHP_BIN=php` 复用测试库准备脚本；PHP 7.4 job 仍是主基线。
+- `sh scripts/composer81-docker check-platform-reqs` 通过。
+- `sh scripts/php81-docker artisan migrate:status --no-ansi` 通过。
+- `sh scripts/php81-docker vendor/bin/phpunit --configuration phpunit.php81.xml` 通过，结果为 `OK (413 tests, 4245 assertions)`。
+- `PHP81_DOCKER_PORT=8031 sh scripts/serve-php81-docker` 可启动 PHP 8.1 内置 Web 服务，供后台 smoke 使用。
 
 2026-05-31 本地试跑记录：
 

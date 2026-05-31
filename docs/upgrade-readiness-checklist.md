@@ -17,6 +17,7 @@
 - Framework：Laravel 6
 - Admin：Dcat Admin 2.0.24-beta
 - Runtime baseline：PHP 7.4 可验证
+- PHP 8.1：Composer 平台检查、artisan、全量 PHPUnit 和后台 smoke 已通过
 - 本机现代运行时：PHP 8.5.4
 - 订单主链测试：已建立基础护栏
 - 安装主路径：已切换到 migration + bootstrap seed
@@ -75,13 +76,14 @@
 
 影响：
 
-- 无法在 PHP 8.5 直接安装
-- 即使强行安装，也会在 Laravel 启动期因旧依赖废弃行为而崩溃
+- PHP 8.1 已可通过 Docker 工具链验证
+- PHP 8.5 仍不是当前目标运行时
 
 建议动作：
 
 1. 为阻塞包建立“保留 / 替换 / 移除”决策表
 2. 优先处理支付 SDK 与后台框架这两条剩余高优先级链
+3. Laravel 桥接升级按 [laravel-bridge-upgrade-plan.md](/Users/apple/Documents/dujiaoshuka/docs/laravel-bridge-upgrade-plan.md) 执行，先 Laravel 7，再评估 Laravel 8
 
 参考：
 

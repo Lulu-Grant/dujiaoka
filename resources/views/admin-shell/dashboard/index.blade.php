@@ -14,9 +14,7 @@
             padding: 32px;
             border-radius: 28px;
             background:
-                radial-gradient(circle at top right, rgba(255, 208, 86, 0.26), transparent 24%),
-                radial-gradient(circle at bottom left, rgba(75, 185, 125, 0.22), transparent 28%),
-                linear-gradient(135deg, #203827 0%, #2d4a34 48%, #1d3023 100%);
+                linear-gradient(180deg, #ffffff 0%, #f9fafb 100%);
             color: #f5fff7;
             box-shadow: 0 24px 60px rgba(29, 48, 35, 0.22);
         }
@@ -258,7 +256,7 @@
             padding: 20px;
             border-radius: 22px;
             border: 1px solid var(--line);
-            background: linear-gradient(180deg, #ffffff 0%, #f7faf4 100%);
+            background: #ffffff;
             box-shadow: 0 16px 36px rgba(32, 51, 38, 0.08);
         }
         .dashboard-shortcut-card h3,
@@ -277,8 +275,8 @@
             gap: 10px;
             padding: 18px;
             border-radius: 22px;
-            border: 1px solid rgba(44, 143, 87, 0.14);
-            background: linear-gradient(180deg, #ffffff 0%, #f7fbf5 100%);
+            border: 1px solid var(--line);
+            background: #ffffff;
             box-shadow: 0 14px 32px rgba(32, 51, 38, 0.06);
         }
         .dashboard-action-card h3 {
@@ -309,16 +307,16 @@
             gap: 4px;
             padding: 12px 14px;
             border-radius: 16px;
-            background: rgba(44, 143, 87, 0.06);
-            border: 1px solid rgba(44, 143, 87, 0.10);
+            background: #f9fafb;
+            border: 1px solid var(--line);
             color: inherit;
             text-decoration: none;
             transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
         }
         .dashboard-shortcut-link:hover {
             transform: translateY(-1px);
-            background: rgba(44, 143, 87, 0.1);
-            border-color: rgba(44, 143, 87, 0.18);
+            background: var(--shell-accent-soft);
+            border-color: rgba(37, 99, 235, 0.22);
         }
         .dashboard-shortcut-link strong {
             font-size: 14px;
@@ -355,7 +353,7 @@
             padding: 20px;
             border-radius: 22px;
             border: 1px solid var(--line);
-            background: linear-gradient(180deg, #ffffff 0%, #f8fbf6 100%);
+            background: #ffffff;
             box-shadow: 0 16px 36px rgba(32, 51, 38, 0.08);
         }
         .dashboard-card::before {
@@ -445,15 +443,215 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        .dashboard-frame {
+            --panel: #ffffff;
+            --line: var(--shell-line);
+            --muted: var(--shell-muted);
+            gap: 18px;
+        }
+
+        .dashboard-hero {
+            padding: 22px;
+            border-radius: 12px;
+            background: #ffffff;
+            color: var(--shell-ink);
+            border: 1px solid var(--shell-line);
+            box-shadow: var(--shell-shadow);
+        }
+
+        .dashboard-hero::after {
+            content: none;
+        }
+
+        .dashboard-hero-grid {
+            grid-template-columns: 1fr;
+            gap: 18px;
+        }
+
+        .dashboard-kicker {
+            color: var(--shell-muted);
+            letter-spacing: 0.08em;
+        }
+
+        .dashboard-headline {
+            font-size: 28px;
+            line-height: 1.25;
+            letter-spacing: 0;
+        }
+
+        .dashboard-subline {
+            max-width: 760px;
+            color: var(--shell-muted);
+            font-size: 14px;
+            line-height: 1.65;
+        }
+
+        .dashboard-hero-meta {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .dashboard-hero-pill,
+        .dashboard-health,
+        .dashboard-quick-panel,
+        .dashboard-operations,
+        .dashboard-segment,
+        .dashboard-shortcut-card,
+        .dashboard-playbook-card,
+        .dashboard-action-card,
+        .dashboard-card {
+            border-radius: 10px;
+            background: #ffffff;
+            border: 1px solid var(--shell-line);
+            box-shadow: var(--shell-shadow);
+            backdrop-filter: none;
+        }
+
+        .dashboard-hero-pill {
+            padding: 14px;
+            gap: 6px;
+            background: #f9fafb;
+        }
+
+        .dashboard-hero-pill label {
+            color: var(--shell-muted);
+            letter-spacing: 0.06em;
+        }
+
+        .dashboard-hero-pill strong {
+            color: var(--shell-ink);
+            font-size: 22px;
+        }
+
+        .dashboard-hero-strip {
+            border-radius: 10px;
+            background: #f9fafb;
+            border: 1px solid var(--shell-line);
+        }
+
+        .dashboard-health-ring {
+            background: conic-gradient(from 180deg, var(--shell-accent) 0 calc(var(--score) * 1%), #e5e7eb 0);
+            box-shadow: none;
+        }
+
+        .dashboard-health-ring span {
+            background: #ffffff;
+            color: var(--shell-ink);
+        }
+
+        .dashboard-health-copy small,
+        .dashboard-health-copy p,
+        .dashboard-quick-link span {
+            color: var(--shell-muted);
+        }
+
+        .dashboard-health-copy strong,
+        .dashboard-quick-panel h3,
+        .dashboard-operations h3,
+        .dashboard-segment-header {
+            color: var(--shell-ink);
+        }
+
+        .dashboard-health-badge {
+            border-radius: 999px;
+            letter-spacing: 0;
+        }
+
+        .dashboard-health-badge.good {
+            color: #15803d;
+            background: rgba(22, 163, 74, 0.1);
+        }
+
+        .dashboard-health-badge.warning {
+            color: #c2410c;
+            background: var(--shell-amber-soft);
+        }
+
+        .dashboard-health-badge.danger {
+            color: var(--shell-danger);
+            background: rgba(220, 38, 38, 0.1);
+        }
+
+        .dashboard-health-badge::before {
+            box-shadow: none;
+        }
+
+        .dashboard-quick-link,
+        .dashboard-shortcut-link {
+            border-radius: 8px;
+            background: #f9fafb;
+            border: 1px solid var(--shell-line);
+        }
+
+        .dashboard-quick-link:hover,
+        .dashboard-shortcut-link:hover {
+            transform: none;
+            background: var(--shell-accent-soft);
+            border-color: rgba(37, 99, 235, 0.22);
+        }
+
+        .dashboard-shortcut-card,
+        .dashboard-playbook-card,
+        .dashboard-action-card,
+        .dashboard-card {
+            padding: 16px;
+        }
+
+        .dashboard-section-title {
+            font-size: 17px;
+            letter-spacing: 0;
+        }
+
+        .dashboard-section-copy,
+        .dashboard-action-card p,
+        .dashboard-shortcut-card p,
+        .dashboard-playbook-card p,
+        .dashboard-playbook-step span,
+        .dashboard-segment-row span,
+        .dashboard-card p,
+        .dashboard-health__item span,
+        .dashboard-operations__item span {
+            color: var(--shell-muted);
+        }
+
+        .dashboard-action-card .button {
+            width: fit-content;
+        }
+
+        .dashboard-card::before {
+            width: 4px;
+        }
+
+        .dashboard-card-value {
+            font-size: 28px;
+        }
+
+        .accent-lime { --card-accent: #2563eb; }
+        .accent-amber { --card-accent: #f97316; }
+        .accent-teal { --card-accent: #0ea5e9; }
+        .accent-rose { --card-accent: #dc2626; }
+
+        @media (max-width: 1180px) {
+            .dashboard-hero-meta {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 960px) {
+            .dashboard-headline {
+                font-size: 24px;
+            }
+        }
     </style>
 
     <div class="dashboard-frame">
     <section class="dashboard-hero">
         <div class="dashboard-hero-grid">
             <div>
-                <div class="dashboard-kicker">Xigua Control Surface</div>
-                <h2 class="dashboard-headline">首页先变成指挥台，再慢慢替代旧后台。</h2>
-                <p class="dashboard-subline">这里不只是统计页，而是后台壳的运行面板。我们先把账号设置、系统设置分组和高频管理页摆在最前面，再把健康状态、巡检建议和关键指标铺开，让值班的人少找页面，多做处理。</p>
+                <div class="dashboard-kicker">今日概览</div>
+                <h2 class="dashboard-headline">订单与支付状态</h2>
+                <p class="dashboard-subline">快速查看今日成交、订单数量、完成情况和当前系统状态。</p>
                 <div class="dashboard-hero-meta">
                     <div class="dashboard-hero-pill">
                         <label>今日成功率</label>
@@ -477,64 +675,12 @@
                     <p class="dashboard-subline" style="margin-top: 10px;">{{ $health['note'] }}</p>
                 </div>
             </div>
-            <div class="dashboard-hero-panel">
-                <div class="dashboard-quick-panel">
-                    <h3>快捷入口</h3>
-                    <div class="dashboard-quick-list">
-                        @foreach($quick_links as $link)
-                            <a class="dashboard-quick-link" href="{{ $link['href'] }}">
-                                <strong>{{ $link['label'] }}</strong>
-                                <span>{{ $link['description'] }}</span>
-                            </a>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section>
-        <h3 class="dashboard-section-title">快捷分组</h3>
-        <p class="dashboard-section-copy">把账号设置、系统设置分组和高频管理页先固定在这个区块，值班时不用再在旧后台里绕路。</p>
-        <div class="dashboard-shortcut-grid">
-            @foreach($shortcut_groups as $group)
-                <article class="dashboard-shortcut-card">
-                    <div>
-                        <h3>{{ $group['title'] }}</h3>
-                        <p>{{ $group['description'] }}</p>
-                    </div>
-                    <div class="dashboard-shortcut-list">
-                        @foreach($group['items'] as $item)
-                            <a class="dashboard-shortcut-link" href="{{ $item['href'] }}">
-                                <strong>{{ $item['label'] }}</strong>
-                                <span>{{ $item['description'] }}</span>
-                            </a>
-                        @endforeach
-                    </div>
-                </article>
-            @endforeach
-        </div>
-    </section>
-
-    <section>
-        <h3 class="dashboard-section-title">高频动作</h3>
-        <p class="dashboard-section-copy">把最常用的批量操作单独放出来，减少先找列表页再找操作按钮的两步走。</p>
-        <div class="dashboard-action-grid">
-            @foreach($focus_actions as $action)
-                <article class="dashboard-action-card">
-                    <div>
-                        <h3>{{ $action['label'] }}</h3>
-                        <p>{{ $action['description'] }}</p>
-                    </div>
-                    <a class="button secondary" href="{{ $action['href'] }}">立即进入</a>
-                </article>
-            @endforeach
         </div>
     </section>
 
     <section>
         <h3 class="dashboard-section-title">运营视图</h3>
-        <p class="dashboard-section-copy">先把今天最需要处理的信号放在最前面，配合上面的快捷分组，方便快速巡检和分派处理。</p>
+        <p class="dashboard-section-copy">优先关注异常订单、待处理订单和支付状态。</p>
         <div class="dashboard-panel-grid">
             <div class="dashboard-health">
                 <h3>系统健康状态</h3>

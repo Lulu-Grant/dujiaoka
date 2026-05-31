@@ -113,3 +113,21 @@ Prefer Option A first if the goal is controlled modernization.
 Reason:
 
 The project has minimal tests and heavy payment coupling. Establishing one known-good legacy runtime gives us a safer baseline before package replacement and framework upgrades.
+
+## 2026-06-01 Update
+
+PHP `8.1` is now verified through the project Docker tooling:
+
+```bash
+sh scripts/composer81-docker check-platform-reqs
+sh scripts/php81-docker artisan migrate:status --no-ansi
+sh scripts/php81-docker vendor/bin/phpunit --configuration phpunit.php81.xml
+APP_URL=http://127.0.0.1:8031 ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell
+```
+
+Current result:
+
+- PHP 8.1 PHPUnit: `OK (413 tests, 4245 assertions)`
+- PHP 8.1 admin smoke: passed
+
+PHP `8.5` remains out of scope for the current bridge work. The next upgrade blocker is no longer PHP 8.1 bootstrapping; it is the Laravel bridge dependency chain documented in [laravel-bridge-upgrade-plan.md](/Users/apple/Documents/dujiaoshuka/docs/laravel-bridge-upgrade-plan.md).

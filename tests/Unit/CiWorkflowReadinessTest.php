@@ -29,6 +29,25 @@ class CiWorkflowReadinessTest extends TestCase
         }
     }
 
+    public function test_ci_workflow_adds_php81_experimental_job_without_replacing_php74(): void
+    {
+        $workflow = file_get_contents(base_path('.github/workflows/ci.yml'));
+        $prepareScript = file_get_contents(base_path('scripts/prepare-test-db'));
+
+        foreach ([
+            'PHPUnit (PHP 8.1 experimental)',
+            'php-version: 8.1',
+            'extensions: bcmath, ctype, curl, dom, fileinfo, gd, json, mbstring, openssl, pdo_mysql, tokenizer, xml, zip',
+            'TEST_PHP_BIN: php',
+            '${{ runner.os }}-php81-composer-${{ hashFiles(\'composer.lock\') }}',
+        ] as $required) {
+            $this->assertStringContainsString($required, $workflow);
+        }
+
+        $this->assertStringContainsString('TEST_PHP_BIN="${TEST_PHP_BIN:-$ROOT_DIR/scripts/php74}"', $prepareScript);
+        $this->assertStringContainsString('"$TEST_PHP_BIN" artisan migrate:fresh --seed --force --env=testing', $prepareScript);
+    }
+
     public function test_ci_workflow_does_not_restore_install_sql_path(): void
     {
         $workflow = file_get_contents(base_path('.github/workflows/ci.yml'));

@@ -1,0 +1,28 @@
+#!/bin/sh
+
+if [ -n "${PHP81_BIN:-}" ] && [ -x "${PHP81_BIN}" ]; then
+    PHP_BIN="${PHP81_BIN}"
+elif [ -x "/opt/homebrew/opt/php@8.1/bin/php" ]; then
+    PHP_BIN="/opt/homebrew/opt/php@8.1/bin/php"
+elif [ -x "/usr/local/opt/php@8.1/bin/php" ]; then
+    PHP_BIN="/usr/local/opt/php@8.1/bin/php"
+elif command -v php8.1 >/dev/null 2>&1; then
+    PHP_BIN="$(command -v php8.1)"
+elif command -v php81 >/dev/null 2>&1; then
+    PHP_BIN="$(command -v php81)"
+elif command -v php >/dev/null 2>&1; then
+    PHP_BIN="$(command -v php)"
+else
+    echo "Unable to locate a PHP binary for scripts/php81." >&2
+    exit 127
+fi
+
+PHP_VERSION="$("${PHP_BIN}" -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;' 2>/dev/null)"
+
+if [ "${PHP_VERSION}" != "8.1" ]; then
+    echo "scripts/php81 requires PHP 8.1, got PHP ${PHP_VERSION:-unknown} at ${PHP_BIN}." >&2
+    echo "Use scripts/php81-docker for the pinned PHP 8.1 verification runtime." >&2
+    exit 1
+fi
+
+exec "${PHP_BIN}" "$@"

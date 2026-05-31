@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#1f3425">
-    <title>{{ $title ?? '独角数卡西瓜版后台壳样板' }}</title>
+    <meta name="theme-color" content="#111827">
+    <title>{{ $title ?? '独角数卡西瓜版管理后台' }}</title>
     <link rel="stylesheet" href="{{ asset('assets/avatar/css/admin-shell.css') }}">
 </head>
 <body class="admin-shell">
@@ -16,14 +16,14 @@
                     <img src="/assets/avatar/images/dujiaoka-xigua.png" alt="独角数卡西瓜版">
                     <div class="brand-copy">
                         <div class="brand-title">独角数卡西瓜版</div>
-                        <div class="brand-subtitle">后台壳样板 · 旧壳退场中</div>
+                        <div class="brand-subtitle">管理后台</div>
                     </div>
                 </div>
 
                 <div class="sidebar-note">
-                    <span class="sidebar-note__label">Shell Mode</span>
-                    <strong>Admin Shell</strong>
-                    <p>优先承接新页面与配置动作，逐步压缩旧 Dcat 的主承载面。</p>
+                    <span class="sidebar-note__label">控制台</span>
+                    <strong>运营管理</strong>
+                    <p>统一管理商品、订单、支付和系统配置。</p>
                 </div>
 
                 <div class="nav-label">{{ \App\Service\AdminShellResourceRegistry::navigationSectionLabel() }}</div>
@@ -41,7 +41,7 @@
                 </nav>
 
                 <div class="sidebar-footer">
-                    <span>Switching to a cleaner admin layer.</span>
+                    <span>简洁后台界面</span>
                     <div class="sidebar-footer__links">
                         <a href="{{ admin_url('auth/setting') }}">账号设置</a>
                         <a href="{{ admin_url('auth/logout') }}">退出登录</a>

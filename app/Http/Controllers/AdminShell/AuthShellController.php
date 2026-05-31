@@ -75,12 +75,12 @@ class AuthShellController extends BaseAuthController
         $user = $this->guard()->user();
 
         return response()->view('admin-shell.auth.setting', [
-            'title' => '账号设置 - 独角数卡西瓜版后台壳',
+            'title' => '账号设置 - 独角数卡西瓜版',
             'header' => [
-                'kicker' => 'Admin Shell Account',
+                'kicker' => '账号安全',
                 'title' => '账号设置',
-                'description' => '后台账号的昵称、头像和密码维护现在也留在新后台壳里，不再回退到旧 Dcat 表单页。',
-                'meta' => '这是后台高频个人维护入口，优先保证在新壳里完整可用。',
+                'description' => '维护当前管理员昵称、头像和登录密码。',
+                'meta' => '修改密码后请使用新密码重新登录。',
                 'actions' => [
                     ['label' => '返回后台总览', 'href' => admin_url('v2/dashboard')],
                 ],

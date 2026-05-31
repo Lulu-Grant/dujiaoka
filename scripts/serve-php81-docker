@@ -1,0 +1,27 @@
+#!/bin/sh
+
+ROOT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
+IMAGE_NAME="${PHP81_DOCKER_IMAGE:-dujiaoshuka-php81-cli}"
+PORT="${PHP81_DOCKER_PORT:-8031}"
+
+if ! docker image inspect "${IMAGE_NAME}" >/dev/null 2>&1; then
+    docker build -f "${ROOT_DIR}/docker/php81-cli.Dockerfile" -t "${IMAGE_NAME}" "${ROOT_DIR}"
+fi
+
+exec docker run --rm \
+    -p "127.0.0.1:${PORT}:${PORT}" \
+    -v "${ROOT_DIR}:/app" \
+    -w /app \
+    -e APP_ENV="${APP_ENV:-local}" \
+    -e APP_URL="${APP_URL:-http://127.0.0.1:${PORT}}" \
+    -e DB_CONNECTION="${DB_CONNECTION:-mysql}" \
+    -e DB_HOST="${DB_HOST:-host.docker.internal}" \
+    -e DB_PORT="${DB_PORT:-3306}" \
+    -e DB_DATABASE="${DB_DATABASE:-dujiaoka_test}" \
+    -e DB_USERNAME="${DB_USERNAME:-dujiaoka}" \
+    -e DB_PASSWORD="${DB_PASSWORD:-dujiaoka_local}" \
+    -e DB_SOCKET="${DB_SOCKET:-}" \
+    -e CACHE_DRIVER="${CACHE_DRIVER:-file}" \
+    -e SESSION_DRIVER="${SESSION_DRIVER:-file}" \
+    -e QUEUE_CONNECTION="${QUEUE_CONNECTION:-sync}" \
+    "${IMAGE_NAME}" php -S "0.0.0.0:${PORT}" -t public

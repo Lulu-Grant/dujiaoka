@@ -24,12 +24,12 @@ class AdminShellDashboardPageService
         $shortcutGroups = $this->buildShortcutGroups();
 
         return [
-            'title' => '后台总览 - 后台壳样板',
+            'title' => '后台总览 - 独角数卡西瓜版',
             'header' => [
-                'kicker' => 'Admin Shell Dashboard',
+                'kicker' => '管理后台',
                 'title' => '后台总览',
-                'description' => '这是后台壳中的首页控制台。这里优先呈现健康状态、账号设置、系统设置分组和高频管理页，让首页先从“看数据”升级成“指挥中心”。',
-                'meta' => '当前数据口径与旧后台保持一致，但展示层已经切换为更适合日常巡检的控制台布局。优先从账号设置、系统设置分组和高频管理页开始操作。',
+                'description' => '查看今日订单、销售额、支付状态和重点处理事项。',
+                'meta' => '当前统计以今日数据为主，适合快速确认订单与支付状态。',
                 'actions' => [
                     ['label' => '账号设置', 'href' => admin_url('auth/setting')],
                     ['label' => '系统设置分组', 'href' => admin_url('v2/system-setting')],
@@ -55,28 +55,28 @@ class AdminShellDashboardPageService
             'health' => $health,
             'cards' => [
                 [
-                    'eyebrow' => 'Success Rate',
+                    'eyebrow' => '支付成功率',
                     'title' => '今日支付成功率',
                     'value' => $successRate['success_rate'].'%',
                     'description' => '今日共收集 '.$successRate['order_count'].' 笔订单，其中 '.$successRate['status_totals']['completed'].' 笔已完成。',
                     'accent' => 'lime',
                 ],
                 [
-                    'eyebrow' => 'Sales',
+                    'eyebrow' => '销售额',
                     'title' => '今日销售额',
                     'value' => number_format((float) $sales['total_price'], 2, '.', ''),
                     'description' => '统计范围内已进入履约链的订单销售额总和。',
                     'accent' => 'amber',
                 ],
                 [
-                    'eyebrow' => 'Completed',
+                    'eyebrow' => '完成订单',
                     'title' => '今日完成订单',
                     'value' => (string) $successOrders['success_count'],
                     'description' => '当前口径仅统计已完成订单。',
                     'accent' => 'teal',
                 ],
                 [
-                    'eyebrow' => 'Payout',
+                    'eyebrow' => '支付分布',
                     'title' => '支付状态分布',
                     'value' => $payout['success'].' / '.$payout['unpaid'],
                     'description' => '左侧为已进入支付后链路订单，右侧为待支付订单。',
@@ -92,7 +92,7 @@ class AdminShellDashboardPageService
                 [
                     'label' => '处理中订单',
                     'value' => $successRate['status_totals']['processing'],
-                    'note' => '这些订单已经进入履约链，适合重点巡检。',
+                    'note' => '这些订单已经进入处理流程，请关注发货结果。',
                 ],
                 [
                     'label' => '异常订单',
@@ -260,7 +260,7 @@ class AdminShellDashboardPageService
         }
 
         if (!empty($shortcutGroups[0]['items'][0]['href'])) {
-            $brief[1]['description'] = '账号设置和系统设置分组已经单独收拢，品牌、邮件、通知、体验配置都从这里进入。';
+            $brief[1]['description'] = '账号、品牌、邮件、通知和体验配置可从系统设置入口集中处理。';
         }
 
         return $brief;

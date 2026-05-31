@@ -1,0 +1,43 @@
+#!/bin/sh
+
+if [ -n "${PHP81_BIN:-}" ] && [ -x "${PHP81_BIN}" ]; then
+    PHP_BIN="${PHP81_BIN}"
+elif [ -x "/opt/homebrew/opt/php@8.1/bin/php" ]; then
+    PHP_BIN="/opt/homebrew/opt/php@8.1/bin/php"
+elif [ -x "/usr/local/opt/php@8.1/bin/php" ]; then
+    PHP_BIN="/usr/local/opt/php@8.1/bin/php"
+elif command -v php8.1 >/dev/null 2>&1; then
+    PHP_BIN="$(command -v php8.1)"
+elif command -v php81 >/dev/null 2>&1; then
+    PHP_BIN="$(command -v php81)"
+elif command -v php >/dev/null 2>&1; then
+    PHP_BIN="$(command -v php)"
+else
+    echo "Unable to locate a PHP binary for scripts/composer81." >&2
+    exit 127
+fi
+
+PHP_VERSION="$("${PHP_BIN}" -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;' 2>/dev/null)"
+
+if [ "${PHP_VERSION}" != "8.1" ]; then
+    echo "scripts/composer81 requires PHP 8.1, got PHP ${PHP_VERSION:-unknown} at ${PHP_BIN}." >&2
+    echo "Use scripts/composer81-docker for the pinned PHP 8.1 verification runtime." >&2
+    exit 1
+fi
+
+PROJECT_COMPOSER_BIN="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)/tools/composer-2.2.phar"
+
+if [ -n "${COMPOSER81_BIN:-}" ] && [ -f "${COMPOSER81_BIN}" ]; then
+    COMPOSER_BIN="${COMPOSER81_BIN}"
+elif [ -f "${PROJECT_COMPOSER_BIN}" ]; then
+    COMPOSER_BIN="${PROJECT_COMPOSER_BIN}"
+elif [ -f "/opt/homebrew/bin/composer" ]; then
+    COMPOSER_BIN="/opt/homebrew/bin/composer"
+elif command -v composer >/dev/null 2>&1; then
+    COMPOSER_BIN="$(command -v composer)"
+else
+    echo "Unable to locate a Composer binary for scripts/composer81." >&2
+    exit 127
+fi
+
+exec "${PHP_BIN}" "${COMPOSER_BIN}" "$@"

@@ -33,7 +33,7 @@ class AdminShellDashboardPageServiceTest extends TestCase
 
         $page = app(AdminShellDashboardPageService::class)->buildPageData();
 
-        $this->assertSame('后台总览 - 后台壳样板', $page['title']);
+        $this->assertSame('后台总览 - 独角数卡西瓜版', $page['title']);
         $this->assertSame('后台总览', $page['header']['title']);
         $this->assertCount(6, $page['header']['actions']);
         $this->assertCount(4, $page['cards']);
