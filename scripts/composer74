@@ -13,8 +13,12 @@ else
     exit 127
 fi
 
+PROJECT_COMPOSER_BIN="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)/tools/composer-2.2.phar"
+
 if [ -n "${COMPOSER74_BIN:-}" ] && [ -f "${COMPOSER74_BIN}" ]; then
     COMPOSER_BIN="${COMPOSER74_BIN}"
+elif [ -f "${PROJECT_COMPOSER_BIN}" ]; then
+    COMPOSER_BIN="${PROJECT_COMPOSER_BIN}"
 elif [ -f "/opt/homebrew/bin/composer" ]; then
     COMPOSER_BIN="/opt/homebrew/bin/composer"
 elif command -v composer >/dev/null 2>&1; then

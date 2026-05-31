@@ -30,7 +30,7 @@
 - 支付层现代化：中后期，Stripe 已稳定，旧落后通道已退役，PayPal 与保留通道仍需继续收口
 - 安全治理与升级前清障：中前期，已有清单但还没成为主推进阶段
 
-最近一轮后台壳已经连续补齐 `goods / order / pay / coupon / carmis` 多组低风险批量动作，并补强支付回调幂等、签名失败、金额校验、已完成订单重复推进、SDK 边界和 release 文档冻结护栏；`carmis` 线已新增只更新卡密内容片段的批量替换页，并将批量追加卡密内容后缀页纳入第一批 beta.1 收口任务，当前 PHPUnit 基线已推进到 `401 tests / 2619 assertions`。
+最近一轮后台壳已经连续补齐 `goods / order / pay / coupon / carmis` 多组低风险批量动作，并补强支付回调幂等、签名失败、金额校验、已完成订单重复推进、SDK 边界、release 文档冻结护栏和 PHP 7.4 Composer 工具链护栏；`carmis` 线已新增只更新卡密内容片段的批量替换页，并将批量追加卡密内容后缀页纳入第一批 beta.1 收口任务，当前 PHPUnit 基线已推进到 `403 tests / 2628 assertions`。
 
 兼容层本轮已建立 [Dcat 最小兼容层审计](/Users/apple/Documents/dujiaoshuka/docs/dcat-compatibility-layer-audit.md)，明确 `config/admin.php` 和 `routes/admin/routes.php` 仍因登录、认证、中间件、权限白名单、后台壳挂载和旧入口跳转保留；旧 `/admin/*` 入口必须保留 query string，且不得回写业务逻辑。
 

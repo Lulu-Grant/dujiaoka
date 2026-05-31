@@ -201,9 +201,11 @@ ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin
 2026-05-31 本地试跑记录：
 
 - `./scripts/php74 artisan migrate:status` 通过，当前 17 个 migration 均已执行。
-- `./scripts/composer74 install --no-interaction --no-progress` 在 90 秒内无输出，已手动终止。
-- `./scripts/composer74 --version` 同样无输出卡住；当前脚本组合为 PHP 7.4 调用 Homebrew Composer 2.9.5。
-- 后续升级实验分支需要优先固定一个可在 PHP 7.4 下稳定输出的 Composer phar，或调整 `scripts/composer74` 的 Composer 选择策略。
+- 已固定项目内 Composer 2.2 phar：`tools/composer-2.2.phar`。
+- `scripts/composer74` 当前选择顺序为：`COMPOSER74_BIN`、项目内 `tools/composer-2.2.phar`、系统 Composer。
+- `./scripts/composer74 --version` 通过，输出 `Composer version 2.2.25`。
+- `./scripts/composer74 install --no-interaction --no-progress` 通过，锁文件可在 PHP 7.4 工具链下重复安装。
+- Composer install 当前仍提示 `paypal/rest-api-sdk-php`、`swiftmailer/swiftmailer`、`symfony/debug` 为 abandoned 包，继续作为 beta.2 / RC 后续替换或退场观察项。
 
 失败回滚条件：
 

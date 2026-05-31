@@ -75,6 +75,31 @@
 
 - 在升级实验分支中处理 Composer 选择策略，再继续执行依赖安装验证。
 
+### 206. PHP 7.4 Composer 工具链固定
+
+摘要：
+
+- 新增项目内固定 Composer phar：`tools/composer-2.2.phar`。
+- 调整 [scripts/composer74](/Users/apple/Documents/dujiaoshuka/scripts/composer74)，选择顺序改为 `COMPOSER74_BIN`、项目内 Composer 2.2 phar、系统 Composer。
+- 新增 [Composer74ScriptTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/Composer74ScriptTest.php)，固定 Composer 选择顺序，并确认项目内 phar 存在。
+- 更新 [dependency-blocker-matrix.md](/Users/apple/Documents/dujiaoshuka/docs/dependency-blocker-matrix.md) 与 [v3.0.0-beta.2.md](/Users/apple/Documents/dujiaoshuka/docs/releases/v3.0.0-beta.2.md)，记录工具链阻塞已解除。
+
+影响范围：
+
+- beta.2 升级实验命令集中的 Composer 安装前置阻塞已解除。
+- Composer install 仍提示 `paypal/rest-api-sdk-php`、`swiftmailer/swiftmailer`、`symfony/debug` 为 abandoned 包，继续作为后续替换或退场观察项。
+
+验证：
+
+- `./scripts/composer74 --version` 通过，输出 `Composer version 2.2.25`。
+- `./scripts/composer74 install --no-interaction --no-progress` 通过。
+- `./scripts/php74 artisan migrate:status` 通过，当前 17 个 migration 均已执行。
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/Composer74ScriptTest.php` 通过，结果为 `OK (2 tests, 9 assertions)`。
+
+下一步：
+
+- 执行全量 PHPUnit、后台 smoke、release 搜索复核和 `git diff --check`，完成 beta.2 工具链收口提交。
+
 ## 2026-05-30 阶段日志
 
 ### 202. Dcat 最小兼容层审计与旧入口覆盖补强
