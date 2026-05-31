@@ -448,6 +448,32 @@
 
 - 继续保持 RC / stable-ready 冻结维护，优先处理文档一致性、测试护栏和最终发版前验证。
 
+### 221. 整改总纲同步冻结维护口径
+
+摘要：
+
+- 更新 [rectification-execution-plan.md](/Users/apple/Documents/dujiaoshuka/docs/rectification-execution-plan.md)，把默认推进顺序从“后台壳继续扩容”调整为“后台壳冻结维护与操作页边界验收”。
+- 同步调整批次 A / C / D：稳定版前不再以新增批量动作、扩大承载面或恢复支付通道为默认目标，改为维护现有动作边界、Dcat 最小兼容层、保留支付通道回调安全和退役支付通道防回流。
+- 扩展 [CurrentProgressDocumentationTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/CurrentProgressDocumentationTest.php)，把整改总纲纳入当前规划文档旧口径复查。
+- README、当前进度、当前基线、执行基线、RC.1、stable-ready 和发布稳定路线图同步最新 PHPUnit 断言数。
+
+影响范围：
+
+- 本轮只修改规划文档和文档护栏测试，不修改业务逻辑。
+- 现在 README、执行基线、当前审计、进度总汇、整改总纲和 release 文档对 RC / stable-ready 冻结边界保持一致。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/CurrentProgressDocumentationTest.php` 通过，结果为 `OK (3 tests, 45 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (406 tests, 2689 assertions)`。
+- `git diff --check` 通过。
+- `./scripts/composer74 install --no-interaction --no-progress` 通过。
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过。
+
+下一步：
+
+- 继续保持 RC / stable-ready 冻结维护，下一步优先做最终 release 搜索复核与远端 CI 状态确认。
+
 ## 2026-05-30 阶段日志
 
 ### 202. Dcat 最小兼容层审计与旧入口覆盖补强

@@ -14,7 +14,7 @@ class CurrentProgressDocumentationTest extends TestCase
             $this->assertStringContainsString('90%', $contents, $relativePath);
             $this->assertStringContainsString('RC', $contents, $relativePath);
             $this->assertStringContainsString('stable-ready', $contents, $relativePath);
-            $this->assertMatchesRegularExpression('/406 tests[, \/]+2682 assertions/', $contents, $relativePath);
+            $this->assertMatchesRegularExpression('/406 tests[, \/]+2689 assertions/', $contents, $relativePath);
         }
     }
 
@@ -41,6 +41,7 @@ class CurrentProgressDocumentationTest extends TestCase
         $documents = [
             'docs/parallel-development-plan.md',
             'docs/modernization-roadmap.md',
+            'docs/rectification-execution-plan.md',
         ];
 
         foreach ($documents as $relativePath) {
@@ -51,6 +52,7 @@ class CurrentProgressDocumentationTest extends TestCase
                 '`stripe-best-practices`：优先给支付通道线使用',
                 '`install.sql` is now kept as a legacy reference file',
                 'legacy PayPal SDK',
+                '后台壳继续扩容与操作页落地',
             ] as $stalePhrase) {
                 $this->assertStringNotContainsString($stalePhrase, $contents, $relativePath);
             }

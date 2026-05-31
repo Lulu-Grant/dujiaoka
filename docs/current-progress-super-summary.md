@@ -9,7 +9,7 @@
 ## 当前数字
 
 - 总体进度估算：`90%`
-- PHPUnit：`OK (406 tests, 2682 assertions)`
+- PHPUnit：`OK (406 tests, 2689 assertions)`
 - 当前主分支：`master`
 - 当前默认后台落点：`/admin -> /admin/v2/dashboard`
 - 当前后台主入口：
