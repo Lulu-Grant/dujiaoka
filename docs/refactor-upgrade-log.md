@@ -57,6 +57,24 @@
 
 - 跑后台 smoke 和 `git diff --check`，提交 release 文档冻结护栏。
 
+### 205. beta.2 升级实验命令试跑记录
+
+摘要：
+
+- 按 [dependency-blocker-matrix.md](/Users/apple/Documents/dujiaoshuka/docs/dependency-blocker-matrix.md) 中的 beta.2 实验命令集试跑本地升级准备命令。
+- `./scripts/php74 artisan migrate:status` 通过，当前 17 个 migration 均已执行。
+- `./scripts/composer74 install --no-interaction --no-progress` 在 90 秒内无输出，已手动终止。
+- `./scripts/composer74 --version` 同样无输出卡住；当前脚本组合为 PHP 7.4 调用 Homebrew Composer 2.9.5。
+
+影响范围：
+
+- 这不是 beta.1 阻断项；全量 PHPUnit、后台 smoke 和迁移状态检查仍通过。
+- beta.2 升级实验分支需要先固定兼容 Composer phar，或调整 `scripts/composer74` 的 Composer 选择策略。
+
+下一步：
+
+- 在升级实验分支中处理 Composer 选择策略，再继续执行依赖安装验证。
+
 ## 2026-05-30 阶段日志
 
 ### 202. Dcat 最小兼容层审计与旧入口覆盖补强

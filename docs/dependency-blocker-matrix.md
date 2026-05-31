@@ -198,6 +198,13 @@
 ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell
 ```
 
+2026-05-31 本地试跑记录：
+
+- `./scripts/php74 artisan migrate:status` 通过，当前 17 个 migration 均已执行。
+- `./scripts/composer74 install --no-interaction --no-progress` 在 90 秒内无输出，已手动终止。
+- `./scripts/composer74 --version` 同样无输出卡住；当前脚本组合为 PHP 7.4 调用 Homebrew Composer 2.9.5。
+- 后续升级实验分支需要优先固定一个可在 PHP 7.4 下稳定输出的 Composer phar，或调整 `scripts/composer74` 的 Composer 选择策略。
+
 失败回滚条件：
 
 - Composer 无法在当前锁文件下稳定安装。
