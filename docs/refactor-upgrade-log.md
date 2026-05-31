@@ -309,6 +309,28 @@
 
 - 执行 `git diff --check`、Composer install 和后台 smoke，完成 RC 前安全凭据边界批次提交。
 
+### 215. RC.1 验收状态固化
+
+摘要：
+
+- [v3.0.0-rc.1.md](/Users/apple/Documents/dujiaoshuka/docs/releases/v3.0.0-rc.1.md) 新增当前验收状态表，明确后台壳主承载、Dcat 兼容层、支付范围、安全专项、升级实验和当前验证结果。
+- 扩展 [ReleaseReadinessDocumentationTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/ReleaseReadinessDocumentationTest.php)，固定 RC.1 文档必须保留当前验收状态、退役通道防回流、本地 smoke 凭据边界、依赖阻塞矩阵和测试基线。
+- README、当前进度总汇、当前基线审计、执行基线和发布稳定路线图同步最新测试数字。
+
+影响范围：
+
+- 本轮只固化 RC.1 候选状态和文档护栏，不新增功能。
+- RC 前继续保持候选冻结，只接受回归、安全、测试和文档一致性修正。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/ReleaseReadinessDocumentationTest.php` 通过，结果为 `OK (5 tests, 66 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (399 tests, 2610 assertions)`。
+
+下一步：
+
+- 执行 `git diff --check`、Composer install 和后台 smoke，完成 RC.1 验收状态批次提交。
+
 ## 2026-05-30 阶段日志
 
 ### 202. Dcat 最小兼容层审计与旧入口覆盖补强

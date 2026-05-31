@@ -51,6 +51,24 @@ class ReleaseReadinessDocumentationTest extends TestCase
         }
     }
 
+    public function test_rc1_release_document_keeps_current_acceptance_status(): void
+    {
+        $rc1 = file_get_contents(base_path('docs/releases/v3.0.0-rc.1.md'));
+
+        foreach ([
+            '当前 RC.1 验收状态',
+            '后台壳主承载',
+            'Dcat 兼容层',
+            '官方支付宝、官方微信、易支付、Epusdt',
+            '退役通道防回流测试',
+            '本地 smoke 凭据边界测试',
+            '依赖阻塞矩阵',
+            'OK (399 tests, 2610 assertions)',
+        ] as $requiredStatus) {
+            $this->assertStringContainsString($requiredStatus, $rc1);
+        }
+    }
+
     public function test_release_and_security_documents_do_not_contain_real_secret_shapes(): void
     {
         foreach ([
