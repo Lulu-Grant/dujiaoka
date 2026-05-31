@@ -474,6 +474,31 @@
 
 - 继续保持 RC / stable-ready 冻结维护，下一步优先做最终 release 搜索复核与远端 CI 状态确认。
 
+### 222. 退役支付通道运行时防回流护栏补强
+
+摘要：
+
+- 扩展 [PaymentGatewayRetirementReadinessTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/PaymentGatewayRetirementReadinessTest.php)，把 `composer.lock` 纳入退役支付 SDK 包名检查，避免 `paypal/rest-api-sdk-php` 或 `stripe/stripe-php` 从锁文件回流。
+- 新增运行时文件扫描护栏，确认退役通道标识不会回到 `app`、`routes`、`config`、`database` 和 `composer.json`；唯一允许的运行时例外是 [Pay.php](/Users/apple/Documents/dujiaoshuka/app/Models/Pay.php) 中用于拒绝和展示生命周期的退役 deny-list。
+- README、当前进度、当前基线、执行基线、RC.1、stable-ready 和发布稳定路线图同步最新 PHPUnit 基线。
+
+影响范围：
+
+- 本轮只补测试护栏和文档数字，不修改支付业务实现。
+- 退役支付通道仍允许作为生命周期拒绝列表存在，但不得回到路由、控制器、服务实现、配置、样例种子或依赖。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/PaymentGatewayRetirementReadinessTest.php` 通过，结果为 `OK (4 tests, 1534 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (407 tests, 4193 assertions)`。
+- `git diff --check` 通过。
+- `./scripts/composer74 install --no-interaction --no-progress` 通过。
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过。
+
+下一步：
+
+- 继续保持 RC / stable-ready 冻结维护，后续优先复核远端 CI 与最终发版分支。
+
 ## 2026-05-30 阶段日志
 
 ### 202. Dcat 最小兼容层审计与旧入口覆盖补强
