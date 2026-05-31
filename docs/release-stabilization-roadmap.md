@@ -69,6 +69,7 @@
 - Dcat 仅评估未来可废弃别名，不删除关键兼容入口。
 - `.env.example`、fixture、文档示例值和 secret scanning 风险复核完成。
 - README、当前审计、执行基线、release notes、安装文档、升级阻塞矩阵口径一致。
+- 生成并维护 `docs/releases/v3.0.0-rc.1.md`，作为第一轮 RC 候选清单。
 
 ## 阶段 4：稳定版前置
 

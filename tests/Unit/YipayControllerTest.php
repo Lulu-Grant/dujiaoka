@@ -100,7 +100,103 @@ class YipayControllerTest extends TestCase
         $this->assertSame('TRADE-SUCCESS', $order->trade_no);
     }
 
-    private function createYipayOrder(string $orderSn): Order
+    public function test_notify_url_rejects_amount_mismatch_without_side_effects(): void
+    {
+        $order = $this->createYipayOrder('YIPAY-AMOUNT-001');
+        $goods = $order->goods;
+
+        $response = app(YipayController::class)->notifyUrl(
+            Request::create('/pay/yipay/notify_url', 'GET', $this->signedPayload($order, 'TRADE-AMOUNT', '12'))
+        );
+
+        $order->refresh();
+        $goods->refresh();
+
+        $this->assertSame('fail', $response);
+        $this->assertSame(Order::STATUS_WAIT_PAY, $order->status);
+        $this->assertSame('', (string) $order->trade_no);
+        $this->assertSame(0, $goods->sales_volume);
+    }
+
+    public function test_notify_url_is_idempotent_for_duplicate_notification(): void
+    {
+        $order = $this->createYipayOrder('YIPAY-DUPLICATE-001');
+        $goods = $order->goods;
+        $payload = $this->signedPayload($order, 'TRADE-DUPLICATE', '10');
+
+        $firstResponse = app(YipayController::class)->notifyUrl(
+            Request::create('/pay/yipay/notify_url', 'GET', $payload)
+        );
+        $secondResponse = app(YipayController::class)->notifyUrl(
+            Request::create('/pay/yipay/notify_url', 'GET', $payload)
+        );
+
+        $order->refresh();
+        $goods->refresh();
+
+        $this->assertSame('success', $firstResponse);
+        $this->assertSame('success', $secondResponse);
+        $this->assertSame(Order::STATUS_PENDING, $order->status);
+        $this->assertSame('TRADE-DUPLICATE', $order->trade_no);
+        $this->assertSame(1, $goods->sales_volume);
+    }
+
+    public function test_notify_url_rejects_completed_order_with_different_trade_number(): void
+    {
+        $order = $this->createYipayOrder('YIPAY-COMPLETED-001', Order::STATUS_COMPLETED, 'TRADE-ORIGINAL', 3);
+        $goods = $order->goods;
+
+        $response = app(YipayController::class)->notifyUrl(
+            Request::create('/pay/yipay/notify_url', 'GET', $this->signedPayload($order, 'TRADE-DIFFERENT', '10'))
+        );
+
+        $order->refresh();
+        $goods->refresh();
+
+        $this->assertSame('fail', $response);
+        $this->assertSame(Order::STATUS_COMPLETED, $order->status);
+        $this->assertSame('TRADE-ORIGINAL', $order->trade_no);
+        $this->assertSame(3, $goods->sales_volume);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function signedPayload(Order $order, string $tradeNo, string $money): array
+    {
+        $payGateway = Pay::query()->findOrFail($order->pay_id);
+
+        $payload = [
+            'out_trade_no' => $order->order_sn,
+            'trade_no' => $tradeNo,
+            'money' => $money,
+            'sign_type' => 'MD5',
+        ];
+
+        $signSource = $payload;
+        ksort($signSource);
+        reset($signSource);
+        $sign = '';
+        foreach ($signSource as $key => $val) {
+            if ($key == 'sign' || $key == 'sign_type' || $val == '') {
+                continue;
+            }
+            if ($sign != '') {
+                $sign .= '&';
+            }
+            $sign .= "$key=$val";
+        }
+        $payload['sign'] = md5($sign . $payGateway->merchant_pem);
+
+        return $payload;
+    }
+
+    private function createYipayOrder(
+        string $orderSn,
+        int $status = Order::STATUS_WAIT_PAY,
+        string $tradeNo = '',
+        int $salesVolume = 0
+    ): Order
     {
         $group = GoodsGroup::query()->create([
             'gp_name' => 'Yipay Group ' . $orderSn,
@@ -115,7 +211,7 @@ class YipayControllerTest extends TestCase
             'gd_keywords' => 'yipay,product',
             'actual_price' => 10.00,
             'in_stock' => 10,
-            'sales_volume' => 0,
+            'sales_volume' => $salesVolume,
             'type' => BaseModel::MANUAL_PROCESSING,
             'is_open' => BaseModel::STATUS_OPEN,
         ]);
@@ -145,7 +241,8 @@ class YipayControllerTest extends TestCase
             'email' => 'buyer@example.com',
             'info' => 'account:demo-user',
             'buy_ip' => '127.0.0.1',
-            'status' => Order::STATUS_WAIT_PAY,
+            'status' => $status,
+            'trade_no' => $tradeNo,
         ]);
     }
 }

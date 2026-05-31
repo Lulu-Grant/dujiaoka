@@ -100,7 +100,11 @@ class PaymentCallbackService
             return $invalidSignatureResponse;
         }
 
-        $this->completeOrder($orderSN, $amount, $tradeNo);
+        try {
+            $this->completeOrder($orderSN, $amount, $tradeNo);
+        } catch (\Exception $exception) {
+            return $invalidSignatureResponse;
+        }
 
         return $successResponse;
     }

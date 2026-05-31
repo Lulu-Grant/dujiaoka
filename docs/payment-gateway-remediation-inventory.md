@@ -8,10 +8,10 @@
 
 | 网关 | 路由 | 当前状态 | 备注 |
 | --- | --- | --- | --- |
-| 官方支付宝 | `/pay/alipay` | 保留维护 | 继续通过 `AlipayNotificationService` 约束回调安全 |
-| 官方微信 | `/pay/wepay` | 保留维护 | 继续通过 `WepayNotificationService` 约束回调安全 |
-| 易支付 | `/pay/yipay` | 保留维护 | 复用 `PaymentCallbackService` 统一通知骨架 |
-| Epusdt | `/pay/epusdt` | 保留维护 | 复用 `PaymentCallbackService` 统一通知骨架，作为当前 USDT 通道 |
+| 官方支付宝 | `/pay/alipay` | 保留维护，异常路径已补强 | 通过 `AlipayNotificationService` 约束回调安全 |
+| 官方微信 | `/pay/wepay` | 保留维护，异常路径已补强 | 通过 `WepayNotificationService` 约束回调安全 |
+| 易支付 | `/pay/yipay` | 保留维护，异常路径已补强 | 复用 `PaymentCallbackService` 统一通知骨架 |
+| Epusdt | `/pay/epusdt` | 保留维护，异常路径已补强 | 复用 `PaymentCallbackService` 统一通知骨架，作为当前 USDT 通道 |
 
 ## 已退役通道
 
@@ -38,11 +38,11 @@
 
 ## 下一步默认动作
 
-1. 继续补保留通道的异常路径测试：重复通知、签名失败、金额不一致、已完成订单重复推进、异常路径不触发履约。
-2. 复查保留通道的配置输入面，避免批量动作触碰密钥、商户号和支付路由。
+1. 继续复查保留通道的配置输入面，避免批量动作触碰密钥、商户号和支付路由。
+2. 保持异常路径测试随回调实现同步更新。
 3. 在 release 文档中持续标明退役通道范围，避免后续回流。
 
-## beta.1 支付安全验收口径
+## beta.2 支付安全验收口径
 
 - 支付完成入口重复通知不重复履约、不重复加销量、不重复派发副作用。
 - 金额不一致、签名失败或网关异常时，订单不得从待支付推进到完成。

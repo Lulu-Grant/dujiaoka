@@ -85,7 +85,124 @@ class WepayNotificationServiceTest extends TestCase
         $this->assertSame('WEPAY-TRADE-001', $order->trade_no);
     }
 
-    private function createWepayOrder(string $orderSn): Order
+    public function test_handle_notification_rejects_verification_exception_without_side_effects(): void
+    {
+        $order = $this->createWepayOrder('WEPAY-SIGNATURE-001');
+        $goods = $order->goods;
+
+        $service = new class extends WepayNotificationService {
+            protected function buildPayClient(string $appId, string $mchId, string $key)
+            {
+                return new \stdClass();
+            }
+
+            protected function verifyNotification($pay)
+            {
+                throw new \Exception('invalid signature');
+            }
+        };
+
+        $response = $service->handleNotification($order->order_sn);
+
+        $order->refresh();
+        $goods->refresh();
+
+        $this->assertSame('fail', $response);
+        $this->assertSame(Order::STATUS_WAIT_PAY, $order->status);
+        $this->assertSame('', (string) $order->trade_no);
+        $this->assertSame(0, $goods->sales_volume);
+    }
+
+    public function test_handle_notification_rejects_amount_mismatch_without_side_effects(): void
+    {
+        $order = $this->createWepayOrder('WEPAY-AMOUNT-001');
+        $goods = $order->goods;
+        $service = $this->wepayServiceForResult('WEPAY-AMOUNT-001', '1200', 'WEPAY-TRADE-AMOUNT');
+
+        $response = $service->handleNotification($order->order_sn);
+
+        $order->refresh();
+        $goods->refresh();
+
+        $this->assertSame('fail', $response);
+        $this->assertSame(Order::STATUS_WAIT_PAY, $order->status);
+        $this->assertSame('', (string) $order->trade_no);
+        $this->assertSame(0, $goods->sales_volume);
+    }
+
+    public function test_handle_notification_is_idempotent_for_duplicate_notification(): void
+    {
+        $order = $this->createWepayOrder('WEPAY-DUPLICATE-001');
+        $goods = $order->goods;
+        $service = $this->wepayServiceForResult('WEPAY-DUPLICATE-001', '1000', 'WEPAY-TRADE-DUPLICATE');
+
+        $firstResponse = $service->handleNotification($order->order_sn);
+        $secondResponse = $service->handleNotification($order->order_sn);
+
+        $order->refresh();
+        $goods->refresh();
+
+        $this->assertSame('success', $firstResponse);
+        $this->assertSame('success', $secondResponse);
+        $this->assertSame(Order::STATUS_PENDING, $order->status);
+        $this->assertSame('WEPAY-TRADE-DUPLICATE', $order->trade_no);
+        $this->assertSame(1, $goods->sales_volume);
+    }
+
+    public function test_handle_notification_rejects_completed_order_with_different_trade_number(): void
+    {
+        $order = $this->createWepayOrder('WEPAY-COMPLETED-001', Order::STATUS_COMPLETED, 'WEPAY-TRADE-ORIGINAL', 3);
+        $goods = $order->goods;
+        $service = $this->wepayServiceForResult('WEPAY-COMPLETED-001', '1000', 'WEPAY-TRADE-DIFFERENT');
+
+        $response = $service->handleNotification($order->order_sn);
+
+        $order->refresh();
+        $goods->refresh();
+
+        $this->assertSame('fail', $response);
+        $this->assertSame(Order::STATUS_COMPLETED, $order->status);
+        $this->assertSame('WEPAY-TRADE-ORIGINAL', $order->trade_no);
+        $this->assertSame(3, $goods->sales_volume);
+    }
+
+    private function wepayServiceForResult(string $orderSn, string $totalFee, string $tradeNo): WepayNotificationService
+    {
+        return new class($orderSn, $totalFee, $tradeNo) extends WepayNotificationService {
+            private $orderSn;
+            private $totalFee;
+            private $tradeNo;
+
+            public function __construct(string $orderSn, string $totalFee, string $tradeNo)
+            {
+                $this->orderSn = $orderSn;
+                $this->totalFee = $totalFee;
+                $this->tradeNo = $tradeNo;
+                parent::__construct();
+            }
+
+            protected function buildPayClient(string $appId, string $mchId, string $key)
+            {
+                return new \stdClass();
+            }
+
+            protected function verifyNotification($pay)
+            {
+                return (object) [
+                    'out_trade_no' => $this->orderSn,
+                    'total_fee' => $this->totalFee,
+                    'transaction_id' => $this->tradeNo,
+                ];
+            }
+        };
+    }
+
+    private function createWepayOrder(
+        string $orderSn,
+        int $status = Order::STATUS_WAIT_PAY,
+        string $tradeNo = '',
+        int $salesVolume = 0
+    ): Order
     {
         $group = GoodsGroup::query()->create([
             'gp_name' => 'Wepay Group ' . $orderSn,
@@ -100,7 +217,7 @@ class WepayNotificationServiceTest extends TestCase
             'gd_keywords' => 'wepay,product',
             'actual_price' => 10.00,
             'in_stock' => 10,
-            'sales_volume' => 0,
+            'sales_volume' => $salesVolume,
             'type' => BaseModel::MANUAL_PROCESSING,
             'is_open' => BaseModel::STATUS_OPEN,
         ]);
@@ -131,7 +248,8 @@ class WepayNotificationServiceTest extends TestCase
             'email' => 'buyer@example.com',
             'info' => 'account:demo-user',
             'buy_ip' => '127.0.0.1',
-            'status' => Order::STATUS_WAIT_PAY,
+            'status' => $status,
+            'trade_no' => $tradeNo,
         ]);
     }
 }

@@ -86,7 +86,125 @@ class AlipayNotificationServiceTest extends TestCase
         $this->assertSame('ALIPAY-TRADE-001', $order->trade_no);
     }
 
-    private function createAlipayOrder(string $orderSn): Order
+    public function test_handle_notification_rejects_verification_exception_without_side_effects(): void
+    {
+        $order = $this->createAlipayOrder('ALIPAY-SIGNATURE-001');
+        $goods = $order->goods;
+
+        $service = new class extends AlipayNotificationService {
+            protected function buildPayClient(string $appId, string $publicKey, string $privateKey)
+            {
+                return new \stdClass();
+            }
+
+            protected function verifyNotification($pay)
+            {
+                throw new \Exception('invalid signature');
+            }
+        };
+
+        $response = $service->handleNotification($order->order_sn);
+
+        $order->refresh();
+        $goods->refresh();
+
+        $this->assertSame('fail', $response);
+        $this->assertSame(Order::STATUS_WAIT_PAY, $order->status);
+        $this->assertSame('', (string) $order->trade_no);
+        $this->assertSame(0, $goods->sales_volume);
+    }
+
+    public function test_handle_notification_rejects_amount_mismatch_without_side_effects(): void
+    {
+        $order = $this->createAlipayOrder('ALIPAY-AMOUNT-001');
+        $goods = $order->goods;
+        $service = $this->alipayServiceForResult('ALIPAY-AMOUNT-001', '12.00', 'ALIPAY-TRADE-AMOUNT');
+
+        $response = $service->handleNotification($order->order_sn);
+
+        $order->refresh();
+        $goods->refresh();
+
+        $this->assertSame('fail', $response);
+        $this->assertSame(Order::STATUS_WAIT_PAY, $order->status);
+        $this->assertSame('', (string) $order->trade_no);
+        $this->assertSame(0, $goods->sales_volume);
+    }
+
+    public function test_handle_notification_is_idempotent_for_duplicate_notification(): void
+    {
+        $order = $this->createAlipayOrder('ALIPAY-DUPLICATE-001');
+        $goods = $order->goods;
+        $service = $this->alipayServiceForResult('ALIPAY-DUPLICATE-001', '10.00', 'ALIPAY-TRADE-DUPLICATE');
+
+        $firstResponse = $service->handleNotification($order->order_sn);
+        $secondResponse = $service->handleNotification($order->order_sn);
+
+        $order->refresh();
+        $goods->refresh();
+
+        $this->assertSame('success', $firstResponse);
+        $this->assertSame('success', $secondResponse);
+        $this->assertSame(Order::STATUS_PENDING, $order->status);
+        $this->assertSame('ALIPAY-TRADE-DUPLICATE', $order->trade_no);
+        $this->assertSame(1, $goods->sales_volume);
+    }
+
+    public function test_handle_notification_rejects_completed_order_with_different_trade_number(): void
+    {
+        $order = $this->createAlipayOrder('ALIPAY-COMPLETED-001', Order::STATUS_COMPLETED, 'ALIPAY-TRADE-ORIGINAL', 3);
+        $goods = $order->goods;
+        $service = $this->alipayServiceForResult('ALIPAY-COMPLETED-001', '10.00', 'ALIPAY-TRADE-DIFFERENT');
+
+        $response = $service->handleNotification($order->order_sn);
+
+        $order->refresh();
+        $goods->refresh();
+
+        $this->assertSame('fail', $response);
+        $this->assertSame(Order::STATUS_COMPLETED, $order->status);
+        $this->assertSame('ALIPAY-TRADE-ORIGINAL', $order->trade_no);
+        $this->assertSame(3, $goods->sales_volume);
+    }
+
+    private function alipayServiceForResult(string $orderSn, string $amount, string $tradeNo): AlipayNotificationService
+    {
+        return new class($orderSn, $amount, $tradeNo) extends AlipayNotificationService {
+            private $orderSn;
+            private $amount;
+            private $tradeNo;
+
+            public function __construct(string $orderSn, string $amount, string $tradeNo)
+            {
+                $this->orderSn = $orderSn;
+                $this->amount = $amount;
+                $this->tradeNo = $tradeNo;
+                parent::__construct();
+            }
+
+            protected function buildPayClient(string $appId, string $publicKey, string $privateKey)
+            {
+                return new \stdClass();
+            }
+
+            protected function verifyNotification($pay)
+            {
+                return (object) [
+                    'trade_status' => 'TRADE_SUCCESS',
+                    'out_trade_no' => $this->orderSn,
+                    'total_amount' => $this->amount,
+                    'trade_no' => $this->tradeNo,
+                ];
+            }
+        };
+    }
+
+    private function createAlipayOrder(
+        string $orderSn,
+        int $status = Order::STATUS_WAIT_PAY,
+        string $tradeNo = '',
+        int $salesVolume = 0
+    ): Order
     {
         $group = GoodsGroup::query()->create([
             'gp_name' => 'Alipay Group ' . $orderSn,
@@ -101,7 +219,7 @@ class AlipayNotificationServiceTest extends TestCase
             'gd_keywords' => 'alipay,product',
             'actual_price' => 10.00,
             'in_stock' => 10,
-            'sales_volume' => 0,
+            'sales_volume' => $salesVolume,
             'type' => BaseModel::MANUAL_PROCESSING,
             'is_open' => BaseModel::STATUS_OPEN,
         ]);
@@ -132,7 +250,8 @@ class AlipayNotificationServiceTest extends TestCase
             'email' => 'buyer@example.com',
             'info' => 'account:demo-user',
             'buy_ip' => '127.0.0.1',
-            'status' => Order::STATUS_WAIT_PAY,
+            'status' => $status,
+            'trade_no' => $tradeNo,
         ]);
     }
 }

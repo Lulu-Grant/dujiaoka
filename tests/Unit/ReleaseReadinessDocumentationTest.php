@@ -11,6 +11,7 @@ class ReleaseReadinessDocumentationTest extends TestCase
         foreach ([
             'docs/releases/v3.0.0-beta.1.md',
             'docs/releases/v3.0.0-rc.md',
+            'docs/releases/v3.0.0-rc.1.md',
             'docs/releases/v3.0.0-stable-readiness.md',
         ] as $relativePath) {
             $contents = file_get_contents(base_path($relativePath));

@@ -84,6 +84,82 @@ class EpusdtControllerTest extends TestCase
         $this->assertSame('TRADE-SUCCESS', $order->trade_no);
     }
 
+    public function test_notify_url_rejects_amount_mismatch_without_side_effects(): void
+    {
+        $order = $this->createEpusdtOrder('EPUSDT-AMOUNT-001');
+        $goods = $order->goods;
+
+        $response = app(EpusdtController::class)->notifyUrl(
+            Request::create('/pay/epusdt/notify_url', 'POST', $this->signedPayload($order, 'TRADE-AMOUNT', '12'))
+        );
+
+        $order->refresh();
+        $goods->refresh();
+
+        $this->assertSame('fail', $response);
+        $this->assertSame(Order::STATUS_WAIT_PAY, $order->status);
+        $this->assertSame('', (string) $order->trade_no);
+        $this->assertSame(0, $goods->sales_volume);
+    }
+
+    public function test_notify_url_is_idempotent_for_duplicate_notification(): void
+    {
+        $order = $this->createEpusdtOrder('EPUSDT-DUPLICATE-001');
+        $goods = $order->goods;
+        $payload = $this->signedPayload($order, 'TRADE-DUPLICATE', '10');
+
+        $firstResponse = app(EpusdtController::class)->notifyUrl(
+            Request::create('/pay/epusdt/notify_url', 'POST', $payload)
+        );
+        $secondResponse = app(EpusdtController::class)->notifyUrl(
+            Request::create('/pay/epusdt/notify_url', 'POST', $payload)
+        );
+
+        $order->refresh();
+        $goods->refresh();
+
+        $this->assertSame('ok', $firstResponse);
+        $this->assertSame('ok', $secondResponse);
+        $this->assertSame(Order::STATUS_PENDING, $order->status);
+        $this->assertSame('TRADE-DUPLICATE', $order->trade_no);
+        $this->assertSame(1, $goods->sales_volume);
+    }
+
+    public function test_notify_url_rejects_completed_order_with_different_trade_number(): void
+    {
+        $order = $this->createEpusdtOrder('EPUSDT-COMPLETED-001', Order::STATUS_COMPLETED, 'TRADE-ORIGINAL', 3);
+        $goods = $order->goods;
+
+        $response = app(EpusdtController::class)->notifyUrl(
+            Request::create('/pay/epusdt/notify_url', 'POST', $this->signedPayload($order, 'TRADE-DIFFERENT', '10'))
+        );
+
+        $order->refresh();
+        $goods->refresh();
+
+        $this->assertSame('fail', $response);
+        $this->assertSame(Order::STATUS_COMPLETED, $order->status);
+        $this->assertSame('TRADE-ORIGINAL', $order->trade_no);
+        $this->assertSame(3, $goods->sales_volume);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function signedPayload(Order $order, string $tradeNo, string $amount): array
+    {
+        $payGateway = Pay::query()->findOrFail($order->pay_id);
+
+        $payload = [
+            'order_id' => $order->order_sn,
+            'amount' => $amount,
+            'trade_id' => $tradeNo,
+        ];
+        $payload['signature'] = $this->epusdtSignature($payload, $payGateway->merchant_id);
+
+        return $payload;
+    }
+
     private function epusdtSignature(array $parameter, string $signKey): string
     {
         ksort($parameter);
@@ -104,7 +180,12 @@ class EpusdtControllerTest extends TestCase
         return md5($sign . $signKey);
     }
 
-    private function createEpusdtOrder(string $orderSn): Order
+    private function createEpusdtOrder(
+        string $orderSn,
+        int $status = Order::STATUS_WAIT_PAY,
+        string $tradeNo = '',
+        int $salesVolume = 0
+    ): Order
     {
         $group = GoodsGroup::query()->create([
             'gp_name' => 'Epusdt Group ' . $orderSn,
@@ -119,7 +200,7 @@ class EpusdtControllerTest extends TestCase
             'gd_keywords' => 'epusdt,product',
             'actual_price' => 10.00,
             'in_stock' => 10,
-            'sales_volume' => 0,
+            'sales_volume' => $salesVolume,
             'type' => BaseModel::MANUAL_PROCESSING,
             'is_open' => BaseModel::STATUS_OPEN,
         ]);
@@ -149,7 +230,8 @@ class EpusdtControllerTest extends TestCase
             'email' => 'buyer@example.com',
             'info' => 'account:demo-user',
             'buy_ip' => '127.0.0.1',
-            'status' => Order::STATUS_WAIT_PAY,
+            'status' => $status,
+            'trade_no' => $tradeNo,
         ]);
     }
 }

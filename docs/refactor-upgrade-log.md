@@ -128,6 +128,37 @@
 
 - 继续补保留通道的异常路径测试，并保持退役通道不恢复到路由、依赖或样例种子。
 
+### 208. beta.2 保留支付通道异常路径补强
+
+摘要：
+
+- [PaymentCallbackService.php](/Users/apple/Documents/dujiaoshuka/app/Service/PaymentCallbackService.php) 对支付完成异常增加失败响应兜底，避免金额不一致或重复推进异常冒泡成未受控响应。
+- 扩展官方支付宝、官方微信、易支付和 Epusdt 的回调测试，覆盖签名失败、金额不一致、重复通知、已完成订单不同交易号重复推进和异常不触发履约。
+- 新增 [PaymentGatewayRetirementReadinessTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/PaymentGatewayRetirementReadinessTest.php)，固定退役通道不得回到路由、Composer、样例种子或当前实现文件。
+- 新增 [v3.0.0-rc.1.md](/Users/apple/Documents/dujiaoshuka/docs/releases/v3.0.0-rc.1.md)，把 RC 候选冻结、搜索复核和发布前验证命令固化。
+
+影响范围：
+
+- 本轮不新增支付通道，不修改支付回调 URL 语义。
+- 保留支付通道的异常路径从“部分覆盖”推进到“按当前维护范围系统覆盖”。
+- 退役通道继续保持不可恢复到当前代码主路径。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/YipayControllerTest.php` 通过，结果为 `OK (5 tests, 17 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/EpusdtControllerTest.php` 通过，结果为 `OK (5 tests, 17 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/AlipayNotificationServiceTest.php` 通过，结果为 `OK (6 tests, 21 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/WepayNotificationServiceTest.php` 通过，结果为 `OK (6 tests, 21 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/PaymentGatewayRetirementReadinessTest.php` 通过，结果为 `OK (3 tests, 27 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (382 tests, 2464 assertions)`。
+- `./scripts/composer74 install --no-interaction --no-progress` 通过，当前只剩 `swiftmailer/swiftmailer` 与 `symfony/debug` abandoned 提示。
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过。
+- `git diff --check` 通过。
+
+下一步：
+
+- 执行 Composer install、后台 smoke、RC 搜索复核和 `git diff --check`，完成 beta.2 支付安全收口提交。
+
 ## 2026-05-30 阶段日志
 
 ### 202. Dcat 最小兼容层审计与旧入口覆盖补强
