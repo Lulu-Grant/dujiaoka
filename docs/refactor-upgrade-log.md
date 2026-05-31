@@ -33,9 +33,9 @@
 
 - `sh scripts/composer81-docker check-platform-reqs` 通过。
 - `sh scripts/php81-docker artisan migrate:status --no-ansi` 通过。
-- `sh scripts/php81-docker vendor/bin/phpunit --configuration phpunit.php81.xml` 通过，结果为 `OK (413 tests, 4245 assertions)`。
+- `sh scripts/php81-docker vendor/bin/phpunit --configuration phpunit.php81.xml` 通过，结果为 `OK (414 tests, 4254 assertions)`。
 - `APP_URL=http://127.0.0.1:8031 ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 在 PHP 8.1 Docker Web 服务下通过。
-- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (413 tests, 4245 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (414 tests, 4254 assertions)`。
 - `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过。
 
 下一步：
@@ -67,6 +67,38 @@
 下一步：
 
 - 在独立实验分支中先处理 dev 工具链：`facade/ignition`、`nunomaduro/collision`、`fakerphp/faker`、`mockery/mockery`。
+
+### 222. Laravel 7 桥接实验通过
+
+摘要：
+
+- 在 `codex/laravel7-bridge-experiment` 分支将 `laravel/framework` 升级到 `^7.30`，当前解析版本为 `7.30.7`。
+- 升级 dev 工具链：`facade/ignition ^2.17`、`nunomaduro/collision ^4.3`、`fakerphp/faker ^1.24`、`mockery/mockery ^1.6`。
+- 将 `ramsey/uuid` 固定为 `4.7.6`、`brick/math` 固定为 `^0.12`、`psr/log` 固定为 `^1.1`，避免 PHP 8-only 语法破坏 PHP 7.4 可验证性。
+- 将 Symfony contracts / string / translation 约束在 5.4 / 2.5 范围，保持 Laravel 7 与 PHP 7.4 / 8.1 双运行时可测。
+- 调整 [Handler.php](/Users/apple/Documents/dujiaoshuka/app/Exceptions/Handler.php) 到 Laravel 7 的 `Throwable` 签名。
+- 调整 [AdminShellPayControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellPayControllerTest.php) 的 CSV 断言，适配 Laravel 7 测试响应默认转义行为。
+
+影响范围：
+
+- 本轮为实验分支升级，不改变主线 beta / RC 发布口径。
+- Dcat 兼容关键文件未删除。
+- 支付回调 URL 语义未修改。
+- 退役支付通道未恢复。
+
+验证：
+
+- `sh scripts/composer81-docker check-platform-reqs` 通过。
+- `sh scripts/php81-docker artisan migrate:status --no-ansi` 通过，显示 Laravel Framework `7.30.7`。
+- `./scripts/php74 artisan migrate:status --no-ansi` 通过，显示 Laravel Framework `7.30.7`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (414 tests, 4254 assertions)`。
+- `sh scripts/php81-docker vendor/bin/phpunit --configuration phpunit.php81.xml` 通过，结果为 `OK (414 tests, 4254 assertions)`。
+- PHP 7.4 后台 smoke 通过。
+- PHP 8.1 Docker Web 后台 smoke 通过。
+
+下一步：
+
+- 在 Laravel 7 实验分支继续评估 Dcat 登录、权限白名单和旧入口兼容层，确认是否存在隐藏运行时问题。
 
 ## 2026-05-31 阶段日志
 
