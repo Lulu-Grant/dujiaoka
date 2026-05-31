@@ -237,6 +237,29 @@
 
 - 继续 RC 前文档一致性与候选冻结检查，优先保持 README、当前审计、进度总汇、release notes 和执行基线口径一致。
 
+### 212. 依赖阻塞矩阵测试护栏补齐
+
+摘要：
+
+- 更新 [dependency-blocker-matrix.md](/Users/apple/Documents/dujiaoshuka/docs/dependency-blocker-matrix.md)，把 `laravel/framework 6.20.*` 明确列为 P0 运行时基线阻塞，并固定 beta.2 不直接跳 Laravel 大版本、先做 PHP 小步兼容实验的口径。
+- 新增 [DependencyBlockerMatrixTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/DependencyBlockerMatrixTest.php)，固定当前直接阻塞依赖、退役支付 SDK 状态、beta.2 实验命令集和 Composer abandoned 提示必须在矩阵中保持可追踪。
+- README、当前进度总汇、当前基线审计和执行基线同步最新测试数字。
+
+影响范围：
+
+- 本轮只补升级前清障文档与测试护栏，不升级 Laravel / PHP，不改 Composer 依赖。
+- PayPal、Stripe、PayJS 继续保持退役依赖状态，不进入当前维护范围。
+- beta.2 升级实验仍以当前 PHP 7.4 工具链、migration、全量 PHPUnit 和后台 smoke 可重复执行为前置。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/DependencyBlockerMatrixTest.php` 通过，结果为 `OK (3 tests, 28 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (395 tests, 2584 assertions)`。
+
+下一步：
+
+- 继续做 RC 前最终文档一致性搜索，确认 README、当前审计、进度总汇、执行基线、release notes 和升级阻塞矩阵使用同一阶段口径。
+
 ## 2026-05-30 阶段日志
 
 ### 202. Dcat 最小兼容层审计与旧入口覆盖补强
