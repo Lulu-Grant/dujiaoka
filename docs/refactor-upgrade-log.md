@@ -399,6 +399,31 @@
 
 - 执行 `git diff --check`、Composer install 和后台 smoke，完成支付回调安全状态收口提交。
 
+### 219. 当前进度口径推进到 RC / stable-ready 前置
+
+摘要：
+
+- 更新 [current-progress-super-summary.md](/Users/apple/Documents/dujiaoshuka/docs/current-progress-super-summary.md)、[current-baseline-audit.md](/Users/apple/Documents/dujiaoshuka/docs/current-baseline-audit.md) 和 [execution-baseline.md](/Users/apple/Documents/dujiaoshuka/docs/execution-baseline.md)，把当前阶段从旧 `82%` / beta.1 扩容口径推进为约 `90%`、RC 冻结期和 stable-ready 前置期。
+- 新增 [CurrentProgressDocumentationTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/CurrentProgressDocumentationTest.php)，固定当前进度文档必须包含 RC、stable-ready 和最新 PHPUnit 基线，并禁止回退到旧进度百分比、beta.1 收口和后台壳继续扩容口径。
+- README、RC.1、stable-ready 和发布稳定路线图同步最新测试数字。
+
+影响范围：
+
+- 本轮只更新当前状态文档和文档护栏测试，不修改后台、支付、安装或路由业务逻辑。
+- 后续推进默认进入 RC / stable-ready 冻结维护：不新增后台批量动作、不恢复退役支付通道、不混入 Laravel / PHP 大版本升级。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/CurrentProgressDocumentationTest.php` 通过，结果为 `OK (2 tests, 30 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (405 tests, 2674 assertions)`。
+- `git diff --check` 通过。
+- `./scripts/composer74 install --no-interaction --no-progress` 通过。
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过。
+
+下一步：
+
+- 保持 RC / stable-ready 冻结维护，后续只接收回归、安全、文档一致性和测试补强。
+
 ## 2026-05-30 阶段日志
 
 ### 202. Dcat 最小兼容层审计与旧入口覆盖补强
