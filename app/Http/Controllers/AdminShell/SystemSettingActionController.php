@@ -348,7 +348,7 @@ class SystemSettingActionController extends Controller
             'server_jiang_token' => ['nullable', 'string', 'max:255'],
             'telegram_bot_token' => ['nullable', 'string', 'max:255'],
             'telegram_userid' => ['nullable', 'string', 'max:255'],
-            'bark_server' => ['nullable', 'string', 'max:255'],
+            'bark_server' => ['nullable', 'url', 'max:255'],
             'bark_token' => ['nullable', 'string', 'max:255'],
             'qywxbot_key' => ['nullable', 'string', 'max:255'],
         ]);

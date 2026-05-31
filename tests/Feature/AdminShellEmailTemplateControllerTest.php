@@ -188,6 +188,21 @@ class AdminShellEmailTemplateControllerTest extends TestCase
         $response->assertSessionHas('status', '邮件模板已创建');
     }
 
+    public function test_create_page_rejects_oversized_email_template_content(): void
+    {
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->from('/admin/v2/emailtpl/create')
+            ->post('/admin/v2/emailtpl/create', [
+                'tpl_name' => '超长模板',
+                'tpl_token' => 'shell-template-too-long',
+                'tpl_content' => str_repeat('A', 65536),
+            ]);
+
+        $response->assertRedirect('/admin/v2/emailtpl/create');
+        $response->assertSessionHasErrors(['tpl_content']);
+        $this->assertNull(DB::table('emailtpls')->where('tpl_token', 'shell-template-too-long')->first());
+    }
+
     public function test_edit_page_renders_email_template_action_form(): void
     {
         DB::table('emailtpls')->insert([
@@ -261,6 +276,33 @@ class AdminShellEmailTemplateControllerTest extends TestCase
         $this->assertSame('模板 C 已更新', $record->tpl_name);
         $this->assertSame('更新后的模板内容', $record->tpl_content);
         $this->assertSame('shell-template-c', $record->tpl_token);
+    }
+
+    public function test_edit_page_rejects_oversized_email_template_content_without_overwriting(): void
+    {
+        DB::table('emailtpls')->insert([
+            'id' => 92006,
+            'tpl_name' => '模板 G',
+            'tpl_content' => '原始模板内容',
+            'tpl_token' => 'shell-template-g',
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->from('/admin/v2/emailtpl/92006/edit')
+            ->post('/admin/v2/emailtpl/92006/edit', [
+                'tpl_name' => '模板 G 超长',
+                'tpl_content' => str_repeat('B', 65536),
+            ]);
+
+        $response->assertRedirect('/admin/v2/emailtpl/92006/edit');
+        $response->assertSessionHasErrors(['tpl_content']);
+
+        $record = DB::table('emailtpls')->where('id', 92006)->first();
+        $this->assertSame('模板 G', $record->tpl_name);
+        $this->assertSame('原始模板内容', $record->tpl_content);
     }
 
     private function makeAdmin(): Administrator

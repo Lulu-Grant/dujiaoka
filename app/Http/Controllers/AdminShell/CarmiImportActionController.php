@@ -52,8 +52,8 @@ class CarmiImportActionController extends Controller
     public function store(Request $request)
     {
         $payload = $request->validate([
-            'goods_id' => ['required', 'integer', 'min:1'],
-            'carmis_list' => ['nullable', 'string'],
+            'goods_id' => ['required', 'integer', 'min:1', 'exists:goods,id'],
+            'carmis_list' => ['nullable', 'string', 'max:200000'],
             'carmis_txt' => ['nullable', 'file', 'mimes:txt', 'max:5120'],
         ]);
 

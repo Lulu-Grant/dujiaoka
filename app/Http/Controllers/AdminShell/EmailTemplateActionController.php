@@ -61,7 +61,7 @@ class EmailTemplateActionController extends Controller
         $payload = $request->validate([
             'tpl_name' => ['required', 'string', 'max:255'],
             'tpl_token' => ['required', 'string', 'max:255', Rule::unique('emailtpls', 'tpl_token')],
-            'tpl_content' => ['required', 'string'],
+            'tpl_content' => ['required', 'string', 'max:65535'],
         ]);
 
         $template = $this->emailTemplateActionService->create($payload);
@@ -110,7 +110,7 @@ class EmailTemplateActionController extends Controller
 
         $payload = $request->validate([
             'tpl_name' => ['required', 'string', 'max:255'],
-            'tpl_content' => ['required', 'string'],
+            'tpl_content' => ['required', 'string', 'max:65535'],
         ]);
 
         $this->emailTemplateActionService->update($template, $payload);

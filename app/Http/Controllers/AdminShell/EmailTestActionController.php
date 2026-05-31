@@ -42,7 +42,7 @@ class EmailTestActionController extends Controller
         $payload = $request->validate([
             'to' => ['required', 'email'],
             'title' => ['required', 'string', 'max:200'],
-            'body' => ['required', 'string'],
+            'body' => ['required', 'string', 'max:10000'],
         ]);
 
         $this->emailTestSendService->send($payload);

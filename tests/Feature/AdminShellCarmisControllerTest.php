@@ -393,6 +393,19 @@ class AdminShellCarmisControllerTest extends TestCase
         $this->assertSame(2, DB::table('carmis')->where('goods_id', 95001)->whereIn('carmi', ['CARD-NEW-001', 'CARD-NEW-002'])->count());
     }
 
+    public function test_import_page_rejects_missing_goods_and_oversized_text_input(): void
+    {
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->from('/admin/v2/carmis/import')
+            ->post('/admin/v2/carmis/import', [
+                'goods_id' => 999999,
+                'carmis_list' => str_repeat('A', 200001),
+            ]);
+
+        $response->assertRedirect('/admin/v2/carmis/import');
+        $response->assertSessionHasErrors(['goods_id', 'carmis_list']);
+    }
+
     public function test_import_page_can_import_carmis_from_uploaded_file(): void
     {
         $this->seedCarmiFixture(95001, '测试商品卡密 A', 'CARD-AAA-001');

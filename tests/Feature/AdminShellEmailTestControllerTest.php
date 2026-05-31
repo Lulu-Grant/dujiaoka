@@ -100,6 +100,22 @@ class AdminShellEmailTestControllerTest extends TestCase
         $response->assertSessionHas('status', '发送成功');
     }
 
+    public function test_send_page_rejects_invalid_recipient_and_oversized_body(): void
+    {
+        Mail::fake();
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->from('/admin/v2/email-test/send')
+            ->post('/admin/v2/email-test/send', [
+                'to' => 'not-an-email',
+                'title' => '测试邮件标题',
+                'body' => str_repeat('A', 10001),
+            ]);
+
+        $response->assertRedirect('/admin/v2/email-test/send');
+        $response->assertSessionHasErrors(['to', 'body']);
+    }
+
     private function makeAdmin(): Administrator
     {
         DB::table('admin_users')->updateOrInsert(

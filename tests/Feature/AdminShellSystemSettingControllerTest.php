@@ -339,6 +339,25 @@ class AdminShellSystemSettingControllerTest extends TestCase
         $this->assertSame('qywx-key', $settings['qywxbot_key']);
     }
 
+    public function test_push_edit_page_rejects_invalid_bark_server_url(): void
+    {
+        Cache::forget(SystemSettingService::CACHE_KEY);
+
+        $response = $this->actingAs($this->makeAdmin(), 'admin')
+            ->from('/admin/v2/system-setting/push')
+            ->post('/admin/v2/system-setting/push', [
+                'is_open_bark_push' => '1',
+                'bark_server' => 'not-a-url',
+                'bark_token' => 'bark-token',
+            ]);
+
+        $response->assertRedirect('/admin/v2/system-setting/push');
+        $response->assertSessionHasErrors(['bark_server']);
+
+        $settings = app(SystemSettingService::class)->all();
+        $this->assertNotSame('not-a-url', $settings['bark_server'] ?? null);
+    }
+
     public function test_experience_edit_page_renders_shell_action_form(): void
     {
         Cache::forever(SystemSettingService::CACHE_KEY, [

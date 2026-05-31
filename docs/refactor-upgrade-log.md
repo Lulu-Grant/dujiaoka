@@ -159,6 +159,37 @@
 
 - 执行 Composer install、后台 smoke、RC 搜索复核和 `git diff --check`，完成 beta.2 支付安全收口提交。
 
+### 209. RC 前输入面安全边界补强
+
+摘要：
+
+- [CarmiImportActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/CarmiImportActionController.php) 增加导入目标商品存在性校验和粘贴文本大小上限，继续保留 txt 文件类型与大小限制。
+- [EmailTemplateActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/EmailTemplateActionController.php) 增加邮件模板内容长度上限，避免后台模板输入无限扩大。
+- [EmailTestActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/EmailTestActionController.php) 增加测试邮件正文长度上限，并继续校验收件人邮箱。
+- [SystemSettingActionController.php](/Users/apple/Documents/dujiaoshuka/app/Http/Controllers/AdminShell/SystemSettingActionController.php) 对 Bark 服务器增加 URL 校验，避免明显错误通知地址落库。
+- 扩展卡密导入、邮件模板、邮件测试和系统推送配置 Feature 测试，固定输入边界和失败时不写入行为。
+
+影响范围：
+
+- 本轮只补后台输入边界和测试，不新增后台动作。
+- 现有正常导入、模板编辑、测试邮件和通知配置流程保持不变。
+- 安全专项中上传输入、模板输入、邮件发送和通知配置从“需补强/后置复核”推进到“已处理，继续维护”。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellCarmisControllerTest.php` 通过，结果为 `OK (23 tests, 138 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellSystemSettingControllerTest.php` 通过，结果为 `OK (19 tests, 119 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellEmailTemplateControllerTest.php` 通过，结果为 `OK (13 tests, 86 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit tests/Feature/AdminShellEmailTestControllerTest.php` 通过，结果为 `OK (5 tests, 21 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (387 tests, 2490 assertions)`。
+- `./scripts/composer74 install --no-interaction --no-progress` 通过，当前只剩 `swiftmailer/swiftmailer` 与 `symfony/debug` abandoned 提示。
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过。
+- `git diff --check` 通过。
+
+下一步：
+
+- 继续做 RC 搜索复核和文档一致性检查，准备进入 `v3.0.0-rc.1` 候选冻结。
+
 ## 2026-05-30 阶段日志
 
 ### 202. Dcat 最小兼容层审计与旧入口覆盖补强
