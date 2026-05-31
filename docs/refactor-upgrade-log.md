@@ -499,6 +499,31 @@
 
 - 继续保持 RC / stable-ready 冻结维护，后续优先复核远端 CI 与最终发版分支。
 
+### 223. CI action 运行时升级到 Node 24 系列
+
+摘要：
+
+- 更新 [.github/workflows/ci.yml](/Users/apple/Documents/dujiaoshuka/.github/workflows/ci.yml)，将 `actions/checkout@v4` 升级为 `actions/checkout@v6`，将 `actions/cache@v4` 升级为 `actions/cache@v5`。
+- 扩展 [CiWorkflowReadinessTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/CiWorkflowReadinessTest.php)，固定 CI 必须使用 Node 24 系列 action，并禁止回退到 `actions/checkout@v4` 和 `actions/cache@v4`。
+- README、当前进度、当前基线、执行基线、RC.1、stable-ready 和发布稳定路线图同步最新 PHPUnit 基线。
+
+影响范围：
+
+- 本轮只调整 GitHub Actions action 版本与测试护栏，不修改 PHP 运行时、数据库服务、Composer 安装、测试库准备或 PHPUnit 命令。
+- CI 仍固定 PHP 7.4、MariaDB 10.5、`scripts/prepare-test-db` 和 `vendor/bin/phpunit`。
+
+验证：
+
+- `./scripts/php74 vendor/bin/phpunit tests/Unit/CiWorkflowReadinessTest.php` 通过，结果为 `OK (2 tests, 19 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (407 tests, 4197 assertions)`。
+- `git diff --check` 通过。
+- `./scripts/composer74 install --no-interaction --no-progress` 通过。
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过。
+
+下一步：
+
+- 提交并推送后复核远端 CI。
+
 ## 2026-05-30 阶段日志
 
 ### 202. Dcat 最小兼容层审计与旧入口覆盖补强

@@ -16,6 +16,8 @@ class CiWorkflowReadinessTest extends TestCase
             'PHPUnit (PHP 7.4)',
             'runs-on: ubuntu-22.04',
             'image: mariadb:10.5',
+            'uses: actions/checkout@v6',
+            'uses: actions/cache@v5',
             'php-version: 7.4',
             'composer install --no-interaction --prefer-dist',
             './scripts/prepare-test-db',
@@ -36,6 +38,8 @@ class CiWorkflowReadinessTest extends TestCase
             'database/sql',
             'mysql <',
             'admin/admin',
+            'actions/checkout@v4',
+            'actions/cache@v4',
         ] as $forbidden) {
             $this->assertStringNotContainsString($forbidden, $workflow);
         }
