@@ -13,11 +13,16 @@ class ReleaseReadinessDocumentationTest extends TestCase
             'docs/releases/v3.0.0-rc.md',
             'docs/releases/v3.0.0-rc.1.md',
             'docs/releases/v3.0.0-stable-readiness.md',
+            'docs/releases/v3.1.0-beta.1.md',
         ] as $relativePath) {
             $contents = file_get_contents(base_path($relativePath));
 
             $this->assertStringContainsString('git diff --check', $contents, $relativePath);
-            $this->assertStringContainsString('./scripts/php74 vendor/bin/phpunit', $contents, $relativePath);
+            $this->assertTrue(
+                str_contains($contents, './scripts/php74 vendor/bin/phpunit')
+                || str_contains($contents, 'sh scripts/php81-docker vendor/bin/phpunit --configuration phpunit.php81.xml'),
+                $relativePath
+            );
             $this->assertStringContainsString('./scripts/smoke-admin-shell', $contents, $relativePath);
         }
     }
@@ -107,6 +112,7 @@ class ReleaseReadinessDocumentationTest extends TestCase
             'docs/releases/v3.0.0-rc.md',
             'docs/releases/v3.0.0-rc.1.md',
             'docs/releases/v3.0.0-stable-readiness.md',
+            'docs/releases/v3.1.0-beta.1.md',
             '.env.example',
             '.env.local.example',
         ] as $relativePath) {

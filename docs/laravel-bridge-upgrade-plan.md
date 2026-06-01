@@ -24,7 +24,7 @@ APP_URL=http://127.0.0.1:8031 ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=s
 
 当前验证目标：
 
-- PHP 8.1 PHPUnit：`OK (417 tests, 4284 assertions)`
+- PHP 8.1 PHPUnit：`OK (417 tests, 4292 assertions)`
 - PHP 8.1 后台 smoke：通过
 - Laravel 版本：`8.83.29`
 

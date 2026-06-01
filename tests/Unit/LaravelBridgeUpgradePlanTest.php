@@ -16,7 +16,7 @@ class LaravelBridgeUpgradePlanTest extends TestCase
             'sh scripts/composer81-docker check-platform-reqs',
             'sh scripts/php81-docker vendor/bin/phpunit --configuration phpunit.php81.xml',
             'APP_URL=http://127.0.0.1:8031 ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell',
-            'OK (417 tests, 4284 assertions)',
+            'OK (417 tests, 4292 assertions)',
             'Laravel 版本：`8.83.29`',
         ] as $needle) {
             $this->assertStringContainsString($needle, $contents);
