@@ -6,14 +6,14 @@ use Tests\TestCase;
 
 class CurrentProgressDocumentationTest extends TestCase
 {
-    public function test_current_progress_documents_match_rc_and_stable_ready_stage(): void
+    public function test_current_progress_documents_match_stable_and_upgrade_stage(): void
     {
         foreach ($this->currentProgressDocuments() as $relativePath) {
             $contents = file_get_contents(base_path($relativePath));
 
             $this->assertStringContainsString('90%', $contents, $relativePath);
-            $this->assertStringContainsString('RC', $contents, $relativePath);
-            $this->assertStringContainsString('stable-ready', $contents, $relativePath);
+            $this->assertStringContainsString('v3.0.0 stable', $contents, $relativePath);
+            $this->assertStringContainsString('3.1 / 4.0', $contents, $relativePath);
             $this->assertMatchesRegularExpression('/417 tests[, \/]+4281 assertions/', $contents, $relativePath);
         }
     }
