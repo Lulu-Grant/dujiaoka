@@ -12,9 +12,9 @@ class CurrentProgressDocumentationTest extends TestCase
             $contents = file_get_contents(base_path($relativePath));
 
             $this->assertStringContainsString('90%', $contents, $relativePath);
-            $this->assertStringContainsString('v3.1.0-beta.1', $contents, $relativePath);
+            $this->assertStringContainsString('v3.1.0', $contents, $relativePath);
             $this->assertStringContainsString('3.2 / 4.0', $contents, $relativePath);
-            $this->assertMatchesRegularExpression('/417 tests[, \/]+4292 assertions/', $contents, $relativePath);
+            $this->assertMatchesRegularExpression('/417 tests[, \/]+4299 assertions/', $contents, $relativePath);
         }
     }
 
