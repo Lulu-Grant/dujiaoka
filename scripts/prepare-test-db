@@ -13,7 +13,8 @@ MYSQL_SOCKET="${MYSQL_SOCKET:-}"
 TEST_DB_DATABASE="${TEST_DB_DATABASE:-dujiaoka_test}"
 TEST_DB_USERNAME="${TEST_DB_USERNAME:-dujiaoka}"
 TEST_DB_PASSWORD="${TEST_DB_PASSWORD:-dujiaoka_local}"
-TEST_PHP_BIN="${TEST_PHP_BIN:-$ROOT_DIR/scripts/php74}"
+TEST_PHP_BIN="${TEST_PHP_BIN:-$ROOT_DIR/scripts/php81-docker}"
+TEST_APP_DB_HOST="${TEST_APP_DB_HOST:-host.docker.internal}"
 
 if [ -z "$MYSQL_SOCKET" ] && [ -S /private/tmp/mysql.sock ] && [ "${MYSQL_HOST}" = "127.0.0.1" ] && [ "${MYSQL_ROOT_USERNAME}" = "root" ] && [ "${MYSQL_ROOT_PASSWORD}" = "root" ]; then
   MYSQL_SOCKET="/private/tmp/mysql.sock"
@@ -46,7 +47,7 @@ mysql "${MYSQL_ARGS[@]}" \
 
 APP_ENV=testing \
 DB_CONNECTION=mysql \
-DB_HOST="${MYSQL_HOST}" \
+DB_HOST="${TEST_APP_DB_HOST}" \
 DB_PORT="${MYSQL_PORT}" \
 DB_DATABASE="${TEST_DB_DATABASE}" \
 DB_USERNAME="${TEST_DB_USERNAME}" \

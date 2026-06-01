@@ -51,16 +51,16 @@ class DependencyBlockerMatrixTest extends TestCase
         }
     }
 
-    public function test_dependency_matrix_keeps_beta2_experiment_commands(): void
+    public function test_dependency_matrix_keeps_laravel8_experiment_commands(): void
     {
         $contents = file_get_contents(base_path('docs/dependency-blocker-matrix.md'));
 
         foreach ([
-            './scripts/composer74 install --no-interaction --no-progress',
-            './scripts/php74 artisan migrate:status',
-            './scripts/php74 vendor/bin/phpunit',
+            'sh scripts/composer81-docker install --no-interaction --no-progress',
+            'sh scripts/php81-docker artisan migrate:status --no-ansi',
+            'sh scripts/php81-docker vendor/bin/phpunit --configuration phpunit.php81.xml',
             'ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell',
-            'Composer version 2.2.25',
+            'Laravel 8.83',
             'swiftmailer/swiftmailer',
             'symfony/debug',
         ] as $commandOrFinding) {

@@ -9,7 +9,7 @@
 ## 当前数字
 
 - 总体进度估算：`90%`
-- PHPUnit：`OK (417 tests, 4281 assertions)`
+- PHPUnit：`OK (417 tests, 4284 assertions)`
 - 当前分支：`master`
 - 当前默认后台落点：`/admin -> /admin/v2/dashboard`
 - 当前后台主入口：
@@ -21,7 +21,7 @@
 
 ### 1. 遗留基线恢复
 
-- PHP 7.4 运行时基线恢复
+- PHP 7.4 运行时基线恢复，v3.0.0 后升级分支切到 PHP 8.1+
 - `scripts/php74` / `scripts/composer74` 做到可移植
 - 本地快速拉站路径建立
 - GitHub Actions `CI` 建立
@@ -120,7 +120,7 @@
 3. 支付层只维护保留通道回调安全和退役通道防回流
 4. 安全专项、CI 护栏和升级阻塞矩阵保持可复核
 5. 后续 Laravel / PHP 升级只在单独实验分支推进
-6. Laravel 7.30.7 桥接已合入主线；下一轮不得继续混入 Laravel 8/10 或 PHP 大版本升级
+6. Laravel 8.83 升级分支已跑通；下一轮不得继续混入 Laravel 10 或 Dcat 退场
 
 而且当前最值得持续投入的子方向依然是：
 

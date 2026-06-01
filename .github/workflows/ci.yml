@@ -4,64 +4,13 @@ on:
   push:
     branches:
       - master
+      - codex/php81-laravel8-upgrade
   pull_request:
   workflow_dispatch:
 
 jobs:
   phpunit:
-    name: PHPUnit (PHP 7.4)
-    runs-on: ubuntu-22.04
-
-    services:
-      mysql:
-        image: mariadb:10.5
-        ports:
-          - 3306:3306
-        env:
-          MYSQL_ROOT_PASSWORD: root
-        options: >-
-          --health-cmd="mysqladmin ping -proot --silent"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=10
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup PHP 7.4
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 7.4
-          coverage: none
-          tools: composer:v2
-          extensions: bcmath, ctype, curl, dom, fileinfo, gd, json, mbstring, openssl, pdo_mysql, tokenizer, xml
-
-      - name: Cache Composer dependencies
-        uses: actions/cache@v5
-        with:
-          path: vendor
-          key: ${{ runner.os }}-php74-composer-${{ hashFiles('composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-php74-composer-
-
-      - name: Install Composer dependencies
-        run: composer install --no-interaction --prefer-dist
-
-      - name: Prepare test database
-        run: |
-          chmod +x scripts/prepare-test-db
-          ./scripts/prepare-test-db
-
-      - name: Run PHPUnit
-        env:
-          APP_ENV: testing
-          CACHE_DRIVER: array
-          QUEUE_CONNECTION: sync
-        run: vendor/bin/phpunit
-
-  phpunit-php81:
-    name: PHPUnit (PHP 8.1 experimental)
+    name: PHPUnit (PHP 8.1)
     runs-on: ubuntu-22.04
 
     services:
@@ -103,6 +52,7 @@ jobs:
       - name: Prepare test database
         env:
           TEST_PHP_BIN: php
+          TEST_APP_DB_HOST: 127.0.0.1
         run: |
           chmod +x scripts/prepare-test-db
           ./scripts/prepare-test-db
