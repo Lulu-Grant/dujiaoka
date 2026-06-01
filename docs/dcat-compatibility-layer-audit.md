@@ -1,6 +1,6 @@
 # Dcat 最小兼容层审计
 
-审计日期：2026-05-30
+审计日期：2026-06-01
 
 ## 当前结论
 
@@ -8,11 +8,15 @@
 
 现阶段仍保留 Dcat 兼容层，原因不是继续使用旧页面，而是后台登录、认证中间件、权限白名单、历史入口跳转和包启动流程仍需要一层过渡引导。
 
+Laravel 7.30.7 实验分支已经通过 PHP 7.4 / PHP 8.1 双运行时 PHPUnit 与后台 smoke。该结果说明当前兼容层可以在 Laravel 7 下继续承担过渡职责，但不代表 Dcat 已经可以删除。
+
 因此当前口径统一为：
 
 - 后台壳是主承载。
 - Dcat 是过渡兼容层。
 - `config/admin.php` 和 `routes/admin/routes.php` 暂不删除。
+- 不删除 `config/admin.php`。
+- 不删除 `routes/admin/routes.php`。
 - 新业务动作不得回写到旧 Dcat 页面或 `app/Admin` 目录。
 
 ## 保留文件与职责
@@ -24,6 +28,7 @@
 - 提供 Dcat 包启动所需配置。
 - 定义后台路由前缀、域名和中间件。
 - 绑定后台认证控制器到 `App\Http\Controllers\AdminShell\AuthShellController`。
+- 保留认证 guard / provider，使后台登录继续使用 `admin` guard 和 `Dcat\Admin\Models\Administrator`。
 - 继续使用 `Dcat\Admin\Models\Administrator` 作为过渡期后台管理员模型。
 - 通过 `admin.permission.except` 放行后台壳 dashboard、认证页和注册表派生出的 `/admin/v2/*` 权限白名单。
 - 保留菜单、上传、表格等 Dcat 配置，作为包启动与历史后台数据兼容项。
@@ -42,6 +47,7 @@
 - 在 `admin` 前缀和后台中间件下挂载 `/admin/v2/dashboard`。
 - 通过 `AdminShellRouteRegistrar` 注册后台壳资源页与动作页。
 - 为历史 `/admin/*` 链接提供 302 跳转，保留 query string。
+- 保持旧 `/admin/*` 到 `/admin/v2/*` query-preserving 跳转层在 Laravel 7 下可测。
 
 不再承担的职责：
 
@@ -93,6 +99,8 @@
 当前测试要求：
 
 - `/admin` 跳转到 `/admin/v2/dashboard`。
+- 未登录访问 `/admin`、`/admin/v2/dashboard` 和 `/admin/auth/setting` 时跳转到 `/admin/auth/login`。
+- `/admin/auth/login` 可登录，`/admin/auth/setting` 可访问并保存基础资料。
 - 旧资源入口跳转到对应 `/admin/v2/*`。
 - 所有保留旧入口必须保留 query string。
 - `app/Admin` 目录不得重新成为兼容层前提。
@@ -101,6 +109,9 @@
 对应测试：
 
 - [LegacyAdminShellRedirectControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/LegacyAdminShellRedirectControllerTest.php)
+- [AdminAuthShellLoginTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminAuthShellLoginTest.php)
+- [AdminAuthShellSettingTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminAuthShellSettingTest.php)
+- [DcatCompatibilityLayerAuditTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/DcatCompatibilityLayerAuditTest.php)
 
 ## 删除或瘦身规则
 
@@ -122,6 +133,24 @@
 - 不在兼容层新增业务写入。
 - 不恢复 `app/Admin` 生产目录。
 - 不新增 Dcat 绑定型后台能力。
+
+## Laravel 7 实验分支验收口径
+
+Laravel 7 实验分支只要求 Dcat 兼容层职责清楚、旧入口可测、登录与账号设置路径可用、文档口径一致。
+
+Laravel 7 实验分支不要求：
+
+- 完全删除 Dcat 包。
+- 删除 `config/admin.php`。
+- 删除 `routes/admin/routes.php`。
+- 删除所有旧 `/admin/*` 别名。
+- 替换后台认证 guard / provider。
+
+停止条件：
+
+- Dcat 登录、认证中间件或权限白名单不可用。
+- 旧入口 query string 不能保留。
+- 必须删除 `config/admin.php` 或 `routes/admin/routes.php` 才能继续。
 
 ## beta.1 验收口径
 

@@ -127,7 +127,7 @@ APP_URL=http://127.0.0.1:8031 ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=s
 
 Current result:
 
-- PHP 8.1 PHPUnit: `OK (413 tests, 4245 assertions)`
+- PHP 8.1 PHPUnit: `OK (417 tests, 4281 assertions)`
 - PHP 8.1 admin smoke: passed
 
 PHP `8.5` remains out of scope for the current bridge work. The next upgrade blocker is no longer PHP 8.1 bootstrapping; it is the Laravel bridge dependency chain documented in [laravel-bridge-upgrade-plan.md](/Users/apple/Documents/dujiaoshuka/docs/laravel-bridge-upgrade-plan.md).

@@ -14,7 +14,7 @@
 
 ## 当前基线
 
-- Framework：Laravel 6
+- Framework：Laravel 7.30.7 实验分支
 - Admin：Dcat Admin 2.0.24-beta
 - Runtime baseline：PHP 7.4 可验证
 - PHP 8.1：Composer 平台检查、artisan、全量 PHPUnit 和后台 smoke 已通过
@@ -77,13 +77,14 @@
 影响：
 
 - PHP 8.1 已可通过 Docker 工具链验证
+- Laravel 7.30.7 桥接实验分支已通过 PHP 7.4 / PHP 8.1 双运行时 PHPUnit 与后台 smoke
 - PHP 8.5 仍不是当前目标运行时
 
 建议动作：
 
 1. 为阻塞包建立“保留 / 替换 / 移除”决策表
-2. 优先处理支付 SDK 与后台框架这两条剩余高优先级链
-3. Laravel 桥接升级按 [laravel-bridge-upgrade-plan.md](/Users/apple/Documents/dujiaoshuka/docs/laravel-bridge-upgrade-plan.md) 执行，先 Laravel 7，再评估 Laravel 8
+2. 优先验收 Dcat 兼容层与支付保留链这两条剩余高优先级链
+3. Laravel 桥接升级按 [laravel-bridge-upgrade-plan.md](/Users/apple/Documents/dujiaoshuka/docs/laravel-bridge-upgrade-plan.md) 执行，先把 Laravel 7 实验分支做成可评审候选，再评估 Laravel 8
 
 参考：
 
@@ -105,7 +106,7 @@
 
 影响：
 
-- Laravel 升级时仍可能卡在 Dcat 包启动、认证 guard、后台中间件和权限配置
+- Laravel 7 已可启动并通过测试，但后续 Laravel 8+ 仍可能卡在 Dcat 包启动、认证 guard、后台中间件和权限配置
 - 但业务 CRUD 与批量动作已经不再主要卡在旧 Dcat 控制器
 
 建议动作：
@@ -179,16 +180,16 @@
 
 ## 当前结论
 
-项目已经从“完全没有升级准备”推进到“可以开始做升级前清障”。
+项目已经从“完全没有升级准备”推进到“Laravel 7 桥接实验已通过，正在做可合并候选验收”。
 
 但目前仍不适合：
 
 - 直接切 PHP 8.5
-- 直接跳 Laravel 新版
+- 直接跳 Laravel 8/10
 - 直接整体替后台
 
 当前最正确的姿势仍然是：
 
-- 先清阻塞
-- 再规划升级
-- 最后执行跨版本迁移
+- 先验收 Laravel 7 实验分支
+- 再压缩 Dcat 兼容层和支付保留链风险
+- 最后单独规划 Laravel 8+ 跨版本迁移

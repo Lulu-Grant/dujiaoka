@@ -23,8 +23,8 @@ APP_URL=http://127.0.0.1:8031 ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=s
 
 当前验证结果：
 
-- PHP 8.1 PHPUnit：`OK (414 tests, 4254 assertions)`
-- PHP 7.4 PHPUnit：`OK (414 tests, 4254 assertions)`
+- PHP 8.1 PHPUnit：`OK (417 tests, 4281 assertions)`
+- PHP 7.4 PHPUnit：`OK (417 tests, 4281 assertions)`
 - PHP 8.1 后台 smoke：通过
 - PHP 7.4 后台 smoke：通过
 - Laravel 版本：`7.30.7`
@@ -47,7 +47,7 @@ sh scripts/composer81-docker require laravel/framework:^7.30 --with-all-dependen
 - `nunomaduro/collision` 升级到 `^4.3`。
 - Symfony 组件链进入 5.4，并将 contracts / string / translation 约束在 PHP 7.4 可解析范围。
 - `vlucas/phpdotenv` 升级到 4.x。
-- `ramsey/uuid` 固定为 `4.7.6`，`brick/math` 固定到 0.12 线，避免 PHP 8-only 语法进入实验分支。
+- `ramsey/uuid` 固定在 3.9 线，并在 Composer `config.platform.php` 固定 `7.4.33`，避免 PHP 8-only 依赖进入双运行时实验分支。
 - `psr/log` 固定为 `^1.1`，避免 PHP 8-only 接口签名进入实验分支。
 
 ### Laravel 8

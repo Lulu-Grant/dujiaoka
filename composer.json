@@ -12,7 +12,6 @@
     "require": {
         "php": "^7.2.5|^8.0",
         "amrshawky/laravel-currency": "^4.0",
-        "brick/math": "^0.12",
         "dcat/easy-excel": "^1.0",
         "dcat/laravel-admin": "2.*",
         "fideloper/proxy": "^4.4",
@@ -21,7 +20,7 @@
         "laravel/tinker": "^2.5",
         "mews/captcha": "^3.2",
         "psr/log": "^1.1",
-        "ramsey/uuid": "4.7.6",
+        "ramsey/uuid": "^3.9",
         "symfony/deprecation-contracts": "^2.5",
         "symfony/event-dispatcher-contracts": "^2.5",
         "symfony/service-contracts": "^2.5",
@@ -40,6 +39,9 @@
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
+        "platform": {
+            "php": "7.4.33"
+        },
         "sort-packages": true,
         "platform-check": false
     },

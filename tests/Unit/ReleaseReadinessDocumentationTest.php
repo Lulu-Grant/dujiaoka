@@ -63,7 +63,7 @@ class ReleaseReadinessDocumentationTest extends TestCase
             '退役通道防回流测试',
             '本地 smoke 凭据边界测试',
             '依赖阻塞矩阵',
-            'OK (407 tests, 4200 assertions)',
+            'OK (417 tests, 4281 assertions)',
             '远端 CI 已通过',
             'GitHub Actions `CI`',
         ] as $requiredStatus) {
@@ -77,13 +77,13 @@ class ReleaseReadinessDocumentationTest extends TestCase
 
         foreach ([
             '当前 stable-ready 状态',
-            'OK (407 tests, 4200 assertions)',
+            'OK (417 tests, 4281 assertions)',
             '后台 smoke',
             'git diff --check',
             'CI',
             '远端 `master` 最新 GitHub Actions 结果为 success',
             '保留的遗留边界',
-            'PHP 7.4 + Laravel 6.20',
+            'Laravel 7.30.7 桥接实验已通过',
             'Dcat Admin',
             'config/admin.php',
             'routes/admin/routes.php',

@@ -33,9 +33,9 @@
 
 - `sh scripts/composer81-docker check-platform-reqs` 通过。
 - `sh scripts/php81-docker artisan migrate:status --no-ansi` 通过。
-- `sh scripts/php81-docker vendor/bin/phpunit --configuration phpunit.php81.xml` 通过，结果为 `OK (414 tests, 4254 assertions)`。
+- `sh scripts/php81-docker vendor/bin/phpunit --configuration phpunit.php81.xml` 通过，结果为 `OK (417 tests, 4281 assertions)`。
 - `APP_URL=http://127.0.0.1:8031 ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 在 PHP 8.1 Docker Web 服务下通过。
-- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (414 tests, 4254 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (417 tests, 4281 assertions)`。
 - `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过。
 
 下一步：
@@ -74,7 +74,7 @@
 
 - 在 `codex/laravel7-bridge-experiment` 分支将 `laravel/framework` 升级到 `^7.30`，当前解析版本为 `7.30.7`。
 - 升级 dev 工具链：`facade/ignition ^2.17`、`nunomaduro/collision ^4.3`、`fakerphp/faker ^1.24`、`mockery/mockery ^1.6`。
-- 将 `ramsey/uuid` 固定为 `4.7.6`、`brick/math` 固定为 `^0.12`、`psr/log` 固定为 `^1.1`，避免 PHP 8-only 语法破坏 PHP 7.4 可验证性。
+- 将 `ramsey/uuid` 固定在 3.9 线、`psr/log` 固定为 `^1.1`，并通过 Composer `config.platform.php=7.4.33` 避免 PHP 8-only 依赖破坏 PHP 7.4 可验证性。
 - 将 Symfony contracts / string / translation 约束在 5.4 / 2.5 范围，保持 Laravel 7 与 PHP 7.4 / 8.1 双运行时可测。
 - 调整 [Handler.php](/Users/apple/Documents/dujiaoshuka/app/Exceptions/Handler.php) 到 Laravel 7 的 `Throwable` 签名。
 - 调整 [AdminShellPayControllerTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminShellPayControllerTest.php) 的 CSV 断言，适配 Laravel 7 测试响应默认转义行为。
@@ -91,14 +91,46 @@
 - `sh scripts/composer81-docker check-platform-reqs` 通过。
 - `sh scripts/php81-docker artisan migrate:status --no-ansi` 通过，显示 Laravel Framework `7.30.7`。
 - `./scripts/php74 artisan migrate:status --no-ansi` 通过，显示 Laravel Framework `7.30.7`。
-- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (414 tests, 4254 assertions)`。
-- `sh scripts/php81-docker vendor/bin/phpunit --configuration phpunit.php81.xml` 通过，结果为 `OK (414 tests, 4254 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (417 tests, 4281 assertions)`。
+- `sh scripts/php81-docker vendor/bin/phpunit --configuration phpunit.php81.xml` 通过，结果为 `OK (417 tests, 4281 assertions)`。
 - PHP 7.4 后台 smoke 通过。
 - PHP 8.1 Docker Web 后台 smoke 通过。
 
 下一步：
 
 - 在 Laravel 7 实验分支继续评估 Dcat 登录、权限白名单和旧入口兼容层，确认是否存在隐藏运行时问题。
+
+### 223. Laravel 7 实验分支兼容层验收推进
+
+摘要：
+
+- 补强 [AdminAuthShellLoginTest.php](/Users/apple/Documents/dujiaoshuka/tests/Feature/AdminAuthShellLoginTest.php)，固定未登录访问 `/admin`、`/admin/v2/dashboard` 和 `/admin/auth/setting` 时必须回到 `/admin/auth/login`。
+- 新增 [DcatCompatibilityLayerAuditTest.php](/Users/apple/Documents/dujiaoshuka/tests/Unit/DcatCompatibilityLayerAuditTest.php)，把 Dcat 兼容层职责、删除边界、权限白名单和 Laravel 7 验收口径纳入文档护栏。
+- 更新 [dcat-compatibility-layer-audit.md](/Users/apple/Documents/dujiaoshuka/docs/dcat-compatibility-layer-audit.md)、[dependency-blocker-matrix.md](/Users/apple/Documents/dujiaoshuka/docs/dependency-blocker-matrix.md)、[upgrade-readiness-checklist.md](/Users/apple/Documents/dujiaoshuka/docs/upgrade-readiness-checklist.md) 和 release / current progress 文档，统一到 Laravel 7.30.7 实验分支口径。
+- 修正 Composer 双运行时约束：`config.platform.php=7.4.33`，`ramsey/uuid ^3.9`，锁文件降回 PHP 7.4 可安装的依赖组合，避免 PHP 8.1 install 引入 PHP 8-only 包后破坏 PHP 7.4 验收。
+
+影响范围：
+
+- Laravel 7 实验分支继续作为可评审候选，不直接宣称 stable-ready。
+- Dcat 兼容关键文件继续保留。
+- 支付保留范围仍为官方支付宝、官方微信、易支付和 Epusdt。
+- 真实迁移数据在测试后已恢复到本地库。
+
+验证：
+
+- `git diff --check` 通过。
+- `sh scripts/composer81-docker install --no-interaction --no-progress` 通过。
+- `./scripts/composer74 install --no-interaction --no-progress` 通过。
+- `./scripts/php74 artisan migrate:status --no-ansi` 通过。
+- `sh scripts/php81-docker artisan migrate:status --no-ansi` 通过。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (417 tests, 4281 assertions)`。
+- `sh scripts/php81-docker vendor/bin/phpunit --configuration phpunit.php81.xml` 通过，结果为 `OK (417 tests, 4281 assertions)`。
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过。
+- `APP_URL=http://127.0.0.1:8031 ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 在 PHP 8.1 Docker Web 服务下通过。
+
+下一步：
+
+- 审阅该实验分支 diff，准备合并策略；合并前继续保持不进 Laravel 8、不删除 Dcat 兼容入口、不恢复退役支付通道。
 
 ## 2026-05-31 阶段日志
 
@@ -633,7 +665,7 @@
 
 - `gh run watch 26716194595 --exit-status` 通过，远端 `master` 的 `CI` 工作流返回 success。
 - `./scripts/php74 vendor/bin/phpunit tests/Unit/ReleaseReadinessDocumentationTest.php` 通过，结果为 `OK (6 tests, 84 assertions)`。
-- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (407 tests, 4200 assertions)`。
+- `./scripts/php74 vendor/bin/phpunit` 通过，结果为 `OK (417 tests, 4281 assertions)`。
 - `git diff --check` 通过。
 - `./scripts/composer74 install --no-interaction --no-progress` 通过。
 - `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过。

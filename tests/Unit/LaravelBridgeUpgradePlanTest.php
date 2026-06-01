@@ -16,7 +16,7 @@ class LaravelBridgeUpgradePlanTest extends TestCase
             'sh scripts/composer81-docker check-platform-reqs',
             'sh scripts/php81-docker vendor/bin/phpunit --configuration phpunit.php81.xml',
             'APP_URL=http://127.0.0.1:8031 ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell',
-            'OK (414 tests, 4254 assertions)',
+            'OK (417 tests, 4281 assertions)',
             'Laravel 版本：`7.30.7`',
         ] as $needle) {
             $this->assertStringContainsString($needle, $contents);
@@ -32,7 +32,7 @@ class LaravelBridgeUpgradePlanTest extends TestCase
             'nunomaduro/collision` 升级到 `^4.3`',
             'Symfony 组件链进入 5.4',
             'vlucas/phpdotenv` 升级到 4.x',
-            'ramsey/uuid` 固定为 `4.7.6`',
+            'ramsey/uuid` 固定在 3.9 线',
             'psr/log` 固定为 `^1.1`',
             'dragonmantank/cron-expression',
             'ramsey/uuid',
@@ -65,8 +65,9 @@ class LaravelBridgeUpgradePlanTest extends TestCase
         $this->assertSame('^7.30', $composer['require']['laravel/framework']);
         $this->assertSame('^2.17', $composer['require-dev']['facade/ignition']);
         $this->assertSame('^4.3', $composer['require-dev']['nunomaduro/collision']);
-        $this->assertSame('4.7.6', $composer['require']['ramsey/uuid']);
+        $this->assertSame('^3.9', $composer['require']['ramsey/uuid']);
         $this->assertSame('^1.1', $composer['require']['psr/log']);
+        $this->assertSame('7.4.33', $composer['config']['platform']['php']);
         $this->assertSame('^2.5', $composer['require']['symfony/translation-contracts']);
     }
 }
