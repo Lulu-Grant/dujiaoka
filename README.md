@@ -4,6 +4,8 @@
 <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue" alt="license MIT"></a>
 <a href="https://github.com/Lulu-Grant/dujiaoka"><img src="https://img.shields.io/badge/fork-Lulu--Grant%2Fdujiaoka-green" alt="fork Lulu-Grant/dujiaoka"></a>
 <a href="https://www.php.net/releases/7_4_0.php"><img src="https://img.shields.io/badge/legacy_runtime-PHP%207.4-lightgrey" alt="legacy runtime php74"></a>
+<a href="https://laravel.com/docs/7.x"><img src="https://img.shields.io/badge/laravel-7.30.7-red" alt="Laravel 7.30.7"></a>
+<a href="https://github.com/Lulu-Grant/dujiaoka/releases/tag/v3.0.0-beta.2"><img src="https://img.shields.io/badge/release-v3.0.0--beta.2-orange" alt="release v3.0.0-beta.2"></a>
 <a href="https://www.php.net/supported-versions.php"><img src="https://img.shields.io/badge/modernization-in%20progress-orange" alt="modernization in progress"></a>
 <a href="https://github.com/Lulu-Grant/dujiaoka/actions/workflows/ci.yml"><img src="https://github.com/Lulu-Grant/dujiaoka/actions/workflows/ci.yml/badge.svg" alt="ci"></a>
 </p>
@@ -12,39 +14,39 @@
 
 `Lulu-Grant/dujiaoka` 是基于原始 `assimon/dujiaoka` 停更项目继续维护的分叉版本，当前品牌名为“独角数卡西瓜版”。
 
+当前发布版本为 `v3.0.0-beta.2`。这一版已经完成 Laravel 7.30.7 桥接实验验收，保留 PHP 7.4 兼容验证，并增加 PHP 8.1 Docker 验证链路。
+
 这个仓库现在已经不是“原样存档”，也不只是“能跑就行”的修补版，而是在保留原有业务能力前提下，持续推进现代化治理、后台替换和升级前清障的维护分支。
 
 ## 界面预览
 
 ### 前台首页
 
-<img width="1516" height="824" alt="首页效果" src="https://github.com/user-attachments/assets/664d7870-8986-41c6-a27e-1ee917111a8f" />
+![前台首页](docs/assets/screenshots/frontend-home-demo.jpg)
 
 当前主目标：
 
-- 恢复遗留运行时基线
-- 建立核心业务测试护栏
-- 拆分订单与支付主链服务
-- 去除对守护进程的硬依赖
-- 完成安装流程现代化
-- 建立 GitHub Actions 与本地快速拉站路径
-- 持续降低后台 `Dcat Admin` 业务承载
-- 为后续 Laravel / PHP 升级清障
+- 保持 PHP 7.4 / PHP 8.1 双运行时可验证
+- 维持 Laravel 7 桥接分支可评审状态
+- 保持后台壳主承载，继续压缩 Dcat 到兼容层职责
+- 只维护官方支付宝、官方微信、易支付、Epusdt
+- 为后续 Laravel 8、Dcat 退场、Yansongda 升级做独立实验准备
 
 ## 当前状态
 
 - 原项目已停止维护，本仓库仍在持续推进现代化改造。
-- 当前主线默认品牌已统一为“独角数卡西瓜版”。
-- 当前主线已经完成：遗留运行时基线恢复、测试护栏建设、订单与支付主链第一轮服务化、去守护进程改造、安装流程现代化切换，以及后台壳并行迁移。
-- 当前主线以“遗留基线可运行 + 渐进式重构 + 后台并行替换”为原则推进。
+- 当前默认品牌已统一为“独角数卡西瓜版”。
+- 当前 `v3.0.0-beta.2` 已完成：Laravel 7.30.7 桥接实验、PHP 7.4 / PHP 8.1 双运行时 PHPUnit、后台 smoke、安装流程现代化、后台壳主承载和支付通道裁剪。
+- 当前路线以“可验证运行 + 渐进式重构 + 后台壳主承载 + 升级实验分支”为原则推进。
 
 如果只用一句话描述现在的位置：
 
-- 我们已经从“停更遗留项目”推进到了“可持续重构中的遗留系统”阶段。
+- 我们已经从“停更遗留项目”推进到了“Laravel 7 桥接实验已通过、准备进入 RC 冻结评审”的阶段。
 
 如果你想了解截至目前的改造记录，请先看：
 
 - [重构升级日志](docs/refactor-upgrade-log.md)
+- [v3.0.0-beta.2 发布说明](docs/releases/v3.0.0-beta.2.md)
 - [现代化路线图](docs/modernization-roadmap.md)
 - [执行基线](docs/execution-baseline.md)
 - [无守护进程改造清单](docs/no-daemon-migration-checklist.md)
@@ -68,6 +70,7 @@
 - 将前台、后台、安装页和默认通知品牌统一为“独角数卡西瓜版”
 - 将后台壳首页、商品分类、商品、订单、邮件模板、支付通道、优惠码、卡密、系统设置、邮件测试等页面逐步接入新后台壳
 - 将 `app/Admin` 目录正式退场，旧后台兼容层收敛为 `config/admin.php` + `routes/admin/routes.php`
+- 将 Laravel 桥接到 `7.30.7`，并固定 Composer 兼容约束，保持 PHP 7.4 / PHP 8.1 双运行时测试可通过
 
 ## 当前重点进度
 
@@ -75,7 +78,11 @@
 
 ### 后台登录
 
-<img width="1647" height="833" alt="后台登录界面" src="https://github.com/user-attachments/assets/9f0fe4d5-94d7-4909-83b2-e9ea680e30c1" />
+![后台登录](docs/assets/screenshots/admin-login.jpg)
+
+### 后台总览
+
+![后台总览](docs/assets/screenshots/admin-dashboard.jpg)
 
 当前已落地后台壳资源：
 
@@ -106,27 +113,28 @@
 
 ### 后台 UI
 
-<img width="1675" height="868" alt="后台UI" src="https://github.com/user-attachments/assets/f3083155-1697-41fb-a1a4-7225db8e5d10" />
+![商品管理](docs/assets/screenshots/admin-goods-demo.jpg)
 
 ### 当前仍在推进的重点
 
-- 持续扩大后台壳对中复杂度后台页面的承载范围
-- 持续压缩旧 `Dcat Admin` 在高频后台页上的业务承载
-- 继续收口支付层保留通道
-- 为后续 PHP / Laravel 升级继续清障
-- 推进 `v3.0.0-rc.1` 候选冻结：后台壳主承载、Dcat 兼容层、支付安全、安全治理和升级阻塞矩阵同步收敛
+- 保持后台壳主承载冻结，不新增高风险批量动作
+- 继续压缩旧 `Dcat Admin` 到登录、认证、中间件、权限白名单和旧入口跳转职责
+- 继续维护官方支付宝、官方微信、易支付和 Epusdt 的回调安全护栏
+- 准备 `v3.0.0-rc.1` 候选冻结：后台壳、Dcat 兼容层、支付安全、安全治理和升级阻塞矩阵同步收敛
 
 ## 当前品牌与定位
 
 - 品牌名：`独角数卡西瓜版`
 - 仓库定位：遗留单体的持续维护分支
-- 当前目标：稳定运行、逐步重构、为后续大版本升级做准备
+- 当前目标：稳定运行、逐步重构、把 Laravel 7 桥接分支推进到可评审合并候选
 - 默认前台主题：`avatar`
 - 当前后台状态：保留 `Dcat Admin` 最小兼容层，但后台主入口、主 dashboard 和多组高频资源已经转入后台壳
+- 当前发布状态：`v3.0.0-beta.2`
+- 当前框架状态：Laravel `7.30.7` 桥接实验已通过，暂不直接跳 Laravel 8/10
 
 ## 运行与验证
 
-当前仓库保留了一套遗留基线脚本，便于在本地验证旧运行时行为：
+当前仓库保留 PHP 7.4 兼容验证脚本：
 
 ```bash
 ./scripts/php74 vendor/bin/phpunit
@@ -136,6 +144,14 @@
 
 ```bash
 OK (417 tests, 4281 assertions)
+```
+
+PHP 8.1 Docker 验证链路：
+
+```bash
+sh scripts/composer81-docker install --no-interaction --no-progress
+sh scripts/php81-docker artisan migrate:status --no-ansi
+sh scripts/php81-docker vendor/bin/phpunit --configuration phpunit.php81.xml
 ```
 
 当前仓库也已经补上 GitHub Actions 基线工作流：
@@ -200,12 +216,13 @@ ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin
 - [当前基线审计](docs/current-baseline-audit.md)
 - [当前进度总汇](docs/current-progress-super-summary.md)
 - [后台壳动作边界矩阵](docs/admin-shell-action-boundary-matrix.md)
+- [v3.0.0-beta.2 发布说明](docs/releases/v3.0.0-beta.2.md)
 - [发布稳定路线图](docs/release-stabilization-roadmap.md)
 
 ## 说明
 
-- 当前仓库仍是 Laravel 6 遗留系统的渐进式改造阶段，不是最终现代化完成态。
-- 当前 `master` 已具备：本地快速拉站、GitHub Actions 自动回归、安装现代化主路径，以及持续推进中的后台壳并行迁移基础。
+- 当前仓库仍是遗留系统的渐进式改造阶段，不是最终现代化完成态。
+- 当前 `v3.0.0-beta.2` 已具备：Laravel 7.30.7 桥接实验、PHP 7.4 / PHP 8.1 双运行时验证、本地快速拉站、GitHub Actions 自动回归、安装现代化主路径和后台壳主承载基础。
 - 当前 `/admin` 默认已经落到新的后台壳首页。
 - 当前后台登录、退出和账号设置也已经切到后台壳入口。
 - 后续每一个重要节点都会持续记录到 [重构升级日志](docs/refactor-upgrade-log.md)。
