@@ -137,9 +137,9 @@ class AdminShellPayControllerTest extends TestCase
         $response->assertOk();
         $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
         $response->assertHeader('Content-Disposition');
-        $response->assertSee('ID,支付名称,支付标识,生命周期,支付场景,支付方式,启用状态,支付路由,"商户 ID","商户 KEY","商户 PEM",更新时间');
-        $response->assertSee('93020,"CSV 样板 A",csv-a');
-        $response->assertSee('93021,"CSV 样板 B",csv-b');
+        $response->assertSee('ID,支付名称,支付标识,生命周期,支付场景,支付方式,启用状态,支付路由,"商户 ID","商户 KEY","商户 PEM",更新时间', false);
+        $response->assertSee('93020,"CSV 样板 A",csv-a', false);
+        $response->assertSee('93021,"CSV 样板 B",csv-b', false);
         $response->assertSee('已脱敏');
         $response->assertDontSee('csv-secret-key-a');
         $response->assertDontSee('csv-secret-pem-a');

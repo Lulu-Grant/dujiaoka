@@ -64,6 +64,17 @@ class AdminAuthShellLoginTest extends TestCase
         $this->assertGuest('admin');
     }
 
+    public function test_unauthenticated_admin_shell_routes_redirect_to_login(): void
+    {
+        foreach ([
+            '/admin',
+            '/admin/v2/dashboard',
+            '/admin/auth/setting',
+        ] as $path) {
+            $this->get($path)->assertRedirect('/admin/auth/login');
+        }
+    }
+
     private function makeAdmin(): Administrator
     {
         DB::table('admin_users')->updateOrInsert(

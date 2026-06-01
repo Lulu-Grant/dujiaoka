@@ -9,8 +9,8 @@
 ## 当前数字
 
 - 总体进度估算：`90%`
-- PHPUnit：`OK (407 tests, 4200 assertions)`
-- 当前主分支：`master`
+- PHPUnit：`OK (417 tests, 4281 assertions)`
+- 当前分支：`codex/laravel7-bridge-experiment`
 - 当前默认后台落点：`/admin -> /admin/v2/dashboard`
 - 当前后台主入口：
   - `/admin/auth/login`
