@@ -1,6 +1,6 @@
 # 当前基线审计
 
-更新时间：2026-05-31
+更新时间：2026-06-01
 
 ## 审计结论
 
@@ -35,7 +35,7 @@
 ## 当前基线数字
 
 - PHPUnit：`OK (417 tests, 4281 assertions)`
-- 当前分支：`codex/laravel7-bridge-experiment`
+- 当前分支：`master`
 - 当前后台默认落点：`/admin -> /admin/v2/dashboard`
 - 当前后台主入口：
   - `/admin/auth/login`

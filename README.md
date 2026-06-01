@@ -5,7 +5,7 @@
 <a href="https://github.com/Lulu-Grant/dujiaoka"><img src="https://img.shields.io/badge/fork-Lulu--Grant%2Fdujiaoka-green" alt="fork Lulu-Grant/dujiaoka"></a>
 <a href="https://www.php.net/releases/7_4_0.php"><img src="https://img.shields.io/badge/legacy_runtime-PHP%207.4-lightgrey" alt="legacy runtime php74"></a>
 <a href="https://laravel.com/docs/7.x"><img src="https://img.shields.io/badge/laravel-7.30.7-red" alt="Laravel 7.30.7"></a>
-<a href="https://github.com/Lulu-Grant/dujiaoka/releases/tag/v3.0.0-beta.2"><img src="https://img.shields.io/badge/release-v3.0.0--beta.2-orange" alt="release v3.0.0-beta.2"></a>
+<a href="https://github.com/Lulu-Grant/dujiaoka/releases/tag/v3.0.0-rc.1"><img src="https://img.shields.io/badge/release-v3.0.0--rc.1-orange" alt="release v3.0.0-rc.1"></a>
 <a href="https://www.php.net/supported-versions.php"><img src="https://img.shields.io/badge/modernization-in%20progress-orange" alt="modernization in progress"></a>
 <a href="https://github.com/Lulu-Grant/dujiaoka/actions/workflows/ci.yml"><img src="https://github.com/Lulu-Grant/dujiaoka/actions/workflows/ci.yml/badge.svg" alt="ci"></a>
 </p>
@@ -14,7 +14,7 @@
 
 `Lulu-Grant/dujiaoka` 是基于原始 `assimon/dujiaoka` 停更项目继续维护的分叉版本，当前品牌名为“独角数卡西瓜版”。
 
-当前发布版本为 `v3.0.0-beta.2`。这一版已经完成 Laravel 7.30.7 桥接实验验收，保留 PHP 7.4 兼容验证，并增加 PHP 8.1 Docker 验证链路。
+当前发布版本为 `v3.0.0-rc.1`。这一版已经把 Laravel 7.30.7 桥接合入主线，保留 PHP 7.4 兼容验证，并增加 PHP 8.1 Docker 验证链路。
 
 这个仓库现在已经不是“原样存档”，也不只是“能跑就行”的修补版，而是在保留原有业务能力前提下，持续推进现代化治理、后台替换和升级前清障的维护分支。
 
@@ -27,7 +27,7 @@
 当前主目标：
 
 - 保持 PHP 7.4 / PHP 8.1 双运行时可验证
-- 维持 Laravel 7 桥接分支可评审状态
+- 维持 Laravel 7 主线桥接状态可验证
 - 保持后台壳主承载，继续压缩 Dcat 到兼容层职责
 - 只维护官方支付宝、官方微信、易支付、Epusdt
 - 为后续 Laravel 8、Dcat 退场、Yansongda 升级做独立实验准备
@@ -36,17 +36,17 @@
 
 - 原项目已停止维护，本仓库仍在持续推进现代化改造。
 - 当前默认品牌已统一为“独角数卡西瓜版”。
-- 当前 `v3.0.0-beta.2` 已完成：Laravel 7.30.7 桥接实验、PHP 7.4 / PHP 8.1 双运行时 PHPUnit、后台 smoke、安装流程现代化、后台壳主承载和支付通道裁剪。
+- 当前 `v3.0.0-rc.1` 已完成：Laravel 7.30.7 主线桥接、PHP 7.4 / PHP 8.1 双运行时 PHPUnit、后台 smoke、安装流程现代化、后台壳主承载和支付通道裁剪。
 - 当前路线以“可验证运行 + 渐进式重构 + 后台壳主承载 + 升级实验分支”为原则推进。
 
 如果只用一句话描述现在的位置：
 
-- 我们已经从“停更遗留项目”推进到了“Laravel 7 桥接实验已通过、准备进入 RC 冻结评审”的阶段。
+- 我们已经从“停更遗留项目”推进到了“Laravel 7 桥接已合入主线、进入 RC.1 冻结”的阶段。
 
 如果你想了解截至目前的改造记录，请先看：
 
 - [重构升级日志](docs/refactor-upgrade-log.md)
-- [v3.0.0-beta.2 发布说明](docs/releases/v3.0.0-beta.2.md)
+- [v3.0.0-rc.1 发布说明](docs/releases/v3.0.0-rc.1.md)
 - [现代化路线图](docs/modernization-roadmap.md)
 - [执行基线](docs/execution-baseline.md)
 - [无守护进程改造清单](docs/no-daemon-migration-checklist.md)
@@ -126,11 +126,11 @@
 
 - 品牌名：`独角数卡西瓜版`
 - 仓库定位：遗留单体的持续维护分支
-- 当前目标：稳定运行、逐步重构、把 Laravel 7 桥接分支推进到可评审合并候选
+- 当前目标：稳定运行、逐步重构、保持 Laravel 7 主线桥接状态可验证
 - 默认前台主题：`avatar`
 - 当前后台状态：保留 `Dcat Admin` 最小兼容层，但后台主入口、主 dashboard 和多组高频资源已经转入后台壳
-- 当前发布状态：`v3.0.0-beta.2`
-- 当前框架状态：Laravel `7.30.7` 桥接实验已通过，暂不直接跳 Laravel 8/10
+- 当前发布状态：`v3.0.0-rc.1`
+- 当前框架状态：Laravel `7.30.7` 桥接已合入主线，暂不直接跳 Laravel 8/10
 
 ## 运行与验证
 
@@ -216,13 +216,13 @@ ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin
 - [当前基线审计](docs/current-baseline-audit.md)
 - [当前进度总汇](docs/current-progress-super-summary.md)
 - [后台壳动作边界矩阵](docs/admin-shell-action-boundary-matrix.md)
-- [v3.0.0-beta.2 发布说明](docs/releases/v3.0.0-beta.2.md)
+- [v3.0.0-rc.1 发布说明](docs/releases/v3.0.0-rc.1.md)
 - [发布稳定路线图](docs/release-stabilization-roadmap.md)
 
 ## 说明
 
 - 当前仓库仍是遗留系统的渐进式改造阶段，不是最终现代化完成态。
-- 当前 `v3.0.0-beta.2` 已具备：Laravel 7.30.7 桥接实验、PHP 7.4 / PHP 8.1 双运行时验证、本地快速拉站、GitHub Actions 自动回归、安装现代化主路径和后台壳主承载基础。
+- 当前 `v3.0.0-rc.1` 已具备：Laravel 7.30.7 主线桥接、PHP 7.4 / PHP 8.1 双运行时验证、本地快速拉站、GitHub Actions 自动回归、安装现代化主路径和后台壳主承载基础。
 - 当前 `/admin` 默认已经落到新的后台壳首页。
 - 当前后台登录、退出和账号设置也已经切到后台壳入口。
 - 后续每一个重要节点都会持续记录到 [重构升级日志](docs/refactor-upgrade-log.md)。
