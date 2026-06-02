@@ -16,6 +16,7 @@ class ReleaseReadinessDocumentationTest extends TestCase
             'docs/releases/v3.1.0-beta.1.md',
             'docs/releases/v3.1.0.md',
             'docs/releases/v3.1.1.md',
+            'docs/releases/v3.2.0.md',
         ] as $relativePath) {
             $contents = file_get_contents(base_path($relativePath));
 
@@ -117,6 +118,7 @@ class ReleaseReadinessDocumentationTest extends TestCase
             'docs/releases/v3.1.0-beta.1.md',
             'docs/releases/v3.1.0.md',
             'docs/releases/v3.1.1.md',
+            'docs/releases/v3.2.0.md',
             '.env.example',
             '.env.local.example',
         ] as $relativePath) {

@@ -34,7 +34,7 @@
 
 ## 当前基线数字
 
-- PHPUnit：`OK (417 tests, 4299 assertions)`
+- PHPUnit：`OK (417 tests, 4313 assertions)`
 - 当前分支：`master`
 - 当前后台默认落点：`/admin -> /admin/v2/dashboard`
 - 当前后台主入口：
