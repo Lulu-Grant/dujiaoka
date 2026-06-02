@@ -14,7 +14,7 @@ class CurrentProgressDocumentationTest extends TestCase
             $this->assertStringContainsString('90%', $contents, $relativePath);
             $this->assertStringContainsString('v3.1.0', $contents, $relativePath);
             $this->assertStringContainsString('3.2 / 4.0', $contents, $relativePath);
-            $this->assertMatchesRegularExpression('/417 tests[, \/]+4313 assertions/', $contents, $relativePath);
+            $this->assertMatchesRegularExpression('/417 tests[, \/]+4320 assertions/', $contents, $relativePath);
         }
     }
 

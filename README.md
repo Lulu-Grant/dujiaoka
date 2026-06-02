@@ -5,7 +5,7 @@
 <a href="https://github.com/Lulu-Grant/dujiaoka"><img src="https://img.shields.io/badge/fork-Lulu--Grant%2Fdujiaoka-green" alt="fork Lulu-Grant/dujiaoka"></a>
 <a href="https://www.php.net/releases/8.1/"><img src="https://img.shields.io/badge/runtime-PHP%208.1-blue" alt="runtime php81"></a>
 <a href="https://laravel.com/docs/8.x"><img src="https://img.shields.io/badge/laravel-8.83-red" alt="Laravel 8.83"></a>
-<a href="https://github.com/Lulu-Grant/dujiaoka/releases/tag/v3.1.1"><img src="https://img.shields.io/badge/release-v3.1.1-orange" alt="release v3.1.1"></a>
+<a href="https://github.com/Lulu-Grant/dujiaoka/releases/tag/v3.3.0"><img src="https://img.shields.io/badge/release-v3.3.0-orange" alt="release v3.3.0"></a>
 <a href="https://www.php.net/supported-versions.php"><img src="https://img.shields.io/badge/modernization-in%20progress-orange" alt="modernization in progress"></a>
 <a href="https://github.com/Lulu-Grant/dujiaoka/actions/workflows/ci.yml"><img src="https://github.com/Lulu-Grant/dujiaoka/actions/workflows/ci.yml/badge.svg" alt="ci"></a>
 </p>
@@ -14,7 +14,7 @@
 
 `Lulu-Grant/dujiaoka` 是基于原始 `assimon/dujiaoka` 停更项目继续维护的分叉版本，当前品牌名为“独角数卡西瓜版”。
 
-当前发布版本为 `v3.1.1`。这一版在 `v3.1.0` 的 PHP 8.1+ / Laravel 8.83 主线基础上，补齐前台 UI、移动端购买路径和轻量物料接入；`v3.0.0` 继续作为 Laravel 7 回滚锚点。
+当前发布版本为 `v3.3.0`。这一版在 `v3.1.0` 的 PHP 8.1+ / Laravel 8.83 主线基础上，合并 `v3.1.1` 前台体验补丁、`v3.2.0` 前台资源拆包和 `v3.3` 支付与安全护栏矩阵；`v3.0.0` 继续作为 Laravel 7 回滚锚点。
 
 这个仓库现在已经不是“原样存档”，也不只是“能跑就行”的修补版，而是在保留原有业务能力前提下，持续推进现代化治理、后台替换和升级前清障的维护分支。
 
@@ -30,23 +30,25 @@
 - 维持 Laravel 8.83 主线可验证
 - 保持后台壳主承载，继续压缩 Dcat 到兼容层职责
 - 只维护官方支付宝、官方微信、易支付、Epusdt
-- 完成 `v3.1.1` 前台 UI 与移动端购买页补丁收口
+- 完成 `v3.3.0` 稳定版收口，冻结前台资源、支付范围和安全护栏边界
 - 为后续 Laravel 8、Dcat 退场、Yansongda 升级做独立实验准备
 
 ## 当前状态
 
 - 原项目已停止维护，本仓库仍在持续推进现代化改造。
 - 当前默认品牌已统一为“独角数卡西瓜版”。
-- 当前 `v3.1.1` 已完成：Laravel 8.83 主线升级、PHP 8.1 PHPUnit、后台 smoke、安装流程现代化、后台壳主承载、支付通道裁剪和前台购买页移动端精修。
+- 当前 `v3.3.0` 已完成：Laravel 8.83 主线升级、PHP 8.1 PHPUnit、后台 smoke、安装流程现代化、后台壳主承载、支付通道裁剪、前台资源拆包和支付与安全护栏矩阵。
 - 当前路线以“可验证运行 + 渐进式重构 + 后台壳主承载 + 升级实验分支”为原则推进。
 
 如果只用一句话描述现在的位置：
 
-- 我们已经从“停更遗留项目”推进到了“v3.1.1 前台体验补丁收口、PHP 8.1 / Laravel 8 成为主线”的阶段。
+- 我们已经从“停更遗留项目”推进到了“v3.3.0 稳定维护版、PHP 8.1 / Laravel 8 成为主线”的阶段。
 
 如果你想了解截至目前的改造记录，请先看：
 
 - [重构升级日志](docs/refactor-upgrade-log.md)
+- [v3.3.0 发布说明](docs/releases/v3.3.0.md)
+- [v3.2.0 发布说明](docs/releases/v3.2.0.md)
 - [v3.1.1 发布说明](docs/releases/v3.1.1.md)
 - [v3.1.0 发布说明](docs/releases/v3.1.0.md)
 - [v3.1.0-beta.1 发布说明](docs/releases/v3.1.0-beta.1.md)
@@ -124,7 +126,7 @@
 - 保持后台壳主承载冻结，不新增高风险批量动作
 - 继续压缩旧 `Dcat Admin` 到登录、认证、中间件、权限白名单和旧入口跳转职责
 - 继续维护官方支付宝、官方微信、易支付和 Epusdt 的回调安全护栏
-- 进入 `v3.0.0` 稳定冻结：后台壳、Dcat 兼容层、支付安全、安全治理和升级阻塞矩阵同步收敛
+- 进入 `v3.3.0` 稳定维护：后台壳、Dcat 兼容层、前台资源、支付范围、安全治理和升级阻塞矩阵同步收敛
 
 ## 当前品牌与定位
 
@@ -133,8 +135,8 @@
 - 当前目标：稳定运行、逐步重构、保持 Laravel 8 / PHP 8.1 主线可验证
 - 默认前台主题：`avatar`
 - 当前后台状态：保留 `Dcat Admin` 最小兼容层，但后台主入口、主 dashboard 和多组高频资源已经转入后台壳
-- 当前发布状态：`v3.1.1`
-- 当前框架状态：Laravel `8.83.29` 已进入主线 beta，暂不直接跳 Laravel 10
+- 当前发布状态：`v3.3.0`
+- 当前框架状态：Laravel `8.83.29` 已进入主线 stable，暂不直接跳 Laravel 10
 
 ## 运行与验证
 
@@ -147,7 +149,7 @@ sh scripts/php81-docker vendor/bin/phpunit --configuration phpunit.php81.xml
 当前主线测试结果基线：
 
 ```bash
-OK (417 tests, 4299 assertions)
+OK (417 tests, 4320 assertions)
 ```
 
 PHP 8.1 Docker 验证链路：
@@ -220,6 +222,8 @@ ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin
 - [当前基线审计](docs/current-baseline-audit.md)
 - [当前进度总汇](docs/current-progress-super-summary.md)
 - [后台壳动作边界矩阵](docs/admin-shell-action-boundary-matrix.md)
+- [v3.3.0 发布说明](docs/releases/v3.3.0.md)
+- [v3.2.0 发布说明](docs/releases/v3.2.0.md)
 - [v3.1.1 发布说明](docs/releases/v3.1.1.md)
 - [v3.1.0 发布说明](docs/releases/v3.1.0.md)
 - [v3.1.0-beta.1 发布说明](docs/releases/v3.1.0-beta.1.md)
@@ -229,7 +233,7 @@ ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin
 ## 说明
 
 - 当前仓库仍是遗留系统的渐进式改造阶段，不是最终现代化完成态。
-- 当前 `v3.1.1` 已具备：Laravel 8.83、PHP 8.1 运行时验证、本地快速拉站、GitHub Actions 自动回归、安装现代化主路径、后台壳主承载基础和前台购买页移动端精修。
+- 当前 `v3.3.0` 已具备：Laravel 8.83、PHP 8.1 运行时验证、本地快速拉站、GitHub Actions 自动回归、安装现代化主路径、后台壳主承载、前台资源拆包和支付与安全护栏矩阵。
 - 当前 `/admin` 默认已经落到新的后台壳首页。
 - 当前后台登录、退出和账号设置也已经切到后台壳入口。
 - 后续每一个重要节点都会持续记录到 [重构升级日志](docs/refactor-upgrade-log.md)。
