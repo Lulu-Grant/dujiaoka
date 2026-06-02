@@ -20,12 +20,6 @@
                     </div>
                 </div>
 
-                <div class="sidebar-note">
-                    <span class="sidebar-note__label">控制台</span>
-                    <strong>运营管理</strong>
-                    <p>统一管理商品、订单、支付和系统配置。</p>
-                </div>
-
                 <div class="nav-label">{{ \App\Service\AdminShellResourceRegistry::navigationSectionLabel() }}</div>
                 <nav class="nav-list">
                     <a class="nav-item{{ request()->is(config('admin.route.prefix').'/v2/dashboard') ? ' active' : '' }}" href="{{ admin_url('v2/dashboard') }}">
@@ -41,7 +35,6 @@
                 </nav>
 
                 <div class="sidebar-footer">
-                    <span>简洁后台界面</span>
                     <div class="sidebar-footer__links">
                         <a href="{{ admin_url('auth/setting') }}">账号设置</a>
                         <a href="{{ admin_url('auth/logout') }}">退出登录</a>

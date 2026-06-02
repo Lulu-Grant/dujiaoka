@@ -14,13 +14,14 @@
 
 ## 当前基线
 
-- Framework：Laravel 7.30.7 实验分支
+- Framework：Laravel 8.83.29 主线
 - Admin：Dcat Admin 2.0.24-beta
-- Runtime baseline：PHP 7.4 可验证
+- Runtime baseline：PHP 8.1 可验证
 - PHP 8.1：Composer 平台检查、artisan、全量 PHPUnit 和后台 smoke 已通过
 - 本机现代运行时：PHP 8.5.4
 - 订单主链测试：已建立基础护栏
 - 安装主路径：已切换到 migration + bootstrap seed
+- v3.1.1：前台 UI 与移动端购买体验补丁已进入收口状态
 
 ---
 
@@ -77,14 +78,14 @@
 影响：
 
 - PHP 8.1 已可通过 Docker 工具链验证
-- Laravel 7.30.7 桥接实验分支已通过 PHP 7.4 / PHP 8.1 双运行时 PHPUnit 与后台 smoke
+- Laravel 8.83.29 已进入主线，并已通过 PHP 8.1 PHPUnit 与后台 smoke 验证
 - PHP 8.5 仍不是当前目标运行时
 
 建议动作：
 
 1. 为阻塞包建立“保留 / 替换 / 移除”决策表
-2. 优先验收 Dcat 兼容层与支付保留链这两条剩余高优先级链
-3. Laravel 桥接升级按 [laravel-bridge-upgrade-plan.md](/Users/apple/Documents/dujiaoshuka/docs/laravel-bridge-upgrade-plan.md) 执行，先把 Laravel 7 实验分支做成可评审候选，再评估 Laravel 8
+2. 优先处理 `swiftmailer/swiftmailer`、`symfony/debug` 和前台重资源拆包
+3. Dcat 兼容层与支付保留链继续以测试护栏维护，不混入 `v3.2` 第一批前台性能拆包
 
 参考：
 
@@ -106,7 +107,7 @@
 
 影响：
 
-- Laravel 7 已可启动并通过测试，但后续 Laravel 8+ 仍可能卡在 Dcat 包启动、认证 guard、后台中间件和权限配置
+- Laravel 8.83 已进入主线，但后续 Laravel 10+ 仍可能卡在 Dcat 包启动、认证 guard、后台中间件和权限配置
 - 但业务 CRUD 与批量动作已经不再主要卡在旧 Dcat 控制器
 
 建议动作：
@@ -180,16 +181,16 @@
 
 ## 当前结论
 
-项目已经从“完全没有升级准备”推进到“Laravel 7 桥接实验已通过，正在做可合并候选验收”。
+项目已经从“完全没有升级准备”推进到“Laravel 8.83 / PHP 8.1 主线已可验证，v3.1.1 前台体验补丁正在收口，v3.2 进入性能与依赖清障准备”。
 
 但目前仍不适合：
 
 - 直接切 PHP 8.5
-- 直接跳 Laravel 8/10
+- 直接跳 Laravel 10+
 - 直接整体替后台
 
 当前最正确的姿势仍然是：
 
-- 先验收 Laravel 7 实验分支
-- 再压缩 Dcat 兼容层和支付保留链风险
-- 最后单独规划 Laravel 8+ 跨版本迁移
+- 先收口并提交 `v3.1.1` 前台体验补丁
+- 再进入 `v3.2`，优先拆前台重资源并替换 abandoned 依赖
+- 最后单独规划 Laravel 10+、Dcat 退场和支付 SDK 升级

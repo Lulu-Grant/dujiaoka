@@ -1,6 +1,6 @@
 # Dcat 最小兼容层审计
 
-审计日期：2026-06-01
+审计日期：2026-06-02
 
 ## 当前结论
 
@@ -8,7 +8,7 @@
 
 现阶段仍保留 Dcat 兼容层，原因不是继续使用旧页面，而是后台登录、认证中间件、权限白名单、历史入口跳转和包启动流程仍需要一层过渡引导。
 
-Laravel 7.30.7 实验分支已经通过 PHP 7.4 / PHP 8.1 双运行时 PHPUnit 与后台 smoke。该结果说明当前兼容层可以在 Laravel 7 下继续承担过渡职责，但不代表 Dcat 已经可以删除。
+Laravel 8.83.29 已进入 PHP 8.1 主线，并已通过 PHPUnit 与后台 smoke。该结果说明当前兼容层可以在 Laravel 8 主线下继续承担过渡职责，但不代表 Dcat 已经可以删除。
 
 因此当前口径统一为：
 
@@ -47,7 +47,7 @@ Laravel 7.30.7 实验分支已经通过 PHP 7.4 / PHP 8.1 双运行时 PHPUnit �
 - 在 `admin` 前缀和后台中间件下挂载 `/admin/v2/dashboard`。
 - 通过 `AdminShellRouteRegistrar` 注册后台壳资源页与动作页。
 - 为历史 `/admin/*` 链接提供 302 跳转，保留 query string。
-- 保持旧 `/admin/*` 到 `/admin/v2/*` query-preserving 跳转层在 Laravel 7 下可测。
+- 保持旧 `/admin/*` 到 `/admin/v2/*` query-preserving 跳转层在 Laravel 8.83 下可测。
 
 不再承担的职责：
 
@@ -134,11 +134,11 @@ Laravel 7.30.7 实验分支已经通过 PHP 7.4 / PHP 8.1 双运行时 PHPUnit �
 - 不恢复 `app/Admin` 生产目录。
 - 不新增 Dcat 绑定型后台能力。
 
-## Laravel 7 实验分支验收口径
+## Laravel 8.83 主线验收口径
 
-Laravel 7 实验分支只要求 Dcat 兼容层职责清楚、旧入口可测、登录与账号设置路径可用、文档口径一致。
+Laravel 8.83 主线只要求 Dcat 兼容层职责清楚、旧入口可测、登录与账号设置路径可用、文档口径一致。
 
-Laravel 7 实验分支不要求：
+Laravel 8.83 主线不要求：
 
 - 完全删除 Dcat 包。
 - 删除 `config/admin.php`。

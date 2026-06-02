@@ -1,52 +1,46 @@
 @extends('avatar.layouts.default')
 @section('content')
-<div class="row justify-content-center">
-    <div class="col-lg-6">
-        <div class="page-title-box">
-            {{-- 确认订单 --}}
-            <h4 class="page-title">{{ __('hyper.bill_title') }}</h4>
+@php
+    $payName = $pay['pay_name'] ?? '未配置';
+    $payHandle = $pay['pay_handleroute'] ?? null;
+    $payCheck = $pay['pay_check'] ?? null;
+@endphp
+<section class="avatar-bill-shell">
+    <div class="avatar-panel avatar-bill-panel">
+        <div class="avatar-bill-header">
+            <h1 class="avatar-page-title">{{ __('hyper.bill_title') }}</h1>
+            <p class="avatar-page-copy">请确认订单信息，确认无误后继续支付。</p>
         </div>
-    </div>
-</div>
-<div class="row justify-content-center">
-    <div class="col-lg-6">
-        <div class="card card-body">
-        	<div class="mx-auto">
-        	    {{-- 订单编号 --}}
-                <div class="mb-1"><label>{{ __('hyper.bill_order_number') }}：</label><span>{{ $order_sn }}</span></div>
-                {{-- 商品名称 --}}
-                <div class="mb-1"><label>{{ __('hyper.bill_product_name') }}：</label><span>{{ $title }}</span></div>
-                {{-- 商品单价 --}}
-                <div class="mb-1"><label>{{ __('hyper.bill_commodity_price') }}：</label><span>{{ $goods_price }}</span></div>
-                {{-- 购买数量 --}}
-                <div class="mb-1"><label>{{ __('hyper.bill_purchase_quantity') }}：</label><span>x {{ $buy_amount }}</span></div>
-                @if(!empty($coupon))
-                {{-- 优惠码 --}}
-                <div class="mb-1"><label>{{ __('hyper.bill_promo_code') }}：</label><span>{{ $coupon['coupon'] }}</span></div>
-                {{-- 优惠金额 --}}
-                <div class="mb-1"><label>{{ __('hyper.bill_discounted_price') }}：</label><span>{{ $coupon_discount_price }}</span></div>
-                @endif
-                {{-- 商品总价 --}}
-                <div class="mb-1"><label>{{ __('hyper.bill_actual_payment') }}：</label><span>{{ $actual_price }}</span></div>
-                {{-- 电子邮箱 --}}
-                <div class="mb-1"><label>{{ __('hyper.bill_email') }}：</label><span>{{ $email }}</span></div>
-                @if(!empty($info))
-                {{-- 订单资料 --}}
-                <div class="mb-1"><label>{{ __('hyper.bill_order_information') }}：</label><span>{{ $info }}</span></div>
-                @endif
-                {{-- 支付方式 --}}
-                <div class="mb-1"><label>{{ __('hyper.bill_payment_method') }}：</label><span>{{ $pay['pay_name'] }}</span></div>
-            </div>
-            <div class="text-center">
-                {{-- 立即支付 --}}
-            	<a href="{{ url('pay-gateway', ['handle' => urlencode($pay['pay_handleroute']),'payway' => $pay['pay_check'], 'orderSN' => $order_sn]) }}"
-                   class="btn btn-danger">
-                    {{ __('hyper.bill_pay_immediately') }}
-                </a>
-            </div>
+
+        <div class="avatar-bill-list">
+            <div class="avatar-bill-row"><span>{{ __('hyper.bill_order_number') }}</span><strong>{{ $order_sn }}</strong></div>
+            <div class="avatar-bill-row"><span>{{ __('hyper.bill_product_name') }}</span><strong>{{ $title }}</strong></div>
+            <div class="avatar-bill-row"><span>{{ __('hyper.bill_commodity_price') }}</span><strong>{{ $goods_price }}</strong></div>
+            <div class="avatar-bill-row"><span>{{ __('hyper.bill_purchase_quantity') }}</span><strong>x {{ $buy_amount }}</strong></div>
+            @if(!empty($coupon))
+                <div class="avatar-bill-row"><span>{{ __('hyper.bill_promo_code') }}</span><strong>{{ $coupon['coupon'] }}</strong></div>
+                <div class="avatar-bill-row"><span>{{ __('hyper.bill_discounted_price') }}</span><strong>{{ $coupon_discount_price }}</strong></div>
+            @endif
+            <div class="avatar-bill-row avatar-bill-total"><span>{{ __('hyper.bill_actual_payment') }}</span><strong>{{ $actual_price }}</strong></div>
+            <div class="avatar-bill-row"><span>{{ __('hyper.bill_email') }}</span><strong>{{ $email }}</strong></div>
+            @if(!empty($info))
+                <div class="avatar-bill-row"><span>{{ __('hyper.bill_order_information') }}</span><strong>{{ $info }}</strong></div>
+            @endif
+            <div class="avatar-bill-row"><span>{{ __('hyper.bill_payment_method') }}</span><strong>{{ $payName }}</strong></div>
         </div>
+
+        @if($payHandle && $payCheck)
+            <a href="{{ url('pay-gateway', ['handle' => urlencode($payHandle),'payway' => $payCheck, 'orderSN' => $order_sn]) }}"
+               class="avatar-button avatar-button--primary avatar-submit">
+                {{ __('hyper.bill_pay_immediately') }}
+            </a>
+        @else
+            <button type="button" class="avatar-button avatar-button--secondary avatar-submit" disabled>
+                支付方式未配置
+            </button>
+        @endif
     </div>
-</div>
+</section>
 @stop
 @section('js')
 @stop

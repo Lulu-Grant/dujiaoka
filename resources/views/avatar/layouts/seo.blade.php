@@ -22,14 +22,14 @@
     <link href="/assets/avatar/css/base.css" rel="stylesheet" type="text/css">
     <link href="/assets/avatar/css/common.css" rel="stylesheet" type="text/css">
     <link href="/assets/avatar/css/index.css" rel="stylesheet" type="text/css">
-    <link href="/assets/avatar/css/avatar.css" rel="stylesheet" type="text/css">
+    <link href="/assets/avatar/css/avatar.css?v=20260602-ui4" rel="stylesheet" type="text/css">
 </head>
-<body data-layout="topnav">
-    <div class="wrapper">
+<body class="avatar-theme" data-layout="topnav">
+    <div class="wrapper avatar-wrapper">
         <div class="content-page">
             <div class="content">
                 @include('avatar.layouts._nav')
-                <div class="container">
+                <div class="container avatar-page">
                     @yield('content')
                 </div>
             </div><!-- content -->

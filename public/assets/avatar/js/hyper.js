@@ -32,6 +32,9 @@ $(function() {
 	// 付款方式按钮
 	$('.pay-type').each(function () {
 		let t = $(this), type = t.data('type'), name = t.data('name');
+		if ($.trim(t.html()) !== '') {
+			return;
+		}
 		if (paySvgArr[type] !== undefined) {
 			t.append(paySvgArr[type] + ' ' + name);
 		} else {

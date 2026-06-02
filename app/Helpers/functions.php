@@ -215,6 +215,8 @@ if (!function_exists('picture_ulr')) {
     function picture_ulr($file, $getHost = false)
     {
         if ($getHost) return Storage::disk('admin')->url('');
+        if (is_string($file) && preg_match('/^https?:\/\//i', $file)) return $file;
+        if (is_string($file) && preg_match('/^\/?assets\//', $file)) return url(ltrim($file, '/'));
         return $file ? Storage::disk('admin')->url($file) : url('assets/common/images/default.jpg');
     }
 }

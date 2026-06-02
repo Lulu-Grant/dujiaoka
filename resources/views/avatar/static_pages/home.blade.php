@@ -6,12 +6,12 @@
         <h1>{{ dujiaoka_config_get('title') }}</h1>
         <p>{{ dujiaoka_config_get('description') ?: '更清晰的商品浏览，更顺滑的下单入口，以及更现代的前台视觉。' }}</p>
         <div class="avatar-hero-actions">
-            <button type="button" class="avatar-primary-btn" id="notice-open">{{ __('hyper.notice_announcement') }}</button>
-            <a class="avatar-secondary-btn" href="{{ url('order-search') }}">查询订单</a>
+            <a class="avatar-primary-btn" href="{{ url('order-search') }}">查询订单</a>
+            <button type="button" class="avatar-secondary-btn" id="notice-open">{{ __('hyper.notice_announcement') }}</button>
         </div>
     </div>
     <div class="avatar-hero-art">
-        <img src="/assets/avatar/images/index-img.webp" alt="独角数卡西瓜版首页视觉">
+        <img src="/assets/avatar/images/ui/hero-digital-store.webp" alt="">
     </div>
 </section>
 <section class="avatar-toolbar">
@@ -49,7 +49,7 @@
                         <div class="avatar-sold-out">{{ __('hyper.home_out_of_stock') }}</div>
                     @endif
                         <div class="avatar-card-media">
-                            <img class="home-img" src="/assets/avatar/images/loading.gif" data-src="{{ picture_ulr($goods['picture']) }}">
+                            <img class="home-img" src="/assets/avatar/images/loading.gif" data-src="{{ picture_ulr($goods['picture']) }}" onerror="this.onerror=null;this.src='/assets/avatar/images/ui/product-digital-card.webp';">
                         </div>
                         <div class="avatar-card-body">
                             <p class="avatar-card-name">{{ $goods['gd_name'] }}</p>
@@ -74,7 +74,7 @@
                         <div class="avatar-sold-out">{{ __('hyper.home_out_of_stock') }}</div>
                     @endif
                         <div class="avatar-card-media">
-                            <img class="home-img" src="/assets/avatar/images/loading.gif" data-src="{{ picture_ulr($goods['picture']) }}">
+                            <img class="home-img" src="/assets/avatar/images/loading.gif" data-src="{{ picture_ulr($goods['picture']) }}" onerror="this.onerror=null;this.src='/assets/avatar/images/ui/product-digital-card.webp';">
                         </div>
                         <div class="avatar-card-body">
                             <p class="avatar-card-name">{{ $goods['gd_name'] }}</p>

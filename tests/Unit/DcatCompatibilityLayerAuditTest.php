@@ -8,12 +8,12 @@ use Tests\TestCase;
 
 class DcatCompatibilityLayerAuditTest extends TestCase
 {
-    public function test_dcat_audit_records_laravel7_compatibility_responsibilities(): void
+    public function test_dcat_audit_records_laravel8_compatibility_responsibilities(): void
     {
         $contents = file_get_contents(base_path('docs/dcat-compatibility-layer-audit.md'));
 
         foreach ([
-            'Laravel 7.30.7',
+            'Laravel 8.83.29',
             '后台登录',
             '认证 guard / provider',
             '中间件',

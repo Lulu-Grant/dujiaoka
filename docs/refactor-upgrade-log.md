@@ -9,6 +9,37 @@
 
 ---
 
+## 2026-06-02 阶段日志
+
+### 256. v3.1.1 前台体验补丁收口
+
+摘要：
+
+- 前台购买页完成第三轮精修，形成白灰底、蓝色主操作、橙色价格、青绿色状态提示的轻量科技感方向。
+- 移动端购买页按商品摘要、提交订单、商品详情组织首屏，下单路径优先级高于富文本详情。
+- 接入四张 AI 会员卡封面，并保留商品真实图片优先、缺失或失败再 fallback 的策略。
+- 支付方式 tile 按 USDT、支付宝、微信增加图标与弱色彩区分，点击后仍写入原 `payway` hidden 字段。
+- 首页、订单查询页和确认订单页维持前台轻量视觉统一，不修改下单、查询和支付跳转语义。
+- 新增 [v3.1.1 发布说明](/Users/apple/Documents/dujiaoshuka/docs/releases/v3.1.1.md)，同步 README、当前进度总汇和执行基线口径。
+
+影响范围：
+
+- 仅调整前台模板、样式和静态物料引用。
+- 不新增公开 API，不修改 `create-order`、订单查询提交地址、支付跳转 URL 或支付回调 URL。
+- 后台壳、Dcat 兼容层和支付通道范围不随本轮变化。
+
+验证：
+
+- `git diff --check` 通过。
+- `php -l resources/views/avatar/static_pages/buy.blade.php` 通过。
+- `php -l resources/views/avatar/layouts/seo.blade.php` 通过。
+- `/`、`/buy/30`、`/buy/31`、`/buy/32`、`/buy/33`、`/order-search` 已做本地 HTTP 渲染检查。
+- `ADMIN_USERNAME=admin-shell-tester ADMIN_PASSWORD=secret123 ./scripts/smoke-admin-shell` 通过。
+
+下一步：
+
+- 进入 `v3.2` 前台性能和依赖清障，优先拆分 `vendor.min.js / icons.min.css / fonts` 等重资源。
+
 ## 2026-06-01 阶段日志
 
 ### 220. PHP 8.1 小步兼容实验通过

@@ -1,0 +1,19 @@
+<svg width="960" height="720" viewBox="0 0 960 720" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="季卡会员封面">
+  <rect width="960" height="720" rx="42" fill="#F6F7F9"/>
+  <rect x="96" y="96" width="768" height="528" rx="36" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="4"/>
+  <rect x="158" y="158" width="644" height="316" rx="32" fill="#F97316"/>
+  <rect x="198" y="204" width="230" height="132" rx="26" fill="#FFFFFF" fill-opacity=".18"/>
+  <rect x="216" y="230" width="62" height="22" rx="11" fill="#FFFFFF"/>
+  <rect x="216" y="276" width="154" height="18" rx="9" fill="#FED7AA"/>
+  <circle cx="278" cy="410" r="44" fill="#FFFFFF" fill-opacity=".2"/>
+  <path d="M235 444c16-34 70-34 86 0" stroke="#FFFFFF" stroke-width="18" stroke-linecap="round"/>
+  <rect x="500" y="222" width="218" height="24" rx="12" fill="#FFFFFF"/>
+  <rect x="500" y="276" width="286" height="18" rx="9" fill="#FFEDD5"/>
+  <rect x="500" y="324" width="172" height="18" rx="9" fill="#FFEDD5"/>
+  <rect x="168" y="512" width="146" height="46" rx="23" fill="#FFF7ED"/>
+  <rect x="340" y="512" width="172" height="46" rx="23" fill="#FFF7ED"/>
+  <text x="480" y="402" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, Arial, sans-serif" font-size="86" font-weight="800" fill="#FFFFFF">季卡</text>
+  <text x="480" y="560" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, Arial, sans-serif" font-size="34" font-weight="700" fill="#111827">数字会员 · 自动发货</text>
+  <circle cx="764" cy="512" r="44" fill="#111827"/>
+  <path d="m742 511 15 15 31-36" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
