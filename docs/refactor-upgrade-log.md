@@ -11,6 +11,28 @@
 
 ## 2026-06-02 阶段日志
 
+### 260. v3.2 前台 Bootstrap CSS 依赖评估
+
+摘要：
+
+- 新增 [Avatar 前台 Bootstrap CSS 依赖矩阵](/Users/apple/Documents/dujiaoshuka/docs/avatar-bootstrap-css-dependency-matrix.md)，盘点 `avatar` 前台仍依赖 `bootstrap.min.css` 的真实边界。
+- 评估确认首页、购买页、订单查询页和确认订单页主体已经基本自有化，剩余依赖集中在 `container`、`form-control`、tab、modal、验证码输入组合，以及订单详情、二维码支付和错误页的旧 `row/col/card/btn/badge/text-*` 风格。
+- 本轮只评估和记录，不停止加载 `bootstrap.min.css`。
+
+影响范围：
+
+- 不修改模板、样式或接口语义。
+- 不影响下单、支付、订单查询、二维码支付轮询和订单详情复制行为。
+
+验证：
+
+- 模板搜索覆盖 `resources/views/avatar`。
+- HTTP 渲染检查覆盖 `/`、`/buy/30`、`/buy/31`、`/buy/32`、`/buy/33`、`/order-search`。
+
+下一步：
+
+- 进入 `v3.2` 第五批资源清理，用 `avatar.css` 接管矩阵中标记的可替代样式，并在页面验证后停止前台新页面引用 `bootstrap.min.css`。
+
 ### 259. v3.2 前台 Bootstrap JS 拆包
 
 摘要：
