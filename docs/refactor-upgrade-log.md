@@ -11,6 +11,30 @@
 
 ## 2026-06-02 阶段日志
 
+### 258. v3.2 前台图标字体拆包
+
+摘要：
+
+- 前台布局 `default` 和 `seo` 均停止加载 `icons.min.css`，避免首页、订单查询页、购买页继续请求大体积图标 CSS。
+- 错误页和订单详情页的 `mdi mdi-reply` 返回图标改为无字体依赖的轻量内联符号。
+- [avatar.css](/Users/apple/Documents/dujiaoshuka/public/assets/avatar/css/avatar.css) 新增 `.avatar-inline-icon`，用于保留按钮内图标的对齐和触控观感。
+- 旧 `icons.min.css` 和字体文件保留，不删除历史资源。
+
+影响范围：
+
+- 影响 `avatar` 前台通用布局、错误页和订单详情空结果页。
+- 不修改订单、支付、查询接口语义。
+- 后台壳不受影响，`admin-shell.css` 不依赖本轮前台图标拆包。
+
+验证：
+
+- 本地渲染检查确认 `/`、`/buy/30`、`/order-search` 不再输出 `icons.min.css`，且页面 HTML 不含 `materialdesignicons`、`unicons`、`dripicons` 字体引用。
+- 后续需继续用浏览器验证首页公告、购买页、订单查询 tab、订单详情复制和错误页返回按钮。
+
+下一步：
+
+- 进入 `v3.2` 第三批资源清理，重点盘点 Bootstrap CSS/JS 的真实依赖和可替换边界。
+
 ### 257. v3.2 前台资源第一批拆包
 
 摘要：
@@ -36,7 +60,7 @@
 
 下一步：
 
-- 继续 `v3.2` 第二批资源清理，重点评估 `icons.min.css`、字体包和前台 Bootstrap CSS 的可替换边界。
+- 继续 `v3.2` 第二批资源清理，重点评估图标字体和前台 Bootstrap CSS 的可替换边界。
 
 ### 256. v3.1.1 前台体验补丁收口
 

@@ -14,9 +14,9 @@
 			<div class="text-error mt-4">error</div>
             <h1 class="text-uppercase text-danger mt-3">{{ $content }}</h1>
             @if(!$url)
-                <a class="btn btn-info mt-3" href="javascript:history.back(-1);"><i class="mdi mdi-reply"></i> {{ __('hyper.error_back_btn') }}</a>
+                <a class="btn btn-info mt-3" href="javascript:history.back(-1);"><span class="avatar-inline-icon" aria-hidden="true">&lt;</span> {{ __('hyper.error_back_btn') }}</a>
 			@else
-                <a class="btn btn-info mt-3" href="{{ $url }}"><i class="mdi mdi-reply"></i> {{ __('hyper.error_back_btn') }}</a>
+                <a class="btn btn-info mt-3" href="{{ $url }}"><span class="avatar-inline-icon" aria-hidden="true">&lt;</span> {{ __('hyper.error_back_btn') }}</a>
             @endif
         </div> <!-- end /.text-center-->
     </div> <!-- end col-->

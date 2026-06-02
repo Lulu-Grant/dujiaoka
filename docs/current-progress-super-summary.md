@@ -56,7 +56,7 @@
 - `v3.1.1` 已完成首页、购买页、订单查询页和确认订单页的前台视觉统一
 - 购买页移动端已按商品摘要、提交订单、商品详情重新组织，并接入四张 AI 会员卡封面
 - 支付 tile 已按 USDT、支付宝、微信增加图标和弱色彩区分，保留下单字段和支付语义不变
-- `v3.2` 前台资源第一批拆包已开始，`avatar` 前台已停止加载 `vendor.min.js`、`app.min.js` 和 `bootstrap-input-spinner.js`，并由 `hyper.js` 接管轻量通知、modal 和 tab 兼容逻辑
+- `v3.2` 前台资源拆包已完成两批，`avatar` 前台已停止加载 `vendor.min.js`、`app.min.js`、`bootstrap-input-spinner.js` 和 `icons.min.css`，并由 `hyper.js` 接管轻量通知、modal 和 tab 兼容逻辑
 
 ### 6. 后台壳从样板走到主承载
 
@@ -126,7 +126,7 @@
 4. 安全专项、CI 护栏和升级阻塞矩阵保持可复核
 5. 后续 Laravel 10+ / Dcat 退场只在单独实验分支推进
 6. Laravel 8.83 已进入主线 stable；下一轮不得继续混入 Laravel 10 或 Dcat 退场
-7. 前台性能清理进入 `v3.2`：第一批已停载 `vendor.min.js / app.min.js / bootstrap-input-spinner.js`，下一批优先评估 `icons.min.css / fonts / Bootstrap CSS`
+7. 前台性能清理进入 `v3.2`：已停载 `vendor.min.js / app.min.js / bootstrap-input-spinner.js / icons.min.css`，下一批优先评估 `Bootstrap CSS/JS` 的真实依赖和替换边界
 
 而且当前最值得持续投入的子方向依然是：
 

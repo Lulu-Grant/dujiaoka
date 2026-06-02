@@ -31,7 +31,7 @@
 - 支付层现代化：维护期，当前维护范围已收敛为官方支付宝、官方微信、易支付和 Epusdt，其余非核心支付通道已进入退役范围
 - 安全治理与升级前清障：进入 3.2 / 4.0 实验准备期，已有状态表、依赖阻塞矩阵和升级实验命令，后续升级实验不得混入 v3.1.1 收口
 
-最近一轮后台壳已经连续补齐 `goods / order / pay / coupon / carmis` 多组低风险批量动作，并补强支付回调幂等、签名失败、金额校验、已完成订单重复推进、上传与模板输入边界、后台支付入口防回流、后台壳动作边界矩阵、依赖阻塞矩阵、本地 smoke 凭据边界、CI 工作流护栏、RC.1 验收状态、v3.1.0 遗留边界、release 文档冻结护栏、当前进度文档护栏、当前规划文档护栏、退役支付通道运行时防回流护栏和 PHP 8.1 / Laravel 8 升级护栏；支付范围已裁剪到官方支付宝、官方微信、易支付和 Epusdt，当前 PHPUnit 基线为 `417 tests, 4299 assertions`。前台已追加 `v3.1.1` 体验补丁：移动端购买路径、会员卡物料、支付 tile、订单查询页和确认订单页统一为轻量前台视觉，且不修改下单、查询和支付接口语义。`v3.2` 第一批资源拆包已停载 `vendor.min.js`、`app.min.js` 和 `bootstrap-input-spinner.js`，并由 `hyper.js` 接管轻量通知、modal 和 tab 兼容逻辑。
+最近一轮后台壳已经连续补齐 `goods / order / pay / coupon / carmis` 多组低风险批量动作，并补强支付回调幂等、签名失败、金额校验、已完成订单重复推进、上传与模板输入边界、后台支付入口防回流、后台壳动作边界矩阵、依赖阻塞矩阵、本地 smoke 凭据边界、CI 工作流护栏、RC.1 验收状态、v3.1.0 遗留边界、release 文档冻结护栏、当前进度文档护栏、当前规划文档护栏、退役支付通道运行时防回流护栏和 PHP 8.1 / Laravel 8 升级护栏；支付范围已裁剪到官方支付宝、官方微信、易支付和 Epusdt，当前 PHPUnit 基线为 `417 tests, 4299 assertions`。前台已追加 `v3.1.1` 体验补丁：移动端购买路径、会员卡物料、支付 tile、订单查询页和确认订单页统一为轻量前台视觉，且不修改下单、查询和支付接口语义。`v3.2` 资源拆包已停载 `vendor.min.js`、`app.min.js`、`bootstrap-input-spinner.js` 和 `icons.min.css`，并由 `hyper.js` 接管轻量通知、modal 和 tab 兼容逻辑。
 
 兼容层本轮已建立 [Dcat 最小兼容层审计](/Users/apple/Documents/dujiaoshuka/docs/dcat-compatibility-layer-audit.md)，明确 `config/admin.php` 和 `routes/admin/routes.php` 仍因登录、认证、中间件、权限白名单、后台壳挂载和旧入口跳转保留；旧 `/admin/*` 入口必须保留 query string，且不得回写业务逻辑。
 
@@ -170,9 +170,10 @@
 
 1. 维护 `v3.1.1` 前台接口冻结边界，不再继续叠加纯视觉补丁
 2. 第一批停载 `vendor.min.js / app.min.js / bootstrap-input-spinner.js`，由轻量脚本补齐通知、modal 和 tab 行为
-3. 第二批评估 `icons.min.css / fonts / Bootstrap CSS` 的可替代边界
-4. 每批都确认购买页支付方式、订单查询 tab、首页公告、前台通知和页面渲染不回归
-5. 发布候选前每批都跑页面渲染检查、浏览器交互检查、后台壳 smoke 和 `git diff --check`
+3. 第二批停载 `icons.min.css` 并替换前台残余字体图标
+4. 第三批评估 `Bootstrap CSS/JS` 的真实依赖和可替代边界
+5. 每批都确认购买页支付方式、订单查询 tab、首页公告、前台通知和页面渲染不回归
+6. 发布候选前每批都跑页面渲染检查、浏览器交互检查、后台壳 smoke 和 `git diff --check`
 
 ## 近期 10 个可直接执行的任务
 
