@@ -58,6 +58,7 @@
 - 购买页移动端已按商品摘要、提交订单、商品详情重新组织，并接入四张 AI 会员卡封面
 - 支付 tile 已按 USDT、支付宝、微信增加图标和弱色彩区分，保留下单字段和支付语义不变
 - `v3.2` 前台资源拆包已完成发布候选验收，`avatar` 前台已停止加载 `vendor.min.js`、`app.min.js`、`bootstrap-input-spinner.js`、`icons.min.css`、`bootstrap.min.js` 和 `bootstrap.min.css`，并由 `hyper.js` 与 `avatar.css` 接管轻量通知、modal、tab 和前台基础样式
+- `v3.3` 第一批已建立 [支付与安全护栏矩阵](docs/v3.3-payment-security-guardrail-matrix.md)，当前只做保留支付通道、退役通道、安全输入面和升级阻塞面的盘点，不修改支付实现或公开接口
 
 ### 6. 后台壳从样板走到主承载
 
@@ -114,7 +115,8 @@
 
 - 结构化治理后期
 - 后台替换 stable 冻结期
-- 前台体验 `v3.1.1` 补丁收口期
+- 前台体验 `v3.1.1` 和 `v3.2` 资源拆包已完成发布候选收口
+- `v3.3` 支付与安全护栏盘点期
 - 升级前清障进入 3.2 / 4.0 实验准备期
 
 ## 当前正在做什么
@@ -127,11 +129,11 @@
 4. 安全专项、CI 护栏和升级阻塞矩阵保持可复核
 5. 后续 Laravel 10+ / Dcat 退场只在单独实验分支推进
 6. Laravel 8.83 已进入主线 stable；下一轮不得继续混入 Laravel 10 或 Dcat 退场
-7. 前台性能清理进入 `v3.2`：已停载 `vendor.min.js / app.min.js / bootstrap-input-spinner.js / icons.min.css / bootstrap.min.js / bootstrap.min.css`，发布候选资源验收和体积记录已完成；下一阶段进入 `v3.3` 安全、支付护栏和升级前清障
+7. 前台性能清理 `v3.2` 已完成发布候选验收；当前进入 `v3.3` 支付与安全护栏盘点，先按矩阵收敛保留通道、退役通道、安全输入面和升级阻塞面
 
 而且当前最值得持续投入的子方向依然是：
 
-- 旧 Dcat 最小兼容层的测试护栏维护，以及 `goods / order / pay / coupon / carmis` 已有动作的字段边界、smoke 覆盖和 release 文档一致性
+- 旧 Dcat 最小兼容层的测试护栏维护，以及 `v3.3` 矩阵中标记的支付回调、安全输入和升级阻塞缺口
 
 ## 还剩哪些大块工作
 
@@ -143,7 +145,7 @@
 
 ### 第二优先级
 
-- 支付保留通道继续收口
+- 支付保留通道继续按 [v3.3 支付与安全护栏矩阵](docs/v3.3-payment-security-guardrail-matrix.md) 维护
 - 退役通道保持不可新增、不可恢复、不可进入样例种子
 - 保留通道继续补回调异常路径护栏
 

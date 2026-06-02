@@ -16,6 +16,7 @@
 - [admin-shell-action-boundary-matrix.md](/Users/apple/Documents/dujiaoshuka/docs/admin-shell-action-boundary-matrix.md) 记录后台壳动作字段边界
 - [dcat-compatibility-layer-audit.md](/Users/apple/Documents/dujiaoshuka/docs/dcat-compatibility-layer-audit.md) 记录 Dcat 最小兼容层保留原因、旧入口清单和删除条件
 - [release-stabilization-roadmap.md](/Users/apple/Documents/dujiaoshuka/docs/release-stabilization-roadmap.md) 记录 beta.1、beta.2、RC 和稳定版路线
+- [v3.3-payment-security-guardrail-matrix.md](/Users/apple/Documents/dujiaoshuka/docs/v3.3-payment-security-guardrail-matrix.md) 记录 v3.3 保留支付通道、退役通道、安全输入面和升级阻塞面的执行矩阵
 - 本文件负责约束接下来连续执行的默认顺序、边界和退出标准
 
 ## 当前结论
@@ -26,12 +27,12 @@
 
 - 总体进度：约 `90%`
 - 后台壳替换：v3.1.0 stable 冻结期，已经是主入口和高频资源主承载，后续只接受真实运营缺口、回归、安全和文档一致性修正
-- 前台体验：v3.1.1 补丁已收口，v3.2 资源清理已进入第一批拆包；首页、购买页、订单查询页和确认订单页已完成轻量视觉统一，后续只接受可验证的可读性、性能和移动端转化修正
+- 前台体验：v3.1.1 补丁和 v3.2 资源拆包已收口；首页、购买页、订单查询页和确认订单页已完成轻量视觉统一，后续只接受可验证的回归、可读性和性能修正
 - 旧 Dcat 退场：后期，只剩最小兼容配置与旧路由跳转层
 - 支付层现代化：维护期，当前维护范围已收敛为官方支付宝、官方微信、易支付和 Epusdt，其余非核心支付通道已进入退役范围
-- 安全治理与升级前清障：进入 3.2 / 4.0 实验准备期，已有状态表、依赖阻塞矩阵和升级实验命令，后续升级实验不得混入 v3.1.1 收口
+- 安全治理与升级前清障：进入 v3.3 护栏盘点期，同时保持 3.2 / 4.0 实验准备期边界；已有状态表、依赖阻塞矩阵、护栏矩阵和升级实验命令，后续升级实验不得混入稳定主线
 
-最近一轮后台壳已经连续补齐 `goods / order / pay / coupon / carmis` 多组低风险批量动作，并补强支付回调幂等、签名失败、金额校验、已完成订单重复推进、上传与模板输入边界、后台支付入口防回流、后台壳动作边界矩阵、依赖阻塞矩阵、本地 smoke 凭据边界、CI 工作流护栏、RC.1 验收状态、v3.1.0 遗留边界、release 文档冻结护栏、当前进度文档护栏、当前规划文档护栏、退役支付通道运行时防回流护栏和 PHP 8.1 / Laravel 8 升级护栏；支付范围已裁剪到官方支付宝、官方微信、易支付和 Epusdt，当前 PHPUnit 基线为 `417 tests, 4313 assertions`。前台已追加 `v3.1.1` 体验补丁：移动端购买路径、会员卡物料、支付 tile、订单查询页和确认订单页统一为轻量前台视觉，且不修改下单、查询和支付接口语义。`v3.2` 资源拆包已停载 `vendor.min.js`、`app.min.js`、`bootstrap-input-spinner.js`、`icons.min.css`、`bootstrap.min.js` 和 `bootstrap.min.css`，并由 `hyper.js` 接管轻量通知和交互，由 `avatar.css` 接管前台基础样式，发布候选资源验收和体积记录已完成。
+最近一轮后台壳已经连续补齐 `goods / order / pay / coupon / carmis` 多组低风险批量动作，并补强支付回调幂等、签名失败、金额校验、已完成订单重复推进、上传与模板输入边界、后台支付入口防回流、后台壳动作边界矩阵、依赖阻塞矩阵、本地 smoke 凭据边界、CI 工作流护栏、RC.1 验收状态、v3.1.0 遗留边界、release 文档冻结护栏、当前进度文档护栏、当前规划文档护栏、退役支付通道运行时防回流护栏和 PHP 8.1 / Laravel 8 升级护栏；支付范围已裁剪到官方支付宝、官方微信、易支付和 Epusdt，当前 PHPUnit 基线为 `417 tests, 4313 assertions`。前台已追加 `v3.1.1` 体验补丁：移动端购买路径、会员卡物料、支付 tile、订单查询页和确认订单页统一为轻量前台视觉，且不修改下单、查询和支付接口语义。`v3.2` 资源拆包已停载 `vendor.min.js`、`app.min.js`、`bootstrap-input-spinner.js`、`icons.min.css`、`bootstrap.min.js` 和 `bootstrap.min.css`，并由 `hyper.js` 接管轻量通知和交互，由 `avatar.css` 接管前台基础样式，发布候选资源验收和体积记录已完成。`v3.3` 第一批已建立 [支付与安全护栏矩阵](/Users/apple/Documents/dujiaoshuka/docs/v3.3-payment-security-guardrail-matrix.md)，后续只按矩阵补测试缺口和代码护栏，不恢复退役支付通道，不新增支付 SDK。
 
 兼容层本轮已建立 [Dcat 最小兼容层审计](/Users/apple/Documents/dujiaoshuka/docs/dcat-compatibility-layer-audit.md)，明确 `config/admin.php` 和 `routes/admin/routes.php` 仍因登录、认证、中间件、权限白名单、后台壳挂载和旧入口跳转保留；旧 `/admin/*` 入口必须保留 query string，且不得回写业务逻辑。
 
@@ -95,6 +96,7 @@
 - 支付通道生命周期文档与代码一致
 - 退役通道不再存在主线路由、控制器、服务、依赖或样例种子
 - 支付回调关键异常路径有测试护栏
+- [v3.3 支付与安全护栏矩阵](/Users/apple/Documents/dujiaoshuka/docs/v3.3-payment-security-guardrail-matrix.md) 中的状态标注与代码、测试和文档一致
 
 ### 4. 安全治理专项
 
@@ -154,10 +156,11 @@
 
 ### 第三批：支付与安全专项
 
-1. 支付回调安全测试补强
-2. 支付通道退役文档与代码、依赖、样例种子对齐
-3. 默认项与密钥治理
-4. 后台批量动作权限与输入边界复查
+1. 以 [v3.3 支付与安全护栏矩阵](/Users/apple/Documents/dujiaoshuka/docs/v3.3-payment-security-guardrail-matrix.md) 作为默认任务来源
+2. 支付回调安全测试补强只覆盖矩阵中标记的缺口，不修改公开支付语义
+3. 支付通道退役文档与代码、依赖、样例种子继续对齐
+4. 默认项与密钥治理继续执行 secret-shape 搜索和示例值复核
+5. 后台批量动作权限与输入边界复查优先覆盖上传、模板输入、邮件发送和通知配置
 
 ### 第四批：升级前清障
 
