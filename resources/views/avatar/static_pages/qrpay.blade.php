@@ -1,33 +1,26 @@
 @extends('avatar.layouts.default')
 @section('content')
-<div class="row justify-content-center">
-    <div class="col-lg-6">
-        <div class="page-title-box">
-            {{-- 扫码支付 --}}
-            <h4 class="page-title">{{ __('hyper.qrpay_title') }}</h4>
+<section class="avatar-pay-shell">
+    <div class="avatar-panel avatar-pay-panel">
+        <div class="avatar-pay-header">
+            <h1 class="avatar-page-title">{{ __('hyper.qrpay_title') }}</h1>
+            <p class="avatar-page-copy">{{ __('hyper.qrpay_order_expiration_date') }} {{ dujiaoka_config_get('order_expire_time', 5) }} {{ __('hyper.qrpay_expiration_date') }}</p>
         </div>
-    </div>
-</div>
-<div class="row justify-content-center">
-    <div class="col-lg-6">
-        <div class="card border-primary border">
-            <div class="card-body">
-                <h5 class="card-title text-primary text-center">{{ __('hyper.qrpay_order_expiration_date') }} {{ dujiaoka_config_get('order_expire_time', 5) }} {{ __('hyper.qrpay_expiration_date') }}</h5>
-                <div class="text-center">
-                    <div id="pay-qrcode" class="d-inline-block" data-qr-code="{{ e($qr_code) }}"></div>
-                    <noscript>
-                        <p class="mt-3">{{ $qr_code }}</p>
-                    </noscript>
-                </div>
-                {{-- 订单金额 --}}
-                <p class="card-text text-center">{{ __('hyper.qrpay_actual_payment') }}: {{ $actual_price }}</p>
-                @if(Agent::isMobile() && isset($jump_payuri))
-                    <p class="errpanl" style="text-align: center"><a href="{{ $jump_payuri }}" class="">{{ __('hyper.qrpay_open_app_to_pay') }}</a></p>
-                @endif
-            </div> <!-- end card-body-->
+        <div class="avatar-qrcode-wrap">
+            <div id="pay-qrcode" class="avatar-qrcode" data-qr-code="{{ e($qr_code) }}"></div>
+            <noscript>
+                <p class="avatar-page-copy">{{ $qr_code }}</p>
+            </noscript>
         </div>
+        <div class="avatar-pay-total">
+            <span>{{ __('hyper.qrpay_actual_payment') }}</span>
+            <strong>{{ $actual_price }}</strong>
+        </div>
+        @if(Agent::isMobile() && isset($jump_payuri))
+            <a href="{{ $jump_payuri }}" class="avatar-button avatar-button--primary">{{ __('hyper.qrpay_open_app_to_pay') }}</a>
+        @endif
     </div>
-</div>
+</section>
 @stop
 @section('js')
     <script src="/vendor/dcat-admin/dcat/plugins/jquery-qrcode/dist/jquery-qrcode.min.js"></script>

@@ -97,9 +97,9 @@
             @if(dujiaoka_config_get('is_open_img_code') == \App\Models\Goods::STATUS_OPEN)
                 <label class="avatar-field">
                     <span class="avatar-label">{{ __('hyper.buy_verify_code') }}</span>
-                    <div class="input-group">
+                    <div class="avatar-captcha-group">
                         <input type="text" name="img_verify_code" value="" class="form-control" placeholder="{{ __('hyper.buy_verify_code') }}">
-                        <div class="input-group-append">
+                        <div class="avatar-captcha-addon">
                             <div class="buy-captcha">
                                 <img class="captcha-img" src="{{ captcha_src('buy') . time() }}" onclick="refresh()" style="cursor: pointer;">
                             </div>

@@ -11,6 +11,29 @@
 
 ## 2026-06-02 阶段日志
 
+### 261. v3.2 前台 Bootstrap CSS 拆包
+
+摘要：
+
+- 前台 `avatar` 布局停止加载 `bootstrap.min.css`，保留旧 CSS 文件作为历史静态资源。
+- [avatar.css](/Users/apple/Documents/dujiaoshuka/public/assets/avatar/css/avatar.css) 接管容器、表单、tab、modal、验证码输入、订单详情、二维码支付和错误页样式。
+- 订单详情页、二维码支付页和错误页去掉旧 `row/col/card/btn/badge/text-*` 风格，统一改为 `avatar-panel`、`avatar-badge`、`avatar-button` 和自有 grid。
+- 本轮不修改下单、查询、支付跳转、支付回调、二维码支付轮询或订单详情复制语义。
+
+影响范围：
+
+- 影响 `avatar` 前台视觉基础样式和少数旧前台页面模板。
+- 后台壳、安装页和历史静态文件不受影响。
+
+验证：
+
+- 需确认 `/`、`/buy/30`、`/buy/31`、`/buy/32`、`/buy/33`、`/order-search` 不再输出 `bootstrap.min.css`，且旧重资源不回流。
+- 需确认首页公告、购买页 modal、订单查询 tab、支付 tile、toast、订单详情复制和二维码支付脚本无回归。
+
+下一步：
+
+- 进入 `v3.2` 第六批发布候选验收，记录最终前台资源请求、体积和仍保留的历史文件原因。
+
 ### 260. v3.2 前台 Bootstrap CSS 依赖评估
 
 摘要：

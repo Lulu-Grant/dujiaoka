@@ -8,9 +8,8 @@
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     @endif
     <link rel="shortcut icon" href="/assets/avatar/images/favicon.png">
-    <link href="/assets/avatar/css/bootstrap.min.css" rel="stylesheet" type="text/css">
     <link href="/assets/avatar/css/base.css" rel="stylesheet" type="text/css">
     <link href="/assets/avatar/css/common.css" rel="stylesheet" type="text/css">
     <link href="/assets/avatar/css/index.css" rel="stylesheet" type="text/css">
-    <link href="/assets/avatar/css/avatar.css?v=20260602-v32b" rel="stylesheet" type="text/css">
+    <link href="/assets/avatar/css/avatar.css?v=20260602-v32c" rel="stylesheet" type="text/css">
 </head>

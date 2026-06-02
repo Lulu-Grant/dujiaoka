@@ -1,24 +1,16 @@
 @extends('avatar.layouts.default')
 
 @section('content')
-<div class="row">
-    <div class="col-12">
-        <div class="page-title-box">
-            <h4 class="page-title">{{ __('hyper.error_error') }}</h4>
-        </div>
+<section class="avatar-error-shell">
+    <div class="avatar-empty-state avatar-panel">
+        <div class="avatar-empty-code">error</div>
+        <h1>{{ __('hyper.error_error') }}</h1>
+        <p>{{ $content }}</p>
+        @if(!$url)
+            <a class="avatar-button avatar-button--secondary" href="javascript:history.back(-1);"><span class="avatar-inline-icon" aria-hidden="true">&lt;</span> {{ __('hyper.error_back_btn') }}</a>
+        @else
+            <a class="avatar-button avatar-button--secondary" href="{{ $url }}"><span class="avatar-inline-icon" aria-hidden="true">&lt;</span> {{ __('hyper.error_back_btn') }}</a>
+        @endif
     </div>
-</div>
-<div class="row justify-content-center">
-    <div class="col-lg-6">
-		<div class="text-center">
-			<div class="text-error mt-4">error</div>
-            <h1 class="text-uppercase text-danger mt-3">{{ $content }}</h1>
-            @if(!$url)
-                <a class="btn btn-info mt-3" href="javascript:history.back(-1);"><span class="avatar-inline-icon" aria-hidden="true">&lt;</span> {{ __('hyper.error_back_btn') }}</a>
-			@else
-                <a class="btn btn-info mt-3" href="{{ $url }}"><span class="avatar-inline-icon" aria-hidden="true">&lt;</span> {{ __('hyper.error_back_btn') }}</a>
-            @endif
-        </div> <!-- end /.text-center-->
-    </div> <!-- end col-->
-</div>
+</section>
 @stop

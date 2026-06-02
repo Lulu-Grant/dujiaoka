@@ -28,7 +28,7 @@ class AdminShellDashboardPageService
             'header' => [
                 'kicker' => '管理后台',
                 'title' => '后台总览',
-                'description' => '查看今日订单、销售额、支付状态和重点处理事项。',
+                'description' => '运营视图：查看今日订单、销售额、支付状态和重点处理事项。',
                 'meta' => '当前统计以今日数据为主，适合快速确认订单与支付状态。',
                 'actions' => [
                     ['label' => '账号设置', 'href' => admin_url('auth/setting')],
