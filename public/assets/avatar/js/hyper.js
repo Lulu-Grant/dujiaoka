@@ -1,3 +1,127 @@
+;(function ($) {
+	if (!$) {
+		return;
+	}
+
+	function getModalElement(selector) {
+		return typeof selector === 'string' ? document.querySelector(selector) : selector;
+	}
+
+	function getBootstrapModal(element) {
+		if (!element || !window.bootstrap || !window.bootstrap.Modal) {
+			return null;
+		}
+		return window.bootstrap.Modal.getOrCreateInstance(element);
+	}
+
+	function modalAction(selector, action) {
+		var element = getModalElement(selector);
+		var modal = getBootstrapModal(element);
+		if (modal) {
+			modal[action]();
+			return;
+		}
+		if (element && typeof $(element).modal === 'function') {
+			$(element).modal(action);
+		}
+	}
+
+	function ensureToastStack() {
+		var stack = document.querySelector('.avatar-toast-stack');
+		if (!stack) {
+			stack = document.createElement('div');
+			stack.className = 'avatar-toast-stack';
+			document.body.appendChild(stack);
+		}
+		return stack;
+	}
+
+	function normalizeToastIcon(icon) {
+		if (icon === 'error') {
+			return 'danger';
+		}
+		if (icon === 'warning' || icon === 'success' || icon === 'info') {
+			return icon;
+		}
+		return 'info';
+	}
+
+	function sendToast(title, text, position, loaderBg, icon, hideAfter) {
+		var stack = ensureToastStack();
+		var type = normalizeToastIcon(icon);
+		var toast = document.createElement('div');
+		var delay = Number(hideAfter) || 3000;
+
+		toast.className = 'avatar-toast avatar-toast--' + type;
+		toast.setAttribute('role', 'status');
+		toast.innerHTML = '<strong class="avatar-toast__title"></strong><span class="avatar-toast__text"></span>';
+		toast.querySelector('.avatar-toast__title').textContent = title || '';
+		toast.querySelector('.avatar-toast__text').textContent = text || '';
+		stack.appendChild(toast);
+
+		window.setTimeout(function () {
+			toast.classList.add('is-leaving');
+			window.setTimeout(function () {
+				if (toast.parentNode) {
+					toast.parentNode.removeChild(toast);
+				}
+			}, 180);
+		}, delay);
+	}
+
+	function activateTab(trigger) {
+		var $trigger = $(trigger);
+		var targetSelector = $trigger.attr('data-bs-target') || $trigger.attr('href');
+		if (!targetSelector || targetSelector.charAt(0) !== '#') {
+			return;
+		}
+
+		var $target = $(targetSelector);
+		if (!$target.length) {
+			return;
+		}
+
+		var $tabContent = $target.closest('.tab-content');
+		if ($tabContent.length) {
+			$tabContent.find('> .tab-pane').removeClass('active show');
+		}
+		$target.addClass('active show');
+
+		var $nav = $trigger.closest('.nav');
+		if ($nav.length) {
+			$nav.find('.active').removeClass('active');
+			$trigger.addClass('active');
+		}
+	}
+
+	window.AvatarUI = window.AvatarUI || {};
+	window.AvatarUI.showModal = function (selector) {
+		modalAction(selector, 'show');
+	};
+	window.AvatarUI.hideModal = function (selector) {
+		modalAction(selector, 'hide');
+	};
+	window.AvatarUI.activateTab = activateTab;
+
+	$.NotificationApp = $.NotificationApp || {};
+	$.NotificationApp.send = $.NotificationApp.send || sendToast;
+
+	$(document).on('click', '[data-toggle="tab"], [data-bs-toggle="tab"]', function (event) {
+		var targetSelector = $(this).attr('data-bs-target') || $(this).attr('href');
+		if (targetSelector && targetSelector.charAt(0) === '#') {
+			event.preventDefault();
+			activateTab(this);
+		}
+	});
+
+	$(document).on('click', '[data-dismiss="modal"]', function () {
+		var modal = $(this).closest('.modal')[0];
+		if (modal) {
+			window.AvatarUI.hideModal(modal);
+		}
+	});
+})(window.jQuery);
+
 $(function() {
 	let tipsSvg = '<svg style="vertical-align: middle;margin-right: 5px" t="1602926160057" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2429" data-spm-anchor-id="a313x.7781069.0.i27" width="30" height="30"><path d="M320.512 850.944l-71.68-40.96 60.416-104.448 34.816-21.504h478.208V254.976H201.728v347.136h-81.92V214.016l40.96-40.96h702.464l40.96 40.96v510.976l-40.96 40.96H368.64z" fill="#ffffff" p-id="2430" data-spm-anchor-id="a313x.7781069.0.i25" class="selected"></path><path d="M481.28 431.104h61.44v61.44h-61.44zM284.672 431.104h61.44v61.44h-61.44zM677.888 431.104h61.44v61.44h-61.44z" fill="#ffffff" p-id="2431" data-spm-anchor-id="a313x.7781069.0.i23" class="selected"></path></svg>';
 	let qrSvg = '<svg style="vertical-align: middle;margin-right: 5px" t="1602927606509" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4167" width="30" height="30"><path d="M146.432 336.896h-81.92V106.496l40.96-40.96h231.424v81.92H146.432zM336.896 958.464H105.472l-40.96-40.96V687.104h81.92v189.44h190.464zM956.416 336.896h-81.92V147.456H684.032v-81.92h231.424l40.96 40.96zM915.456 958.464H613.376v-81.92h261.12V659.456h81.92v258.048z" fill="#ffffff" p-id="4168" data-spm-anchor-id="a313x.7781069.0.i59" class="selected"></path><path d="M326.656 334.848h61.44v98.304h-61.44zM415.744 575.488h61.44v133.12h-61.44zM265.216 575.488h61.44v114.688h-61.44zM566.272 575.488h61.44v98.304h-61.44zM706.56 575.488h61.44v154.624h-61.44zM477.184 297.984h61.44v135.168h-61.44zM627.712 329.728h61.44v103.424h-61.44z" fill="#ffffff" p-id="4169" data-spm-anchor-id="a313x.7781069.0.i58" class="selected"></path><path d="M10.24 473.088h1003.52v61.44H10.24z" fill="#ffffff" p-id="4170" data-spm-anchor-id="a313x.7781069.0.i57" class="selected"></path></svg>';
@@ -61,7 +185,7 @@ $(function() {
 	// 设置公告
 	let expiration = localStorage.announcement;
 	if (new Date().getTime() > expiration || expiration == null) {
-		$('#notice-modal').modal();
+		window.AvatarUI.showModal('#notice-modal');
 		let setTime = new Date().getTime() + (1 * 60 * 60 * 1000);
 		localStorage.setItem("announcement",setTime);
 	}

@@ -227,14 +227,14 @@
 </script>
 <script>
     @if(!empty($buy_prompt))
-        $('#buy_prompt').modal();
+        window.AvatarUI.showModal('#buy_prompt');
     @endif
     $(function() {
         $("#img-zoom").click(function(){
-            $('#img-modal').modal("hide");
+            window.AvatarUI.hideModal('#img-modal');
         });
         $("#img-dialog").click(function(){
-            $('#img-modal').modal("hide");
+            window.AvatarUI.hideModal('#img-modal');
         });
         $(".avatar-prose img").each(function(i){
             var src = $(this).attr("src");
@@ -264,7 +264,7 @@
                 if((ww-realWidth-20)>0){
                     $("#img-content").css({"left":(ww-realWidth-20)/2});
                 }
-                $('#img-modal').modal();
+                window.AvatarUI.showModal('#img-modal');
             });
         });
     });

@@ -22,7 +22,7 @@
     <link href="/assets/avatar/css/base.css" rel="stylesheet" type="text/css">
     <link href="/assets/avatar/css/common.css" rel="stylesheet" type="text/css">
     <link href="/assets/avatar/css/index.css" rel="stylesheet" type="text/css">
-    <link href="/assets/avatar/css/avatar.css?v=20260602-ui4" rel="stylesheet" type="text/css">
+    <link href="/assets/avatar/css/avatar.css?v=20260602-v32a" rel="stylesheet" type="text/css">
 </head>
 <body class="avatar-theme" data-layout="topnav">
     <div class="wrapper avatar-wrapper">

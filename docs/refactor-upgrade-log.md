@@ -11,6 +11,33 @@
 
 ## 2026-06-02 阶段日志
 
+### 257. v3.2 前台资源第一批拆包
+
+摘要：
+
+- 前台 `avatar` 布局停止加载 `vendor.min.js`、`app.min.js` 和 `bootstrap-input-spinner.js`，先减少购买页、首页和订单查询页的脚本负载。
+- [hyper.js](/Users/apple/Documents/dujiaoshuka/public/assets/avatar/js/hyper.js) 补齐轻量 `$.NotificationApp.send`、Bootstrap 5 modal 包装、旧 `data-toggle="tab"` tab fallback 和旧 `data-dismiss="modal"` close fallback。
+- 订单查询页 tab 同时标注 `data-bs-toggle="tab"` 和 `data-toggle="tab"`，兼容 Bootstrap 5 与旧模板写法。
+- 前台 toast 样式补入 [avatar.css](/Users/apple/Documents/dujiaoshuka/public/assets/avatar/css/avatar.css)，沿用蓝、橙、青绿状态体系。
+- 本轮只停止新页面引用，不删除旧脚本文件，避免影响历史调试和后续回滚。
+
+影响范围：
+
+- 影响 `avatar` 前台通用脚本加载、购买页弹窗、首页公告弹窗、订单查询 tab 和前台通知提示。
+- 不修改下单、支付、订单查询接口语义。
+- 不处理 `icons.min.css`、字体包和 Bootstrap CSS，作为下一批资源清理项。
+
+验证：
+
+- `git diff --check` 通过。
+- `php -l` 已覆盖 `_script.blade.php`、`seo.blade.php`、`home.blade.php`、`searchOrder.blade.php` 和 `buy.blade.php`。
+- PHP HTTP 渲染检查确认 `/`、`/buy/30`、`/order-search` 不再输出 `vendor.min.js`、`app.min.js`、`bootstrap-input-spinner.js`，且仍输出 `hyper.js`。
+- Node Playwright headless 验证通过：购买页支付方式点击会更新 hidden `payway`、空邮箱会显示轻量 toast、订单查询邮箱和缓存 tab 可切换、首页不再加载三项停用脚本。
+
+下一步：
+
+- 继续 `v3.2` 第二批资源清理，重点评估 `icons.min.css`、字体包和前台 Bootstrap CSS 的可替换边界。
+
 ### 256. v3.1.1 前台体验补丁收口
 
 摘要：

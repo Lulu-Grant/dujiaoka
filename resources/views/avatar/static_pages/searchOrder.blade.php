@@ -10,17 +10,17 @@
         <div class="tab-pane show active" id="bordered-tabs-preview">
             <ul class="nav avatar-segmented mb-3" role="tablist">
                 <li class="nav-item">
-                    <a href="#dingdanhao" data-toggle="tab" aria-expanded="false" class="nav-link active">
+                    <a href="#dingdanhao" data-bs-toggle="tab" data-toggle="tab" aria-expanded="false" class="nav-link active">
                         <span>{{ __('hyper.searchOrder_order_search_by_number') }}</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#youxiang" data-toggle="tab" aria-expanded="true" class="nav-link">
+                    <a href="#youxiang" data-bs-toggle="tab" data-toggle="tab" aria-expanded="true" class="nav-link">
                         <span>{{ __('hyper.searchOrder_order_search_by_email') }}</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#liulanqi" data-toggle="tab" aria-expanded="false" class="nav-link">
+                    <a href="#liulanqi" data-bs-toggle="tab" data-toggle="tab" aria-expanded="false" class="nav-link">
                         <span>{{ __('hyper.searchOrder_order_search_by_ie') }}</span>
                     </a>
                 </li>

@@ -106,7 +106,7 @@
 @section('js')
 <script>
     $('#notice-open').click(function() {
-        $('#notice-modal').modal();
+        window.AvatarUI.showModal('#notice-modal');
     });
     $("#search").on("input",function(e){
         var txt = $("#search").val();
