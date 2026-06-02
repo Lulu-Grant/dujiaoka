@@ -11,6 +11,30 @@
 
 ## 2026-06-02 阶段日志
 
+### 259. v3.2 前台 Bootstrap JS 拆包
+
+摘要：
+
+- 前台通用脚本布局停止加载 `bootstrap.min.js`，保留 jQuery 和 [hyper.js](/Users/apple/Documents/dujiaoshuka/public/assets/avatar/js/hyper.js)。
+- `AvatarUI.showModal()` 和 `AvatarUI.hideModal()` 改为原生 modal 实现，接管显示、隐藏、backdrop、body `modal-open`、关闭按钮、backdrop 点击和 ESC 关闭。
+- tab 和 toast 继续由 `hyper.js` 的轻量兼容层处理，不恢复 `vendor.min.js`、`app.min.js`、`bootstrap-input-spinner.js` 或 `icons.min.css`。
+- 旧 `bootstrap.min.js` 文件保留，不删除历史资源。
+
+影响范围：
+
+- 影响首页公告弹窗、购买提示弹窗、商品详情图片预览弹窗和订单查询 tab。
+- 不修改下单、支付、订单查询接口语义。
+- Bootstrap CSS 本轮保留，下一批再评估替换边界。
+
+验证：
+
+- 需确认首页、购买页和订单查询页不再请求 `bootstrap.min.js`。
+- 需确认首页公告、购买提示、图片预览、订单查询 tab、购买页 toast 和支付 tile 均无行为回归。
+
+下一步：
+
+- 进入 `v3.2` 第四批资源清理，重点盘点 Bootstrap CSS 的真实依赖和可替代边界。
+
 ### 258. v3.2 前台图标字体拆包
 
 摘要：

@@ -7,22 +7,92 @@
 		return typeof selector === 'string' ? document.querySelector(selector) : selector;
 	}
 
-	function getBootstrapModal(element) {
-		if (!element || !window.bootstrap || !window.bootstrap.Modal) {
-			return null;
-		}
-		return window.bootstrap.Modal.getOrCreateInstance(element);
+	function visibleModals() {
+		return Array.prototype.slice.call(document.querySelectorAll('.modal.show'));
 	}
 
-	function modalAction(selector, action) {
-		var element = getModalElement(selector);
-		var modal = getBootstrapModal(element);
-		if (modal) {
-			modal[action]();
+	function removeModalBackdrop(modal) {
+		var backdrop = modal && modal.avatarBackdrop;
+		if (!backdrop) {
+			backdrop = document.querySelector('.avatar-modal-backdrop');
+		}
+		if (!backdrop) {
 			return;
 		}
-		if (element && typeof $(element).modal === 'function') {
-			$(element).modal(action);
+		backdrop.classList.remove('show');
+		window.setTimeout(function () {
+			if (backdrop.parentNode) {
+				backdrop.parentNode.removeChild(backdrop);
+			}
+		}, 150);
+		if (modal) {
+			modal.avatarBackdrop = null;
+		}
+	}
+
+	function createModalBackdrop(modal) {
+		removeModalBackdrop();
+		var backdrop = document.createElement('div');
+		backdrop.className = 'modal-backdrop fade avatar-modal-backdrop';
+		document.body.appendChild(backdrop);
+		backdrop.offsetWidth;
+		backdrop.classList.add('show');
+		backdrop.addEventListener('click', function () {
+			hideModal(modal);
+		});
+		modal.avatarBackdrop = backdrop;
+	}
+
+	function showModal(selector) {
+		var element = getModalElement(selector);
+		if (!element) {
+			return;
+		}
+		visibleModals().forEach(function (modal) {
+			if (modal !== element) {
+				hideModal(modal);
+			}
+		});
+		element.avatarPreviousFocus = document.activeElement;
+		element.style.display = 'block';
+		element.removeAttribute('aria-hidden');
+		element.setAttribute('aria-modal', 'true');
+		element.setAttribute('role', element.getAttribute('role') || 'dialog');
+		document.body.classList.add('modal-open');
+		createModalBackdrop(element);
+		element.offsetWidth;
+		element.classList.add('show');
+		element.focus();
+	}
+
+	function hideModal(selector) {
+		var element = getModalElement(selector);
+		if (!element) {
+			return;
+		}
+		element.classList.remove('show');
+		element.setAttribute('aria-hidden', 'true');
+		element.removeAttribute('aria-modal');
+		window.setTimeout(function () {
+			element.style.display = 'none';
+			if (!visibleModals().length) {
+				document.body.classList.remove('modal-open');
+			}
+			removeModalBackdrop(element);
+			if (element.avatarPreviousFocus && typeof element.avatarPreviousFocus.focus === 'function') {
+				element.avatarPreviousFocus.focus();
+			}
+			element.avatarPreviousFocus = null;
+		}, 150);
+	}
+
+	function handleEscape(event) {
+		if (event.key !== 'Escape') {
+			return;
+		}
+		var modals = visibleModals();
+		if (modals.length) {
+			hideModal(modals[modals.length - 1]);
 		}
 	}
 
@@ -96,10 +166,10 @@
 
 	window.AvatarUI = window.AvatarUI || {};
 	window.AvatarUI.showModal = function (selector) {
-		modalAction(selector, 'show');
+		showModal(selector);
 	};
 	window.AvatarUI.hideModal = function (selector) {
-		modalAction(selector, 'hide');
+		hideModal(selector);
 	};
 	window.AvatarUI.activateTab = activateTab;
 
@@ -120,6 +190,14 @@
 			window.AvatarUI.hideModal(modal);
 		}
 	});
+
+	$(document).on('click', '.modal', function (event) {
+		if (event.target === this) {
+			window.AvatarUI.hideModal(this);
+		}
+	});
+
+	document.addEventListener('keydown', handleEscape);
 })(window.jQuery);
 
 $(function() {
